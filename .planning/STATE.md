@@ -12,9 +12,9 @@
 ## Current Position
 
 **Phase:** 2 of 5 (Project & Document Management) - IN PROGRESS
-**Plan:** 01 of 05 in phase - Completed
-**Status:** Phase 2 started - Database schema complete
-**Last activity:** 2026-01-18 - Completed 02-01-PLAN.md (Database Schema & Models)
+**Plan:** 02 of 05 in phase - Completed
+**Status:** Phase 2 in progress - Project CRUD complete
+**Last activity:** 2026-01-18 - Completed 02-02-PLAN.md (Project CRUD API & UI)
 **Progress:** ████░░░░░░ 40% (4/10 total plans estimated)
 
 ## Performance Metrics
@@ -23,8 +23,8 @@
 - **Capacity:** 20-30 hours/week (solo developer, part-time)
 - **Timeline:** 8-10 weeks MVP development window
 - **Phases Completed:** 1/5 (Foundation & Authentication ✓)
-- **Plans Completed:** 4 (01-01: 44 min, 01-02: 34 min, 01-03: 2 hours, 02-01: 33 min)
-- **Requirements Delivered:** 11/40 (database, API health check, app shell, OAuth Google/Microsoft, JWT auth, secure token storage, protected endpoints, logout, responsive UI, integration tests, cross-platform verification)
+- **Plans Completed:** 5 (01-01: 44 min, 01-02: 34 min, 01-03: 2 hours, 02-01: 33 min, 02-02: 75 min)
+- **Requirements Delivered:** 16/40 (added PROJ-01 through PROJ-05) (database, API health check, app shell, OAuth Google/Microsoft, JWT auth, secure token storage, protected endpoints, logout, responsive UI, integration tests, cross-platform verification)
 
 ### Quality Indicators
 - **Test Coverage:** Backend integration tests (14 tests passing), Flutter integration tests (2 tests passing)
@@ -61,7 +61,11 @@
 20. **SQLite PRAGMA foreign_keys** (2026-01-18 - Plan 02-01): Event listener on Engine connect ensures foreign keys enforced; critical for cascade deletes
 21. **LargeBinary for encrypted content** (2026-01-18 - Plan 02-01): Fernet encryption returns bytes; avoid base64 encoding overhead
 22. **back_populates over backref** (2026-01-18 - Plan 02-01): Explicit bidirectional relationships for better type hints; SQLAlchemy 2.0 best practice
-23. **MessageRole enum in Dart** (2026-01-18 - Plan 02-01): Type-safe role handling with custom fromJson/toJson methods
+T. **Pydantic request validation** (2026-01-18 - Plan 02-02): Field constraints (min_length, max_length) for name validation; prevents invalid data at API boundary
+25. **Project ownership via 404** (2026-01-18 - Plan 02-02): Return 404 for "not found OR not owned" to avoid leaking project existence to unauthorized users
+26. **Projects ordered by updated_at DESC** (2026-01-18 - Plan 02-02): Most recently modified projects appear first in list; matches user mental model
+27. **ResponsiveMasterDetail pattern** (2026-01-18 - Plan 02-02): Reusable widget switches between split view (desktop) and navigation (mobile) at 600px breakpoint
+28. **Provider manages list + selected** (2026-01-18 - Plan 02-02): Single ProjectProvider tracks both projects list and selectedProject to avoid redundant API calls
 
 ### Open Questions
 - None yet
@@ -86,55 +90,69 @@
 ## Session Continuity
 
 ### What Just Happened
-- **Plan 02-01 EXECUTED:** Database Schema & Models (33 minutes)
-  - Backend models: Project, Document, Thread, Message with proper SQLAlchemy 2.0 relationships
-  - Foreign key cascade deletes: ondelete="CASCADE" at database level, cascade="all, delete-orphan" at ORM level
-  - SQLite PRAGMA foreign_keys=ON event listener ensures constraints enforced
-  - Alembic migration creates tables in dependency order with proper indexes
-  - Frontend Dart models: Project, Document, Thread, Message with fromJson/toJson
-  - MessageRole enum with custom serialization for type safety
-  - 3 atomic commits: models (a2e89b8), migration (ee1c280), Dart models (4f73c89)
+- **Plan 02-02 EXECUTED:** Project CRUD API & UI (75 minutes)
+  - Backend: POST /projects, GET /projects, GET /projects/{id}, PUT /projects/{id}
+  - Pydantic validation: name 1-255 chars required, description optional
+  - Ownership validation on all endpoints (404 if not found OR not owned)
+  - selectinload for eager loading documents/threads relationships
+  - Frontend ProjectService with Dio HTTP client and JWT headers
+  - ProjectProvider state management with loading/error states
+  - ProjectListScreen with create dialog, project cards, empty state
+  - ProjectDetailScreen with tabs for documents/threads (empty states)
+  - ResponsiveMasterDetail widget for mobile/desktop layouts
+  - Projects navigation enabled in home screen drawer and sidebar
+  - 3 atomic commits: API (37aef2b), service/provider (24fcf0f), UI (c169e14)
   - No deviations from plan
-  - SUMMARY.md created with comprehensive Phase 2 plan 1 documentation
-  - **PHASE 2 STARTED:** Database schema complete, ready for API endpoints
+  - SUMMARY.md created with all PROJ requirements satisfied
+  - **PROJ-01 through PROJ-05 complete:** Users can create, list, view, update projects
 
 ### Next Action
-**Phase 2 Plan 01 complete! Ready for Plan 02-02: Project CRUD API**
+**Phase 2 Plan 02 complete! Ready for Plan 02-03: Document Upload & Encryption**
 
 Next plan objectives:
-- Create protected CRUD endpoints for projects (create, read, list, update)
-- Implement project ownership validation (user can only access their projects)
-- Add Project service layer with async database operations
-- Create Project API service in Flutter
-- Implement ProjectProvider for state management
-- Build Project list and detail screens with responsive layouts
-- Add integration tests for project endpoints
+- Implement document upload endpoint (POST /projects/{id}/documents)
+- Encrypt document content with Fernet before storing in database
+- Add document listing endpoint (GET /projects/{id}/documents)
+- Create document service in Flutter for file upload
+- Build document upload UI with file picker
+- Show document list in project detail screen documents tab
+- Add document encryption/decryption integration tests
 
 ### Context for Next Agent
-**Phase 2 Plan 01 Complete:**
-- Database models: Project, Document, Thread, Message with foreign key cascades
-- Foreign key enforcement: SQLite PRAGMA event listener working
-- Alembic migration: 4 new tables created with proper indexes
-- Frontend models: Dart models matching backend schema with JSON serialization
-- MessageRole enum: Type-safe role handling in Flutter
+**Phase 2 Plan 02 Complete:**
+- Backend API: 4 CRUD endpoints for projects (POST, GET list, GET detail, PUT update)
+- Frontend service: ProjectService with getProjects, createProject, getProject, updateProject
+- State management: ProjectProvider with projects list and selectedProject
+- UI screens: ProjectListScreen (with create dialog) and ProjectDetailScreen (with tabs)
+- Responsive layout: ResponsiveMasterDetail widget switches at 600px breakpoint
+- Navigation: Projects enabled in home screen, routes added to GoRouter
+- Requirements: PROJ-01, PROJ-02, PROJ-03, PROJ-04, PROJ-05 all satisfied
 
-**Ready for Plan 02-02 (Project CRUD):**
-- Project model has all required fields (id, user_id, name, description, timestamps)
-- user_id foreign key establishes ownership
-- Database indexes on user_id for efficient project listing
-- Frontend Project model ready for API service
+**Ready for Plan 02-03 (Document Upload):**
+- Project model has documents relationship (one-to-many)
+- Document model has content_encrypted field (LargeBinary for Fernet bytes)
+- Project detail screen has Documents tab ready for document list
+- Empty state shows "Upload Document" button
 
 **Prerequisites satisfied:**
-- Protected endpoint pattern: Depends(get_current_user) from Phase 1
-- Async database operations: AsyncSession with get_db() dependency
-- Provider state management: Established in Phase 1, ready for ProjectProvider
-- Responsive layouts: ResponsiveLayout widget ready for project screens
+- Protected endpoint pattern: Depends(get_current_user) established
+- File upload pattern: Can use FastAPI UploadFile for multipart/form-data
+- Fernet encryption: from cryptography.fernet import Fernet
+- Flutter file picker: Add file_picker package to pubspec.yaml
+- Dio multipart: FormData for file upload with authentication headers
 
 **Critical dependencies available:**
-- Backend: FastAPI, SQLAlchemy async models, Alembic migrations
-- Frontend: Provider, Dio HTTP client, responsive layout utilities
-- Auth: JWT tokens, get_current_user dependency pattern
-- Database: Foreign key cascades, UUID primary keys, timezone-aware timestamps
+- Backend: Fernet encryption library, LargeBinary column type
+- Frontend: file_picker package (to be added), Dio FormData support
+- Database: Document model with content_encrypted field ready
+- UI: Documents tab in ProjectDetailScreen awaiting document list
+
+**Patterns to reuse:**
+- Protected endpoint: @router.post with Depends(get_current_user)
+- Ownership validation: Verify project.user_id == current_user.user_id
+- Frontend service: ProjectService pattern extended with uploadDocument
+- Provider update: DocumentProvider or extend ProjectProvider
+- List UI: Similar to project cards pattern for document cards
 
 **Patterns to reuse:**
 - Protected API pattern: @router.get with Depends(get_current_user)
@@ -145,4 +163,4 @@ Next plan objectives:
 
 ---
 
-*Last updated: 2026-01-18 after completing Plan 02-01 (Database Schema & Models)*
+*Last updated: 2026-01-18 after completing Plan 02-02 (Project CRUD API & UI)*

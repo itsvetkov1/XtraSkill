@@ -11,20 +11,17 @@
 
 ## Current Position
 
-**Plan:** 03 of 05 in phase - Completed
-**Plan:** 02 of 05 in phase - Completed
-**Status:** Phase 2 in progress - Document management complete
-**Progress:** █████░░░░░ 50% (5/10 total plans estimated)
-**Progress:** ████░░░░░░ 40% (4/10 total plans estimated)
+**Plan:** 04 of 05 in phase - Completed
+**Status:** Phase 2 in progress - Thread management complete
+**Progress:** ██████░░░░ 60% (6/10 total plans estimated)
 
 ## Performance Metrics
 
 ### Development Velocity
 - **Capacity:** 20-30 hours/week (solo developer, part-time)
 - **Timeline:** 8-10 weeks MVP development window
-- **Plans Completed:** 6 (01-01: 44 min, 01-02: 34 min, 01-03: 2 hours, 02-01: 33 min, 02-02: 75 min, 02-03: 82 min)
-- **Requirements Delivered:** 21/40 (DOC-01 through DOC-05 added) (database, API health check, app shell, OAuth Google/Microsoft, JWT auth, secure token storage, protected endpoints, logout, responsive UI, integration tests, cross-platform verification, projects, documents)
-- **Requirements Delivered:** 16/40 (added PROJ-01 through PROJ-05) (database, API health check, app shell, OAuth Google/Microsoft, JWT auth, secure token storage, protected endpoints, logout, responsive UI, integration tests, cross-platform verification)
+- **Plans Completed:** 7 (01-01: 44 min, 01-02: 34 min, 01-03: 2 hours, 02-01: 33 min, 02-02: 75 min, 02-03: 82 min, 02-04: 15 min)
+- **Requirements Delivered:** 26/40 (CONV-01, CONV-02, CONV-03, CONV-05 added) (database, API health check, app shell, OAuth Google/Microsoft, JWT auth, secure token storage, protected endpoints, logout, responsive UI, integration tests, cross-platform verification, projects, documents, threads)
 
 ### Quality Indicators
 - **Test Coverage:** Backend integration tests (14 tests passing), Flutter integration tests (2 tests passing)
@@ -72,6 +69,10 @@ T. **Pydantic request validation** (2026-01-18 - Plan 02-02): Field constraints 
 31. **File upload validation** (2026-01-18 - Plan 02-03): Three-layer validation (content_type, size limit 1MB, UTF-8 encoding); prevents binary/oversized files
 32. **file_picker for cross-platform uploads** (2026-01-18 - Plan 02-03): Flutter file_picker package with allowedExtensions filter for .txt and .md only
 33. **Upload progress tracking** (2026-01-18 - Plan 02-03): Dio onSendProgress callback updates DocumentProvider state during multipart upload
+34. **Optional thread titles** (2026-01-18 - Plan 02-04): Threads can have null titles; AI will generate summaries in Phase 3; UI shows "New Conversation" placeholder
+35. **Thread ordering strategy** (2026-01-18 - Plan 02-04): List endpoint created_at DESC (newest first), detail messages created_at ASC (chronological reading)
+36. **Message count via selectinload** (2026-01-18 - Plan 02-04): Load thread.messages relationship and count in Python; avoids N+1 queries
+37. **Tab listener for thread refresh** (2026-01-18 - Plan 02-04): ProjectDetailScreen refreshes threads when switching to Threads tab for fresh data
 
 ### Open Questions
 - None yet
@@ -96,93 +97,58 @@ T. **Pydantic request validation** (2026-01-18 - Plan 02-02): Field constraints 
 ## Session Continuity
 
 ### What Just Happened
-- **Plan 02-03 EXECUTED:** Document Upload, Encryption & Search (82 minutes)
-  - Backend encryption: EncryptionService with Fernet for symmetric encryption
-  - FTS5 search: Virtual table with porter tokenizer, BM25 ranking, snippet generation
-  - Document API: POST upload (multipart), GET list, GET view, GET search
-  - File validation: content_type check, 1MB size limit, UTF-8 encoding verification
-  - Frontend DocumentService: multipart upload with auth headers, progress tracking
-  - DocumentProvider: upload progress state, document list management
-  - Three screens: DocumentListScreen (cards with empty state), DocumentUploadScreen (file picker + progress), DocumentViewerScreen (monospace content display)
-  - file_picker integration: allowedExtensions filter for .txt and .md files
-  - Document model: added optional content field for decrypted content
-  - 1 atomic commit: frontend implementation (2efa35c)
-  - Pre-existing backend work verified and integrated
-  - SUMMARY.md created with all DOC requirements satisfied
-  - **DOC-01 through DOC-05 complete:** Users can upload, list, view, search encrypted documents
+- **Plan 02-04 EXECUTED:** Thread Management Implementation (15 minutes)
+  - Backend thread API: POST create, GET list, GET detail endpoints
+  - Thread ownership validation via project.user_id
+  - selectinload for efficient relationship loading
+  - ThreadService with getThreads, createThread, getThread methods
+  - ThreadProvider state management with loading/error states
+  - ThreadListScreen with empty state, cards, FAB
+  - ThreadCreateDialog with optional title input
+  - Integration in ProjectDetailScreen Threads tab
+  - Thread and Message models with JSON serialization
+  - Pre-existing implementation verified and documented
+  - SUMMARY.md created with all CONV requirements partially satisfied
+  - **CONV-01, CONV-02, CONV-03, CONV-05 complete:** Users can create, list, view threads ordered newest first
 
 ### Next Action
-**Phase 2 Plan 03 complete! Ready for Plan 02-04: Conversation Thread UI
-  - Backend: POST /projects, GET /projects, GET /projects/{id}, PUT /projects/{id}
-  - Pydantic validation: name 1-255 chars required, description optional
-  - Ownership validation on all endpoints (404 if not found OR not owned)
-  - selectinload for eager loading documents/threads relationships
-  - Frontend ProjectService with Dio HTTP client and JWT headers
-  - ProjectProvider state management with loading/error states
-  - ProjectListScreen with create dialog, project cards, empty state
-  - ProjectDetailScreen with tabs for documents/threads (empty states)
-  - ResponsiveMasterDetail widget for mobile/desktop layouts
-  - Projects navigation enabled in home screen drawer and sidebar
-  - 3 atomic commits: API (37aef2b), service/provider (24fcf0f), UI (c169e14)
-  - No deviations from plan
-  - SUMMARY.md created with all PROJ requirements satisfied
-  - **PROJ-01 through PROJ-05 complete:** Users can create, list, view, update projects
+**Phase 2 Plan 04 complete! Ready for Plan 02-05 or Phase 3**
 
-### Next Action
-**Phase 2 Plan 02 complete! Ready for Plan 02-03: Document Upload & Encryption**
+Phase 2 Status:
+- Plan 01: Database schema and models - COMPLETE
+- Plan 02: Project CRUD API and UI - COMPLETE
+- Plan 03: Document management with encryption - COMPLETE
+- Plan 04: Thread management - COMPLETE
+- Plan 05: Integration testing (if exists) - PENDING
 
-Next plan objectives:
-- Implement document upload endpoint (POST /projects/{id}/documents)
-- Encrypt document content with Fernet before storing in database
-- Add document listing endpoint (GET /projects/{id}/documents)
-- Create document service in Flutter for file upload
-- Build document upload UI with file picker
-- Show document list in project detail screen documents tab
-- Add document encryption/decryption integration tests
+**Ready for Phase 3 (AI Integration):**
+- Thread infrastructure complete for AI conversations
+- Document search ready for AI context retrieval
+- Project organization enables multi-context AI sessions
 
 ### Context for Next Agent
-**Phase 2 Plan 02 Complete:**
-- Backend API: 4 CRUD endpoints for projects (POST, GET list, GET detail, PUT update)
-- Frontend service: ProjectService with getProjects, createProject, getProject, updateProject
-- State management: ProjectProvider with projects list and selectedProject
-- UI screens: ProjectListScreen (with create dialog) and ProjectDetailScreen (with tabs)
-- Responsive layout: ResponsiveMasterDetail widget switches at 600px breakpoint
-- Navigation: Projects enabled in home screen, routes added to GoRouter
-- Requirements: PROJ-01, PROJ-02, PROJ-03, PROJ-04, PROJ-05 all satisfied
+**Phase 2 Plan 04 Complete:**
+- Backend API: 3 thread endpoints (POST create, GET list, GET detail)
+- Thread service: ThreadService with Dio HTTP client and JWT headers
+- Thread provider: ThreadProvider with state management
+- UI screens: ThreadListScreen and ThreadCreateDialog
+- Integration: Threads tab in ProjectDetailScreen with tab listener
+- Models: Thread and Message with proper JSON serialization
+- Requirements: CONV-01, CONV-02, CONV-03, CONV-05 all satisfied
 
-**Ready for Plan 02-03 (Document Upload):**
-- Project model has documents relationship (one-to-many)
-- Document model has content_encrypted field (LargeBinary for Fernet bytes)
-- Project detail screen has Documents tab ready for document list
-- Empty state shows "Upload Document" button
+**Phase 2 Progress:**
+- Projects: Create, list, view, update projects - DONE
+- Documents: Upload, list, view, search encrypted documents - DONE
+- Threads: Create, list threads within projects - DONE
+- Messages: Empty in MVP, populated in Phase 3
 
-**Prerequisites satisfied:**
-- Protected endpoint pattern: Depends(get_current_user) established
-- File upload pattern: Can use FastAPI UploadFile for multipart/form-data
-- Fernet encryption: from cryptography.fernet import Fernet
-- Flutter file picker: Add file_picker package to pubspec.yaml
-- Dio multipart: FormData for file upload with authentication headers
-
-**Critical dependencies available:**
-- Backend: Fernet encryption library, LargeBinary column type
-- Frontend: file_picker package (to be added), Dio FormData support
-- Database: Document model with content_encrypted field ready
-- UI: Documents tab in ProjectDetailScreen awaiting document list
-
-**Patterns to reuse:**
-- Protected endpoint: @router.post with Depends(get_current_user)
-- Ownership validation: Verify project.user_id == current_user.user_id
-- Frontend service: ProjectService pattern extended with uploadDocument
-- Provider update: DocumentProvider or extend ProjectProvider
-- List UI: Similar to project cards pattern for document cards
-
-**Patterns to reuse:**
-- Protected API pattern: @router.get with Depends(get_current_user)
-- Async database pattern: async with db, await db.execute(select(...))
-- Frontend service pattern: API class with Dio HTTP client
-- State management pattern: ChangeNotifierProvider with notifyListeners
-- Responsive layout pattern: ResponsiveLayout widget with mobile/desktop views
+**Patterns established:**
+- Protected endpoints with Depends(get_current_user)
+- Ownership validation via 404 response
+- Frontend service + provider + UI screen pattern
+- selectinload for efficient relationship loading
+- Responsive UI with empty states and loading indicators
 
 ---
 
-*Last updated: 2026-01-18 after completing Plan 02-02 (Project CRUD API & UI)*
+*Last updated: 2026-01-18 after completing Plan 02-04 (Thread Management)*

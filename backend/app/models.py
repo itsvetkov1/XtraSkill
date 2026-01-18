@@ -1,0 +1,324 @@
+"""
+Database models for Business Analyst Assistant.
+
+All models use PostgreSQL-compatible types to enable SQLite->PostgreSQL migration.
+Uses SQLAlchemy 2.0 syntax with mapped_column and declarative base.
+"""
+
+import uuid
+from datetime import datetime
+from decimal import Decimal
+from enum import Enum as PyEnum
+from typing import List, Optional
+
+from sqlalchemy import DateTime, Enum, ForeignKey, Integer, LargeBinary, Numeric, String, Text
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
+
+
+class Base(DeclarativeBase):
+    """Base class for all database models."""
+    pass
+
+
+class OAuthProvider(str, PyEnum):
+    """Supported OAuth providers."""
+    GOOGLE = "google"
+    MICROSOFT = "microsoft"
+
+
+class User(Base):
+    """User account authenticated via OAuth 2.0."""
+
+    __tablename__ = "users"
+
+    # Primary key using UUID for PostgreSQL compatibility
+    id: Mapped[str] = mapped_column(
+        String(36),
+        primary_key=True,
+        default=lambda: str(uuid.uuid4())
+    )
+
+    # OAuth authentication fields
+    email: Mapped[str] = mapped_column(String(255), unique=True, nullable=False, index=True)
+    oauth_provider: Mapped[OAuthProvider] = mapped_column(
+        Enum(OAuthProvider, native_enum=False, length=20),
+        nullable=False
+    )
+    oauth_id: Mapped[str] = mapped_column(String(255), unique=True, nullable=False, index=True)
+
+    # Audit timestamps with timezone awareness
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        default=datetime.utcnow,
+        nullable=False
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        default=datetime.utcnow,
+        onupdate=datetime.utcnow,
+        nullable=False
+    )
+
+    def __repr__(self) -> str:
+        return f"<User(id={self.id}, email={self.email}, provider={self.oauth_provider})>"
+
+
+class TokenUsage(Base):
+    """
+    Token usage tracking for AI API calls.
+
+    CRITICAL: Must exist before AI service ships (Phase 3) to prevent cost explosion.
+    Tracks per-request token usage for cost monitoring and budgeting.
+    """
+
+    __tablename__ = "token_usage"
+
+    # Primary key using UUID
+    id: Mapped[str] = mapped_column(
+        String(36),
+        primary_key=True,
+        default=lambda: str(uuid.uuid4())
+    )
+
+    # Foreign key to user
+    user_id: Mapped[str] = mapped_column(
+        String(36),
+        ForeignKey("users.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True
+    )
+
+    # Token counts
+    request_tokens: Mapped[int] = mapped_column(Integer, nullable=False)
+    response_tokens: Mapped[int] = mapped_column(Integer, nullable=False)
+
+    # Cost tracking (using Decimal for precision)
+    total_cost: Mapped[Decimal] = mapped_column(
+        Numeric(10, 6),  # PostgreSQL-compatible DECIMAL
+        nullable=False
+    )
+
+    # API endpoint that consumed tokens
+    endpoint: Mapped[str] = mapped_column(String(255), nullable=False, index=True)
+
+    # Optional: Model used (for tracking different model costs)
+    model: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
+
+    # Timestamp
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        default=datetime.utcnow,
+        nullable=False,
+        index=True  # Index for time-based queries (daily costs, etc.)
+    )
+
+    def __repr__(self) -> str:
+        return (
+            f"<TokenUsage(id={self.id}, user_id={self.user_id}, "
+            f"total={self.request_tokens + self.response_tokens}, "
+            f"cost=${self.total_cost})>"
+        )
+
+
+class Project(Base):
+    """
+    Project container for organizing conversations and documents.
+
+    Projects are user-owned and cascade delete all related documents and threads.
+    """
+
+    __tablename__ = "projects"
+
+    # Primary key using UUID
+    id: Mapped[str] = mapped_column(
+        String(36),
+        primary_key=True,
+        default=lambda: str(uuid.uuid4())
+    )
+
+    # Foreign key to user with cascade delete
+    user_id: Mapped[str] = mapped_column(
+        String(36),
+        ForeignKey("users.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True
+    )
+
+    # Project metadata
+    name: Mapped[str] = mapped_column(String(255), nullable=False)
+    description: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+
+    # Audit timestamps
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        default=datetime.utcnow,
+        nullable=False
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        default=datetime.utcnow,
+        onupdate=datetime.utcnow,
+        nullable=False
+    )
+
+    # Relationships with cascade delete
+    documents: Mapped[List["Document"]] = relationship(
+        back_populates="project",
+        cascade="all, delete-orphan",
+        passive_deletes=True
+    )
+    threads: Mapped[List["Thread"]] = relationship(
+        back_populates="project",
+        cascade="all, delete-orphan",
+        passive_deletes=True
+    )
+
+    def __repr__(self) -> str:
+        return f"<Project(id={self.id}, name={self.name}, user_id={self.user_id})>"
+
+
+class Document(Base):
+    """
+    Document attached to a project for AI context.
+
+    Content is encrypted at rest using Fernet symmetric encryption.
+    Text-only files (.txt, .md) in MVP; max 1MB.
+    """
+
+    __tablename__ = "documents"
+
+    # Primary key using UUID
+    id: Mapped[str] = mapped_column(
+        String(36),
+        primary_key=True,
+        default=lambda: str(uuid.uuid4())
+    )
+
+    # Foreign key to project with cascade delete
+    project_id: Mapped[str] = mapped_column(
+        String(36),
+        ForeignKey("projects.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True
+    )
+
+    # Document metadata
+    filename: Mapped[str] = mapped_column(String(255), nullable=False)
+
+    # Encrypted content (Fernet encryption)
+    content_encrypted: Mapped[bytes] = mapped_column(LargeBinary, nullable=False)
+
+    # Timestamp
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        default=datetime.utcnow,
+        nullable=False
+    )
+
+    # Relationship back to project
+    project: Mapped["Project"] = relationship(back_populates="documents")
+
+    def __repr__(self) -> str:
+        return f"<Document(id={self.id}, filename={self.filename}, project_id={self.project_id})>"
+
+
+class Thread(Base):
+    """
+    Conversation thread within a project.
+
+    Contains messages exchanged between user and AI assistant.
+    Title is optional; will be AI-generated in Phase 3.
+    """
+
+    __tablename__ = "threads"
+
+    # Primary key using UUID
+    id: Mapped[str] = mapped_column(
+        String(36),
+        primary_key=True,
+        default=lambda: str(uuid.uuid4())
+    )
+
+    # Foreign key to project with cascade delete
+    project_id: Mapped[str] = mapped_column(
+        String(36),
+        ForeignKey("projects.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True
+    )
+
+    # Thread metadata
+    title: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
+
+    # Audit timestamps
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        default=datetime.utcnow,
+        nullable=False,
+        index=True  # Index for sorting threads by creation
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        default=datetime.utcnow,
+        onupdate=datetime.utcnow,
+        nullable=False
+    )
+
+    # Relationships
+    project: Mapped["Project"] = relationship(back_populates="threads")
+    messages: Mapped[List["Message"]] = relationship(
+        back_populates="thread",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+        order_by="Message.created_at"  # Chronological message order
+    )
+
+    def __repr__(self) -> str:
+        return f"<Thread(id={self.id}, title={self.title}, project_id={self.project_id})>"
+
+
+class Message(Base):
+    """
+    Individual message in a conversation thread.
+
+    Messages alternate between 'user' (BA input) and 'assistant' (AI response).
+    Content stored as plaintext (not encrypted like documents).
+    """
+
+    __tablename__ = "messages"
+
+    # Primary key using UUID
+    id: Mapped[str] = mapped_column(
+        String(36),
+        primary_key=True,
+        default=lambda: str(uuid.uuid4())
+    )
+
+    # Foreign key to thread with cascade delete
+    thread_id: Mapped[str] = mapped_column(
+        String(36),
+        ForeignKey("threads.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True
+    )
+
+    # Message content
+    role: Mapped[str] = mapped_column(
+        String(20),
+        nullable=False
+    )  # 'user' or 'assistant'
+    content: Mapped[str] = mapped_column(Text, nullable=False)
+
+    # Timestamp
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        default=datetime.utcnow,
+        nullable=False,
+        index=True  # Index for message ordering
+    )
+
+    # Relationship back to thread
+    thread: Mapped["Thread"] = relationship(back_populates="messages")
+
+    def __repr__(self) -> str:
+        return f"<Message(id={self.id}, role={self.role}, thread_id={self.thread_id})>"

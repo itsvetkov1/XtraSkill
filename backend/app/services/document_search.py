@@ -53,12 +53,12 @@ async def search_documents(
     result = await db.execute(
         text("""
             SELECT d.id, d.filename,
-                   snippet(fts, 2, '<mark>', '</mark>', '...', 20) as snippet,
-                   bm25(fts, 10.0, 1.0) as score
+                   snippet(document_fts, 2, '<mark>', '</mark>', '...', 20) as snippet,
+                   bm25(document_fts, 10.0, 1.0) as score
             FROM documents d
             JOIN document_fts fts ON d.id = fts.document_id
             WHERE d.project_id = :project_id
-              AND fts MATCH :query
+              AND document_fts MATCH :query
             ORDER BY score
             LIMIT 20
         """),

@@ -27,7 +27,7 @@ ALLOWED_CONTENT_TYPES = ["text/plain", "text/markdown"]
 async def upload_document(
     project_id: str,
     file: UploadFile = File(...),
-    current_user: User = Depends(get_current_user),
+    current_user: dict = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
     """
@@ -39,7 +39,7 @@ async def upload_document(
     # Verify project exists and belongs to current user
     stmt = select(Project).where(
         Project.id == project_id,
-        Project.user_id == current_user.id
+        Project.user_id == current_user["user_id"]
     )
     project = (await db.execute(stmt)).scalar_one_or_none()
     if not project:
@@ -96,7 +96,7 @@ async def upload_document(
 @router.get("/projects/{project_id}/documents")
 async def list_documents(
     project_id: str,
-    current_user: User = Depends(get_current_user),
+    current_user: dict = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
     """
@@ -107,7 +107,7 @@ async def list_documents(
     # Verify project ownership
     stmt = select(Project).where(
         Project.id == project_id,
-        Project.user_id == current_user.id
+        Project.user_id == current_user["user_id"]
     )
     project = (await db.execute(stmt)).scalar_one_or_none()
     if not project:
@@ -134,7 +134,7 @@ async def list_documents(
 @router.get("/documents/{document_id}")
 async def get_document(
     document_id: str,
-    current_user: User = Depends(get_current_user),
+    current_user: dict = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
     """
@@ -146,7 +146,7 @@ async def get_document(
     # Get document with project join to verify ownership
     stmt = select(Document).join(Project).where(
         Document.id == document_id,
-        Project.user_id == current_user.id
+        Project.user_id == current_user["user_id"]
     )
     doc = (await db.execute(stmt)).scalar_one_or_none()
     if not doc:
@@ -167,7 +167,7 @@ async def get_document(
 async def search_project_documents(
     project_id: str,
     q: str,
-    current_user: User = Depends(get_current_user),
+    current_user: dict = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
     """
@@ -178,7 +178,7 @@ async def search_project_documents(
     # Verify project ownership
     stmt = select(Project).where(
         Project.id == project_id,
-        Project.user_id == current_user.id
+        Project.user_id == current_user["user_id"]
     )
     project = (await db.execute(stmt)).scalar_one_or_none()
     if not project:

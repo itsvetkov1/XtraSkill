@@ -1,9 +1,11 @@
 """Pytest configuration and fixtures for backend tests."""
 
+import os
 import pytest
 import pytest_asyncio
+from cryptography.fernet import Fernet
 from httpx import ASGITransport, AsyncClient
-from sqlalchemy import event
+from sqlalchemy import event, text
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
@@ -14,6 +16,13 @@ from main import app
 
 # Test database URL (in-memory SQLite for tests)
 TEST_DATABASE_URL = "sqlite+aiosqlite:///:memory:"
+
+# Set up test environment variables
+if not os.getenv("FERNET_KEY"):
+    # Generate a test key for encryption
+    os.environ["FERNET_KEY"] = Fernet.generate_key().decode()
+if not os.getenv("SECRET_KEY"):
+    os.environ["SECRET_KEY"] = "test-secret-key-for-jwt"
 
 
 @pytest_asyncio.fixture
@@ -35,6 +44,17 @@ async def db_engine():
     # Create all tables
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
+
+    # Create FTS5 virtual table for document search
+    async with engine.begin() as conn:
+        await conn.execute(text("""
+            CREATE VIRTUAL TABLE IF NOT EXISTS document_fts USING fts5(
+                document_id UNINDEXED,
+                filename,
+                content,
+                tokenize = 'porter ascii'
+            )
+        """))
 
     yield engine
 

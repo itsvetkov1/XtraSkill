@@ -5,12 +5,17 @@ import 'package:flutter_web_plugins/url_strategy.dart';
 
 import 'core/theme.dart';
 import 'providers/auth_provider.dart';
+import 'providers/document_provider.dart';
+import 'services/document_service.dart';
+import 'core/api_client.dart';
 import 'providers/project_provider.dart';
 import 'providers/thread_provider.dart';
 import 'screens/auth/callback_screen.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/splash_screen.dart';
+import 'screens/projects/project_list_screen.dart';
+import 'screens/projects/project_detail_screen.dart';
 
 void main() {
   // Use path-based URLs instead of hash-based for web
@@ -86,6 +91,17 @@ class MyApp extends StatelessWidget {
         GoRoute(
           path: '/home',
           builder: (context, state) => const HomeScreen(),
+        ),
+        GoRoute(
+          path: '/projects',
+          builder: (context, state) => const ProjectListScreen(),
+        ),
+        GoRoute(
+          path: '/projects/:id',
+          builder: (context, state) {
+            final id = state.pathParameters['id']!;
+            return ProjectDetailScreen(projectId: id);
+          },
         ),
       ],
       refreshListenable: authProvider,

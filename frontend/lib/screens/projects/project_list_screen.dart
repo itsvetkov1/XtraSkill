@@ -102,13 +102,8 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
                 return _ProjectCard(
                   project: project,
                   onTap: () {
-                    if (ResponsiveHelper.isMobile(context)) {
-                      // Navigate to detail screen on mobile
-                      context.push('/projects/${project.id}');
-                    } else {
-                      // Show in split view on desktop
-                      provider.selectProject(project.id);
-                    }
+                    // Navigate to detail screen on all platforms
+                    context.push('/projects/${project.id}');
                   },
                 );
               },

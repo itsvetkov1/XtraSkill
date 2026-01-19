@@ -5,6 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../providers/project_provider.dart';
+import '../../providers/thread_provider.dart';
+import '../documents/document_upload_screen.dart';
+import '../threads/thread_list_screen.dart';
 
 /// Project detail screen with tabs for documents and threads
 class ProjectDetailScreen extends StatefulWidget {
@@ -27,6 +30,14 @@ class _ProjectDetailScreenState extends State<ProjectDetailScreen>
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
+
+    // Listen to tab changes to refresh threads when switching to Threads tab
+    _tabController.addListener(() {
+      if (_tabController.index == 1 && !_tabController.indexIsChanging) {
+        // Threads tab selected, refresh threads
+        context.read<ThreadProvider>().loadThreads(widget.projectId);
+      }
+    });
 
     // Load project details
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -152,7 +163,7 @@ class _ProjectDetailScreenState extends State<ProjectDetailScreen>
                     // Documents tab
                     _DocumentsTab(projectId: widget.projectId),
                     // Threads tab
-                    _ThreadsTab(projectId: widget.projectId),
+                    ThreadListScreen(projectId: widget.projectId),
                   ],
                 ),
               ),
@@ -287,9 +298,11 @@ class _DocumentsTab extends StatelessWidget {
                 const SizedBox(height: 24),
                 ElevatedButton.icon(
                   onPressed: () {
-                    // TODO: Implement document upload (Phase 2 Plan 03)
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Document upload coming soon')),
+                    // Navigate to document upload screen
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => DocumentUploadScreen(projectId: widget.projectId),
+                      ),
                     );
                   },
                   icon: const Icon(Icons.upload_file),
@@ -318,64 +331,3 @@ class _DocumentsTab extends StatelessWidget {
   }
 }
 
-/// Threads tab showing list of conversation threads in project
-class _ThreadsTab extends StatelessWidget {
-  const _ThreadsTab({required this.projectId});
-
-  final String projectId;
-
-  @override
-  Widget build(BuildContext context) {
-    return Consumer<ProjectProvider>(
-      builder: (context, provider, child) {
-        final project = provider.selectedProject;
-        if (project == null) return const SizedBox();
-
-        // Empty state
-        if (project.threads == null || project.threads!.isEmpty) {
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.chat_outlined,
-                    size: 64, color: Theme.of(context).colorScheme.primary),
-                const SizedBox(height: 16),
-                Text(
-                  'No threads yet',
-                  style: Theme.of(context).textTheme.titleLarge,
-                ),
-                const SizedBox(height: 8),
-                const Text('Start a conversation to discover requirements'),
-                const SizedBox(height: 24),
-                ElevatedButton.icon(
-                  onPressed: () {
-                    // TODO: Implement thread creation (Phase 2 Plan 04)
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Thread creation coming soon')),
-                    );
-                  },
-                  icon: const Icon(Icons.add_comment),
-                  label: const Text('New Thread'),
-                ),
-              ],
-            ),
-          );
-        }
-
-        // Thread list (placeholder - full implementation in Plan 04)
-        return ListView.builder(
-          padding: const EdgeInsets.all(16),
-          itemCount: project.threads!.length,
-          itemBuilder: (context, index) {
-            final thread = project.threads![index];
-            return ListTile(
-              leading: const Icon(Icons.chat),
-              title: Text(thread['title'] ?? 'Untitled Thread'),
-              subtitle: Text('Updated: ${thread['updated_at'] ?? ''}'),
-            );
-          },
-        );
-      },
-    );
-  }
-}

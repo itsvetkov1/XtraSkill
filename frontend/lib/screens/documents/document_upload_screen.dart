@@ -29,10 +29,10 @@ class _DocumentUploadScreenState extends State<DocumentUploadScreen> {
     if (result == null) return;
 
     final file = result.files.single;
-    if (file.path == null) {
+    if (file.bytes == null) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('File path not available')),
+          const SnackBar(content: Text('File data not available')),
         );
       }
       return;
@@ -46,7 +46,7 @@ class _DocumentUploadScreenState extends State<DocumentUploadScreen> {
       final provider = context.read<DocumentProvider>();
       await provider.uploadDocument(
         widget.projectId,
-        file.path!,
+        file.bytes!,
         file.name,
       );
 

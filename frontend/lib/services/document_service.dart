@@ -19,7 +19,7 @@ class DocumentService {
     String? baseUrl,
     Dio? dio,
     FlutterSecureStorage? storage,
-  })  : _baseUrl = baseUrl ?? 'http://localhost:8000',
+  })  : _baseUrl = baseUrl ?? 'http://localhost:8001',
         _dio = dio ?? Dio(),
         _storage = storage ?? const FlutterSecureStorage();
 
@@ -39,18 +39,18 @@ class DocumentService {
   /// Upload a document to a project.
   ///
   /// [projectId] - ID of the project to upload to
-  /// [filePath] - Path to the file on device
+  /// [fileBytes] - File content as bytes
   /// [filename] - Name of the file
   /// [onSendProgress] - Optional callback for upload progress
   Future<Document> uploadDocument(
     String projectId,
-    String filePath,
+    List<int> fileBytes,
     String filename, {
     void Function(int sent, int total)? onSendProgress,
   }) async {
     final formData = FormData.fromMap({
-      'file': await MultipartFile.fromFile(
-        filePath,
+      'file': MultipartFile.fromBytes(
+        fileBytes,
         filename: filename,
       ),
     });

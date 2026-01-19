@@ -47,7 +47,7 @@ class DocumentProvider extends ChangeNotifier {
   /// Shows upload progress and adds document to list on success.
   Future<void> uploadDocument(
     String projectId,
-    String filePath,
+    List<int> fileBytes,
     String filename,
   ) async {
     _uploading = true;
@@ -58,7 +58,7 @@ class DocumentProvider extends ChangeNotifier {
     try {
       final document = await _service.uploadDocument(
         projectId,
-        filePath,
+        fileBytes,
         filename,
         onSendProgress: (sent, total) {
           _uploadProgress = sent / total;

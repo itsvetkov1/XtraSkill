@@ -41,6 +41,9 @@ class Settings(BaseSettings):
     # Environment
     environment: str = "development"
 
+    # Encryption (for document storage)
+    fernet_key: str = ""
+
     @property
     def cors_origins_list(self) -> List[str]:
         """Parse CORS origins from comma-separated string."""

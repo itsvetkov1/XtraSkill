@@ -4,18 +4,18 @@ Encryption service for document content.
 Uses Fernet symmetric encryption for encrypting/decrypting documents at rest.
 """
 
-import os
 from cryptography.fernet import Fernet
+from app.config import settings
 
 
 class EncryptionService:
     """Service for encrypting and decrypting document content."""
 
     def __init__(self):
-        """Initialize encryption service with key from environment."""
-        key = os.getenv("FERNET_KEY")
+        """Initialize encryption service with key from settings."""
+        key = settings.fernet_key
         if not key:
-            raise ValueError("FERNET_KEY environment variable not set")
+            raise ValueError("FERNET_KEY must be set in configuration")
         self.fernet = Fernet(key.encode())
 
     def encrypt_document(self, plaintext: str) -> bytes:

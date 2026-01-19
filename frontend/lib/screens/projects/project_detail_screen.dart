@@ -301,7 +301,7 @@ class _DocumentsTab extends StatelessWidget {
                     // Navigate to document upload screen
                     Navigator.of(context).push(
                       MaterialPageRoute(
-                        builder: (context) => DocumentUploadScreen(projectId: widget.projectId),
+                        builder: (context) => DocumentUploadScreen(projectId: projectId),
                       ),
                     );
                   },

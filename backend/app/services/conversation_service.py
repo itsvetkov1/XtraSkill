@@ -1,0 +1,166 @@
+"""
+Conversation service for message persistence and context building.
+
+Handles saving messages to database and building conversation context
+for Claude API calls with token-aware truncation.
+"""
+from typing import List, Dict, Any
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+from app.models import Message, Thread
+
+# Context window limits
+MAX_CONTEXT_TOKENS = 150000  # Leave room for response and system prompt
+# Rough estimate: 1 token ~= 4 characters
+CHARS_PER_TOKEN = 4
+
+
+def estimate_tokens(text: str) -> int:
+    """Rough token estimation based on character count."""
+    return len(text) // CHARS_PER_TOKEN
+
+
+def estimate_messages_tokens(messages: List[Dict[str, Any]]) -> int:
+    """Estimate total tokens in message list."""
+    total = 0
+    for msg in messages:
+        content = msg.get("content", "")
+        if isinstance(content, str):
+            total += estimate_tokens(content)
+        elif isinstance(content, list):
+            # Handle tool results or multi-part content
+            for part in content:
+                if isinstance(part, dict):
+                    total += estimate_tokens(str(part.get("content", "")))
+    return total
+
+
+async def save_message(
+    db: AsyncSession,
+    thread_id: str,
+    role: str,
+    content: str
+) -> Message:
+    """
+    Save a message to the database.
+
+    Args:
+        db: Database session
+        thread_id: ID of the thread
+        role: 'user' or 'assistant'
+        content: Message content
+
+    Returns:
+        Created Message object
+    """
+    message = Message(
+        thread_id=thread_id,
+        role=role,
+        content=content
+    )
+    db.add(message)
+    await db.commit()
+    await db.refresh(message)
+
+    # Update thread's updated_at timestamp
+    stmt = select(Thread).where(Thread.id == thread_id)
+    result = await db.execute(stmt)
+    thread = result.scalar_one_or_none()
+    if thread:
+        from datetime import datetime
+        thread.updated_at = datetime.utcnow()
+        await db.commit()
+
+    return message
+
+
+async def build_conversation_context(
+    db: AsyncSession,
+    thread_id: str
+) -> List[Dict[str, Any]]:
+    """
+    Build conversation context from thread messages.
+
+    Loads all messages from thread and converts to Claude message format.
+    Implements token-aware truncation if conversation is too long.
+
+    Args:
+        db: Database session
+        thread_id: ID of the thread
+
+    Returns:
+        List of messages in Claude API format
+    """
+    # Fetch all messages in chronological order
+    stmt = (
+        select(Message)
+        .where(Message.thread_id == thread_id)
+        .order_by(Message.created_at)
+    )
+    result = await db.execute(stmt)
+    messages = result.scalars().all()
+
+    # Convert to Claude message format
+    conversation = []
+    for msg in messages:
+        conversation.append({
+            "role": msg.role,
+            "content": msg.content
+        })
+
+    # Check token count and truncate if needed
+    total_tokens = estimate_messages_tokens(conversation)
+
+    if total_tokens > MAX_CONTEXT_TOKENS:
+        conversation = truncate_conversation(conversation, MAX_CONTEXT_TOKENS)
+
+    return conversation
+
+
+def truncate_conversation(
+    messages: List[Dict[str, Any]],
+    max_tokens: int
+) -> List[Dict[str, Any]]:
+    """
+    Truncate conversation to fit within token budget.
+
+    Strategy: Keep recent messages that fit in 80% of budget.
+    Prepend summary note about truncated messages.
+
+    Args:
+        messages: Full conversation history
+        max_tokens: Maximum tokens allowed
+
+    Returns:
+        Truncated message list
+    """
+    budget = int(max_tokens * 0.8)  # 80% for messages, 20% buffer
+    recent_messages = []
+    token_count = 0
+
+    # Work backwards from most recent
+    for msg in reversed(messages):
+        msg_tokens = estimate_messages_tokens([msg])
+        if token_count + msg_tokens > budget:
+            break
+        recent_messages.insert(0, msg)
+        token_count += msg_tokens
+
+    # If we truncated, add summary
+    truncated_count = len(messages) - len(recent_messages)
+    if truncated_count > 0:
+        summary = {
+            "role": "user",
+            "content": f"[System note: {truncated_count} earlier messages in this conversation have been summarized to fit context limits. The conversation began earlier and covered additional topics not shown here.]"
+        }
+        recent_messages.insert(0, summary)
+
+    return recent_messages
+
+
+async def get_message_count(db: AsyncSession, thread_id: str) -> int:
+    """Get count of messages in a thread."""
+    from sqlalchemy import func
+    stmt = select(func.count(Message.id)).where(Message.thread_id == thread_id)
+    result = await db.execute(stmt)
+    return result.scalar() or 0

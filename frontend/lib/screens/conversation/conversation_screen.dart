@@ -74,7 +74,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
               // Error banner
               if (provider.error != null)
                 MaterialBanner(
-                  content: Text(provider.error!),
+                  content: SelectableText(provider.error!),
                   backgroundColor: Theme.of(context).colorScheme.errorContainer,
                   actions: [
                     TextButton(

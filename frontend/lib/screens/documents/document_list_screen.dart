@@ -46,7 +46,7 @@ class _DocumentListScreenState extends State<DocumentListScreen> {
                 children: [
                   const Icon(Icons.error_outline, size: 64, color: Colors.red),
                   const SizedBox(height: 16),
-                  Text('Error: ${provider.error}'),
+                  SelectableText('Error: ${provider.error}'),
                   const SizedBox(height: 16),
                   ElevatedButton(
                     onPressed: () =>

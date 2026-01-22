@@ -107,7 +107,7 @@ class _CallbackScreenState extends State<CallbackScreen> {
                   const SizedBox(height: 24),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 32.0),
-                    child: Text(
+                    child: SelectableText(
                       _error ?? 'Authentication failed',
                       textAlign: TextAlign.center,
                       style: Theme.of(context).textTheme.bodyLarge,

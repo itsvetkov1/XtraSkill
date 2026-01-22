@@ -90,7 +90,7 @@ class _ThreadListScreenState extends State<ThreadListScreen> {
                     style: Theme.of(context).textTheme.titleLarge,
                   ),
                   const SizedBox(height: 8),
-                  Text(provider.error!),
+                  SelectableText(provider.error!),
                   const SizedBox(height: 16),
                   ElevatedButton(
                     onPressed: () => provider.loadThreads(widget.projectId),

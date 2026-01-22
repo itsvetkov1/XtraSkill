@@ -11,7 +11,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
 from app.database import close_db, init_db
-from app.routes import auth, documents, projects, threads
+from app.routes import auth, conversations, documents, projects, threads
 
 
 @asynccontextmanager
@@ -56,6 +56,7 @@ app.include_router(auth.router, prefix="/auth", tags=["Authentication"])
 app.include_router(projects.router, prefix="/api", tags=["Projects"])
 app.include_router(documents.router, prefix="/api", tags=["Documents"])
 app.include_router(threads.router, prefix="/api", tags=["Threads"])
+app.include_router(conversations.router, prefix="/api", tags=["Conversations"])
 
 
 @app.get("/")

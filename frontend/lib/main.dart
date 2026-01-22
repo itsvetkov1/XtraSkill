@@ -5,6 +5,7 @@ import 'package:flutter_web_plugins/url_strategy.dart';
 
 import 'core/theme.dart';
 import 'providers/auth_provider.dart';
+import 'providers/conversation_provider.dart';
 import 'providers/document_provider.dart';
 import 'providers/project_provider.dart';
 import 'providers/thread_provider.dart';
@@ -29,6 +30,7 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider(create: (_) => ConversationProvider()),
         ChangeNotifierProvider(create: (_) => ProjectProvider()),
         ChangeNotifierProvider(create: (_) => DocumentProvider()),
         ChangeNotifierProvider(create: (_) => ThreadProvider()),

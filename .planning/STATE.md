@@ -1,7 +1,7 @@
 # Project State
 
 **Project:** Business Analyst Assistant
-**Last Updated:** 2026-01-18
+**Last Updated:** 2026-01-22
 
 ## Project Reference
 
@@ -11,17 +11,18 @@
 
 ## Current Position
 
-**Plan:** 04 of 05 in phase - Completed
-**Status:** Phase 2 in progress - Thread management complete
-**Progress:** ██████░░░░ 60% (6/10 total plans estimated)
+**Phase:** 03 of 04 (AI-Powered Conversations)
+**Plan:** 01 of 03 in phase - Completed
+**Status:** Phase 3 in progress - Backend AI service complete
+**Progress:** ███████░░░ 70% (7/10 total plans estimated)
 
 ## Performance Metrics
 
 ### Development Velocity
 - **Capacity:** 20-30 hours/week (solo developer, part-time)
 - **Timeline:** 8-10 weeks MVP development window
-- **Plans Completed:** 7 (01-01: 44 min, 01-02: 34 min, 01-03: 2 hours, 02-01: 33 min, 02-02: 75 min, 02-03: 82 min, 02-04: 15 min)
-- **Requirements Delivered:** 26/40 (CONV-01, CONV-02, CONV-03, CONV-05 added) (database, API health check, app shell, OAuth Google/Microsoft, JWT auth, secure token storage, protected endpoints, logout, responsive UI, integration tests, cross-platform verification, projects, documents, threads)
+- **Plans Completed:** 8 (01-01: 44 min, 01-02: 34 min, 01-03: 2 hours, 02-01: 33 min, 02-02: 75 min, 02-03: 82 min, 02-04: 15 min, 03-01: 18 min)
+- **Requirements Delivered:** 28/40 (AI-01, AI-03 partially added) (database, API health check, app shell, OAuth Google/Microsoft, JWT auth, secure token storage, protected endpoints, logout, responsive UI, integration tests, cross-platform verification, projects, documents, threads, AI streaming)
 
 ### Quality Indicators
 - **Test Coverage:** Backend integration tests (14 tests passing), Flutter integration tests (2 tests passing)
@@ -29,7 +30,7 @@
 - **Tech Debt:** Minimal (state storage in-memory dict - acceptable for MVP, move to Redis in production)
 
 ### Cost Tracking
-- **AI Token Usage:** Not yet measured (Phase 3+)
+- **AI Token Usage:** Not yet measured (tracking infrastructure pending in 03-02)
 - **Hosting Costs:** Not yet incurred
 - **Target Budget:** $50-100/month AI costs during MVP phase
 
@@ -58,27 +59,33 @@
 20. **SQLite PRAGMA foreign_keys** (2026-01-18 - Plan 02-01): Event listener on Engine connect ensures foreign keys enforced; critical for cascade deletes
 21. **LargeBinary for encrypted content** (2026-01-18 - Plan 02-01): Fernet encryption returns bytes; avoid base64 encoding overhead
 22. **back_populates over backref** (2026-01-18 - Plan 02-01): Explicit bidirectional relationships for better type hints; SQLAlchemy 2.0 best practice
-T. **Pydantic request validation** (2026-01-18 - Plan 02-02): Field constraints (min_length, max_length) for name validation; prevents invalid data at API boundary
-25. **Project ownership via 404** (2026-01-18 - Plan 02-02): Return 404 for "not found OR not owned" to avoid leaking project existence to unauthorized users
-26. **Projects ordered by updated_at DESC** (2026-01-18 - Plan 02-02): Most recently modified projects appear first in list; matches user mental model
-27. **ResponsiveMasterDetail pattern** (2026-01-18 - Plan 02-02): Reusable widget switches between split view (desktop) and navigation (mobile) at 600px breakpoint
-28. **Provider manages list + selected** (2026-01-18 - Plan 02-02): Single ProjectProvider tracks both projects list and selectedProject to avoid redundant API calls
+23. **Pydantic request validation** (2026-01-18 - Plan 02-02): Field constraints (min_length, max_length) for name validation; prevents invalid data at API boundary
+24. **Project ownership via 404** (2026-01-18 - Plan 02-02): Return 404 for "not found OR not owned" to avoid leaking project existence to unauthorized users
+25. **Projects ordered by updated_at DESC** (2026-01-18 - Plan 02-02): Most recently modified projects appear first in list; matches user mental model
+26. **ResponsiveMasterDetail pattern** (2026-01-18 - Plan 02-02): Reusable widget switches between split view (desktop) and navigation (mobile) at 600px breakpoint
+27. **Provider manages list + selected** (2026-01-18 - Plan 02-02): Single ProjectProvider tracks both projects list and selectedProject to avoid redundant API calls
 
-29. **Fernet encryption for documents** (2026-01-18 - Plan 02-03): Symmetric encryption with environment-based key management; documents encrypted at rest
-30. **FTS5 for document search** (2026-01-18 - Plan 02-03): SQLite FTS5 virtual table with porter tokenizer for full-text search; BM25 ranking with snippets
-31. **File upload validation** (2026-01-18 - Plan 02-03): Three-layer validation (content_type, size limit 1MB, UTF-8 encoding); prevents binary/oversized files
-32. **file_picker for cross-platform uploads** (2026-01-18 - Plan 02-03): Flutter file_picker package with allowedExtensions filter for .txt and .md only
-33. **Upload progress tracking** (2026-01-18 - Plan 02-03): Dio onSendProgress callback updates DocumentProvider state during multipart upload
-34. **Optional thread titles** (2026-01-18 - Plan 02-04): Threads can have null titles; AI will generate summaries in Phase 3; UI shows "New Conversation" placeholder
-35. **Thread ordering strategy** (2026-01-18 - Plan 02-04): List endpoint created_at DESC (newest first), detail messages created_at ASC (chronological reading)
-36. **Message count via selectinload** (2026-01-18 - Plan 02-04): Load thread.messages relationship and count in Python; avoids N+1 queries
-37. **Tab listener for thread refresh** (2026-01-18 - Plan 02-04): ProjectDetailScreen refreshes threads when switching to Threads tab for fresh data
+28. **Fernet encryption for documents** (2026-01-18 - Plan 02-03): Symmetric encryption with environment-based key management; documents encrypted at rest
+29. **FTS5 for document search** (2026-01-18 - Plan 02-03): SQLite FTS5 virtual table with porter tokenizer for full-text search; BM25 ranking with snippets
+30. **File upload validation** (2026-01-18 - Plan 02-03): Three-layer validation (content_type, size limit 1MB, UTF-8 encoding); prevents binary/oversized files
+31. **file_picker for cross-platform uploads** (2026-01-18 - Plan 02-03): Flutter file_picker package with allowedExtensions filter for .txt and .md only
+32. **Upload progress tracking** (2026-01-18 - Plan 02-03): Dio onSendProgress callback updates DocumentProvider state during multipart upload
+33. **Optional thread titles** (2026-01-18 - Plan 02-04): Threads can have null titles; AI will generate summaries in Phase 3; UI shows "New Conversation" placeholder
+34. **Thread ordering strategy** (2026-01-18 - Plan 02-04): List endpoint created_at DESC (newest first), detail messages created_at ASC (chronological reading)
+35. **Message count via selectinload** (2026-01-18 - Plan 02-04): Load thread.messages relationship and count in Python; avoids N+1 queries
+36. **Tab listener for thread refresh** (2026-01-18 - Plan 02-04): ProjectDetailScreen refreshes threads when switching to Threads tab for fresh data
+
+37. **Claude claude-sonnet-4-5-20250514 model** (2026-01-22 - Plan 03-01): Balance of capability and cost for BA assistant conversations
+38. **Token context budget: 150k with 80/20 split** (2026-01-22 - Plan 03-01): 80% for messages, 20% buffer for response and system prompt
+39. **Token estimation: 1 token ~= 4 characters** (2026-01-22 - Plan 03-01): Simple heuristic for budget tracking without tokenizer dependency
+40. **SSE event types standardized** (2026-01-22 - Plan 03-01): text_delta, tool_executing, message_complete, error for frontend handling
+41. **Tool execution loop pattern** (2026-01-22 - Plan 03-01): Stream until tool_use stop_reason, execute tools, continue conversation
 
 ### Open Questions
 - None yet
 
 ### Active Blockers
-- None - Phase 1 complete, all foundation requirements met
+- ANTHROPIC_API_KEY required for AI features (user setup)
 
 ### Deferred Issues
 - Search functionality (deferred to Beta)
@@ -88,6 +95,8 @@ T. **Pydantic request validation** (2026-01-18 - Plan 02-02): Field constraints 
 - Token refresh mechanism (users re-authenticate after 7 days; acceptable for MVP)
 - Production OAuth redirect URIs (requires deployed backend; configure after Railway/Render deployment)
 - E2E OAuth tests with mocking (manual verification sufficient for MVP; automated E2E useful for CI/CD)
+- Token usage tracking to database (pending in 03-02)
+- Thread title/summary generation (pending in 03-02)
 
 ### Technical Debt
 - State storage in-memory dict (acceptable for MVP; move to Redis for production multi-instance)
@@ -97,58 +106,50 @@ T. **Pydantic request validation** (2026-01-18 - Plan 02-02): Field constraints 
 ## Session Continuity
 
 ### What Just Happened
-- **Plan 02-04 EXECUTED:** Thread Management Implementation (15 minutes)
-  - Backend thread API: POST create, GET list, GET detail endpoints
-  - Thread ownership validation via project.user_id
-  - selectinload for efficient relationship loading
-  - ThreadService with getThreads, createThread, getThread methods
-  - ThreadProvider state management with loading/error states
-  - ThreadListScreen with empty state, cards, FAB
-  - ThreadCreateDialog with optional title input
-  - Integration in ProjectDetailScreen Threads tab
-  - Thread and Message models with JSON serialization
-  - Pre-existing implementation verified and documented
-  - SUMMARY.md created with all CONV requirements partially satisfied
-  - **CONV-01, CONV-02, CONV-03, CONV-05 complete:** Users can create, list, view threads ordered newest first
+- **Plan 03-01 EXECUTED:** Backend AI Service with Claude Integration (18 minutes)
+  - AIService class with AsyncAnthropic client and streaming
+  - SYSTEM_PROMPT defining proactive BA assistant behavior
+  - DOCUMENT_SEARCH_TOOL for autonomous document search
+  - Conversation service with message persistence and token-aware truncation
+  - SSE streaming chat endpoint POST /threads/{thread_id}/chat
+  - Tool execution loop for multi-turn document search
+  - SUMMARY.md created with all service components documented
+  - **AI-01 (partial), AI-03 (partial):** Backend ready for AI conversations
 
 ### Next Action
-**Phase 2 Plan 04 complete! Ready for Plan 02-05 or Phase 3**
+**Phase 3 Plan 01 complete! Ready for Plan 03-02**
 
-Phase 2 Status:
-- Plan 01: Database schema and models - COMPLETE
-- Plan 02: Project CRUD API and UI - COMPLETE
-- Plan 03: Document management with encryption - COMPLETE
-- Plan 04: Thread management - COMPLETE
-- Plan 05: Integration testing (if exists) - PENDING
+Phase 3 Status:
+- Plan 01: Backend AI service - COMPLETE
+- Plan 02: Frontend chat UI - PENDING
+- Plan 03: Token tracking and artifacts - PENDING
 
-**Ready for Phase 3 (AI Integration):**
-- Thread infrastructure complete for AI conversations
-- Document search ready for AI context retrieval
-- Project organization enables multi-context AI sessions
+**Ready for Plan 02 (Frontend Chat UI):**
+- SSE endpoint streams text_delta events for real-time display
+- message_complete event includes usage stats
+- Thread ownership validation prevents unauthorized access
+- Messages auto-saved to database
 
 ### Context for Next Agent
-**Phase 2 Plan 04 Complete:**
-- Backend API: 3 thread endpoints (POST create, GET list, GET detail)
-- Thread service: ThreadService with Dio HTTP client and JWT headers
-- Thread provider: ThreadProvider with state management
-- UI screens: ThreadListScreen and ThreadCreateDialog
-- Integration: Threads tab in ProjectDetailScreen with tab listener
-- Models: Thread and Message with proper JSON serialization
-- Requirements: CONV-01, CONV-02, CONV-03, CONV-05 all satisfied
+**Phase 3 Plan 01 Complete:**
+- Backend API: POST /threads/{thread_id}/chat SSE endpoint
+- AIService: AsyncAnthropic client with tool execution loop
+- ConversationService: save_message, build_conversation_context, truncation
+- SSE events: text_delta, tool_executing, message_complete, error
+- Tool: search_documents available to Claude for project document search
+- System prompt: Proactive BA assistant with edge case focus
 
-**Phase 2 Progress:**
-- Projects: Create, list, view, update projects - DONE
-- Documents: Upload, list, view, search encrypted documents - DONE
-- Threads: Create, list threads within projects - DONE
-- Messages: Empty in MVP, populated in Phase 3
+**Key files created:**
+- backend/app/services/ai_service.py - Claude integration
+- backend/app/services/conversation_service.py - Message persistence
+- backend/app/routes/conversations.py - SSE streaming endpoint
 
 **Patterns established:**
-- Protected endpoints with Depends(get_current_user)
-- Ownership validation via 404 response
-- Frontend service + provider + UI screen pattern
-- selectinload for efficient relationship loading
-- Responsive UI with empty states and loading indicators
+- Tool execution loop: stream -> tool_use -> execute -> continue
+- SSE event format: {event: string, data: JSON}
+- validate_thread_access helper for ownership check
+- Token budget management with truncation
 
 ---
 
-*Last updated: 2026-01-18 after completing Plan 02-04 (Thread Management)*
+*Last updated: 2026-01-22 after completing Plan 03-01 (Backend AI Service)*

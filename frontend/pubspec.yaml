@@ -42,6 +42,8 @@ dependencies:
   file_picker: ^10.3.8
   flutter_web_plugins:
     sdk: flutter
+  intl: ^0.20.2
+  flutter_client_sse: ^2.0.0
 
 dev_dependencies:
   flutter_test:

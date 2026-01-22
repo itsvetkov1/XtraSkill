@@ -13,7 +13,7 @@ from app.config import settings
 from app.services.token_tracking import track_token_usage
 
 # Model for summarization (can use faster/cheaper model)
-SUMMARY_MODEL = "claude-sonnet-4-5-20250514"
+SUMMARY_MODEL = "claude-3-5-sonnet-20241022"
 
 # Update summary every N messages
 SUMMARY_INTERVAL = 5

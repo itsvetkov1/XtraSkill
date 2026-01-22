@@ -11,10 +11,10 @@ from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.models import TokenUsage
 
-# Claude pricing (as of Jan 2026)
-# Claude Sonnet 4.5: $3/1M input, $15/1M output
+# Claude pricing (Claude 3.5 Sonnet)
+# $3/1M input, $15/1M output
 PRICING = {
-    "claude-sonnet-4-5-20250514": {
+    "claude-3-5-sonnet-20241022": {
         "input": Decimal("3.00"),   # $3 per 1M input tokens
         "output": Decimal("15.00"),  # $15 per 1M output tokens
     },

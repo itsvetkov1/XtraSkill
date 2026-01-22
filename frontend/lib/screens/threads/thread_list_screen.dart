@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../../providers/thread_provider.dart';
+import '../conversation/conversation_screen.dart';
 import 'thread_create_dialog.dart';
 
 /// Screen showing list of conversation threads in a project
@@ -54,12 +55,10 @@ class _ThreadListScreenState extends State<ThreadListScreen> {
   }
 
   void _onThreadTap(String threadId) {
-    // Phase 3: Navigate to thread detail/conversation screen
-    // For now, show placeholder
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Thread conversation view coming in Phase 3'),
-        duration: Duration(seconds: 2),
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ConversationScreen(threadId: threadId),
       ),
     );
   }

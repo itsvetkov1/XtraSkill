@@ -2,7 +2,7 @@
 
 **Project:** Business Analyst Assistant
 **Version:** MVP v1.0
-**Last Updated:** 2026-01-17
+**Last Updated:** 2026-01-22
 
 ## Overview
 
@@ -28,12 +28,12 @@ This roadmap delivers an AI-powered conversational platform for business analyst
 - PLAT-05: Data automatically syncs across devices when user logs in
 
 **Success Criteria:**
-n**Plans:** 3 plans
+**Plans:** 3 plans
 
 Plans:
-- [ ] 01-01-PLAN.md — Database schema + FastAPI server setup
-- [ ] 01-02-PLAN.md — OAuth backend + Flutter OAuth flows
-- [ ] 01-03-PLAN.md — Cross-platform testing & verification
+- [x] 01-01-PLAN.md — Database schema + FastAPI server setup
+- [x] 01-02-PLAN.md — OAuth backend + Flutter OAuth flows
+- [x] 01-03-PLAN.md — Cross-platform testing & verification
 
 1. User can create account using Google work email and is immediately logged in
 2. User can create account using Microsoft work email and is immediately logged in
@@ -66,6 +66,15 @@ Plans:
 - CONV-05: Threads display in chronological order with most recent first
 
 **Success Criteria:**
+**Plans:** 5 plans
+
+Plans:
+- [x] 02-01-PLAN.md — Database schema for projects, documents, threads
+- [x] 02-02-PLAN.md — Project CRUD API and UI
+- [x] 02-03-PLAN.md — Document management with encryption and FTS5
+- [x] 02-04-PLAN.md — Thread management API and UI
+- [x] 02-05-PLAN.md — Integration testing and verification
+
 1. User can create project named "Client Portal Redesign" with description and see it in project list
 2. User can upload text file "requirements.txt" to project and view its contents in app
 3. User can create multiple threads within project ("Login Flow", "Dashboard Features") that appear in thread list
@@ -89,6 +98,13 @@ Plans:
 - AI-05: AI maintains conversation context across multiple messages
 - AI-06: AI responses stream progressively to user (SSE)
 - AI-07: Token usage is tracked and enforced per request, conversation, and user
+
+**Plans:** 3 plans
+
+Plans:
+- [ ] 03-01-PLAN.md — Backend AI service with Claude integration and SSE streaming
+- [ ] 03-02-PLAN.md — Token tracking and thread summarization services
+- [ ] 03-03-PLAN.md — Flutter conversation UI with SSE streaming
 
 **Success Criteria:**
 1. User types "We need a user login feature" and AI streams response immediately asking clarifying questions about auth methods
@@ -146,8 +162,8 @@ Plans:
 | Phase | Status | Requirements | Completion |
 |-------|--------|--------------|------------|
 | 1 - Foundation & Authentication | Complete | 10 | 100% |
-| 2 - Project & Document Management | Pending | 14 | 0% |
-| 3 - AI-Powered Conversations | Pending | 9 | 0% |
+| 2 - Project & Document Management | Complete | 14 | 100% |
+| 3 - AI-Powered Conversations | Planned | 9 | 0% |
 | 4 - Artifact Generation & Export | Pending | 7 | 0% |
 | 5 - Cross-Platform Polish & Launch | Pending | 1 | 0% |
 
@@ -162,9 +178,9 @@ Plans:
 
 **Risk-driven:** Token tracking in Phase 1 (before AI ships) prevents cost explosion. Document encryption and FTS5 indexing in Phase 2 (before AI search) prevents security debt and shallow RAG. AI service in Phase 3 as longest phase allows buffer time.
 
-**Value-driven:** Phase 3 delivers core value proposition (AI-assisted discovery). Phase 4 completes value loop (conversation → insights → deliverable documents). Phase 5 ensures professional quality before user validation.
+**Value-driven:** Phase 3 delivers core value proposition (AI-assisted discovery). Phase 4 completes value loop (conversation -> insights -> deliverable documents). Phase 5 ensures professional quality before user validation.
 
 ---
 
-*Last updated: 2026-01-17*
-*Ready for phase planning: Phase 1*
+*Last updated: 2026-01-22*
+*Ready for phase execution: Phase 3*

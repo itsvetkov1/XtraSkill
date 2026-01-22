@@ -14,12 +14,14 @@ from sse_starlette.sse import EventSourceResponse
 from app.database import get_db
 from app.models import Thread, Project
 from app.utils.jwt import get_current_user
-from app.services.ai_service import AIService
+from app.services.ai_service import AIService, MODEL as AI_MODEL
 from app.services.conversation_service import (
     save_message,
     build_conversation_context,
     get_message_count
 )
+from app.services.token_tracking import track_token_usage, check_user_budget
+from app.services.summarization_service import maybe_update_summary
 
 router = APIRouter()
 
@@ -94,6 +96,13 @@ async def stream_chat(
     # Validate thread access
     thread = await validate_thread_access(db, thread_id, current_user["user_id"])
 
+    # Check user budget before allowing chat
+    if not await check_user_budget(db, current_user["user_id"]):
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail="Monthly token budget exceeded. Please try again next month."
+        )
+
     # Save user message to database
     await save_message(db, thread_id, "user", body.content)
 
@@ -135,8 +144,19 @@ async def stream_chat(
             if accumulated_text:
                 await save_message(db, thread_id, "assistant", accumulated_text)
 
-            # TODO: Track token usage (Plan 02)
-            # TODO: Update thread summary (Plan 02)
+            # Track token usage
+            if usage_data:
+                await track_token_usage(
+                    db,
+                    current_user["user_id"],
+                    AI_MODEL,
+                    usage_data.get("input_tokens", 0),
+                    usage_data.get("output_tokens", 0),
+                    f"/threads/{thread_id}/chat"
+                )
+
+            # Update thread summary if needed
+            await maybe_update_summary(db, thread_id, current_user["user_id"])
 
         except Exception as e:
             yield {

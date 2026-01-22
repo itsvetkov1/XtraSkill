@@ -12,17 +12,17 @@
 ## Current Position
 
 **Phase:** 03 of 04 (AI-Powered Conversations)
-**Plan:** 01 of 03 in phase - Completed
-**Status:** Phase 3 in progress - Backend AI service complete
-**Progress:** ███████░░░ 70% (7/10 total plans estimated)
+**Plan:** 02 of 03 in phase - Completed
+**Status:** Phase 3 in progress - Token tracking and summarization complete
+**Progress:** ████████░░ 80% (8/10 total plans estimated)
 
 ## Performance Metrics
 
 ### Development Velocity
 - **Capacity:** 20-30 hours/week (solo developer, part-time)
 - **Timeline:** 8-10 weeks MVP development window
-- **Plans Completed:** 8 (01-01: 44 min, 01-02: 34 min, 01-03: 2 hours, 02-01: 33 min, 02-02: 75 min, 02-03: 82 min, 02-04: 15 min, 03-01: 18 min)
-- **Requirements Delivered:** 28/40 (AI-01, AI-03 partially added) (database, API health check, app shell, OAuth Google/Microsoft, JWT auth, secure token storage, protected endpoints, logout, responsive UI, integration tests, cross-platform verification, projects, documents, threads, AI streaming)
+- **Plans Completed:** 9 (01-01: 44 min, 01-02: 34 min, 01-03: 2 hours, 02-01: 33 min, 02-02: 75 min, 02-03: 82 min, 02-04: 15 min, 03-01: 18 min, 03-02: 3 min)
+- **Requirements Delivered:** 30/40 (AI-07, CONV-06 partially added) (database, API health check, app shell, OAuth Google/Microsoft, JWT auth, secure token storage, protected endpoints, logout, responsive UI, integration tests, cross-platform verification, projects, documents, threads, AI streaming, token tracking, thread summaries)
 
 ### Quality Indicators
 - **Test Coverage:** Backend integration tests (14 tests passing), Flutter integration tests (2 tests passing)
@@ -30,7 +30,8 @@
 - **Tech Debt:** Minimal (state storage in-memory dict - acceptable for MVP, move to Redis in production)
 
 ### Cost Tracking
-- **AI Token Usage:** Not yet measured (tracking infrastructure pending in 03-02)
+- **AI Token Usage:** Now tracked via TokenUsage table (03-02)
+- **Monthly Budget:** $50/user default enforced at API level
 - **Hosting Costs:** Not yet incurred
 - **Target Budget:** $50-100/month AI costs during MVP phase
 
@@ -81,6 +82,11 @@
 40. **SSE event types standardized** (2026-01-22 - Plan 03-01): text_delta, tool_executing, message_complete, error for frontend handling
 41. **Tool execution loop pattern** (2026-01-22 - Plan 03-01): Stream until tool_use stop_reason, execute tools, continue conversation
 
+42. **Claude pricing: $3/1M input, $15/1M output** (2026-01-22 - Plan 03-02): Official Jan 2026 pricing for cost calculation
+43. **Monthly budget: $50/user default** (2026-01-22 - Plan 03-02): Prevents cost explosion; check before each chat request
+44. **Summary interval: every 5 messages** (2026-01-22 - Plan 03-02): Balances title freshness vs API cost
+45. **Budget enforcement via 429** (2026-01-22 - Plan 03-02): HTTP 429 Too Many Requests when budget exceeded
+
 ### Open Questions
 - None yet
 
@@ -95,8 +101,6 @@
 - Token refresh mechanism (users re-authenticate after 7 days; acceptable for MVP)
 - Production OAuth redirect URIs (requires deployed backend; configure after Railway/Render deployment)
 - E2E OAuth tests with mocking (manual verification sufficient for MVP; automated E2E useful for CI/CD)
-- Token usage tracking to database (pending in 03-02)
-- Thread title/summary generation (pending in 03-02)
 
 ### Technical Debt
 - State storage in-memory dict (acceptable for MVP; move to Redis for production multi-instance)
@@ -106,50 +110,50 @@
 ## Session Continuity
 
 ### What Just Happened
-- **Plan 03-01 EXECUTED:** Backend AI Service with Claude Integration (18 minutes)
-  - AIService class with AsyncAnthropic client and streaming
-  - SYSTEM_PROMPT defining proactive BA assistant behavior
-  - DOCUMENT_SEARCH_TOOL for autonomous document search
-  - Conversation service with message persistence and token-aware truncation
-  - SSE streaming chat endpoint POST /threads/{thread_id}/chat
-  - Tool execution loop for multi-turn document search
+- **Plan 03-02 EXECUTED:** Token Tracking and Summarization Services (3 minutes)
+  - Token tracking service with Claude pricing and monthly budget enforcement
+  - Thread summarization service with AI-generated titles every 5 messages
+  - Chat endpoint integrated with budget check, token tracking, and summary updates
   - SUMMARY.md created with all service components documented
-  - **AI-01 (partial), AI-03 (partial):** Backend ready for AI conversations
+  - **AI-07 (partial), CONV-06 (partial):** Token tracking and auto-titles working
 
 ### Next Action
-**Phase 3 Plan 01 complete! Ready for Plan 03-02**
+**Phase 3 Plan 02 complete! Ready for Plan 03-03**
 
 Phase 3 Status:
 - Plan 01: Backend AI service - COMPLETE
-- Plan 02: Frontend chat UI - PENDING
-- Plan 03: Token tracking and artifacts - PENDING
+- Plan 02: Token tracking and summarization - COMPLETE
+- Plan 03: Frontend chat UI - PENDING
 
-**Ready for Plan 02 (Frontend Chat UI):**
-- SSE endpoint streams text_delta events for real-time display
-- message_complete event includes usage stats
-- Thread ownership validation prevents unauthorized access
-- Messages auto-saved to database
+**Ready for Plan 03 (Frontend Chat UI):**
+- Backend fully ready with streaming, token tracking, and summaries
+- Chat endpoint returns 429 if budget exceeded
+- Thread titles update automatically after 5 messages
+- Token usage stats available in message_complete event
 
 ### Context for Next Agent
-**Phase 3 Plan 01 Complete:**
-- Backend API: POST /threads/{thread_id}/chat SSE endpoint
-- AIService: AsyncAnthropic client with tool execution loop
-- ConversationService: save_message, build_conversation_context, truncation
-- SSE events: text_delta, tool_executing, message_complete, error
-- Tool: search_documents available to Claude for project document search
-- System prompt: Proactive BA assistant with edge case focus
+**Phase 3 Plan 02 Complete:**
+- Token tracking: `backend/app/services/token_tracking.py`
+  - `calculate_cost()` - Convert tokens to USD using Claude pricing
+  - `track_token_usage()` - Save TokenUsage record to database
+  - `get_monthly_usage()` - Aggregate current month's spend
+  - `check_user_budget()` - Returns True if within $50 limit
 
-**Key files created:**
-- backend/app/services/ai_service.py - Claude integration
-- backend/app/services/conversation_service.py - Message persistence
-- backend/app/routes/conversations.py - SSE streaming endpoint
+- Summarization: `backend/app/services/summarization_service.py`
+  - `generate_thread_summary()` - Get title from Claude
+  - `maybe_update_summary()` - Update at 5, 10, 15... message counts
+  - Max title length: 100 characters
 
-**Patterns established:**
-- Tool execution loop: stream -> tool_use -> execute -> continue
-- SSE event format: {event: string, data: JSON}
-- validate_thread_access helper for ownership check
-- Token budget management with truncation
+- Chat endpoint updated: `backend/app/routes/conversations.py`
+  - Budget check before processing (429 if exceeded)
+  - Token tracking after successful response
+  - Summary update triggered after message save
+
+**Key patterns:**
+- Token cost calculation: `(input/1M * $3) + (output/1M * $15)`
+- Summary trigger condition: `message_count % 5 == 0`
+- Budget enforcement: synchronous check, 429 response
 
 ---
 
-*Last updated: 2026-01-22 after completing Plan 03-01 (Backend AI Service)*
+*Last updated: 2026-01-22 after completing Plan 03-02 (Token Tracking and Summarization)*

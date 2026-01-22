@@ -10,7 +10,7 @@ from app.config import settings
 from app.services.document_search import search_documents
 
 # Claude model to use
-MODEL = "claude-3-5-sonnet-20241022"
+MODEL = "claude-sonnet-4-5-20250929"
 
 # System prompt for BA assistant behavior
 SYSTEM_PROMPT = """You are a Business Analyst AI assistant helping users explore and document software requirements. Your role is to:

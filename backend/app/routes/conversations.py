@@ -121,6 +121,7 @@ async def stream_chat(
             async for event in ai_service.stream_chat(
                 conversation,
                 thread.project_id,
+                thread_id,
                 db
             ):
                 # Check for client disconnect

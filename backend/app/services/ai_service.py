@@ -5,9 +5,10 @@ Provides streaming chat with tool use for document search.
 Uses AsyncAnthropic client for non-blocking operations.
 """
 import anthropic
-from typing import AsyncGenerator, List, Dict, Any
+from typing import AsyncGenerator, List, Dict, Any, Optional
 from app.config import settings
 from app.services.document_search import search_documents
+from app.models import Artifact, ArtifactType
 
 # Claude model to use
 MODEL = "claude-sonnet-4-5-20250929"
@@ -27,6 +28,8 @@ SYSTEM_PROMPT = """You are a Business Analyst AI assistant helping users explore
 3. SEARCH DOCUMENTS AUTONOMOUSLY: When users mention anything that might be documented (policies, requirements, specifications, notes), use the search_documents tool to find relevant context. Reference what you find.
 
 4. MAINTAIN CONTEXT: Reference earlier parts of the conversation. Remember decisions made and requirements discussed. Build on previous discussion points.
+
+5. GENERATE ARTIFACTS: When users request documentation (user stories, acceptance criteria, requirements docs), use the save_artifact tool to create professional deliverables. Review the full conversation to ensure comprehensive coverage.
 
 Be conversational but thorough. Help users think through their requirements completely. Your goal is to ensure no important edge case or requirement is missed."""
 
@@ -59,28 +62,96 @@ Returns: Document snippets with filenames and relevance scores.""",
     }
 }
 
+# Tool definition for saving artifacts
+SAVE_ARTIFACT_TOOL = {
+    "name": "save_artifact",
+    "description": """Save a business analysis artifact to the current conversation thread.
+
+USE THIS TOOL WHEN:
+- User requests user stories, acceptance criteria, or requirements documents
+- You have gathered enough context from conversation and documents
+- User asks to "create", "generate", "write", or "document" requirements
+
+BEFORE USING:
+- Consider using search_documents first to gather project context
+- Review the full conversation for ALL requirements discussed
+- Ensure comprehensive coverage, not just recent messages
+
+You may call this tool multiple times to create multiple artifacts.""",
+    "input_schema": {
+        "type": "object",
+        "properties": {
+            "artifact_type": {
+                "type": "string",
+                "enum": ["user_stories", "acceptance_criteria", "requirements_doc"],
+                "description": "Type: user_stories (Given/When/Then), acceptance_criteria (testable checklist), requirements_doc (IEEE 830-style)"
+            },
+            "title": {
+                "type": "string",
+                "description": "Descriptive title, e.g., 'Login Feature - User Stories'"
+            },
+            "content_markdown": {
+                "type": "string",
+                "description": "Full artifact content in markdown with proper headers and formatting"
+            }
+        },
+        "required": ["artifact_type", "title", "content_markdown"]
+    }
+}
+
 
 class AIService:
     """Claude AI service for streaming chat with tool use."""
 
     def __init__(self):
         self.client = anthropic.AsyncAnthropic(api_key=settings.anthropic_api_key)
-        self.tools = [DOCUMENT_SEARCH_TOOL]
+        self.tools = [DOCUMENT_SEARCH_TOOL, SAVE_ARTIFACT_TOOL]
 
     async def execute_tool(
         self,
         tool_name: str,
         tool_input: dict,
         project_id: str,
+        thread_id: str,
         db
-    ) -> str:
-        """Execute a tool and return result as string."""
-        if tool_name == "search_documents":
+    ) -> tuple[str, Optional[dict]]:
+        """
+        Execute a tool and return result as string plus optional event data.
+
+        Returns:
+            tuple: (result_string, optional_event_dict)
+            - result_string: Text to send back to Claude
+            - optional_event_dict: Event to yield to frontend (e.g., artifact_created)
+        """
+        if tool_name == "save_artifact":
+            artifact = Artifact(
+                thread_id=thread_id,
+                artifact_type=ArtifactType(tool_input["artifact_type"]),
+                title=tool_input["title"],
+                content_markdown=tool_input["content_markdown"]
+            )
+            db.add(artifact)
+            await db.commit()
+            await db.refresh(artifact)
+
+            # Return success message and event for frontend
+            event_data = {
+                "id": artifact.id,
+                "artifact_type": artifact.artifact_type.value,
+                "title": artifact.title
+            }
+            return (
+                f"Artifact saved successfully: '{artifact.title}' (ID: {artifact.id}). "
+                "User can now export as PDF, Word, or Markdown from the artifacts list.",
+                event_data
+            )
+
+        elif tool_name == "search_documents":
             query = tool_input.get("query", "")
             results = await search_documents(db, project_id, query)
 
             if not results:
-                return "No relevant documents found for this query."
+                return ("No relevant documents found for this query.", None)
 
             formatted = []
             for doc_id, filename, snippet, score in results[:5]:
@@ -88,14 +159,15 @@ class AIService:
                 clean_snippet = snippet.replace("<mark>", "**").replace("</mark>", "**")
                 formatted.append(f"**{filename}**:\n{clean_snippet}")
 
-            return "\n\n---\n\n".join(formatted)
+            return ("\n\n---\n\n".join(formatted), None)
 
-        return f"Unknown tool: {tool_name}"
+        return (f"Unknown tool: {tool_name}", None)
 
     async def stream_chat(
         self,
         messages: List[Dict[str, Any]],
         project_id: str,
+        thread_id: str,
         db
     ) -> AsyncGenerator[Dict[str, Any], None]:
         """
@@ -104,6 +176,7 @@ class AIService:
         Yields SSE-formatted events:
         - text_delta: Incremental text from Claude
         - tool_executing: Tool is being executed
+        - artifact_created: An artifact was generated and saved
         - message_complete: Final message with usage stats
         - error: Error occurred
         """
@@ -145,18 +218,26 @@ class AIService:
                         return
 
                     # Execute tools
-                    yield {
-                        "event": "tool_executing",
-                        "data": json.dumps({"status": "Searching project documents..."})
-                    }
-
                     tool_results = []
                     for block in final.content:
                         if block.type == "tool_use":
-                            result = await self.execute_tool(
+                            # Show tool-specific status
+                            if block.name == "save_artifact":
+                                yield {
+                                    "event": "tool_executing",
+                                    "data": json.dumps({"status": "Generating artifact..."})
+                                }
+                            else:
+                                yield {
+                                    "event": "tool_executing",
+                                    "data": json.dumps({"status": "Searching project documents..."})
+                                }
+
+                            result, event_data = await self.execute_tool(
                                 block.name,
                                 block.input,
                                 project_id,
+                                thread_id,
                                 db
                             )
                             tool_results.append({
@@ -164,6 +245,13 @@ class AIService:
                                 "tool_use_id": block.id,
                                 "content": result
                             })
+
+                            # Emit artifact_created event if artifact was saved
+                            if event_data and block.name == "save_artifact":
+                                yield {
+                                    "event": "artifact_created",
+                                    "data": json.dumps(event_data)
+                                }
 
                     # Continue conversation with tool results
                     messages.append({"role": "assistant", "content": final.content})

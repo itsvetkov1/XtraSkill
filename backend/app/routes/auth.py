@@ -40,7 +40,7 @@ async def google_oauth_initiate(
 
     # Determine redirect URI based on platform
     # Web uses localhost:8080, mobile uses custom scheme
-    redirect_uri = "http://localhost:8002/auth/google/callback"
+    redirect_uri = "http://localhost:8000/auth/google/callback"
 
     auth_url, state = await oauth_service.get_google_auth_url(redirect_uri)
 
@@ -81,7 +81,7 @@ async def google_oauth_callback(
     del _oauth_states[state]
 
     oauth_service = OAuth2Service(db)
-    redirect_uri = "http://localhost:8002/auth/google/callback"
+    redirect_uri = "http://localhost:8000/auth/google/callback"
 
     try:
         # Process callback and get user
@@ -130,7 +130,7 @@ async def microsoft_oauth_initiate(
     """
     oauth_service = OAuth2Service(db)
 
-    redirect_uri = "http://localhost:8001/auth/microsoft/callback"
+    redirect_uri = "http://localhost:8000/auth/microsoft/callback"
 
     auth_url, state = await oauth_service.get_microsoft_auth_url(redirect_uri)
 
@@ -171,7 +171,7 @@ async def microsoft_oauth_callback(
     del _oauth_states[state]
 
     oauth_service = OAuth2Service(db)
-    redirect_uri = "http://localhost:8001/auth/microsoft/callback"
+    redirect_uri = "http://localhost:8000/auth/microsoft/callback"
 
     try:
         # Process callback and get user

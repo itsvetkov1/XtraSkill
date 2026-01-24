@@ -22,7 +22,7 @@ class AuthService {
     String? baseUrl,
     Dio? dio,
     FlutterSecureStorage? storage,
-  })  : _baseUrl = baseUrl ?? 'http://localhost:8002',
+  })  : _baseUrl = baseUrl ?? 'http://localhost:8000',
         _dio = dio ?? Dio(),
         _storage = storage ?? const FlutterSecureStorage();
 

@@ -9,7 +9,7 @@ class ApiConfig {
   /// Base URL for the backend API
   static const String baseUrl = String.fromEnvironment(
     'API_BASE_URL',
-    defaultValue: 'http://localhost:8002',
+    defaultValue: 'http://localhost:8000',
   );
 
   /// API endpoints

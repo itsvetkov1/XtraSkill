@@ -7,6 +7,7 @@ from datetime import datetime
 from typing import List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -15,6 +16,13 @@ from sqlalchemy.orm import selectinload
 from app.database import get_db
 from app.models import Artifact, Thread, Project, ArtifactType
 from app.utils.jwt import get_current_user
+from app.services.export_service import (
+    export_markdown,
+    export_pdf,
+    export_docx,
+    get_content_type,
+    ExportFormat
+)
 
 router = APIRouter()
 
@@ -130,3 +138,80 @@ async def get_artifact(
         )
 
     return artifact
+
+
+@router.get("/artifacts/{artifact_id}/export/{format}")
+async def export_artifact(
+    artifact_id: str,
+    format: ExportFormat,
+    current_user: dict = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Export artifact in specified format.
+
+    Formats:
+    - md: Markdown text file
+    - pdf: PDF document with styling (requires WeasyPrint/GTK)
+    - docx: Microsoft Word document
+
+    Returns file as streaming response with appropriate headers
+    for browser download.
+
+    Args:
+        artifact_id: ID of the artifact to export
+        format: Export format (md, pdf, docx)
+        current_user: Authenticated user
+        db: Database session
+
+    Returns:
+        StreamingResponse with file content
+
+    Raises:
+        HTTPException 404: Artifact not found or not owned by user
+        HTTPException 400: Unsupported format
+        HTTPException 500: PDF export failed (GTK not available)
+    """
+    # Load artifact with thread and project for auth check
+    stmt = (
+        select(Artifact)
+        .where(Artifact.id == artifact_id)
+        .options(selectinload(Artifact.thread).selectinload(Thread.project))
+    )
+    result = await db.execute(stmt)
+    artifact = result.scalar_one_or_none()
+
+    if not artifact:
+        raise HTTPException(status_code=404, detail="Artifact not found")
+
+    if artifact.thread.project.user_id != current_user["user_id"]:
+        raise HTTPException(status_code=404, detail="Artifact not found")
+
+    # Generate export based on format
+    try:
+        if format == "md":
+            buffer = export_markdown(artifact)
+        elif format == "pdf":
+            buffer = export_pdf(artifact)
+        elif format == "docx":
+            buffer = export_docx(artifact)
+        else:
+            raise HTTPException(status_code=400, detail=f"Unsupported format: {format}")
+    except ImportError as e:
+        # PDF export may fail on Windows without GTK
+        raise HTTPException(
+            status_code=500,
+            detail=f"Export failed: {str(e)}"
+        )
+
+    # Sanitize filename for Content-Disposition
+    safe_title = "".join(c for c in artifact.title if c.isalnum() or c in (' ', '-', '_')).strip()
+    safe_title = safe_title[:50] or "artifact"
+
+    return StreamingResponse(
+        buffer,
+        media_type=get_content_type(format),
+        headers={
+            "Content-Disposition": f'attachment; filename="{safe_title}.{format}"'
+        }
+    )

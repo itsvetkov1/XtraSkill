@@ -1,7 +1,7 @@
 # Project State
 
 **Project:** Business Analyst Assistant
-**Last Updated:** 2026-01-22
+**Last Updated:** 2026-01-24
 
 ## Project Reference
 
@@ -11,18 +11,18 @@
 
 ## Current Position
 
-**Phase:** 03 of 04 (AI-Powered Conversations) - COMPLETE
-**Plan:** 03 of 03 in phase - Completed
-**Status:** Phase 3 COMPLETE - Ready for Phase 4 (Artifact Generation)
-**Progress:** █████████░ 90% (9/10 total plans estimated)
+**Phase:** 04 of 04 (Artifact Generation & Export)
+**Plan:** 01 of 02 in phase - Completed
+**Status:** Phase 4 in progress - Backend artifact generation complete
+**Progress:** ██████████░ 95% (11/12 total plans)
 
 ## Performance Metrics
 
 ### Development Velocity
 - **Capacity:** 20-30 hours/week (solo developer, part-time)
 - **Timeline:** 8-10 weeks MVP development window
-- **Plans Completed:** 10 (01-01: 44 min, 01-02: 34 min, 01-03: 2 hours, 02-01: 33 min, 02-02: 75 min, 02-03: 82 min, 02-04: 15 min, 03-01: 18 min, 03-02: 3 min, 03-03: 2 min)
-- **Requirements Delivered:** 34/40 (database, API health check, app shell, OAuth Google/Microsoft, JWT auth, secure token storage, protected endpoints, logout, responsive UI, integration tests, cross-platform verification, projects, documents, threads, AI streaming, token tracking, thread summaries, conversation UI, streaming display)
+- **Plans Completed:** 11 (01-01: 44 min, 01-02: 34 min, 01-03: 2 hours, 02-01: 33 min, 02-02: 75 min, 02-03: 82 min, 02-04: 15 min, 03-01: 18 min, 03-02: 3 min, 03-03: 2 min, 04-01: 4 min)
+- **Requirements Delivered:** 37/40 (database, API health check, app shell, OAuth Google/Microsoft, JWT auth, secure token storage, protected endpoints, logout, responsive UI, integration tests, cross-platform verification, projects, documents, threads, AI streaming, token tracking, thread summaries, conversation UI, streaming display, artifact model, save_artifact tool, artifact API)
 
 ### Quality Indicators
 - **Test Coverage:** Backend integration tests (14 tests passing), Flutter integration tests (2 tests passing)
@@ -91,6 +91,10 @@
 47. **Optimistic message display** (2026-01-22 - Plan 03-03): User message shows immediately, AI message built via streaming
 48. **SelectableText for message content** (2026-01-22 - Plan 03-03): Allow users to copy AI-generated content for requirements docs
 
+49. **Artifact model markdown-first** (2026-01-24 - Plan 04-01): content_markdown primary, content_json reserved for future structured access
+50. **No artifact POST endpoint** (2026-01-24 - Plan 04-01): Artifacts created only via Claude tool execution during chat
+51. **artifact_created SSE event** (2026-01-24 - Plan 04-01): Frontend notified with id, type, title when artifact generated
+
 ### Open Questions
 - None yet
 
@@ -114,52 +118,40 @@
 ## Session Continuity
 
 ### What Just Happened
-- **Plan 03-03 EXECUTED:** Frontend Conversation UI (2 minutes)
-  - ConversationScreen with message list, chat input, and streaming display
-  - MessageBubble for user/assistant message styling
-  - StreamingMessage with typing indicator and progressive text
-  - ChatInput with multiline support and disabled state during streaming
-  - Thread list navigation wired to ConversationScreen
-  - SUMMARY.md created with all UI components documented
-  - **CONV-04, AI-01, AI-06, CONV-05:** Chat send, AI responses, streaming display, history view
+- **Plan 04-01 EXECUTED:** Backend Artifact Generation (4 minutes)
+  - Artifact model with ArtifactType enum (user_stories, acceptance_criteria, requirements_doc)
+  - Thread.artifacts relationship with cascade delete
+  - SAVE_ARTIFACT_TOOL for Claude to generate artifacts during chat
+  - artifact_created SSE event emitted when artifacts saved
+  - GET endpoints for artifact list and detail
+  - SUMMARY.md created documenting all components
+  - **ART-01, ART-02, ART-03:** Artifact model, tool, API complete
 
 ### Next Action
-**Phase 3 COMPLETE! Ready for Phase 4 (Artifact Generation)**
+**Continue with 04-02 (Frontend Artifact Display & Export)**
 
-Phase 3 Summary:
-- Plan 01: Backend AI service with SSE streaming - COMPLETE
-- Plan 02: Token tracking and summarization - COMPLETE
-- Plan 03: Frontend conversation UI - COMPLETE
-
-**Phase 4 Prerequisites Met:**
-- Users can conduct AI-assisted requirement conversations
-- Message history persists per thread
-- Token usage tracked with $50/month budget enforcement
-- Thread titles auto-generated after 5 messages
-- Streaming display shows AI thinking progressively
+Phase 4 Plan 01 Complete:
+- Artifact database model ready
+- save_artifact Claude tool operational
+- artifact_created SSE event for frontend notification
+- GET /api/threads/{threadId}/artifacts and GET /api/artifacts/{id} available
 
 ### Context for Next Agent
-**Phase 3 Complete - Full AI Conversation System:**
+**Phase 4 Plan 01 Complete - Backend Artifact Generation:**
 
-Backend Services:
-- `backend/app/services/ai_service.py` - Claude API with SSE streaming
-- `backend/app/services/conversation_service.py` - Message persistence
-- `backend/app/services/token_tracking.py` - Cost tracking and budget check
-- `backend/app/services/summarization_service.py` - Auto-title generation
-- `backend/app/routes/conversations.py` - POST /api/threads/{id}/chat endpoint
+New Backend Components:
+- `backend/app/models.py` - Artifact model with ArtifactType enum
+- `backend/app/services/ai_service.py` - save_artifact tool in execute_tool, artifact_created event in stream_chat
+- `backend/app/routes/artifacts.py` - GET list and detail endpoints
+- `backend/main.py` - artifacts router registered
 
-Frontend Components:
-- `frontend/lib/services/ai_service.dart` - SSE client with ChatEvent stream
-- `frontend/lib/providers/conversation_provider.dart` - Streaming state management
-- `frontend/lib/screens/conversation/conversation_screen.dart` - Main chat UI
-- `frontend/lib/screens/conversation/widgets/` - MessageBubble, StreamingMessage, ChatInput
-
-Key Integration Points:
-- SSE endpoint: POST `/api/threads/{threadId}/chat` with body `{"content": "..."}`
-- Event types: text_delta, tool_executing, message_complete, error
-- Budget exceeded returns HTTP 429
-- Title updates after 5, 10, 15... messages
+Key Integration Points for Frontend:
+- SSE event: `artifact_created` with `{id, artifact_type, title}`
+- List endpoint: `GET /api/threads/{threadId}/artifacts` returns ArtifactListItem[]
+- Detail endpoint: `GET /api/artifacts/{artifactId}` returns full ArtifactResponse with content_markdown
+- Artifact types: user_stories, acceptance_criteria, requirements_doc
+- Content format: Markdown (frontend should render with markdown package)
 
 ---
 
-*Last updated: 2026-01-22 after completing Plan 03-03 (Frontend Conversation UI)*
+*Last updated: 2026-01-24 after completing Plan 04-01 (Backend Artifact Generation)*

@@ -12,17 +12,17 @@
 ## Current Position
 
 **Phase:** 04 of 04 (Artifact Generation & Export)
-**Plan:** 01 of 02 in phase - Completed
-**Status:** Phase 4 in progress - Backend artifact generation complete
-**Progress:** ██████████░ 95% (11/12 total plans)
+**Plan:** 02 of 02 in phase - Completed
+**Status:** Phase 4 COMPLETE - All backend plans finished
+**Progress:** ████████████ 100% (12/12 total plans)
 
 ## Performance Metrics
 
 ### Development Velocity
 - **Capacity:** 20-30 hours/week (solo developer, part-time)
 - **Timeline:** 8-10 weeks MVP development window
-- **Plans Completed:** 11 (01-01: 44 min, 01-02: 34 min, 01-03: 2 hours, 02-01: 33 min, 02-02: 75 min, 02-03: 82 min, 02-04: 15 min, 03-01: 18 min, 03-02: 3 min, 03-03: 2 min, 04-01: 4 min)
-- **Requirements Delivered:** 37/40 (database, API health check, app shell, OAuth Google/Microsoft, JWT auth, secure token storage, protected endpoints, logout, responsive UI, integration tests, cross-platform verification, projects, documents, threads, AI streaming, token tracking, thread summaries, conversation UI, streaming display, artifact model, save_artifact tool, artifact API)
+- **Plans Completed:** 12 (01-01: 44 min, 01-02: 34 min, 01-03: 2 hours, 02-01: 33 min, 02-02: 75 min, 02-03: 82 min, 02-04: 15 min, 03-01: 18 min, 03-02: 3 min, 03-03: 2 min, 04-01: 4 min, 04-02: 3 min)
+- **Requirements Delivered:** 40/40 (database, API health check, app shell, OAuth Google/Microsoft, JWT auth, secure token storage, protected endpoints, logout, responsive UI, integration tests, cross-platform verification, projects, documents, threads, AI streaming, token tracking, thread summaries, conversation UI, streaming display, artifact model, save_artifact tool, artifact API, PDF export, Word export, Markdown export)
 
 ### Quality Indicators
 - **Test Coverage:** Backend integration tests (14 tests passing), Flutter integration tests (2 tests passing)
@@ -95,6 +95,11 @@
 50. **No artifact POST endpoint** (2026-01-24 - Plan 04-01): Artifacts created only via Claude tool execution during chat
 51. **artifact_created SSE event** (2026-01-24 - Plan 04-01): Frontend notified with id, type, title when artifact generated
 
+52. **WeasyPrint for PDF export** (2026-01-24 - Plan 04-02): HTML-to-PDF with Jinja2 templates; requires GTK on Windows
+53. **python-docx for Word export** (2026-01-24 - Plan 04-02): Native .docx generation with markdown parsing
+54. **Graceful GTK error handling** (2026-01-24 - Plan 04-02): ImportError catch for PDF export provides helpful message on Windows
+55. **StreamingResponse for exports** (2026-01-24 - Plan 04-02): BytesIO buffers with Content-Disposition headers for browser downloads
+
 ### Open Questions
 - None yet
 
@@ -118,40 +123,58 @@
 ## Session Continuity
 
 ### What Just Happened
-- **Plan 04-01 EXECUTED:** Backend Artifact Generation (4 minutes)
-  - Artifact model with ArtifactType enum (user_stories, acceptance_criteria, requirements_doc)
-  - Thread.artifacts relationship with cascade delete
-  - SAVE_ARTIFACT_TOOL for Claude to generate artifacts during chat
-  - artifact_created SSE event emitted when artifacts saved
-  - GET endpoints for artifact list and detail
-  - SUMMARY.md created documenting all components
-  - **ART-01, ART-02, ART-03:** Artifact model, tool, API complete
+- **Plan 04-02 EXECUTED:** Export Service (3 minutes)
+  - Added python-docx, weasyprint, markdown, jinja2 to requirements.txt
+  - Created HTML templates for PDF styling (base.html + artifact type templates)
+  - Created export_service.py with export_markdown, export_pdf, export_docx functions
+  - Added GET /artifacts/{id}/export/{format} endpoint with StreamingResponse
+  - Graceful error handling for WeasyPrint GTK requirement on Windows
+  - SUMMARY.md created documenting export service
+
+### MVP Backend Complete
+**All 12 backend plans finished - 100% progress**
+
+Phase 1 (Foundation): Database, API shell, OAuth, JWT, responsive UI
+Phase 2 (Data Management): Projects, documents, threads
+Phase 3 (AI Conversation): Streaming, tokens, summaries, conversation UI
+Phase 4 (Artifacts): Generation tool, SSE events, export service
 
 ### Next Action
-**Continue with 04-02 (Frontend Artifact Display & Export)**
+**MVP Backend Ready for Frontend Integration**
 
-Phase 4 Plan 01 Complete:
-- Artifact database model ready
-- save_artifact Claude tool operational
-- artifact_created SSE event for frontend notification
-- GET /api/threads/{threadId}/artifacts and GET /api/artifacts/{id} available
+Available APIs:
+- Auth: POST /auth/login/google, /auth/login/microsoft, /auth/callback
+- Projects: GET/POST /projects, GET/PATCH /projects/{id}
+- Documents: GET/POST /projects/{id}/documents, GET /documents/{id}
+- Threads: GET/POST /projects/{id}/threads, GET /threads/{id}
+- Chat: POST /threads/{id}/chat (SSE streaming)
+- Artifacts: GET /threads/{id}/artifacts, GET /artifacts/{id}, GET /artifacts/{id}/export/{format}
+
+Export Formats:
+- Markdown (.md): Plain text download
+- PDF (.pdf): Styled document (requires GTK on Windows)
+- Word (.docx): Microsoft Word document
 
 ### Context for Next Agent
-**Phase 4 Plan 01 Complete - Backend Artifact Generation:**
+**Phase 4 Complete - Full Export Service:**
 
-New Backend Components:
-- `backend/app/models.py` - Artifact model with ArtifactType enum
-- `backend/app/services/ai_service.py` - save_artifact tool in execute_tool, artifact_created event in stream_chat
-- `backend/app/routes/artifacts.py` - GET list and detail endpoints
-- `backend/main.py` - artifacts router registered
+New Components:
+- `backend/requirements.txt` - python-docx, weasyprint, markdown, jinja2
+- `backend/app/templates/artifacts/` - HTML templates for PDF styling
+- `backend/app/services/export_service.py` - Export functions for all formats
+- `backend/app/routes/artifacts.py` - Export endpoint added
 
-Key Integration Points for Frontend:
-- SSE event: `artifact_created` with `{id, artifact_type, title}`
-- List endpoint: `GET /api/threads/{threadId}/artifacts` returns ArtifactListItem[]
-- Detail endpoint: `GET /api/artifacts/{artifactId}` returns full ArtifactResponse with content_markdown
-- Artifact types: user_stories, acceptance_criteria, requirements_doc
-- Content format: Markdown (frontend should render with markdown package)
+Export API:
+- `GET /api/artifacts/{id}/export/md` - Markdown download
+- `GET /api/artifacts/{id}/export/pdf` - PDF download (GTK required)
+- `GET /api/artifacts/{id}/export/docx` - Word download
+
+Frontend Integration Needed:
+- Artifact list view in thread detail
+- Artifact detail view with markdown rendering
+- Export buttons triggering file downloads
+- Toast notifications for artifact_created SSE events
 
 ---
 
-*Last updated: 2026-01-24 after completing Plan 04-01 (Backend Artifact Generation)*
+*Last updated: 2026-01-24 after completing Plan 04-02 (Export Service)*

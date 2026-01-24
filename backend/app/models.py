@@ -272,6 +272,12 @@ class Thread(Base):
         passive_deletes=True,
         order_by="Message.created_at"  # Chronological message order
     )
+    artifacts: Mapped[List["Artifact"]] = relationship(
+        back_populates="thread",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+        order_by="Artifact.created_at.desc()"  # Newest artifacts first
+    )
 
     def __repr__(self) -> str:
         return f"<Thread(id={self.id}, title={self.title}, project_id={self.project_id})>"
@@ -322,3 +328,63 @@ class Message(Base):
 
     def __repr__(self) -> str:
         return f"<Message(id={self.id}, role={self.role}, thread_id={self.thread_id})>"
+
+
+class ArtifactType(str, PyEnum):
+    """Types of generated business analysis artifacts."""
+    USER_STORIES = "user_stories"
+    ACCEPTANCE_CRITERIA = "acceptance_criteria"
+    REQUIREMENTS_DOC = "requirements_doc"
+
+
+class Artifact(Base):
+    """
+    Generated business analysis artifact from conversation.
+
+    Artifacts are created by Claude via the save_artifact tool during conversations.
+    Content stored in markdown format with optional JSON for structured access.
+    """
+
+    __tablename__ = "artifacts"
+
+    # Primary key using UUID
+    id: Mapped[str] = mapped_column(
+        String(36),
+        primary_key=True,
+        default=lambda: str(uuid.uuid4())
+    )
+
+    # Foreign key to thread with cascade delete
+    thread_id: Mapped[str] = mapped_column(
+        String(36),
+        ForeignKey("threads.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True
+    )
+
+    # Artifact metadata
+    artifact_type: Mapped[ArtifactType] = mapped_column(
+        Enum(ArtifactType, native_enum=False, length=30),
+        nullable=False
+    )
+    title: Mapped[str] = mapped_column(String(255), nullable=False)
+
+    # Content storage
+    content_markdown: Mapped[str] = mapped_column(Text, nullable=False)
+    content_json: Mapped[Optional[str]] = mapped_column(
+        Text,
+        nullable=True
+    )  # Structured data for programmatic access
+
+    # Timestamp
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        default=datetime.utcnow,
+        nullable=False
+    )
+
+    # Relationship back to thread
+    thread: Mapped["Thread"] = relationship(back_populates="artifacts")
+
+    def __repr__(self) -> str:
+        return f"<Artifact(id={self.id}, type={self.artifact_type}, title={self.title})>"

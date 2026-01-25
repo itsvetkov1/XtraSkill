@@ -12,17 +12,17 @@
 ## Current Position
 
 **Phase:** 04.1 of 04.1 (Agent SDK & Skill Integration)
-**Plan:** 02 of 02 in phase
-**Status:** Phase complete
-**Progress:** ██████████████ 100% (14/14 total plans)
+**Plan:** 03 of 04 in phase
+**Status:** In progress
+**Progress:** ███████████████ 100% (15/16 total plans)
 
 ## Performance Metrics
 
 ### Development Velocity
 - **Capacity:** 20-30 hours/week (solo developer, part-time)
 - **Timeline:** 8-10 weeks MVP development window
-- **Plans Completed:** 14 (01-01: 44 min, 01-02: 34 min, 01-03: 2 hours, 02-01: 33 min, 02-02: 75 min, 02-03: 82 min, 02-04: 15 min, 03-01: 18 min, 03-02: 3 min, 03-03: 2 min, 04-01: 4 min, 04-02: 3 min, 04.1-01: 2 min, 04.1-02: 4 min)
-- **Requirements Delivered:** 44/44 (database, API health check, app shell, OAuth Google/Microsoft, JWT auth, secure token storage, protected endpoints, logout, responsive UI, integration tests, cross-platform verification, projects, documents, threads, AI streaming, token tracking, thread summaries, conversation UI, streaming display, artifact model, save_artifact tool, artifact API, PDF export, Word export, Markdown export, claude-agent-sdk, skill_loader, AgentService, skill-enhanced chat)
+- **Plans Completed:** 15 (01-01: 44 min, 01-02: 34 min, 01-03: 2 hours, 02-01: 33 min, 02-02: 75 min, 02-03: 82 min, 02-04: 15 min, 03-01: 18 min, 03-02: 3 min, 03-03: 2 min, 04-01: 4 min, 04-02: 3 min, 04.1-01: 2 min, 04.1-02: 4 min, 04.1-03: 4 min)
+- **Requirements Delivered:** 46/48 (database, API health check, app shell, OAuth Google/Microsoft, JWT auth, secure token storage, protected endpoints, logout, responsive UI, integration tests, cross-platform verification, projects, documents, threads, AI streaming, token tracking, thread summaries, conversation UI, streaming display, artifact model, save_artifact tool, artifact API, PDF export, Word export, Markdown export, claude-agent-sdk, skill_loader, AgentService, skill-enhanced chat, BRD artifact type, generate_brd tool)
 
 ### Quality Indicators
 - **Test Coverage:** Backend integration tests (14 tests passing), Flutter integration tests (2 tests passing)
@@ -107,6 +107,10 @@
 59. **system_prompt.append for skill** (2026-01-25 - Plan 04.1-02): Skill loaded into SDK system prompt append rather than filesystem discovery
 60. **AIService deprecated** (2026-01-25 - Plan 04.1-02): DeprecationWarning raised; AgentService is primary service
 
+61. **BRD distinct from requirements_doc** (2026-01-25 - Plan 04.1-03): BRD follows brd-template.md structure; requirements_doc is IEEE 830-style
+62. **BRD validation for required sections** (2026-01-25 - Plan 04.1-03): Executive Summary, Business Objectives, User Personas, Functional Requirements, Success Metrics
+63. **15 parameters for generate_brd_tool** (2026-01-25 - Plan 04.1-03): All BRD sections as separate tool parameters for structured generation
+
 ### Open Questions
 - None yet
 
@@ -130,54 +134,42 @@
 ## Session Continuity
 
 ### What Just Happened
-- **Plan 04.1-02 EXECUTED:** Agent SDK Chat Integration (4 minutes)
-  - Created AgentService with @tool decorators for search_documents and save_artifact
-  - Integrated 90k+ char skill prompt via system_prompt.append
-  - Updated conversations endpoint to use AgentService
-  - Deprecated AIService with DeprecationWarning
-  - Verified SSE event format unchanged
+- **Plan 04.1-03 EXECUTED:** BRD Generation Tool (4 minutes)
+  - Added BRD artifact type to ArtifactType enum
+  - Created brd_generator.py with validation and generate_brd_tool
+  - Integrated generate_brd_tool into AgentService (3 tools total)
+  - Verified all validation functions work correctly
 
 ### Phase 04.1 Progress
-**2 of 2 plans complete - PHASE COMPLETE**
+**3 of 4 plans complete**
 
 Plan 04.1-01: SDK Installation and Skill Loader - COMPLETE
 Plan 04.1-02: Agent Integration with Chat - COMPLETE
-
-### MVP Status
-**All 14 plans complete**
-
-The MVP is feature-complete:
-- Authentication (OAuth Google/Microsoft, JWT)
-- Projects & Documents (CRUD, FTS5 search, encryption)
-- Threads & Messages (conversation management)
-- AI Chat (Claude Agent SDK with skill integration)
-- Artifacts (generation via tool, PDF/Word/Markdown export)
+Plan 04.1-03: BRD Generation Tool - COMPLETE
+Plan 04.1-04: [Pending]
 
 ### Next Action
-**End-to-end testing and deployment preparation**
+**Execute Plan 04.1-04**
 
-The MVP is ready for:
-1. Manual end-to-end testing with real conversations
-2. Deployment to Railway/Render
-3. User acceptance testing
+Check what plan 04.1-04 covers and execute it to complete phase 04.1.
 
 ### Context for Next Agent
-**Phase 04.1 Complete - Agent SDK Integrated:**
+**Phase 04.1-03 Complete - BRD Generation Ready:**
 
 New Components:
-- `backend/app/services/agent_service.py` - AgentService with SDK integration
+- `backend/app/services/brd_generator.py` - BRD generator with validation
 
 Key Functions:
-- `AgentService.stream_chat()` - Streams chat with skill-enhanced prompts
-- `search_documents_tool` - @tool decorated document search
-- `save_artifact_tool` - @tool decorated artifact saving
+- `generate_brd_tool` - @tool decorated BRD generation with 15 section parameters
+- `validate_brd_content()` - Checks required sections and warns on issues
+- `format_preflight_checklist()` - Pre-generation readiness display
 
 Architecture:
-- Claude Agent SDK query() with MCP server tools
-- Context variables pass db/project_id/thread_id to tools
-- Skill prompt (90k+ chars) appended to system prompt
-- SSE events: text_delta, tool_executing, artifact_created, message_complete
+- BRD = "brd" added to ArtifactType enum
+- AgentService now has 3 tools: search_documents, save_artifact, generate_brd
+- BRD follows brd-template.md structure with 5 required + 8 optional sections
+- SSE event "Generating Business Requirements Document..." for BRD tool
 
 ---
 
-*Last updated: 2026-01-25 after completing Plan 04.1-02 (Agent SDK Chat Integration)*
+*Last updated: 2026-01-25 after completing Plan 04.1-03 (BRD Generation Tool)*

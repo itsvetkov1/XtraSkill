@@ -44,6 +44,9 @@ class Settings(BaseSettings):
     # Encryption (for document storage)
     fernet_key: str = ""
 
+    # Skill configuration
+    skill_path: str = ".claude/business-analyst"
+
     @property
     def cors_origins_list(self) -> List[str]:
         """Parse CORS origins from comma-separated string."""

@@ -2,6 +2,7 @@
 Conversation streaming endpoints for AI-powered chat.
 
 Provides SSE streaming endpoint for real-time AI responses with tool use.
+Uses Claude Agent SDK with business-analyst skill for structured discovery.
 """
 import json
 from fastapi import APIRouter, Depends, HTTPException, Request, status
@@ -14,7 +15,7 @@ from sse_starlette.sse import EventSourceResponse
 from app.database import get_db
 from app.models import Thread, Project
 from app.utils.jwt import get_current_user
-from app.services.ai_service import AIService, MODEL as AI_MODEL
+from app.services.agent_service import AgentService
 from app.services.conversation_service import (
     save_message,
     build_conversation_context,
@@ -22,6 +23,9 @@ from app.services.conversation_service import (
 )
 from app.services.token_tracking import track_token_usage, check_user_budget
 from app.services.summarization_service import maybe_update_summary
+
+# Model name for token tracking (AgentService uses claude-sonnet-4-5-20250514)
+AGENT_MODEL = "claude-sonnet-4-5-20250514"
 
 router = APIRouter()
 
@@ -75,12 +79,13 @@ async def stream_chat(
     """
     Stream AI response for a chat message.
 
-    Accepts user message, saves to database, streams AI response via SSE.
-    AI can use tools (document search) and maintains conversation context.
+    Uses Claude Agent SDK with business-analyst skill for structured discovery.
+    AI follows one-question-at-a-time protocol and can generate BRDs.
 
     SSE Events:
     - text_delta: Incremental text from AI
     - tool_executing: AI is executing a tool
+    - artifact_created: An artifact was generated and saved
     - message_complete: Response complete with usage stats
     - error: Error occurred
 
@@ -109,8 +114,8 @@ async def stream_chat(
     # Build conversation context from thread history
     conversation = await build_conversation_context(db, thread_id)
 
-    # Initialize AI service
-    ai_service = AIService()
+    # Initialize Agent service (uses SDK with skill)
+    agent_service = AgentService()
 
     async def event_generator():
         """Generate SSE events from AI response."""
@@ -118,7 +123,7 @@ async def stream_chat(
         usage_data = None
 
         try:
-            async for event in ai_service.stream_chat(
+            async for event in agent_service.stream_chat(
                 conversation,
                 thread.project_id,
                 thread_id,
@@ -150,7 +155,7 @@ async def stream_chat(
                 await track_token_usage(
                     db,
                     current_user["user_id"],
-                    AI_MODEL,
+                    AGENT_MODEL,
                     usage_data.get("input_tokens", 0),
                     usage_data.get("output_tokens", 0),
                     f"/threads/{thread_id}/chat"

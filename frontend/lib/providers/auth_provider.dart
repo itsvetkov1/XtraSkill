@@ -156,8 +156,12 @@ class AuthProvider extends ChangeNotifier {
       _errorMessage = 'Authentication failed: ${e.toString()}';
     }
 
-    notifyListeners();
-    print('DEBUG AuthProvider: Notified listeners, final state: $_state');
+    // Use Future.microtask to defer notification to avoid Flutter Web
+    // text editing race condition during router rebuild
+    Future.microtask(() {
+      notifyListeners();
+      print('DEBUG AuthProvider: Notified listeners, final state: $_state');
+    });
   }
 
   /// Logout current user

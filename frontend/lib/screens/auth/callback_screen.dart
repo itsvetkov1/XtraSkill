@@ -60,20 +60,18 @@ class _CallbackScreenState extends State<CallbackScreen> {
       print('DEBUG: After handleCallback - isAuthenticated: ${authProvider.isAuthenticated}');
       print('DEBUG: Error message: ${authProvider.errorMessage}');
 
-      // Navigate to home screen if successful
-      // Add small delay to avoid Flutter Web text editing race condition
-      if (mounted && authProvider.isAuthenticated) {
-        print('DEBUG: Navigating to home...');
-        await Future.delayed(const Duration(milliseconds: 50));
-        if (mounted) {
-          context.go('/home');
-        }
-      } else if (mounted) {
+      // Navigation is handled automatically by GoRouter's refreshListenable
+      // When authProvider.notifyListeners() is called, the router redirect
+      // will detect isAuthenticated=true and navigate to /home
+      // We only need to handle the error case here
+      if (mounted && !authProvider.isAuthenticated) {
         print('DEBUG: Authentication failed, showing error');
         setState(() {
           _error = authProvider.errorMessage ?? 'Authentication failed';
           _isProcessing = false;
         });
+      } else {
+        print('DEBUG: Authentication successful, router will redirect to home');
       }
     } catch (e) {
       print('DEBUG: Exception caught: $e');

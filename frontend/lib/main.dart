@@ -61,8 +61,11 @@ class MyApp extends StatelessWidget {
         final isLogin = state.matchedLocation == '/login';
         final isCallback = state.matchedLocation == '/auth/callback';
 
-        // Allow callback screen to process OAuth redirect
-        if (isCallback) return null;
+        // Callback screen: redirect to home when authenticated (processing complete)
+        // Stay on callback if not authenticated (still processing or error)
+        if (isCallback) {
+          return isAuthenticated ? '/home' : null;
+        }
 
         // If authenticated and on splash/login, redirect to home
         if (isAuthenticated && (isSplash || isLogin)) {

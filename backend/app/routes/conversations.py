@@ -2,7 +2,8 @@
 Conversation streaming endpoints for AI-powered chat.
 
 Provides SSE streaming endpoint for real-time AI responses with tool use.
-Uses Claude Agent SDK with business-analyst skill for structured discovery.
+Uses direct Anthropic API for Claude conversations with document search
+and artifact generation tools.
 """
 import json
 from fastapi import APIRouter, Depends, HTTPException, Request, status
@@ -15,7 +16,7 @@ from sse_starlette.sse import EventSourceResponse
 from app.database import get_db
 from app.models import Thread, Project
 from app.utils.jwt import get_current_user
-from app.services.agent_service import AgentService
+from app.services.ai_service import AIService
 from app.services.conversation_service import (
     save_message,
     build_conversation_context,
@@ -114,8 +115,9 @@ async def stream_chat(
     # Build conversation context from thread history
     conversation = await build_conversation_context(db, thread_id)
 
-    # Initialize Agent service (uses SDK with skill)
-    agent_service = AgentService()
+    # Initialize AI service (uses direct Anthropic API)
+    # Note: AgentService requires Claude Code CLI which is not installed
+    ai_service = AIService()
 
     async def event_generator():
         """Generate SSE events from AI response."""
@@ -123,7 +125,7 @@ async def stream_chat(
         usage_data = None
 
         try:
-            async for event in agent_service.stream_chat(
+            async for event in ai_service.stream_chat(
                 conversation,
                 thread.project_id,
                 thread_id,

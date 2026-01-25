@@ -1,7 +1,7 @@
 # Project State
 
 **Project:** Business Analyst Assistant
-**Last Updated:** 2026-01-24
+**Last Updated:** 2026-01-25
 
 ## Project Reference
 
@@ -11,18 +11,18 @@
 
 ## Current Position
 
-**Phase:** 04 of 04 (Artifact Generation & Export)
-**Plan:** 02 of 02 in phase - Completed
-**Status:** Phase 4 COMPLETE - All backend plans finished
-**Progress:** ████████████ 100% (12/12 total plans)
+**Phase:** 04.1 of 04.1 (Agent SDK & Skill Integration)
+**Plan:** 01 of 02 in phase
+**Status:** In progress
+**Progress:** █████████████ 100% (13/14 total plans)
 
 ## Performance Metrics
 
 ### Development Velocity
 - **Capacity:** 20-30 hours/week (solo developer, part-time)
 - **Timeline:** 8-10 weeks MVP development window
-- **Plans Completed:** 12 (01-01: 44 min, 01-02: 34 min, 01-03: 2 hours, 02-01: 33 min, 02-02: 75 min, 02-03: 82 min, 02-04: 15 min, 03-01: 18 min, 03-02: 3 min, 03-03: 2 min, 04-01: 4 min, 04-02: 3 min)
-- **Requirements Delivered:** 40/40 (database, API health check, app shell, OAuth Google/Microsoft, JWT auth, secure token storage, protected endpoints, logout, responsive UI, integration tests, cross-platform verification, projects, documents, threads, AI streaming, token tracking, thread summaries, conversation UI, streaming display, artifact model, save_artifact tool, artifact API, PDF export, Word export, Markdown export)
+- **Plans Completed:** 13 (01-01: 44 min, 01-02: 34 min, 01-03: 2 hours, 02-01: 33 min, 02-02: 75 min, 02-03: 82 min, 02-04: 15 min, 03-01: 18 min, 03-02: 3 min, 03-03: 2 min, 04-01: 4 min, 04-02: 3 min, 04.1-01: 2 min)
+- **Requirements Delivered:** 42/44 (database, API health check, app shell, OAuth Google/Microsoft, JWT auth, secure token storage, protected endpoints, logout, responsive UI, integration tests, cross-platform verification, projects, documents, threads, AI streaming, token tracking, thread summaries, conversation UI, streaming display, artifact model, save_artifact tool, artifact API, PDF export, Word export, Markdown export, claude-agent-sdk, skill_loader)
 
 ### Quality Indicators
 - **Test Coverage:** Backend integration tests (14 tests passing), Flutter integration tests (2 tests passing)
@@ -100,6 +100,9 @@
 54. **Graceful GTK error handling** (2026-01-24 - Plan 04-02): ImportError catch for PDF export provides helpful message on Windows
 55. **StreamingResponse for exports** (2026-01-24 - Plan 04-02): BytesIO buffers with Content-Disposition headers for browser downloads
 
+56. **LRU cache for skill prompt** (2026-01-25 - Plan 04.1-01): Skill files don't change at runtime; cache prevents repeated I/O
+57. **Path-based skill resolution** (2026-01-25 - Plan 04.1-01): Skill path relative to project root via backend/../.claude/business-analyst
+
 ### Open Questions
 - None yet
 
@@ -123,58 +126,45 @@
 ## Session Continuity
 
 ### What Just Happened
-- **Plan 04-02 EXECUTED:** Export Service (3 minutes)
-  - Added python-docx, weasyprint, markdown, jinja2 to requirements.txt
-  - Created HTML templates for PDF styling (base.html + artifact type templates)
-  - Created export_service.py with export_markdown, export_pdf, export_docx functions
-  - Added GET /artifacts/{id}/export/{format} endpoint with StreamingResponse
-  - Graceful error handling for WeasyPrint GTK requirement on Windows
-  - SUMMARY.md created documenting export service
+- **Plan 04.1-01 EXECUTED:** SDK Installation and Skill Loader (2 minutes)
+  - Added claude-agent-sdk>=0.1.0 to requirements.txt
+  - Added skill_path configuration to Settings class
+  - Created skill_loader.py with load_skill_prompt() and get_skill_references()
+  - Verified SDK imports (query, ClaudeAgentOptions, tool)
+  - Verified skill loader constructs 90k+ char prompt from 5 skill files
 
-### MVP Backend Complete
-**All 12 backend plans finished - 100% progress**
+### Phase 04.1 Progress
+**1 of 2 plans complete**
 
-Phase 1 (Foundation): Database, API shell, OAuth, JWT, responsive UI
-Phase 2 (Data Management): Projects, documents, threads
-Phase 3 (AI Conversation): Streaming, tokens, summaries, conversation UI
-Phase 4 (Artifacts): Generation tool, SSE events, export service
+Plan 04.1-01: SDK Installation and Skill Loader - COMPLETE
+Plan 04.1-02: Agent Integration with Chat - PENDING
 
 ### Next Action
-**MVP Backend Ready for Frontend Integration**
+**Execute Plan 04.1-02: Agent SDK Chat Integration**
 
-Available APIs:
-- Auth: POST /auth/login/google, /auth/login/microsoft, /auth/callback
-- Projects: GET/POST /projects, GET/PATCH /projects/{id}
-- Documents: GET/POST /projects/{id}/documents, GET /documents/{id}
-- Threads: GET/POST /projects/{id}/threads, GET /threads/{id}
-- Chat: POST /threads/{id}/chat (SSE streaming)
-- Artifacts: GET /threads/{id}/artifacts, GET /artifacts/{id}, GET /artifacts/{id}/export/{format}
-
-Export Formats:
-- Markdown (.md): Plain text download
-- PDF (.pdf): Styled document (requires GTK on Windows)
-- Word (.docx): Microsoft Word document
+Integrate skill_loader with chat endpoint to use Agent SDK for business analyst conversations.
 
 ### Context for Next Agent
-**Phase 4 Complete - Full Export Service:**
+**Phase 04.1-01 Complete - Skill Loader Ready:**
 
 New Components:
-- `backend/requirements.txt` - python-docx, weasyprint, markdown, jinja2
-- `backend/app/templates/artifacts/` - HTML templates for PDF styling
-- `backend/app/services/export_service.py` - Export functions for all formats
-- `backend/app/routes/artifacts.py` - Export endpoint added
+- `backend/requirements.txt` - claude-agent-sdk>=0.1.0
+- `backend/app/config.py` - skill_path setting
+- `backend/app/services/skill_loader.py` - Skill loading service
 
-Export API:
-- `GET /api/artifacts/{id}/export/md` - Markdown download
-- `GET /api/artifacts/{id}/export/pdf` - PDF download (GTK required)
-- `GET /api/artifacts/{id}/export/docx` - Word download
+Available Functions:
+- `load_skill_prompt()` - Returns 90k+ char combined prompt (cached)
+- `get_skill_references()` - Returns dict of 4 reference files
+- `get_skill_directory()` - Returns Path to skill directory
+- `clear_skill_cache()` - Clears LRU cache if needed
 
-Frontend Integration Needed:
-- Artifact list view in thread detail
-- Artifact detail view with markdown rendering
-- Export buttons triggering file downloads
-- Toast notifications for artifact_created SSE events
+Skill Files Loaded:
+- SKILL.md (main skill definition)
+- references/discovery-framework.md
+- references/brd-template.md
+- references/tone-guidelines.md
+- references/error-protocols.md
 
 ---
 
-*Last updated: 2026-01-24 after completing Plan 04-02 (Export Service)*
+*Last updated: 2026-01-25 after completing Plan 04.1-01 (SDK Installation and Skill Loader)*

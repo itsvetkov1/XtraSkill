@@ -2,7 +2,7 @@
 
 **Project:** Business Analyst Assistant
 **Version:** MVP v1.0
-**Last Updated:** 2026-01-22
+**Last Updated:** 2026-01-25
 
 ## Overview
 
@@ -140,10 +140,36 @@ Plans:
 
 ---
 
+### Phase 4.1: Agent SDK & Business-Analyst Skill Integration
+**Goal:** Refactor AI backend to use Claude Agent SDK and integrate the /business-analyst skill for structured one-question-at-a-time discovery and comprehensive BRD generation.
+
+**Dependencies:** Phase 4 (requires working AI service and artifact generation)
+
+**Requirements Covered:**
+- AI-02: AI proactively identifies edge cases and missing requirements (enhanced via skill methodology)
+- AI-04: AI asks clarifying questions to explore requirements deeply (enhanced via one-question protocol)
+- ART-03: User can request requirements documents from conversation (enhanced via BRD template)
+
+**Success Criteria:**
+1. AI asks mode question at session start: Meeting Mode vs Document Refinement Mode
+2. AI maintains one-question-at-a-time protocol with rationale and 3 answer options
+3. AI clarifies ambiguous terms ("seamless", "scalable") before proceeding
+4. AI redirects technical implementation discussions to business focus
+5. Generated BRDs follow complete template structure with all sections
+6. Skill behavior validated through integration tests
+
+Plans:
+- [x] 04.1-01-PLAN.md — Claude Agent SDK integration and skill loader
+- [x] 04.1-02-PLAN.md — Business-analyst skill prompt module
+- [x] 04.1-03-PLAN.md — BRD generation tool and template
+- [x] 04.1-04-PLAN.md — Integration tests and validation
+
+---
+
 ### Phase 5: Cross-Platform Polish & Launch
 **Goal:** Application delivers consistent, professional experience across web, Android, and iOS with production-ready reliability.
 
-**Dependencies:** Phase 4 (all features complete, now focus on quality)
+**Dependencies:** Phase 4.1 (all features complete, now focus on quality)
 
 **Requirements Covered:**
 - PLAT-06: UI is responsive and adapts to screen size (mobile, tablet, desktop)
@@ -164,7 +190,8 @@ Plans:
 | 1 - Foundation & Authentication | Complete | 10 | 100% |
 | 2 - Project & Document Management | Complete | 14 | 100% |
 | 3 - AI-Powered Conversations | Complete | 9 | 100% |
-| 4 - Artifact Generation & Export | Pending | 7 | 0% |
+| 4 - Artifact Generation & Export | Complete | 7 | 100% |
+| 4.1 - Agent SDK & Skill Integration | Complete | 3 (enhanced) | 100% |
 | 5 - Cross-Platform Polish & Launch | Pending | 1 | 0% |
 
 **Total Requirements Covered:** 41/41 (includes 40 v1 requirements + PLAT-06 counted separately)
@@ -182,5 +209,5 @@ Plans:
 
 ---
 
-*Last updated: 2026-01-22*
-*Ready for phase execution: Phase 4*
+*Last updated: 2026-01-25*
+*Ready for phase execution: Phase 5*

@@ -1,0 +1,488 @@
+# BRD Template
+
+Complete Business Requirements Document structure and formatting guide.
+
+## Complete BRD Structure
+
+Use this exact structure when generating Business Requirements Documents:
+
+```markdown
+# Business Requirements Document
+
+## Executive Summary
+[2-3 paragraphs providing: project name, primary business objective, target users, expected business value]
+
+## Business Context
+[Current state challenges, market drivers or competitive landscape, strategic alignment]
+
+## Business Objectives
+
+### Primary Objective
+[Detailed description with measurable success criteria]
+
+### Secondary Objectives
+[If identified during discovery, list with rationale for each]
+
+## User Personas
+
+### Persona 1: [Role/Name]
+- **Demographics:** [Relevant characteristics]
+- **Role and Responsibilities:** [What they do]
+- **Pain Points:** [Current challenges they face]
+- **Goals:** [What they want to achieve]
+- **Technical Proficiency:** [Skill level]
+
+[Repeat for each persona identified]
+
+## User Flows and Journeys
+
+### Flow 1: [Flow Name]
+**User Persona:** [Which persona performs this flow]
+**Business Goal:** [What business objective this flow supports]
+**User Goal:** [What user wants to accomplish]
+
+**Steps:**
+1. [User action, system response, decision points]
+2. [Continue step-by-step for complete flow]
+
+[Repeat for each critical user flow]
+
+## Functional Requirements
+
+### Must-Have Requirements (Priority 0)
+1. **[Requirement Title]**
+   - Description: [What is needed]
+   - Business rationale: [Why it matters to business objectives]
+   - User story: As a [user type], I need [capability] so that [benefit achieved]
+   - Success criteria: [How to verify requirement is met]
+
+[Repeat for all P0 requirements]
+
+### Should-Have Requirements (Priority 1)
+[Same structure as P0]
+
+### Nice-to-Have Requirements (Priority 2)
+[Same structure as P0]
+
+## Business Processes
+
+### Process 1: [Process Name]
+- **Current State:** [How it works today, including pain points and inefficiencies]
+- **Future State:** [How product will improve this process]
+- **Process Flow:** [Step-by-step description of future state]
+- **Stakeholders:** [Who is involved in this process]
+
+[Repeat for each business process discussed]
+
+## Stakeholder Analysis
+
+| Stakeholder Group | Role | Key Requirements | Success Criteria | Concerns |
+|-------------------|------|------------------|------------------|----------|
+| [Group/Person] | [What they do] | [What they need from product] | [How they define success] | [Worries/risks they have] |
+
+## Success Metrics and KPIs
+
+| KPI | Current State | Target State | Measurement Method | Timeline |
+|-----|---------------|--------------|-------------------|----------|
+| [Metric name] | [Baseline if known] | [Goal value] | [How it will be measured] | [When target should be achieved] |
+
+## Regulatory and Compliance Requirements
+[If applicable: specific mandates, standards (GDPR, HIPAA, etc.), certifications needed, audit requirements]
+
+[If not applicable: "No specific regulatory or compliance requirements identified."]
+
+## Assumptions and Constraints
+**Assumptions:**
+- [Key assumptions made during discovery]
+
+**Constraints:**
+- [Known constraints that limit solution options]
+- [Regulatory constraints if applicable]
+
+## Risks and Mitigation Strategies
+
+| Risk | Impact | Likelihood | Mitigation Strategy |
+|------|--------|------------|-------------------|
+| [Risk description] | [High/Medium/Low] | [High/Medium/Low] | [How to address or reduce risk] |
+
+## Next Steps
+- Technical team review and architecture design
+- Proposal development with cost and timeline estimates
+- Customer review and sign-off on requirements
+```
+
+## Section-by-Section Guidance
+
+### Executive Summary
+
+**Purpose:** Provide high-level overview for stakeholders who need to quickly understand the project.
+
+**Content to include:**
+- Project name or codename (if known)
+- 1-sentence statement of primary business objective
+- Target user group(s)
+- Expected business value or impact (revenue, cost savings, efficiency)
+
+**Length:** 2-3 paragraphs maximum
+
+**Tone:** Professional, concise, business-focused
+
+**Example:**
+"The Customer Portal Redesign project aims to reduce customer support ticket volume by 30% by enabling self-service for common tasks. The portal will serve 50,000+ existing enterprise customers who currently must email or call support for routine account management, billing inquiries, and usage reporting. By empowering customers to manage their accounts independently, we expect to save $500K annually in support costs while improving customer satisfaction scores."
+
+### Business Context
+
+**Purpose:** Explain why this product is needed now and how it fits into the larger business strategy.
+
+**Content to include:**
+- Current state challenges or pain points
+- Market drivers (competitive pressure, customer demands, regulatory changes)
+- Strategic alignment (how this supports company goals)
+
+**Length:** 1-2 paragraphs
+
+**Example:**
+"Our current manual order processing system requires 5 staff members to handle 200 orders daily, with a 3-day average fulfillment time. Competitors have launched automated systems offering same-day fulfillment, putting pressure on our market share. Additionally, our manual process has a 12% error rate leading to customer complaints and costly refunds. Automating order processing aligns with our strategic initiative to improve operational efficiency and customer experience."
+
+### Business Objectives
+
+**Primary Objective:**
+- State the single most important goal
+- Must be measurable and specific
+- Include target value and timeline when possible
+- Explain why this matters to the business
+
+**Secondary Objectives:**
+- List additional goals that support or complement primary objective
+- Each should have clear business rationale
+- Prioritize based on business value
+
+**Example:**
+
+**Primary Objective:**
+Reduce customer onboarding time from 14 days to 2 days by automating account setup and data migration. This enables faster time-to-value for customers, improves customer satisfaction scores, and accelerates revenue recognition by 12 days per customer.
+
+**Secondary Objectives:**
+1. Decrease customer support tickets related to onboarding by 50%, allowing support team to focus on complex issues requiring human expertise
+2. Improve onboarding completion rate from 78% to 95%, reducing customer churn before first value realization
+
+### User Personas
+
+**Purpose:** Create detailed profiles of who will use the product, ensuring design decisions align with actual user needs.
+
+**For each persona, include:**
+
+**Demographics:**
+- Age range (if relevant)
+- Location (if relevant)
+- Education level (if relevant)
+- Industry experience (if relevant)
+
+**Role and Responsibilities:**
+- Job title
+- Key responsibilities in their role
+- Where this product fits into their daily work
+
+**Pain Points:**
+- Current challenges they face that this product should solve
+- Frustrations with existing solutions
+- Time wasted or inefficiencies
+
+**Goals:**
+- What they want to accomplish
+- How they define success
+- What would make their job easier
+
+**Technical Proficiency:**
+- Novice: Requires significant guidance, intimidated by technology
+- Intermediate: Comfortable with common tools, needs some guidance for complex features
+- Advanced: Power user, wants keyboard shortcuts and advanced capabilities
+
+**Example:**
+
+### Persona 1: Regional Sales Manager
+- **Demographics:** 35-50 years old, 10+ years sales experience, manages team of 5-8 sales reps
+- **Role and Responsibilities:** Responsible for regional sales quota attainment, team coaching, and pipeline management. Spends 60% of time in customer meetings, 40% on team management and reporting.
+- **Pain Points:** Manually compiling weekly sales reports from multiple systems takes 4 hours. Cannot quickly answer executive questions about pipeline status. Lacks visibility into which team members need coaching.
+- **Goals:** Spend less time on administrative work and more time coaching team. Make data-driven decisions about where to focus team efforts. Respond quickly to executive inquiries with accurate data.
+- **Technical Proficiency:** Intermediate - comfortable with Excel, CRM, email, but struggles with complex reports or data manipulation.
+
+### User Flows and Journeys
+
+**Purpose:** Document step-by-step how users will accomplish key tasks, ensuring all requirements support complete workflows.
+
+**For each flow, include:**
+
+**User Persona:** Which persona performs this flow
+**Business Goal:** What business objective this flow supports
+**User Goal:** What user wants to accomplish
+
+**Steps:**
+- Number each step sequentially
+- Include user actions (what they do)
+- Include system responses (what product does)
+- Include decision points (if X, then Y)
+- Note error scenarios and recovery paths
+
+**Example:**
+
+### Flow 1: Generate Weekly Sales Report
+**User Persona:** Regional Sales Manager
+**Business Goal:** Enable data-driven decision making and reduce time spent on administrative tasks
+**User Goal:** Create comprehensive weekly sales report in under 15 minutes
+
+**Steps:**
+1. User clicks "Reports" in main navigation
+2. System displays report templates library
+3. User selects "Weekly Sales Summary" template
+4. System displays report configuration screen pre-populated with user's region and team
+5. User adjusts date range to current week (Monday-Sunday)
+6. User clicks "Generate Report"
+7. System retrieves data from CRM, processes calculations, and displays report preview (typical: 10-15 seconds)
+8. User reviews report sections: team performance, pipeline status, deal progression, forecast accuracy
+9. If satisfied: User clicks "Export to PDF" or "Send to Email"
+10. If adjustments needed: User clicks "Customize" to add/remove sections, then returns to step 7
+11. System generates PDF and sends to user's email within 1 minute
+12. User forwards report to executives and team members
+
+**Error scenarios:**
+- If data retrieval takes >30 seconds, system displays progress indicator with status
+- If required data unavailable, system shows specific error and suggests resolution
+
+### Functional Requirements
+
+**Purpose:** Specify what the product must do, organized by priority to enable MVP scoping and phased delivery.
+
+**Priority Levels:**
+- **Priority 0 (Must-Have):** Product cannot launch without these. Core functionality required for business objectives.
+- **Priority 1 (Should-Have):** Important for full solution but could be deferred to v2 if necessary. Significantly improves value.
+- **Priority 2 (Nice-to-Have):** Enhances product but not essential. Consider for future phases based on user feedback.
+
+**For each requirement:**
+
+**Requirement Title:** Short, descriptive name
+
+**Description:** What is needed (functional capability, not technical implementation)
+
+**Business Rationale:** Why it matters to business objectives
+
+**User Story:** As a [user type], I need [capability] so that [benefit achieved]
+
+**Success Criteria:** How to verify requirement is met (testable, measurable)
+
+**Example:**
+
+### Must-Have Requirements (Priority 0)
+
+1. **Automated Report Generation**
+   - Description: System automatically retrieves sales data from CRM, processes calculations (totals, averages, trends), and generates formatted report without manual data entry or manipulation.
+   - Business rationale: Reduces report creation time from 4 hours to 15 minutes, directly supporting primary objective of improving efficiency. Eliminates manual errors that undermine decision quality.
+   - User story: As a Regional Sales Manager, I need automated report generation so that I can spend 4 hours per week coaching my team instead of compiling data.
+   - Success criteria: User can generate complete weekly sales report in under 15 minutes from login to PDF export. Report data matches CRM source data with 100% accuracy.
+
+2. **Report Template Library**
+   - Description: Pre-built report templates for common reporting needs (weekly sales, monthly forecast, pipeline analysis, team performance). User selects template and system applies appropriate data queries and formatting.
+   - Business rationale: Standardizes reporting across regions, enabling executives to compare performance. Reduces learning curve for new users.
+   - User story: As a Regional Sales Manager, I need standardized report templates so that my reports are consistent with other regions and I don't have to design layouts from scratch.
+   - Success criteria: Library includes minimum 5 report templates covering weekly, monthly, and quarterly timeframes. User can generate any template in under 30 seconds from selection to preview.
+
+### Business Processes
+
+**Purpose:** Document how current processes work and how the product will improve them, ensuring solution fits into existing workflows.
+
+**For each process:**
+
+**Current State:**
+- How process works today
+- Pain points and inefficiencies
+- Time required
+- Error rates
+- People involved
+
+**Future State:**
+- How product will improve process
+- Specific improvements (faster, more accurate, less manual work)
+- New capabilities enabled
+
+**Process Flow:**
+- Step-by-step description of future state workflow
+- Decision points
+- Handoffs between people or systems
+
+**Stakeholders:**
+- Who is involved
+- What their role is
+
+**Example:**
+
+### Process 1: Weekly Sales Review Meeting Preparation
+- **Current State:** Regional Sales Manager spends Monday morning (4 hours) manually extracting data from CRM, copying into Excel, calculating totals and trends, formatting charts, and creating PowerPoint presentation. Process is error-prone due to manual data entry. Manager often discovers data errors during Tuesday meeting, undermining credibility. No time to analyze trends or identify coaching opportunities before meeting.
+
+- **Future State:** Regional Sales Manager generates report in 15 minutes on Monday morning using automated system. Spends remaining 3.75 hours analyzing trends, identifying coaching opportunities, and preparing specific action plans for team. Arrives at Tuesday meeting with data-driven insights rather than just raw numbers. Data accuracy is guaranteed since no manual copying.
+
+- **Process Flow:**
+  1. Monday 8:00 AM: Manager logs into system and selects "Weekly Sales Report" template
+  2. System generates report with all current data (10 minutes)
+  3. Manager reviews report and exports to PDF (5 minutes)
+  4. Manager spends 8:00-11:45 AM analyzing trends and preparing coaching plans
+  5. Tuesday 9:00 AM: Manager presents report in team meeting, focusing discussion on trends and actions rather than defending data accuracy
+
+- **Stakeholders:** Regional Sales Manager (report creator and presenter), Sales Representatives (report subjects and consumers), VP of Sales (report consumer and decision maker)
+
+### Stakeholder Analysis
+
+**Purpose:** Identify everyone who cares about this product and ensure their needs are considered.
+
+**For each stakeholder:**
+
+**Stakeholder Group:** Who they are (role, department, or group)
+
+**Role:** What they do related to this product
+
+**Key Requirements:** What they need from product
+
+**Success Criteria:** How they define success
+
+**Concerns:** What worries them, what risks they see
+
+**Example:**
+
+| Stakeholder Group | Role | Key Requirements | Success Criteria | Concerns |
+|-------------------|------|------------------|------------------|----------|
+| Regional Sales Managers | Primary users who create reports | Fast report generation (<15 min), accurate data, customizable templates, easy PDF export | Reports generated in under 15 minutes with 100% data accuracy | Learning curve for new system, system downtime during critical reporting periods |
+| VP of Sales | Report consumer who makes strategic decisions | Standardized reports across regions, trend analysis, forecast accuracy tracking | Can compare regional performance easily, identify coaching opportunities across organization | Data accuracy, managers gaming metrics, incomplete adoption across regions |
+| IT Department | System administrators and maintainers | Secure data access, reliable integrations with CRM, manageable support burden | Zero security incidents, <1% system downtime, <5 support tickets per week | Additional system to maintain, integration complexity with legacy CRM, potential data security risks |
+
+### Success Metrics and KPIs
+
+**Purpose:** Define measurable goals that prove the product achieved business objectives.
+
+**For each metric:**
+
+**KPI:** Name of metric
+
+**Current State:** Baseline value today (if known)
+
+**Target State:** Goal value
+
+**Measurement Method:** How it will be measured
+
+**Timeline:** When target should be achieved
+
+**Example:**
+
+| KPI | Current State | Target State | Measurement Method | Timeline |
+|-----|---------------|--------------|-------------------|----------|
+| Time to generate weekly sales report | 4 hours average per manager | 15 minutes average per manager | Tracked in system: timestamp when user initiates report to timestamp when PDF exported | 3 months after launch |
+| Report data accuracy | 88% (12% error rate based on corrections made) | 100% (zero errors) | Monthly audit comparing 10 random reports to source CRM data | 1 month after launch |
+| Manager time spent on strategic analysis | 5% of week (2 hours) | 20% of week (8 hours) | Weekly manager survey tracking time allocation | 6 months after launch |
+| Regional sales performance | Baseline Q4 2025 revenue by region | 15% increase in Q1 2026 revenue | CRM sales data by region, quarter-over-quarter comparison | Q1 2026 |
+
+### Regulatory and Compliance Requirements
+
+**Purpose:** Document any mandated constraints that must be met for legal or regulatory reasons.
+
+**Include:**
+- Specific regulations (GDPR, HIPAA, SOC 2, PCI-DSS, etc.)
+- Industry standards (ISO, NIST, etc.)
+- Certifications needed
+- Audit requirements
+- Data retention policies
+- Privacy requirements
+
+**If none applicable:** State clearly: "No specific regulatory or compliance requirements identified."
+
+**Example:**
+
+**GDPR Compliance:**
+- Customer data must be stored and processed in accordance with GDPR requirements
+- Users must be able to request data export and deletion
+- Consent must be obtained before processing personal data
+- Data breach notification process must be implemented
+
+**SOC 2 Type II:**
+- System must maintain SOC 2 Type II certification for security, availability, and confidentiality
+- Annual third-party audit required
+- Access controls and logging must meet SOC 2 criteria
+
+### Assumptions and Constraints
+
+**Purpose:** Document what we're assuming to be true and what limitations exist.
+
+**Assumptions:**
+- Key assumptions made during discovery
+- Things we believe to be true but haven't validated
+- Dependencies on external factors
+
+**Constraints:**
+- Known limitations that restrict solution options
+- Fixed requirements that cannot change
+- Resource limitations
+- Timeline limitations
+
+**Example:**
+
+**Assumptions:**
+- CRM system will remain primary source of truth for sales data
+- All Regional Sales Managers have stable internet connectivity
+- Current CRM API provides all necessary data points for reports
+- Managers are comfortable with basic web application usage
+
+**Constraints:**
+- Must integrate with existing Salesforce CRM (cannot replace or modify CRM)
+- Must work on managers' existing laptops (no new hardware budget)
+- Cannot modify sales territories or organizational structure (out of scope)
+- Launch must occur before Q4 2026 planning cycle begins (September 2026)
+
+### Risks and Mitigation Strategies
+
+**Purpose:** Identify potential problems and how to address them proactively.
+
+**For each risk:**
+
+**Risk:** Description of what could go wrong
+
+**Impact:** High/Medium/Low - how much damage if it occurs
+
+**Likelihood:** High/Medium/Low - probability of occurring
+
+**Mitigation Strategy:** How to prevent or reduce risk
+
+**Example:**
+
+| Risk | Impact | Likelihood | Mitigation Strategy |
+|------|--------|------------|-------------------|
+| CRM API changes break integration | High | Medium | Maintain close relationship with CRM vendor, subscribe to API change notifications, build abstraction layer that isolates API dependencies, plan quarterly integration testing |
+| Managers resist adopting new system | High | Medium | Conduct user research with managers during design phase, provide comprehensive training, assign executive sponsor (VP Sales) to champion adoption, measure and communicate time savings benefits |
+| Report data doesn't match manual calculations during initial rollout | Medium | High | Phase rollout with pilot group, run parallel reporting (old manual + new automated) for first month, provide easy mechanism to flag discrepancies, communicate that validation period is expected |
+| System unavailable during critical Monday morning reporting window | High | Low | Design for 99.9% uptime, implement redundancy, provide offline report generation capability, set expectations that reports can be generated Sunday evening or Monday afternoon if needed |
+
+### Next Steps
+
+**Purpose:** Guide what happens after BRD approval.
+
+**Standard next steps:**
+- Technical team review and architecture design
+- Proposal development with cost and timeline estimates
+- Customer review and sign-off on requirements
+
+**Customize based on project context.**
+
+## Quality Checklist
+
+Before finalizing BRD, verify:
+
+- [ ] All sections populated (no "[TBD]" or empty placeholders)
+- [ ] Executive Summary clearly states project name, objective, users, and value
+- [ ] Business Objectives are measurable with specific targets
+- [ ] User Personas include demographics, role, pain points, goals, and proficiency
+- [ ] User Flows are complete end-to-end with numbered steps
+- [ ] Functional Requirements organized by priority (P0, P1, P2)
+- [ ] Each requirement includes description, rationale, user story, and success criteria
+- [ ] Business Processes show both current and future state
+- [ ] Stakeholder Analysis identifies all key groups with their needs and concerns
+- [ ] Success Metrics include current state, target state, measurement method, and timeline
+- [ ] No technical implementation language (React, API, database, microservices, etc.)
+- [ ] All stakeholder concerns addressed in requirements or risks
+- [ ] Requirements align with stated business objectives
+- [ ] Success metrics are measurable and time-bound (not vague)

@@ -25,6 +25,7 @@ from claude_agent_sdk.types import StreamEvent
 from app.config import settings
 from app.services.skill_loader import load_skill_prompt
 from app.services.document_search import search_documents
+from app.services.brd_generator import generate_brd_tool
 from app.models import Artifact, ArtifactType
 
 logger = logging.getLogger(__name__)
@@ -175,7 +176,7 @@ class AgentService:
         self.tools_server = create_sdk_mcp_server(
             name="ba-tools",
             version="1.0.0",
-            tools=[search_documents_tool, save_artifact_tool]
+            tools=[search_documents_tool, save_artifact_tool, generate_brd_tool]
         )
 
         # Load skill prompt (cached)
@@ -231,6 +232,11 @@ Be conversational but thorough. Help users think through their requirements comp
         _project_id_context.set(project_id)
         _thread_id_context.set(thread_id)
 
+        # Also set context for brd_generator module's generate_brd_tool
+        from app.services import brd_generator
+        brd_generator._db_context.set(db)
+        brd_generator._thread_id_context.set(thread_id)
+
         # Build the prompt from messages
         # Convert message history to single prompt for SDK
         prompt_parts = []
@@ -262,7 +268,8 @@ Be conversational but thorough. Help users think through their requirements comp
             mcp_servers={"ba": self.tools_server},
             allowed_tools=[
                 "mcp__ba__search_documents",
-                "mcp__ba__save_artifact"
+                "mcp__ba__save_artifact",
+                "mcp__ba__generate_brd"
             ],
             permission_mode="acceptEdits",
             include_partial_messages=True,
@@ -292,6 +299,11 @@ Be conversational but thorough. Help users think through their requirements comp
                                 yield {
                                     "event": "tool_executing",
                                     "data": json.dumps({"status": "Generating artifact..."})
+                                }
+                            elif "generate_brd" in tool_name:
+                                yield {
+                                    "event": "tool_executing",
+                                    "data": json.dumps({"status": "Generating Business Requirements Document..."})
                                 }
                             else:
                                 yield {

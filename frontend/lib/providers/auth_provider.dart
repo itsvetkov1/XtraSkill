@@ -80,7 +80,9 @@ class AuthProvider extends ChangeNotifier {
       _email = null;
     }
 
-    notifyListeners();
+    // Use Future.microtask to defer notification to avoid Flutter Web
+    // text editing race condition during router rebuild
+    Future.microtask(() => notifyListeners());
   }
 
   /// Login with Google OAuth provider
@@ -183,7 +185,9 @@ class AuthProvider extends ChangeNotifier {
       _state = AuthState.unauthenticated;
     }
 
-    notifyListeners();
+    // Use Future.microtask to defer notification to avoid Flutter Web
+    // text editing race condition during router rebuild
+    Future.microtask(() => notifyListeners());
   }
 
   /// Login with OAuth provider (generic)

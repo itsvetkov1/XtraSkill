@@ -28,15 +28,10 @@ class _SplashScreenState extends State<SplashScreen> {
   Future<void> _checkAuthAndNavigate() async {
     final authProvider = context.read<AuthProvider>();
     await authProvider.checkAuthStatus();
-
-    if (!mounted) return;
-
-    // Navigate based on authentication status
-    if (authProvider.isAuthenticated) {
-      context.go('/home');
-    } else {
-      context.go('/login');
-    }
+    // Navigation is handled automatically by GoRouter's refreshListenable
+    // When authProvider.notifyListeners() is called, the router redirect
+    // will detect the auth state and navigate accordingly
+    // No manual navigation needed here
   }
 
   @override

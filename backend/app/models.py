@@ -335,6 +335,7 @@ class ArtifactType(str, PyEnum):
     USER_STORIES = "user_stories"
     ACCEPTANCE_CRITERIA = "acceptance_criteria"
     REQUIREMENTS_DOC = "requirements_doc"
+    BRD = "brd"  # Business Requirements Document following brd-template.md structure
 
 
 class Artifact(Base):

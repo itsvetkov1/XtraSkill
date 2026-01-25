@@ -1,9 +1,12 @@
 """
 AI Service for Claude API integration.
 
-Provides streaming chat with tool use for document search.
-Uses AsyncAnthropic client for non-blocking operations.
+DEPRECATED: This service uses direct Anthropic API.
+Use AgentService instead for skill-enhanced conversations.
+
+Kept as fallback for testing and gradual migration.
 """
+import warnings
 import anthropic
 from typing import AsyncGenerator, List, Dict, Any, Optional
 from app.config import settings
@@ -101,9 +104,17 @@ You may call this tool multiple times to create multiple artifacts.""",
 
 
 class AIService:
-    """Claude AI service for streaming chat with tool use."""
+    """Claude AI service for streaming chat with tool use.
+
+    DEPRECATED: Use AgentService for skill-enhanced conversations.
+    """
 
     def __init__(self):
+        warnings.warn(
+            "AIService is deprecated. Use AgentService for skill-enhanced conversations.",
+            DeprecationWarning,
+            stacklevel=2
+        )
         self.client = anthropic.AsyncAnthropic(api_key=settings.anthropic_api_key)
         self.tools = [DOCUMENT_SEARCH_TOOL, SAVE_ARTIFACT_TOOL]
 

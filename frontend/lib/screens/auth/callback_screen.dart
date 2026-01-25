@@ -61,9 +61,13 @@ class _CallbackScreenState extends State<CallbackScreen> {
       print('DEBUG: Error message: ${authProvider.errorMessage}');
 
       // Navigate to home screen if successful
+      // Add small delay to avoid Flutter Web text editing race condition
       if (mounted && authProvider.isAuthenticated) {
         print('DEBUG: Navigating to home...');
-        context.go('/home');
+        await Future.delayed(const Duration(milliseconds: 50));
+        if (mounted) {
+          context.go('/home');
+        }
       } else if (mounted) {
         print('DEBUG: Authentication failed, showing error');
         setState(() {

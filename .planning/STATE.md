@@ -12,17 +12,17 @@
 ## Current Position
 
 **Phase:** 04.1 of 04.1 (Agent SDK & Skill Integration)
-**Plan:** 01 of 02 in phase
-**Status:** In progress
-**Progress:** █████████████ 100% (13/14 total plans)
+**Plan:** 02 of 02 in phase
+**Status:** Phase complete
+**Progress:** ██████████████ 100% (14/14 total plans)
 
 ## Performance Metrics
 
 ### Development Velocity
 - **Capacity:** 20-30 hours/week (solo developer, part-time)
 - **Timeline:** 8-10 weeks MVP development window
-- **Plans Completed:** 13 (01-01: 44 min, 01-02: 34 min, 01-03: 2 hours, 02-01: 33 min, 02-02: 75 min, 02-03: 82 min, 02-04: 15 min, 03-01: 18 min, 03-02: 3 min, 03-03: 2 min, 04-01: 4 min, 04-02: 3 min, 04.1-01: 2 min)
-- **Requirements Delivered:** 42/44 (database, API health check, app shell, OAuth Google/Microsoft, JWT auth, secure token storage, protected endpoints, logout, responsive UI, integration tests, cross-platform verification, projects, documents, threads, AI streaming, token tracking, thread summaries, conversation UI, streaming display, artifact model, save_artifact tool, artifact API, PDF export, Word export, Markdown export, claude-agent-sdk, skill_loader)
+- **Plans Completed:** 14 (01-01: 44 min, 01-02: 34 min, 01-03: 2 hours, 02-01: 33 min, 02-02: 75 min, 02-03: 82 min, 02-04: 15 min, 03-01: 18 min, 03-02: 3 min, 03-03: 2 min, 04-01: 4 min, 04-02: 3 min, 04.1-01: 2 min, 04.1-02: 4 min)
+- **Requirements Delivered:** 44/44 (database, API health check, app shell, OAuth Google/Microsoft, JWT auth, secure token storage, protected endpoints, logout, responsive UI, integration tests, cross-platform verification, projects, documents, threads, AI streaming, token tracking, thread summaries, conversation UI, streaming display, artifact model, save_artifact tool, artifact API, PDF export, Word export, Markdown export, claude-agent-sdk, skill_loader, AgentService, skill-enhanced chat)
 
 ### Quality Indicators
 - **Test Coverage:** Backend integration tests (14 tests passing), Flutter integration tests (2 tests passing)
@@ -103,6 +103,10 @@
 56. **LRU cache for skill prompt** (2026-01-25 - Plan 04.1-01): Skill files don't change at runtime; cache prevents repeated I/O
 57. **Path-based skill resolution** (2026-01-25 - Plan 04.1-01): Skill path relative to project root via backend/../.claude/business-analyst
 
+58. **Context variables for tool injection** (2026-01-25 - Plan 04.1-02): ContextVar pattern passes db/project_id/thread_id to @tool handlers
+59. **system_prompt.append for skill** (2026-01-25 - Plan 04.1-02): Skill loaded into SDK system prompt append rather than filesystem discovery
+60. **AIService deprecated** (2026-01-25 - Plan 04.1-02): DeprecationWarning raised; AgentService is primary service
+
 ### Open Questions
 - None yet
 
@@ -126,45 +130,54 @@
 ## Session Continuity
 
 ### What Just Happened
-- **Plan 04.1-01 EXECUTED:** SDK Installation and Skill Loader (2 minutes)
-  - Added claude-agent-sdk>=0.1.0 to requirements.txt
-  - Added skill_path configuration to Settings class
-  - Created skill_loader.py with load_skill_prompt() and get_skill_references()
-  - Verified SDK imports (query, ClaudeAgentOptions, tool)
-  - Verified skill loader constructs 90k+ char prompt from 5 skill files
+- **Plan 04.1-02 EXECUTED:** Agent SDK Chat Integration (4 minutes)
+  - Created AgentService with @tool decorators for search_documents and save_artifact
+  - Integrated 90k+ char skill prompt via system_prompt.append
+  - Updated conversations endpoint to use AgentService
+  - Deprecated AIService with DeprecationWarning
+  - Verified SSE event format unchanged
 
 ### Phase 04.1 Progress
-**1 of 2 plans complete**
+**2 of 2 plans complete - PHASE COMPLETE**
 
 Plan 04.1-01: SDK Installation and Skill Loader - COMPLETE
-Plan 04.1-02: Agent Integration with Chat - PENDING
+Plan 04.1-02: Agent Integration with Chat - COMPLETE
+
+### MVP Status
+**All 14 plans complete**
+
+The MVP is feature-complete:
+- Authentication (OAuth Google/Microsoft, JWT)
+- Projects & Documents (CRUD, FTS5 search, encryption)
+- Threads & Messages (conversation management)
+- AI Chat (Claude Agent SDK with skill integration)
+- Artifacts (generation via tool, PDF/Word/Markdown export)
 
 ### Next Action
-**Execute Plan 04.1-02: Agent SDK Chat Integration**
+**End-to-end testing and deployment preparation**
 
-Integrate skill_loader with chat endpoint to use Agent SDK for business analyst conversations.
+The MVP is ready for:
+1. Manual end-to-end testing with real conversations
+2. Deployment to Railway/Render
+3. User acceptance testing
 
 ### Context for Next Agent
-**Phase 04.1-01 Complete - Skill Loader Ready:**
+**Phase 04.1 Complete - Agent SDK Integrated:**
 
 New Components:
-- `backend/requirements.txt` - claude-agent-sdk>=0.1.0
-- `backend/app/config.py` - skill_path setting
-- `backend/app/services/skill_loader.py` - Skill loading service
+- `backend/app/services/agent_service.py` - AgentService with SDK integration
 
-Available Functions:
-- `load_skill_prompt()` - Returns 90k+ char combined prompt (cached)
-- `get_skill_references()` - Returns dict of 4 reference files
-- `get_skill_directory()` - Returns Path to skill directory
-- `clear_skill_cache()` - Clears LRU cache if needed
+Key Functions:
+- `AgentService.stream_chat()` - Streams chat with skill-enhanced prompts
+- `search_documents_tool` - @tool decorated document search
+- `save_artifact_tool` - @tool decorated artifact saving
 
-Skill Files Loaded:
-- SKILL.md (main skill definition)
-- references/discovery-framework.md
-- references/brd-template.md
-- references/tone-guidelines.md
-- references/error-protocols.md
+Architecture:
+- Claude Agent SDK query() with MCP server tools
+- Context variables pass db/project_id/thread_id to tools
+- Skill prompt (90k+ chars) appended to system prompt
+- SSE events: text_delta, tool_executing, artifact_created, message_complete
 
 ---
 
-*Last updated: 2026-01-25 after completing Plan 04.1-01 (SDK Installation and Skill Loader)*
+*Last updated: 2026-01-25 after completing Plan 04.1-02 (Agent SDK Chat Integration)*

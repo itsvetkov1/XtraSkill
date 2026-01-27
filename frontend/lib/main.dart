@@ -57,6 +57,7 @@ class MyApp extends StatelessWidget {
       initialLocation: '/splash',
       redirect: (context, state) {
         final isAuthenticated = authProvider.isAuthenticated;
+        final isLoading = authProvider.isLoading;
         final isSplash = state.matchedLocation == '/splash';
         final isLogin = state.matchedLocation == '/login';
         final isCallback = state.matchedLocation == '/auth/callback';
@@ -70,6 +71,12 @@ class MyApp extends StatelessWidget {
         // If authenticated and on splash/login, redirect to home
         if (isAuthenticated && (isSplash || isLogin)) {
           return '/home';
+        }
+
+        // If on splash and auth check complete (not loading) and not authenticated,
+        // redirect to login
+        if (isSplash && !isLoading && !isAuthenticated) {
+          return '/login';
         }
 
         // If not authenticated and not on splash/login/callback, redirect to login

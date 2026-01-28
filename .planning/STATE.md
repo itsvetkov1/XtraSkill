@@ -12,20 +12,22 @@
 ## Current Position
 
 **Phase:** 05 of 05 (Cross-Platform Polish & Launch)
-**Plan:** 01 of 04 in phase
-**Status:** Plan 05-01 Complete
-**Progress:** ███████████████░ 91% (20/22 total plans)
+**Plan:** 02 of 04 in phase
+**Status:** Plan 05-02 Complete
+**Last activity:** 2026-01-28 - Completed 05-02-PLAN.md
+
+**Progress:** ███████████████░ 95% (21/22 total plans)
 
 ## Performance Metrics
 
 ### Development Velocity
 - **Capacity:** 20-30 hours/week (solo developer, part-time)
 - **Timeline:** 8-10 weeks MVP development window
-- **Plans Completed:** 20 (01-01: 44 min, 01-02: 34 min, 01-03: 2 hours, 02-01: 33 min, 02-02: 75 min, 02-03: 82 min, 02-04: 15 min, 03-01: 18 min, 03-02: 3 min, 03-03: 2 min, 04-01: 4 min, 04-02: 3 min, 04.1-01: 2 min, 04.1-02: 4 min, 04.1-03: 4 min, 04.1-04: 4 min, 05-01: 9 min, 05-03: 4 min, 05-04: 3 min)
+- **Plans Completed:** 21 (01-01: 44 min, 01-02: 34 min, 01-03: 2 hours, 02-01: 33 min, 02-02: 75 min, 02-03: 82 min, 02-04: 15 min, 03-01: 18 min, 03-02: 3 min, 03-03: 2 min, 04-01: 4 min, 04-02: 3 min, 04.1-01: 2 min, 04.1-02: 4 min, 04.1-03: 4 min, 04.1-04: 4 min, 05-01: 9 min, 05-02: 73 min, 05-03: 4 min, 05-04: 3 min)
 - **Requirements Delivered:** 48/48 (database, API health check, app shell, OAuth Google/Microsoft, JWT auth, secure token storage, protected endpoints, logout, responsive UI, integration tests, cross-platform verification, projects, documents, threads, AI streaming, token tracking, thread summaries, conversation UI, streaming display, artifact model, save_artifact tool, artifact API, PDF export, Word export, Markdown export, claude-agent-sdk, skill_loader, AgentService, skill-enhanced chat, BRD artifact type, generate_brd tool, skill integration tests)
 
 ### Quality Indicators
-- **Test Coverage:** Backend integration tests (43 tests passing: 14 original + 29 skill integration), Flutter integration tests (2 tests passing)
+- **Test Coverage:** Backend integration tests (118 total: 36 existing + 29 skill + 45 consolidated + others), Flutter widget tests (31 tests: 5 login + 8 projects + 8 documents + 10 conversation), Flutter integration tests (2 tests passing)
 - **Bug Count:** 5 bugs auto-fixed total (2 in 01-03: flutter_web_plugins, OAuth callback URLs)
 - **Tech Debt:** Minimal (state storage in-memory dict - acceptable for MVP, move to Redis in production)
 
@@ -116,6 +118,9 @@
 
 66. **Direct Anthropic API over Agent SDK** (2026-01-26 - Phase 04.1 conclusion): Agent SDK requires Claude Code CLI runtime (not suitable for web backends); transformed business-analyst skill to 7,437-token XML system prompt; achieves identical behavioral goals via direct Messages API with standard PaaS deployment
 67. **System prompt token budget: ~7,500 tokens** (2026-01-26): Full business-analyst skill preserved in system prompt; accepts higher per-request cost (~$0.02 vs $0.01) for complete behavioral coverage; optimizable later based on usage data
+
+68. **Widget tests with mockito** (2026-01-28 - Plan 05-02): Use mockito for provider mocking in Flutter widget tests; type-safe mocks generated with build_runner; tests 4 core screens (login, projects, documents, conversation) with 31 tests total
+69. **Consolidated backend integration tests** (2026-01-28 - Plan 05-02): Created test_backend_integration.py organizing 45 tests by resource type (auth, projects, documents, threads, AI, artifacts); complements existing 72 tests; provides API coverage documentation
 
 68. **Skeletonizer for loading states** (2026-01-28 - Plan 05-01): Material 3-compatible skeleton library (v2.1.2) with enabled toggle for professional loading UX
 69. **SnackBar error recovery** (2026-01-28 - Plan 05-01): Non-blocking error feedback with retry actions; preserves browsing ability during network failures

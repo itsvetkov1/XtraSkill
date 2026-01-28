@@ -2,7 +2,7 @@
 
 **Project:** Business Analyst Assistant
 **Version:** MVP v1.0
-**Last Updated:** 2026-01-25
+**Last Updated:** 2026-01-28
 
 ## Overview
 
@@ -140,10 +140,12 @@ Plans:
 
 ---
 
-### Phase 4.1: Agent SDK & Business-Analyst Skill Integration
-**Goal:** Refactor AI backend to use Claude Agent SDK and integrate the /business-analyst skill for structured one-question-at-a-time discovery and comprehensive BRD generation.
+### Phase 4.1: Business-Analyst Skill Integration (Direct API)
+**Goal:** Integrate the /business-analyst skill behaviors for structured one-question-at-a-time discovery and comprehensive BRD generation.
 
 **Dependencies:** Phase 4 (requires working AI service and artifact generation)
+
+**Architecture Decision:** Originally planned to use Claude Agent SDK, but research revealed it requires Claude Code CLI runtime (unsuitable for web backend deployment). **Pivoted to Direct Anthropic API** with skill behaviors transformed into XML system prompt.
 
 **Requirements Covered:**
 - AI-02: AI proactively identifies edge cases and missing requirements (enhanced via skill methodology)
@@ -151,18 +153,25 @@ Plans:
 - ART-03: User can request requirements documents from conversation (enhanced via BRD template)
 
 **Success Criteria:**
-1. AI asks mode question at session start: Meeting Mode vs Document Refinement Mode
-2. AI maintains one-question-at-a-time protocol with rationale and 3 answer options
-3. AI clarifies ambiguous terms ("seamless", "scalable") before proceeding
-4. AI redirects technical implementation discussions to business focus
-5. Generated BRDs follow complete template structure with all sections
-6. Skill behavior validated through integration tests
+1. AI asks mode question at session start: Meeting Mode vs Document Refinement Mode ✅
+2. AI maintains one-question-at-a-time protocol with rationale and 3 answer options ✅
+3. AI clarifies ambiguous terms ("seamless", "scalable") before proceeding ✅
+4. AI redirects technical implementation discussions to business focus ✅
+5. Generated BRDs follow complete template structure with all sections ✅
+6. Skill behavior validated through integration tests ✅
 
-Plans:
-- [x] 04.1-01-PLAN.md — Claude Agent SDK integration and skill loader
-- [x] 04.1-02-PLAN.md — Business-analyst skill prompt module
-- [x] 04.1-03-PLAN.md — BRD generation tool and template
-- [x] 04.1-04-PLAN.md — Integration tests and validation
+**Implementation:**
+- Transformed `.claude/business-analyst/` skill (5 files) into 7,437-token XML system prompt
+- System prompt includes: mode detection, discovery protocol, zero-assumption clarification, technical boundaries, BRD structure, error protocols, tone guidelines
+- Direct API preserves existing tool integration (search_documents, save_artifact)
+- Structure validation: 9/10 tests passed
+- No infrastructure changes required for deployment
+
+**Documentation:**
+- Architecture analysis: `.planning/ANALYSIS-claude-agent-sdk-workaround.md`
+- System prompt documentation: `.planning/SYSTEM-PROMPT-business-analyst.md`
+- Testing guide: `backend/TESTING-GUIDE.md`
+- Phase summary: `.planning/phases/04.1-agent-sdk-skill-integration/PHASE-COMPLETE.md`
 
 ---
 
@@ -173,6 +182,15 @@ Plans:
 
 **Requirements Covered:**
 - PLAT-06: UI is responsive and adapts to screen size (mobile, tablet, desktop)
+
+**Plans:** 5 plans
+
+Plans:
+- [ ] 05-01-PLAN.md — UI polish with skeleton loaders and error handling
+- [ ] 05-02-PLAN.md — Expand test coverage (widget tests + backend integration)
+- [ ] 05-03-PLAN.md — Production environment validation and OAuth config guidance
+- [ ] 05-04-PLAN.md — Deployment configs and CI/CD pipeline setup
+- [ ] 05-05-PLAN.md — Cross-browser and mobile device verification
 
 **Success Criteria:**
 1. User accesses application on desktop and sees sidebar navigation, on mobile sees drawer navigation
@@ -192,7 +210,7 @@ Plans:
 | 3 - AI-Powered Conversations | Complete | 9 | 100% |
 | 4 - Artifact Generation & Export | Complete | 7 | 100% |
 | 4.1 - Agent SDK & Skill Integration | Complete | 3 (enhanced) | 100% |
-| 5 - Cross-Platform Polish & Launch | Pending | 1 | 0% |
+| 5 - Cross-Platform Polish & Launch | Planned | 1 | 0% |
 
 **Total Requirements Covered:** 41/41 (includes 40 v1 requirements + PLAT-06 counted separately)
 **Estimated Timeline:** 8-10 weeks (solo developer, 20-30 hours/week)
@@ -209,5 +227,5 @@ Plans:
 
 ---
 
-*Last updated: 2026-01-25*
-*Ready for phase execution: Phase 5*
+*Last updated: 2026-01-28 (Phase 5 planned - 5 plans in 3 waves)*
+*Ready for phase execution: Phase 5 (Cross-Platform Polish & Launch)*

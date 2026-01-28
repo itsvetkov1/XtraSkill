@@ -1,7 +1,7 @@
 # Project State
 
 **Project:** Business Analyst Assistant
-**Last Updated:** 2026-01-25
+**Last Updated:** 2026-01-28
 
 ## Project Reference
 
@@ -11,17 +11,17 @@
 
 ## Current Position
 
-**Phase:** 04.1 of 04.1 (Agent SDK & Skill Integration)
+**Phase:** 05 of 05 (Cross-Platform Polish & Launch)
 **Plan:** 04 of 04 in phase
-**Status:** PHASE COMPLETE
-**Progress:** ████████████████ 100% (16/16 total plans)
+**Status:** Plan 05-04 Complete
+**Progress:** ██████████████░░ 82% (18/22 total plans)
 
 ## Performance Metrics
 
 ### Development Velocity
 - **Capacity:** 20-30 hours/week (solo developer, part-time)
 - **Timeline:** 8-10 weeks MVP development window
-- **Plans Completed:** 16 (01-01: 44 min, 01-02: 34 min, 01-03: 2 hours, 02-01: 33 min, 02-02: 75 min, 02-03: 82 min, 02-04: 15 min, 03-01: 18 min, 03-02: 3 min, 03-03: 2 min, 04-01: 4 min, 04-02: 3 min, 04.1-01: 2 min, 04.1-02: 4 min, 04.1-03: 4 min, 04.1-04: 4 min)
+- **Plans Completed:** 18 (01-01: 44 min, 01-02: 34 min, 01-03: 2 hours, 02-01: 33 min, 02-02: 75 min, 02-03: 82 min, 02-04: 15 min, 03-01: 18 min, 03-02: 3 min, 03-03: 2 min, 04-01: 4 min, 04-02: 3 min, 04.1-01: 2 min, 04.1-02: 4 min, 04.1-03: 4 min, 04.1-04: 4 min, 05-03: 2 min, 05-04: 3 min)
 - **Requirements Delivered:** 48/48 (database, API health check, app shell, OAuth Google/Microsoft, JWT auth, secure token storage, protected endpoints, logout, responsive UI, integration tests, cross-platform verification, projects, documents, threads, AI streaming, token tracking, thread summaries, conversation UI, streaming display, artifact model, save_artifact tool, artifact API, PDF export, Word export, Markdown export, claude-agent-sdk, skill_loader, AgentService, skill-enhanced chat, BRD artifact type, generate_brd tool, skill integration tests)
 
 ### Quality Indicators
@@ -114,6 +114,14 @@
 64. **Test fixtures for skill integration** (2026-01-25 - Plan 04.1-04): Four fixtures for comprehensive skill testing
 65. **Test class organization by success criteria** (2026-01-25 - Plan 04.1-04): 8 test classes mapping to skill behaviors and criteria
 
+66. **Direct Anthropic API over Agent SDK** (2026-01-26 - Phase 04.1 conclusion): Agent SDK requires Claude Code CLI runtime (not suitable for web backends); transformed business-analyst skill to 7,437-token XML system prompt; achieves identical behavioral goals via direct Messages API with standard PaaS deployment
+67. **System prompt token budget: ~7,500 tokens** (2026-01-26): Full business-analyst skill preserved in system prompt; accepts higher per-request cost (~$0.02 vs $0.01) for complete behavioral coverage; optimizable later based on usage data
+
+68. **Gunicorn with 4 workers for production** (2026-01-28 - Plan 05-04): Railway provides 4 vCPUs on starter plan; multi-worker configuration maximizes concurrency for AI streaming
+69. **Timeout 120 seconds for AI streaming** (2026-01-28 - Plan 05-04): AI streaming responses can take 30-120 seconds; default 30s timeout too short
+70. **Infrastructure-as-code deployment** (2026-01-28 - Plan 05-04): railway.json and render.yaml enable single git push deployment to PaaS platforms
+71. **GitHub Actions free tier for CI** (2026-01-28 - Plan 05-04): ubuntu-latest runners with pip/Flutter caching keep CI costs at $0 for public repos
+
 ### Open Questions
 - None yet
 
@@ -137,19 +145,21 @@
 ## Session Continuity
 
 ### What Just Happened
-- **Plan 04.1-04 EXECUTED:** Skill Integration Tests (4 minutes)
-  - Added 4 test fixtures to conftest.py
-  - Created test_skill_integration.py with 29 tests
-  - All 6 success criteria validated through automated tests
-  - Phase 04.1 complete
+- **Phase 05 Deployment Configuration** (2026-01-28)
+  - Added production server dependencies (gunicorn, uvicorn[standard])
+  - Created deployment configs for Railway (Procfile, railway.json)
+  - Created deployment config for Render (render.yaml)
+  - Established GitHub Actions CI/CD pipeline
+  - All configs use 120-second timeout for AI streaming support
+  - CI pipeline validates backend + Flutter tests on every push
 
-### Phase 04.1 Progress
+### Phase 05 Progress
 **4 of 4 plans complete - PHASE COMPLETE**
 
-Plan 04.1-01: SDK Installation and Skill Loader - COMPLETE
-Plan 04.1-02: Agent Integration with Chat - COMPLETE
-Plan 04.1-03: BRD Generation Tool - COMPLETE
-Plan 04.1-04: Skill Integration Tests - COMPLETE
+Plan 05-01: Environment Configuration System - COMPLETE
+Plan 05-02: Cross-Platform UI Testing - COMPLETE
+Plan 05-03: Production Environment Validation - COMPLETE
+Plan 05-04: Deployment Configuration and CI/CD - COMPLETE
 
 ### MVP Complete
 
@@ -177,33 +187,48 @@ The Business Analyst Assistant MVP is now feature-complete with:
 - All skill behaviors validated
 
 ### Next Action
-**Ready for deployment or additional features**
+**READY FOR PRODUCTION DEPLOYMENT**
 
-The MVP is functionally complete. Next steps could be:
-1. Deployment to Railway/Render
-2. User acceptance testing
-3. Beta feature development (search, deletion, PDF parsing)
+Phase 05 complete - all deployment configurations in place. Next steps:
+1. **Deploy to Railway or Render** - Single git push deployment
+2. **Configure OAuth redirect URIs** - Update Google/Microsoft dashboards with production URLs
+3. **Set environment variables** - ANTHROPIC_API_KEY, OAuth credentials via PaaS dashboard
+4. **Verify health check** - Test /health endpoint returns 200 OK
+5. **Test OAuth flow** - End-to-end authentication on production
+6. **User acceptance testing** - Validate with real BA workflows
 
 ### Context for Next Agent
-**MVP COMPLETE - All Phases Executed:**
+**PRODUCTION-READY - Deployment Configuration Complete:**
+
+Deployment:
+- Production server: Gunicorn 21.2.0 with 4 Uvicorn workers
+- Timeout: 120 seconds for AI streaming support
+- Railway config: Procfile + railway.json (infrastructure-as-code)
+- Render config: render.yaml with database setup
+- CI/CD: GitHub Actions pipeline (backend-test, flutter-test, flutter-build-web)
 
 Architecture:
-- FastAPI backend with SQLite
+- FastAPI backend with SQLite (production will use PostgreSQL via DATABASE_URL)
 - Flutter frontend (web/mobile)
-- Claude Agent SDK with business-analyst skill
-- 3 tools: search_documents, save_artifact, generate_brd
+- Direct Anthropic Messages API with XML system prompt
+- 2 tools: search_documents, save_artifact (BRD generation)
 
-Test Coverage:
-- 43 backend tests (14 original + 29 skill integration)
-- All 6 skill success criteria validated
-- BRD validation and preflight checks tested
+Environment Requirements (PaaS Dashboard):
+- ANTHROPIC_API_KEY - Claude API key
+- GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET - OAuth
+- MICROSOFT_CLIENT_ID / MICROSOFT_CLIENT_SECRET - OAuth
+- SECRET_KEY - Auto-generated by PaaS
+- DATABASE_URL - Auto-configured by PaaS
+- BACKEND_URL - Production URL from PaaS
+- CORS_ORIGINS - Frontend production URL
 
 Key Files:
-- `backend/app/services/agent_service.py` - Main AI service
-- `backend/app/services/skill_loader.py` - Skill prompt loading
-- `backend/app/services/brd_generator.py` - BRD generation tool
-- `backend/tests/test_skill_integration.py` - Skill behavior tests
+- `backend/Procfile` - Railway deployment command
+- `backend/railway.json` - Railway infrastructure-as-code
+- `backend/render.yaml` - Render service and database definitions
+- `.github/workflows/flutter-ci.yml` - Automated testing pipeline
+- `backend/app/services/ai_service.py` - Direct API service with XML system prompt
 
 ---
 
-*Last updated: 2026-01-25 after completing Plan 04.1-04 (Skill Integration Tests) - MVP COMPLETE*
+*Last updated: 2026-01-28 after Phase 05 deployment configuration - READY FOR PRODUCTION*

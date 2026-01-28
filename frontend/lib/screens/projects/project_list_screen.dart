@@ -4,6 +4,7 @@ library;
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 
 import '../../models/project.dart';
 import '../../providers/project_provider.dart';
@@ -27,6 +28,17 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
     });
   }
 
+  /// Create placeholder project for skeleton loader
+  Project _createPlaceholderProject() {
+    return Project(
+      id: 'placeholder',
+      name: 'Loading project name',
+      description: 'Loading project description text here',
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -35,38 +47,27 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
       ),
       body: Consumer<ProjectProvider>(
         builder: (context, provider, child) {
-          // Show loading indicator
-          if (provider.loading && provider.projects.isEmpty) {
-            return const Center(child: CircularProgressIndicator());
-          }
-
-          // Show error message
+          // Show error as SnackBar
           if (provider.error != null) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.error_outline,
-                      size: 48, color: Theme.of(context).colorScheme.error),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Error loading projects',
-                    style: Theme.of(context).textTheme.titleLarge,
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Failed to load projects. ${provider.error}'),
+                    action: SnackBarAction(
+                      label: 'Retry',
+                      onPressed: () => provider.loadProjects(),
+                    ),
+                    duration: const Duration(seconds: 5),
                   ),
-                  const SizedBox(height: 8),
-                  SelectableText(provider.error!),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: () => provider.loadProjects(),
-                    child: const Text('Retry'),
-                  ),
-                ],
-              ),
-            );
+                );
+                provider.clearError();
+              }
+            });
           }
 
-          // Show empty state
-          if (provider.projects.isEmpty) {
+          // Show empty state when not loading and no projects
+          if (!provider.isLoading && provider.projects.isEmpty) {
             return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -91,22 +92,29 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
             );
           }
 
-          // Show project list
+          // Show project list with skeleton loader
           return RefreshIndicator(
             onRefresh: () => provider.loadProjects(),
-            child: ListView.builder(
-              padding: ResponsiveHelper.getResponsivePadding(context),
-              itemCount: provider.projects.length,
-              itemBuilder: (context, index) {
-                final project = provider.projects[index];
-                return _ProjectCard(
-                  project: project,
-                  onTap: () {
-                    // Navigate to detail screen on all platforms
-                    context.push('/projects/${project.id}');
-                  },
-                );
-              },
+            child: Skeletonizer(
+              enabled: provider.isLoading,
+              child: ListView.builder(
+                padding: ResponsiveHelper.getResponsivePadding(context),
+                itemCount: provider.isLoading ? 5 : provider.projects.length,
+                itemBuilder: (context, index) {
+                  final project = provider.isLoading
+                      ? _createPlaceholderProject()
+                      : provider.projects[index];
+                  return _ProjectCard(
+                    project: project,
+                    onTap: () {
+                      if (!provider.isLoading) {
+                        // Navigate to detail screen on all platforms
+                        context.push('/projects/${project.id}');
+                      }
+                    },
+                  );
+                },
+              ),
             ),
           );
         },

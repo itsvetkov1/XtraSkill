@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:skeletonizer/skeletonizer.dart';
+
+import '../../models/document.dart';
 import '../../providers/document_provider.dart';
 import 'document_upload_screen.dart';
 import 'document_viewer_screen.dart';
@@ -27,6 +30,15 @@ class _DocumentListScreenState extends State<DocumentListScreen> {
     });
   }
 
+  /// Create placeholder document for skeleton loader
+  Document _createPlaceholderDocument() {
+    return Document(
+      id: 'placeholder',
+      filename: 'Loading document name.txt',
+      createdAt: DateTime.now(),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -35,30 +47,27 @@ class _DocumentListScreenState extends State<DocumentListScreen> {
       ),
       body: Consumer<DocumentProvider>(
         builder: (context, provider, child) {
-          if (provider.loading && provider.documents.isEmpty) {
-            return const Center(child: CircularProgressIndicator());
-          }
-
-          if (provider.error != null && provider.documents.isEmpty) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.error_outline, size: 64, color: Colors.red),
-                  const SizedBox(height: 16),
-                  SelectableText('Error: ${provider.error}'),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: () =>
-                        provider.loadDocuments(widget.projectId),
-                    child: const Text('Retry'),
+          // Show error as SnackBar
+          if (provider.error != null) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Failed to load documents. ${provider.error}'),
+                    action: SnackBarAction(
+                      label: 'Retry',
+                      onPressed: () => provider.loadDocuments(widget.projectId),
+                    ),
+                    duration: const Duration(seconds: 5),
                   ),
-                ],
-              ),
-            );
+                );
+                provider.clearError();
+              }
+            });
           }
 
-          if (provider.documents.isEmpty) {
+          // Show empty state when not loading and no documents
+          if (!provider.isLoading && provider.documents.isEmpty) {
             return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -79,32 +88,40 @@ class _DocumentListScreenState extends State<DocumentListScreen> {
             );
           }
 
-          return ListView.builder(
-            itemCount: provider.documents.length,
-            itemBuilder: (context, index) {
-              final doc = provider.documents[index];
-              return Card(
-                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                child: ListTile(
-                  leading: const Icon(Icons.description, size: 40),
-                  title: Text(doc.filename),
-                  subtitle: Text(
-                    'Uploaded: ${_formatDate(doc.createdAt)}',
-                    style: const TextStyle(fontSize: 12),
+          // Show document list with skeleton loader
+          return Skeletonizer(
+            enabled: provider.isLoading,
+            child: ListView.builder(
+              itemCount: provider.isLoading ? 3 : provider.documents.length,
+              itemBuilder: (context, index) {
+                final doc = provider.isLoading
+                    ? _createPlaceholderDocument()
+                    : provider.documents[index];
+                return Card(
+                  margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  child: ListTile(
+                    leading: const Icon(Icons.description, size: 40),
+                    title: Text(doc.filename),
+                    subtitle: Text(
+                      'Uploaded: ${_formatDate(doc.createdAt)}',
+                      style: const TextStyle(fontSize: 12),
+                    ),
+                    trailing: const Icon(Icons.chevron_right),
+                    onTap: provider.isLoading
+                        ? null
+                        : () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    DocumentViewerScreen(documentId: doc.id),
+                              ),
+                            );
+                          },
                   ),
-                  trailing: const Icon(Icons.chevron_right),
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) =>
-                            DocumentViewerScreen(documentId: doc.id),
-                      ),
-                    );
-                  },
-                ),
-              );
-            },
+                );
+              },
+            ),
           );
         },
       ),

@@ -4,7 +4,9 @@ library;
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 
+import '../../models/thread.dart';
 import '../../providers/thread_provider.dart';
 import '../conversation/conversation_screen.dart';
 import 'thread_create_dialog.dart';
@@ -63,46 +65,44 @@ class _ThreadListScreenState extends State<ThreadListScreen> {
     );
   }
 
+  /// Create placeholder thread for skeleton loader
+  Thread _createPlaceholderThread() {
+    return Thread(
+      id: 'placeholder',
+      projectId: widget.projectId,
+      title: 'Loading conversation title',
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+      messageCount: 5,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Consumer<ThreadProvider>(
         builder: (context, provider, child) {
-          // Show loading indicator
-          if (provider.loading && provider.threads.isEmpty) {
-            return const Center(child: CircularProgressIndicator());
+          // Show error as SnackBar
+          if (provider.error != null) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Failed to load conversations. ${provider.error}'),
+                    action: SnackBarAction(
+                      label: 'Retry',
+                      onPressed: () => provider.loadThreads(widget.projectId),
+                    ),
+                    duration: const Duration(seconds: 5),
+                  ),
+                );
+                provider.clearError();
+              }
+            });
           }
 
-          // Show error message
-          if (provider.error != null && provider.threads.isEmpty) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.error_outline,
-                    size: 48,
-                    color: Theme.of(context).colorScheme.error,
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Error loading conversations',
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
-                  const SizedBox(height: 8),
-                  SelectableText(provider.error!),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: () => provider.loadThreads(widget.projectId),
-                    child: const Text('Retry'),
-                  ),
-                ],
-              ),
-            );
-          }
-
-          // Show empty state
-          if (provider.threads.isEmpty) {
+          // Show empty state when not loading and no threads
+          if (!provider.isLoading && provider.threads.isEmpty) {
             return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -130,36 +130,41 @@ class _ThreadListScreenState extends State<ThreadListScreen> {
             );
           }
 
-          // Show threads list
+          // Show threads list with skeleton loader
           return RefreshIndicator(
             onRefresh: () => provider.loadThreads(widget.projectId),
-            child: ListView.builder(
-              padding: const EdgeInsets.all(16),
-              itemCount: provider.threads.length,
-              itemBuilder: (context, index) {
-                final thread = provider.threads[index];
-                final title = thread.title ?? 'New Conversation';
-                final messageCount = thread.messageCount ?? 0;
+            child: Skeletonizer(
+              enabled: provider.isLoading,
+              child: ListView.builder(
+                padding: const EdgeInsets.all(16),
+                itemCount: provider.isLoading ? 4 : provider.threads.length,
+                itemBuilder: (context, index) {
+                  final thread = provider.isLoading
+                      ? _createPlaceholderThread()
+                      : provider.threads[index];
+                  final title = thread.title ?? 'New Conversation';
+                  final messageCount = thread.messageCount ?? 0;
 
-                return Card(
-                  margin: const EdgeInsets.only(bottom: 12),
-                  child: ListTile(
-                    leading: Icon(
-                      Icons.chat_bubble_outline,
-                      color: Theme.of(context).colorScheme.primary,
+                  return Card(
+                    margin: const EdgeInsets.only(bottom: 12),
+                    child: ListTile(
+                      leading: Icon(
+                        Icons.chat_bubble_outline,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                      title: Text(
+                        title,
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                      subtitle: Text(
+                        'Created ${_formatDate(thread.createdAt)} • $messageCount messages',
+                      ),
+                      trailing: const Icon(Icons.chevron_right),
+                      onTap: provider.isLoading ? null : () => _onThreadTap(thread.id),
                     ),
-                    title: Text(
-                      title,
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
-                    subtitle: Text(
-                      'Created ${_formatDate(thread.createdAt)} • $messageCount messages',
-                    ),
-                    trailing: const Icon(Icons.chevron_right),
-                    onTap: () => _onThreadTap(thread.id),
-                  ),
-                );
-              },
+                  );
+                },
+              ),
             ),
           );
         },

@@ -22,6 +22,7 @@ class DocumentProvider extends ChangeNotifier {
   List<Document> get documents => _documents;
   Document? get selectedDocument => _selectedDocument;
   bool get loading => _loading;
+  bool get isLoading => _loading; // Alias for skeleton loader compatibility
   String? get error => _error;
   double get uploadProgress => _uploadProgress;
   bool get uploading => _uploading;
@@ -99,6 +100,12 @@ class DocumentProvider extends ChangeNotifier {
   /// Clear selected document content.
   void clearSelectedDocument() {
     _selectedDocument = null;
+    notifyListeners();
+  }
+
+  /// Clear error message.
+  void clearError() {
+    _error = null;
     notifyListeners();
   }
 

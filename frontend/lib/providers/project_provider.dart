@@ -35,6 +35,9 @@ class ProjectProvider extends ChangeNotifier {
   /// Get loading state
   bool get loading => _loading;
 
+  /// Get loading state (alias for skeleton loader compatibility)
+  bool get isLoading => _loading;
+
   /// Get error message
   String? get error => _error;
 

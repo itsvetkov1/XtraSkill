@@ -35,6 +35,9 @@ class ThreadProvider extends ChangeNotifier {
   /// Whether threads are being loaded
   bool get loading => _loading;
 
+  /// Whether threads are being loaded (alias for skeleton loader compatibility)
+  bool get isLoading => _loading;
+
   /// Error message if operation failed
   String? get error => _error;
 

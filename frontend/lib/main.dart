@@ -1,3 +1,6 @@
+import 'dart:ui' show PlatformDispatcher;
+
+import 'package:flutter/foundation.dart' show kReleaseMode;
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -16,7 +19,41 @@ import 'screens/splash_screen.dart';
 import 'screens/projects/project_list_screen.dart';
 import 'screens/projects/project_detail_screen.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Global error handlers to prevent crashes
+  FlutterError.onError = (FlutterErrorDetails details) {
+    FlutterError.presentError(details);
+    if (kReleaseMode) {
+      print('FlutterError: ${details.exception}');
+      print('StackTrace: ${details.stack}');
+    }
+  };
+
+  PlatformDispatcher.instance.onError = (error, stack) {
+    print('PlatformError: $error');
+    print('StackTrace: $stack');
+    return true; // Mark error as handled
+  };
+
+  ErrorWidget.builder = (FlutterErrorDetails details) {
+    return Scaffold(
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.error_outline, size: 48, color: Colors.grey),
+            SizedBox(height: 16),
+            Text('Something went wrong', style: TextStyle(fontSize: 18)),
+            SizedBox(height: 8),
+            Text('Please restart the app', style: TextStyle(color: Colors.grey)),
+          ],
+        ),
+      ),
+    );
+  };
+
   // Use path-based URLs instead of hash-based for web
   usePathUrlStrategy();
   runApp(const MyApp());

@@ -1,0 +1,34 @@
+services:
+  - type: web
+    name: ba-assistant-backend
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn main:app --workers 4 --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:$PORT --timeout 120
+    envVars:
+      - key: ENVIRONMENT
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: ba-assistant-db
+          property: connectionString
+      - key: SECRET_KEY
+        generateValue: true
+      - key: ANTHROPIC_API_KEY
+        sync: false  # User must provide via dashboard
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: GOOGLE_CLIENT_SECRET
+        sync: false
+      - key: MICROSOFT_CLIENT_ID
+        sync: false
+      - key: MICROSOFT_CLIENT_SECRET
+        sync: false
+      - key: BACKEND_URL
+        value: https://ba-assistant-backend.onrender.com
+      - key: CORS_ORIGINS
+        value: https://ba-assistant-frontend.onrender.com
+
+databases:
+  - name: ba-assistant-db
+    databaseName: ba_assistant
+    user: ba_assistant_user

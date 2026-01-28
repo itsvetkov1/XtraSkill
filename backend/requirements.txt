@@ -17,3 +17,7 @@ jinja2>=3.1.0
 
 # Agent SDK for structured skill integration
 claude-agent-sdk>=0.1.0
+
+# Production ASGI server
+gunicorn==21.2.0
+uvicorn[standard]==0.27.0

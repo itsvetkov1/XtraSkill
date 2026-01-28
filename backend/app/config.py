@@ -52,6 +52,17 @@ class Settings(BaseSettings):
         """Parse CORS origins from comma-separated string."""
         return [origin.strip() for origin in self.cors_origins.split(",")]
 
+    @property
+    def oauth_redirect_base_url(self) -> str:
+        """OAuth redirect base URL varies by environment."""
+        if self.environment == "production":
+            # Read from BACKEND_URL env var (e.g., https://api.example.com)
+            backend_url = os.getenv("BACKEND_URL", "")
+            if not backend_url:
+                raise ValueError("BACKEND_URL must be set in production for OAuth redirects")
+            return backend_url
+        return "http://localhost:8000"  # Development default
+
     def validate_required(self) -> None:
         """
         Validate that required configuration is present.
@@ -59,10 +70,33 @@ class Settings(BaseSettings):
         Raises ValueError if critical config is missing.
         """
         if self.environment == "production":
+            # Check SECRET_KEY
             if self.secret_key == "dev-secret-key-change-in-production":
-                raise ValueError("SECRET_KEY must be set in production")
+                raise ValueError(
+                    "SECRET_KEY must be changed for production. "
+                    "Generate a secure key with: openssl rand -hex 32"
+                )
+
+            # Check ANTHROPIC_API_KEY
             if not self.anthropic_api_key:
-                raise ValueError("ANTHROPIC_API_KEY must be set for AI features")
+                raise ValueError(
+                    "ANTHROPIC_API_KEY must be set for AI features. "
+                    "Get API key from https://console.anthropic.com/"
+                )
+
+            # Check OAuth credentials
+            if not self.google_client_id or not self.microsoft_client_id:
+                raise ValueError(
+                    "OAuth credentials required for production. "
+                    "Create separate OAuth app registrations for production environment."
+                )
+
+            # Warn about SQLite in production
+            if "sqlite" in self.database_url.lower():
+                print(
+                    "WARNING: Using SQLite in production. "
+                    "Consider PostgreSQL for better concurrency and data safety."
+                )
 
 
 # Global settings instance

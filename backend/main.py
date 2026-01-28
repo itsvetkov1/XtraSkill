@@ -4,6 +4,7 @@ Business Analyst Assistant - FastAPI Application Entry Point.
 Provides REST API for AI-assisted requirement discovery and artifact generation.
 """
 
+import logging
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
@@ -12,6 +13,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.config import settings
 from app.database import close_db, init_db
 from app.routes import artifacts, auth, conversations, documents, projects, threads
+
+logger = logging.getLogger(__name__)
 
 
 @asynccontextmanager
@@ -34,12 +37,20 @@ async def lifespan(app: FastAPI):
     print("Database connection closed")
 
 
+# Validate configuration before starting
+try:
+    settings.validate_required()
+except ValueError as e:
+    logger.error(f"Configuration validation failed: {e}")
+    raise
+
 # Create FastAPI application
 app = FastAPI(
     title="Business Analyst Assistant API",
     version="1.0.0",
     description="AI-powered conversational assistant for business requirements discovery",
     lifespan=lifespan,
+    docs_url="/docs" if settings.environment != "production" else None,
 )
 
 # Configure CORS middleware

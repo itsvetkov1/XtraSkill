@@ -12,16 +12,16 @@
 ## Current Position
 
 **Phase:** 05 of 05 (Cross-Platform Polish & Launch)
-**Plan:** 04 of 04 in phase
-**Status:** Plan 05-04 Complete
-**Progress:** ██████████████░░ 82% (18/22 total plans)
+**Plan:** 03 of 04 in phase
+**Status:** Plan 05-03 Complete
+**Progress:** ██████████████░░ 86% (19/22 total plans)
 
 ## Performance Metrics
 
 ### Development Velocity
 - **Capacity:** 20-30 hours/week (solo developer, part-time)
 - **Timeline:** 8-10 weeks MVP development window
-- **Plans Completed:** 18 (01-01: 44 min, 01-02: 34 min, 01-03: 2 hours, 02-01: 33 min, 02-02: 75 min, 02-03: 82 min, 02-04: 15 min, 03-01: 18 min, 03-02: 3 min, 03-03: 2 min, 04-01: 4 min, 04-02: 3 min, 04.1-01: 2 min, 04.1-02: 4 min, 04.1-03: 4 min, 04.1-04: 4 min, 05-03: 2 min, 05-04: 3 min)
+- **Plans Completed:** 19 (01-01: 44 min, 01-02: 34 min, 01-03: 2 hours, 02-01: 33 min, 02-02: 75 min, 02-03: 82 min, 02-04: 15 min, 03-01: 18 min, 03-02: 3 min, 03-03: 2 min, 04-01: 4 min, 04-02: 3 min, 04.1-01: 2 min, 04.1-02: 4 min, 04.1-03: 4 min, 04.1-04: 4 min, 05-03: 4 min, 05-04: 3 min)
 - **Requirements Delivered:** 48/48 (database, API health check, app shell, OAuth Google/Microsoft, JWT auth, secure token storage, protected endpoints, logout, responsive UI, integration tests, cross-platform verification, projects, documents, threads, AI streaming, token tracking, thread summaries, conversation UI, streaming display, artifact model, save_artifact tool, artifact API, PDF export, Word export, Markdown export, claude-agent-sdk, skill_loader, AgentService, skill-enhanced chat, BRD artifact type, generate_brd tool, skill integration tests)
 
 ### Quality Indicators
@@ -117,10 +117,14 @@
 66. **Direct Anthropic API over Agent SDK** (2026-01-26 - Phase 04.1 conclusion): Agent SDK requires Claude Code CLI runtime (not suitable for web backends); transformed business-analyst skill to 7,437-token XML system prompt; achieves identical behavioral goals via direct Messages API with standard PaaS deployment
 67. **System prompt token budget: ~7,500 tokens** (2026-01-26): Full business-analyst skill preserved in system prompt; accepts higher per-request cost (~$0.02 vs $0.01) for complete behavioral coverage; optimizable later based on usage data
 
-68. **Gunicorn with 4 workers for production** (2026-01-28 - Plan 05-04): Railway provides 4 vCPUs on starter plan; multi-worker configuration maximizes concurrency for AI streaming
-69. **Timeout 120 seconds for AI streaming** (2026-01-28 - Plan 05-04): AI streaming responses can take 30-120 seconds; default 30s timeout too short
-70. **Infrastructure-as-code deployment** (2026-01-28 - Plan 05-04): railway.json and render.yaml enable single git push deployment to PaaS platforms
-71. **GitHub Actions free tier for CI** (2026-01-28 - Plan 05-04): ubuntu-latest runners with pip/Flutter caching keep CI costs at $0 for public repos
+68. **Environment validation at startup** (2026-01-28 - Plan 05-03): Fail-fast pattern prevents production deployment with insecure defaults; validates SECRET_KEY, ANTHROPIC_API_KEY, OAuth credentials
+69. **Separate OAuth registrations per environment** (2026-01-28 - Plan 05-03): Dev uses localhost redirect URIs, prod uses https:// URIs; security requirement enforced via validation
+70. **Swagger docs disabled in production** (2026-01-28 - Plan 05-03): docs_url=None when ENVIRONMENT=production reduces attack surface
+
+71. **Gunicorn with 4 workers for production** (2026-01-28 - Plan 05-04): Railway provides 4 vCPUs on starter plan; multi-worker configuration maximizes concurrency for AI streaming
+72. **Timeout 120 seconds for AI streaming** (2026-01-28 - Plan 05-04): AI streaming responses can take 30-120 seconds; default 30s timeout too short
+73. **Infrastructure-as-code deployment** (2026-01-28 - Plan 05-04): railway.json and render.yaml enable single git push deployment to PaaS platforms
+74. **GitHub Actions free tier for CI** (2026-01-28 - Plan 05-04): ubuntu-latest runners with pip/Flutter caching keep CI costs at $0 for public repos
 
 ### Open Questions
 - None yet

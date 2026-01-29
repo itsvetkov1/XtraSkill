@@ -260,11 +260,12 @@ Plans:
 4. User sees breadcrumb "Projects > Client Portal > Login Thread" and can click any segment to navigate
 5. User collapses sidebar on desktop, navigates between screens, and sidebar remains collapsed
 
-**Plans:** TBD
+**Plans:** 3 plans
 
 Plans:
-- [ ] 07-01: [TBD during planning]
-- [ ] 07-02: [TBD during planning]
+- [ ] 07-01-PLAN.md — NavigationProvider + ResponsiveScaffold shell widget
+- [ ] 07-02-PLAN.md — StatefulShellRoute integration + sidebar highlighting
+- [ ] 07-03-PLAN.md — BreadcrumbBar + ContextualBackButton + screen refactoring
 
 ---
 
@@ -369,7 +370,7 @@ Phases execute in numeric order: 6 → 7 → 8 → 9 → 10
 | 4.1. Agent SDK & Skill Integration | MVP v1.0 | 4/4 | Complete | 2026-01-27 |
 | 5. Cross-Platform Polish & Launch | MVP v1.0 | 5/5 | Complete | 2026-01-28 |
 | 6. Theme Management Foundation | Beta v1.5 | 2/2 | Complete | 2026-01-29 |
-| 7. Responsive Navigation Infrastructure | Beta v1.5 | 0/TBD | Not started | - |
+| 7. Responsive Navigation Infrastructure | Beta v1.5 | 0/3 | Planned | - |
 | 8. Settings Page & User Preferences | Beta v1.5 | 0/TBD | Not started | - |
 | 9. Deletion Flows with Undo | Beta v1.5 | 0/TBD | Not started | - |
 | 10. Polish & Empty States | Beta v1.5 | 0/TBD | Not started | - |
@@ -387,4 +388,4 @@ Phases execute in numeric order: 6 → 7 → 8 → 9 → 10
 ---
 
 *Last updated: 2026-01-29*
-*Status: Beta v1.5 Phase 6 complete, Phase 7 ready to plan*
+*Status: Beta v1.5 Phase 7 planned, ready to execute*

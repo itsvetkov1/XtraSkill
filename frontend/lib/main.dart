@@ -22,6 +22,7 @@ import 'screens/settings_screen.dart';
 import 'screens/splash_screen.dart';
 import 'screens/projects/project_list_screen.dart';
 import 'screens/projects/project_detail_screen.dart';
+import 'widgets/responsive_scaffold.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -126,6 +127,16 @@ class _MyAppState extends State<MyApp> {
     );
   }
 
+  /// Derive selected navigation index from current path for proper sidebar highlighting
+  ///
+  /// This handles nested routes (e.g., /projects/:id highlights Projects)
+  int _getSelectedIndex(String path) {
+    if (path.startsWith('/home')) return 0;
+    if (path.startsWith('/projects')) return 1;
+    if (path.startsWith('/settings')) return 2;
+    return 0; // Default to home
+  }
+
   GoRouter _createRouter(BuildContext context) {
     final authProvider = context.read<AuthProvider>();
 
@@ -171,6 +182,7 @@ class _MyAppState extends State<MyApp> {
         return null; // No redirect needed
       },
       routes: [
+        // Unauthenticated routes OUTSIDE shell
         GoRoute(
           path: '/splash',
           builder: (context, state) => const SplashScreen(),
@@ -183,24 +195,65 @@ class _MyAppState extends State<MyApp> {
           path: '/auth/callback',
           builder: (context, state) => const CallbackScreen(),
         ),
-        GoRoute(
-          path: '/home',
-          builder: (context, state) => const HomeScreen(),
-        ),
-        GoRoute(
-          path: '/projects',
-          builder: (context, state) => const ProjectListScreen(),
-        ),
-        GoRoute(
-          path: '/projects/:id',
-          builder: (context, state) {
-            final id = state.pathParameters['id']!;
-            return ProjectDetailScreen(projectId: id);
+
+        // Authenticated routes INSIDE shell with StatefulShellRoute.indexedStack
+        // Each branch maintains its own navigation stack for state preservation
+        StatefulShellRoute.indexedStack(
+          builder: (context, state, navigationShell) {
+            // Derive index from path for proper highlighting on nested routes
+            // Using state.uri.path instead of navigationShell.currentIndex
+            // ensures /projects/:id highlights Projects (index 1)
+            final selectedIndex = _getSelectedIndex(state.uri.path);
+            return ResponsiveScaffold(
+              currentIndex: selectedIndex,
+              onDestinationSelected: (index) {
+                navigationShell.goBranch(
+                  index,
+                  // If tapping current branch, go to initial location of that branch
+                  initialLocation: index == navigationShell.currentIndex,
+                );
+              },
+              child: navigationShell,
+            );
           },
-        ),
-        GoRoute(
-          path: '/settings',
-          builder: (context, state) => const SettingsScreen(),
+          branches: [
+            // Branch 0: Home
+            StatefulShellBranch(
+              routes: [
+                GoRoute(
+                  path: '/home',
+                  builder: (context, state) => const HomeScreen(),
+                ),
+              ],
+            ),
+            // Branch 1: Projects (includes nested project detail route)
+            StatefulShellBranch(
+              routes: [
+                GoRoute(
+                  path: '/projects',
+                  builder: (context, state) => const ProjectListScreen(),
+                  routes: [
+                    GoRoute(
+                      path: ':id',
+                      builder: (context, state) {
+                        final id = state.pathParameters['id']!;
+                        return ProjectDetailScreen(projectId: id);
+                      },
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            // Branch 2: Settings
+            StatefulShellBranch(
+              routes: [
+                GoRoute(
+                  path: '/settings',
+                  builder: (context, state) => const SettingsScreen(),
+                ),
+              ],
+            ),
+          ],
         ),
       ],
       refreshListenable: authProvider,

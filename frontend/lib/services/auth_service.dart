@@ -156,6 +156,32 @@ class AuthService {
     }
   }
 
+  /// Get current month token usage for authenticated user
+  ///
+  /// Returns usage data map with monthly statistics
+  /// Throws exception if token invalid or request fails
+  Future<Map<String, dynamic>> getUsage() async {
+    final token = await getStoredToken();
+    if (token == null) {
+      throw Exception('No authentication token found');
+    }
+
+    try {
+      final response = await _dio.get(
+        '$_baseUrl/auth/usage',
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+          },
+        ),
+      );
+
+      return response.data as Map<String, dynamic>;
+    } catch (e) {
+      throw Exception('Failed to get usage info: $e');
+    }
+  }
+
   /// Logout current user
   ///
   /// Deletes JWT token from secure storage

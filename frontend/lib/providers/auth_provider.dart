@@ -30,6 +30,7 @@ class AuthProvider extends ChangeNotifier {
   AuthState _state = AuthState.loading;
   String? _userId;
   String? _email;
+  String? _displayName;
   String? _errorMessage;
 
   AuthProvider({AuthService? authService})
@@ -49,6 +50,9 @@ class AuthProvider extends ChangeNotifier {
 
   /// Current user email (null if not authenticated)
   String? get email => _email;
+
+  /// Current user display name (null if not authenticated or not available)
+  String? get displayName => _displayName;
 
   /// Error message if authentication failed
   String? get errorMessage => _errorMessage;
@@ -71,6 +75,7 @@ class AuthProvider extends ChangeNotifier {
         final user = await _authService.getCurrentUser();
         _userId = user['id'] as String?;
         _email = user['email'] as String?;
+        _displayName = user['display_name'] as String?;
         _state = AuthState.authenticated;
       } else {
         _state = AuthState.unauthenticated;
@@ -80,6 +85,7 @@ class AuthProvider extends ChangeNotifier {
       _state = AuthState.unauthenticated;
       _userId = null;
       _email = null;
+      _displayName = null;
     }
 
     // Use Future.microtask to defer notification to avoid Flutter Web
@@ -150,6 +156,7 @@ class AuthProvider extends ChangeNotifier {
 
       _userId = user['id'] as String?;
       _email = user['email'] as String?;
+      _displayName = user['display_name'] as String?;
 
       _state = AuthState.authenticated;
       _errorMessage = null;
@@ -178,12 +185,14 @@ class AuthProvider extends ChangeNotifier {
 
       _userId = null;
       _email = null;
+      _displayName = null;
       _state = AuthState.unauthenticated;
       _errorMessage = null;
     } catch (e) {
       // Even if backend logout fails, clear local state
       _userId = null;
       _email = null;
+      _displayName = null;
       _state = AuthState.unauthenticated;
     }
 

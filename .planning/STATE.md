@@ -11,11 +11,11 @@ See: .planning/PROJECT.md (updated 2026-01-29)
 ## Current Position
 
 Phase: 8 of 10 (Settings Page & User Preferences)
-Plan: 0 of TBD in current phase
-Status: Ready to plan
-Last activity: 2026-01-29 — Completed Phase 7: Responsive Navigation Infrastructure
+Plan: 1 of TBD in current phase
+Status: In progress
+Last activity: 2026-01-29 — Completed 08-01-PLAN.md (Backend Settings Infrastructure)
 
-Progress: [██████████████░░░░░░] 70% (7/10 total phases, MVP v1.0 complete, Phase 6-7 complete)
+Progress: [██████████████░░░░░░] 72% (7/10 total phases + 1 plan in Phase 8)
 
 ## Performance Metrics
 
@@ -29,13 +29,14 @@ Progress: [██████████████░░░░░░] 70% (7/
 | Milestone | Phases | Plans | Status |
 |-----------|--------|-------|--------|
 | MVP v1.0 | 1-5 (includes 4.1) | 20/20 | Complete (2026-01-28) |
-| Beta v1.5 | 6-10 | 5/TBD | In progress (Phase 7 complete) |
+| Beta v1.5 | 6-10 | 6/TBD | In progress (Phase 8 started) |
 
 **Recent Trend:**
 - MVP v1.0 completed successfully (all 41 requirements delivered)
 - Beta v1.5 roadmap created (32 requirements across 5 phases)
 - Phase 6 completed: Theme management with persistent preferences
 - Phase 7 completed: Responsive navigation infrastructure with breadcrumbs, contextual back, screen refactoring
+- Phase 8 Plan 1 completed: Backend settings infrastructure (display_name, /auth/usage)
 
 ## Accumulated Context
 
@@ -57,6 +58,8 @@ Recent decisions affecting current work:
 - **Phase 7:** ResponsiveScaffold breakpoints: Desktop >=900px (extended rail), Tablet 600-899px (collapsed rail), Mobile <600px (drawer)
 - **Phase 7:** Path-based index derivation for nested route highlighting (use state.uri.path, not navigationShell.currentIndex)
 - **Phase 7:** Shell-provided navigation pattern - all screens are content-only, ResponsiveScaffold provides all navigation UI
+- **Phase 8:** display_name nullable for backward compatibility with existing users
+- **Phase 8:** SQLite migration via PRAGMA table_info + ALTER TABLE for existing databases
 
 ### Pending Todos
 
@@ -76,6 +79,6 @@ None - nested Scaffold issue resolved in Plan 07-03
 ## Session Continuity
 
 Last session: 2026-01-29
-Stopped at: Phase 7 complete, verified (7/7 must-haves passed)
+Stopped at: Completed 08-01-PLAN.md (Backend Settings Infrastructure)
 Resume file: None
-Next action: `/gsd:discuss-phase 8` to begin Settings Page & User Preferences
+Next action: Execute 08-02-PLAN.md (Frontend Settings Page) or create next plan

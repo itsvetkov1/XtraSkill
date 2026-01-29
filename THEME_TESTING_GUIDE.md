@@ -5,6 +5,8 @@ Test the new dark mode feature with persistent preferences across platforms.
 
 **⚠️ IMPORTANT:** You must be **logged in** (Google or Microsoft OAuth) before accessing Settings. The `/settings` route is protected by authentication.
 
+**🔧 BUG FIX (2026-01-29):** Fixed critical bug where navigating to `/settings` would log users out. If you pulled before commit `4be4c74`, please `git pull` to get the fix.
+
 ---
 
 ## Quick Setup (Another PC)
@@ -91,8 +93,6 @@ flutter run -d chrome
 5. **Verify:** "Dark Mode" toggle switch is visible and OFF
 
 **Expected:** Settings screen loads, toggle is OFF (light theme default)
-
-**If redirected to login:** You're not authenticated - complete Test 0 first
 
 ---
 
@@ -242,10 +242,6 @@ flutter run -d chrome
 ---
 
 ## Troubleshooting
-
-### Redirected to Login When Accessing /settings
-**Symptom:** Typing `/settings` redirects to login screen
-**Fix:** You need to be logged in first. Complete Test 0 (Login) before accessing Settings. All routes except `/splash`, `/login`, and `/auth/callback` require authentication.
 
 ### Backend Not Running
 **Symptom:** Frontend crashes or shows connection errors

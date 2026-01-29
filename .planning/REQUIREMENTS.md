@@ -172,11 +172,11 @@ This section maps requirements to roadmap phases. Updated during roadmap creatio
 | DEL-07 | Phase 9 | Pending |
 | SET-01 | Phase 8 | Pending |
 | SET-02 | Phase 8 | Pending |
-| SET-03 | Phase 6 | Pending |
-| SET-04 | Phase 6 | Pending |
+| SET-03 | Phase 6 | Complete |
+| SET-04 | Phase 6 | Complete |
 | SET-05 | Phase 8 | Pending |
-| SET-06 | Phase 6 | Pending |
-| SET-07 | Phase 6 | Pending |
+| SET-06 | Phase 6 | Complete |
+| SET-07 | Phase 6 | Complete |
 | CONV-UI-01 | Phase 10 | Pending |
 | CONV-UI-02 | Phase 10 | Pending |
 | CONV-UI-03 | Phase 10 | Pending |

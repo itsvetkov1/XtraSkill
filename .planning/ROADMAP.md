@@ -236,8 +236,8 @@ Plans:
 **Plans:** 2 plans
 
 Plans:
-- [ ] 06-01-PLAN.md — Theme foundation (ThemeProvider + AppTheme colors)
-- [ ] 06-02-PLAN.md — Theme integration (main.dart async init + Settings screen)
+- [x] 06-01-PLAN.md — Theme foundation (ThemeProvider + AppTheme colors)
+- [x] 06-02-PLAN.md — Theme integration (main.dart async init + Settings screen)
 
 ---
 
@@ -368,7 +368,7 @@ Phases execute in numeric order: 6 → 7 → 8 → 9 → 10
 | 4. Artifact Generation & Export | MVP v1.0 | - | Complete | 2026-01-26 |
 | 4.1. Agent SDK & Skill Integration | MVP v1.0 | 4/4 | Complete | 2026-01-27 |
 | 5. Cross-Platform Polish & Launch | MVP v1.0 | 5/5 | Complete | 2026-01-28 |
-| 6. Theme Management Foundation | Beta v1.5 | 0/2 | Not started | - |
+| 6. Theme Management Foundation | Beta v1.5 | 2/2 | Complete | 2026-01-29 |
 | 7. Responsive Navigation Infrastructure | Beta v1.5 | 0/TBD | Not started | - |
 | 8. Settings Page & User Preferences | Beta v1.5 | 0/TBD | Not started | - |
 | 9. Deletion Flows with Undo | Beta v1.5 | 0/TBD | Not started | - |
@@ -386,5 +386,5 @@ Phases execute in numeric order: 6 → 7 → 8 → 9 → 10
 
 ---
 
-*Last updated: 2026-01-29 (Phase 6 planned)*
-*Status: Beta v1.5 Phase 6 ready to execute*
+*Last updated: 2026-01-29*
+*Status: Beta v1.5 Phase 6 complete, Phase 7 ready to plan*

@@ -1,4 +1,4 @@
-/// Project list screen with create/update functionality.
+/// Project list screen content with create/update functionality.
 library;
 
 import 'package:flutter/material.dart';
@@ -10,7 +10,10 @@ import '../../models/project.dart';
 import '../../providers/project_provider.dart';
 import '../../widgets/responsive_layout.dart';
 
-/// Project list screen showing all user's projects
+/// Project list screen content showing all user's projects
+///
+/// This widget provides the content only - the ResponsiveScaffold shell
+/// handles all navigation (sidebar, drawer, AppBar, breadcrumbs).
 class ProjectListScreen extends StatefulWidget {
   const ProjectListScreen({super.key});
 
@@ -42,9 +45,7 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Projects'),
-      ),
+      // Use Scaffold for FAB positioning only (no AppBar)
       body: Consumer<ProjectProvider>(
         builder: (context, provider, child) {
           // Show error as SnackBar

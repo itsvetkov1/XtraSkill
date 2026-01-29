@@ -1,4 +1,4 @@
-/// Project detail screen showing project info and tabs for documents/threads.
+/// Project detail screen content showing project info and tabs for documents/threads.
 library;
 
 import 'package:flutter/material.dart';
@@ -9,7 +9,14 @@ import '../../providers/thread_provider.dart';
 import '../documents/document_upload_screen.dart';
 import '../threads/thread_list_screen.dart';
 
-/// Project detail screen with tabs for documents and threads
+/// Project detail screen content with tabs for documents and threads
+///
+/// This widget keeps its own Scaffold for TabController and FAB management,
+/// but removes the AppBar (shell provides navigation via breadcrumbs).
+///
+/// Note: Nested Scaffold is acceptable here because the shell Scaffold
+/// provides the outer structure and this inner Scaffold only manages
+/// the TabBar and FAB without an AppBar.
 class ProjectDetailScreen extends StatefulWidget {
   const ProjectDetailScreen({
     super.key,
@@ -53,124 +60,120 @@ class _ProjectDetailScreenState extends State<ProjectDetailScreen>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Consumer<ProjectProvider>(
-          builder: (context, provider, child) {
-            if (provider.selectedProject != null) {
-              return Text(provider.selectedProject!.name);
-            }
-            return const Text('Project Details');
-          },
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.edit),
-            tooltip: 'Edit Project',
-            onPressed: () => _showEditProjectDialog(context),
-          ),
-        ],
-        bottom: TabBar(
-          controller: _tabController,
-          tabs: const [
-            Tab(text: 'Documents', icon: Icon(Icons.description)),
-            Tab(text: 'Threads', icon: Icon(Icons.chat)),
-          ],
-        ),
-      ),
-      body: Consumer<ProjectProvider>(
-        builder: (context, provider, child) {
-          // Show loading indicator
-          if (provider.loading && provider.selectedProject == null) {
-            return const Center(child: CircularProgressIndicator());
-          }
+    return Consumer<ProjectProvider>(
+      builder: (context, provider, child) {
+        // Show loading indicator
+        if (provider.loading && provider.selectedProject == null) {
+          return const Center(child: CircularProgressIndicator());
+        }
 
-          // Show error message
-          if (provider.error != null) {
-            return Center(
+        // Show error message
+        if (provider.error != null) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.error_outline,
+                    size: 48, color: Theme.of(context).colorScheme.error),
+                const SizedBox(height: 16),
+                Text(
+                  'Error loading project',
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
+                const SizedBox(height: 8),
+                SelectableText(provider.error!),
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: () =>
+                      provider.selectProject(widget.projectId),
+                  child: const Text('Retry'),
+                ),
+              ],
+            ),
+          );
+        }
+
+        final project = provider.selectedProject;
+        if (project == null) {
+          return const Center(child: Text('Project not found'));
+        }
+
+        return Column(
+          children: [
+            // Project info header
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(16),
+              color: Theme.of(context).colorScheme.surfaceContainerHighest,
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(Icons.error_outline,
-                      size: 48, color: Theme.of(context).colorScheme.error),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Error loading project',
-                    style: Theme.of(context).textTheme.titleLarge,
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          project.name,
+                          style: Theme.of(context).textTheme.headlineSmall,
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.edit),
+                        tooltip: 'Edit Project',
+                        onPressed: () => _showEditProjectDialog(context),
+                      ),
+                    ],
                   ),
+                  if (project.description != null &&
+                      project.description!.isNotEmpty) ...[
+                    const SizedBox(height: 8),
+                    Text(
+                      project.description!,
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                  ],
                   const SizedBox(height: 8),
-                  SelectableText(provider.error!),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: () =>
-                        provider.selectProject(widget.projectId),
-                    child: const Text('Retry'),
+                  Row(
+                    children: [
+                      Text(
+                        'Created: ${_formatDate(project.createdAt)}',
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                      const SizedBox(width: 16),
+                      Text(
+                        'Updated: ${_formatDate(project.updatedAt)}',
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                    ],
                   ),
                 ],
               ),
-            );
-          }
-
-          final project = provider.selectedProject;
-          if (project == null) {
-            return const Center(child: Text('Project not found'));
-          }
-
-          return Column(
-            children: [
-              // Project info header
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(16),
-                color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      project.name,
-                      style: Theme.of(context).textTheme.headlineSmall,
-                    ),
-                    if (project.description != null &&
-                        project.description!.isNotEmpty) ...[
-                      const SizedBox(height: 8),
-                      Text(
-                        project.description!,
-                        style: Theme.of(context).textTheme.bodyMedium,
-                      ),
-                    ],
-                    const SizedBox(height: 8),
-                    Row(
-                      children: [
-                        Text(
-                          'Created: ${_formatDate(project.createdAt)}',
-                          style: Theme.of(context).textTheme.bodySmall,
-                        ),
-                        const SizedBox(width: 16),
-                        Text(
-                          'Updated: ${_formatDate(project.updatedAt)}',
-                          style: Theme.of(context).textTheme.bodySmall,
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
+            ),
+            // Tab bar
+            Material(
+              color: Theme.of(context).colorScheme.surface,
+              child: TabBar(
+                controller: _tabController,
+                tabs: const [
+                  Tab(text: 'Documents', icon: Icon(Icons.description)),
+                  Tab(text: 'Threads', icon: Icon(Icons.chat)),
+                ],
               ),
-              // Tabs content
-              Expanded(
-                child: TabBarView(
-                  controller: _tabController,
-                  children: [
-                    // Documents tab
-                    _DocumentsTab(projectId: widget.projectId),
-                    // Threads tab
-                    ThreadListScreen(projectId: widget.projectId),
-                  ],
-                ),
+            ),
+            // Tabs content
+            Expanded(
+              child: TabBarView(
+                controller: _tabController,
+                children: [
+                  // Documents tab
+                  _DocumentsTab(projectId: widget.projectId),
+                  // Threads tab
+                  ThreadListScreen(projectId: widget.projectId),
+                ],
               ),
-            ],
-          );
-        },
-      ),
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -330,4 +333,3 @@ class _DocumentsTab extends StatelessWidget {
     );
   }
 }
-

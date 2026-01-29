@@ -2,11 +2,14 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../core/config.dart';
 import '../providers/auth_provider.dart';
 import '../providers/navigation_provider.dart';
+import 'breadcrumb_bar.dart';
+import 'contextual_back_button.dart';
 
 /// Responsive scaffold shell widget that wraps all authenticated routes
 ///
@@ -14,6 +17,10 @@ import '../providers/navigation_provider.dart';
 /// - Desktop (>=900px): NavigationRail always visible, extended/collapsed based on user preference
 /// - Tablet (600-899px): NavigationRail collapsed (icons only)
 /// - Mobile (<600px): AppBar with hamburger menu opening Drawer
+///
+/// Includes:
+/// - BreadcrumbBar for route-based navigation context
+/// - ContextualBackButton for nested route navigation
 ///
 /// Usage in StatefulShellRoute:
 /// ```dart
@@ -177,12 +184,54 @@ class _DesktopLayout extends StatelessWidget {
               ),
               // Vertical divider
               const VerticalDivider(thickness: 1, width: 1),
-              // Main content
-              Expanded(child: child),
+              // Main content area with header bar
+              Expanded(
+                child: Column(
+                  children: [
+                    // Header bar with breadcrumbs
+                    _DesktopHeaderBar(),
+                    // Content
+                    Expanded(child: child),
+                  ],
+                ),
+              ),
             ],
           ),
         );
       },
+    );
+  }
+}
+
+/// Desktop header bar with breadcrumbs and back button
+class _DesktopHeaderBar extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
+        border: Border(
+          bottom: BorderSide(
+            color: Theme.of(context).colorScheme.outlineVariant,
+            width: 1,
+          ),
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+        child: Row(
+          children: [
+            // Contextual back button (shows only on nested routes)
+            const ContextualBackButton(),
+            const SizedBox(width: 8),
+            // Breadcrumb navigation
+            Expanded(
+              child: BreadcrumbBar(),
+            ),
+            // Future: user avatar, notifications, etc.
+          ],
+        ),
+      ),
     );
   }
 }
@@ -235,8 +284,17 @@ class _TabletLayout extends StatelessWidget {
           ),
           // Vertical divider
           const VerticalDivider(thickness: 1, width: 1),
-          // Main content
-          Expanded(child: child),
+          // Main content area with header bar
+          Expanded(
+            child: Column(
+              children: [
+                // Header bar with breadcrumbs (same as desktop)
+                _DesktopHeaderBar(),
+                // Content
+                Expanded(child: child),
+              ],
+            ),
+          ),
         ],
       ),
     );
@@ -259,10 +317,20 @@ class _MobileLayout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final canPop = context.canPop();
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('BA Assistant'),
+        // Show back button on nested routes, hamburger on root routes
+        leading: canPop
+            ? const ContextualBackButton(iconOnly: true)
+            : null,
+        // Don't auto-generate leading (we handle it)
+        automaticallyImplyLeading: !canPop,
+        // Breadcrumbs in title area (truncated for mobile)
+        title: const BreadcrumbBar(maxVisible: 2),
       ),
+      // Drawer available via hamburger menu (AppBar auto-adds it when drawer exists)
       drawer: _NavigationDrawer(
         currentIndex: currentIndex,
         onDestinationSelected: onDestinationSelected,

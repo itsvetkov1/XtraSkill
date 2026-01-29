@@ -8,7 +8,7 @@ Uses async SQLAlchemy for non-blocking database operations with FastAPI.
 import os
 from typing import AsyncGenerator
 
-from sqlalchemy import event
+from sqlalchemy import event, text
 from sqlalchemy.engine import Engine
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
@@ -85,6 +85,30 @@ async def init_db():
     """
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
+
+    # Run SQLite migrations for existing databases
+    await _run_migrations()
+
+
+async def _run_migrations():
+    """
+    Run SQLite migrations for existing databases.
+
+    SQLAlchemy's create_all() is idempotent for new tables but doesn't
+    modify existing tables. This function handles schema migrations
+    for SQLite databases.
+
+    For production PostgreSQL, use Alembic migrations instead.
+    """
+    async with engine.begin() as conn:
+        # Check if display_name column exists in users table
+        result = await conn.execute(text("PRAGMA table_info(users)"))
+        columns = [row[1] for row in result]
+
+        if "display_name" not in columns:
+            await conn.execute(
+                text("ALTER TABLE users ADD COLUMN display_name VARCHAR(255)")
+            )
 
 
 async def close_db():

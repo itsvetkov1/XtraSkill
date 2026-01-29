@@ -66,16 +66,35 @@ Future<void> main() async {
   runApp(MyApp(themeProvider: themeProvider));
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   final ThemeProvider themeProvider;
 
   const MyApp({super.key, required this.themeProvider});
 
   @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  late final GoRouter _routerInstance;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Create router only once when dependencies are available
+    if (!_isRouterInitialized) {
+      _routerInstance = _createRouter(context);
+      _isRouterInitialized = true;
+    }
+  }
+
+  bool _isRouterInitialized = false;
+
+  @override
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider.value(value: themeProvider),
+        ChangeNotifierProvider.value(value: widget.themeProvider),
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => ConversationProvider()),
         ChangeNotifierProvider(create: (_) => ProjectProvider()),
@@ -84,6 +103,12 @@ class MyApp extends StatelessWidget {
       ],
       child: Builder(
         builder: (context) {
+          // Ensure router is initialized after providers are available
+          if (!_isRouterInitialized) {
+            _routerInstance = _createRouter(context);
+            _isRouterInitialized = true;
+          }
+
           return Consumer<ThemeProvider>(
             builder: (context, theme, _) {
               return MaterialApp.router(
@@ -91,7 +116,7 @@ class MyApp extends StatelessWidget {
                 theme: AppTheme.lightTheme,
                 darkTheme: AppTheme.darkTheme,
                 themeMode: theme.themeMode,
-                routerConfig: _router(context),
+                routerConfig: _routerInstance,
                 debugShowCheckedModeBanner: false,
               );
             },
@@ -101,7 +126,7 @@ class MyApp extends StatelessWidget {
     );
   }
 
-  GoRouter _router(BuildContext context) {
+  GoRouter _createRouter(BuildContext context) {
     final authProvider = context.read<AuthProvider>();
 
     return GoRouter(

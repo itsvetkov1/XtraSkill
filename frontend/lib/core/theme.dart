@@ -6,7 +6,8 @@ import 'package:flutter/material.dart';
 /// App theme with Material 3 design
 class AppTheme {
   /// Primary color for the application
-  static const Color primaryColor = Color(0xFF2196F3); // Blue
+  /// Classic professional blue (user decision: #1976D2 range)
+  static const Color primaryColor = Color(0xFF1976D2);
 
   /// Light theme configuration
   static ThemeData get lightTheme {
@@ -41,6 +42,10 @@ class AppTheme {
       colorScheme: ColorScheme.fromSeed(
         seedColor: primaryColor,
         brightness: Brightness.dark,
+      ).copyWith(
+        // Dark gray background, not pure black (user decision from 06-CONTEXT.md)
+        // Reduces eye strain during long sessions vs pure black #000000
+        surface: const Color(0xFF121212),
       ),
       appBarTheme: const AppBarTheme(
         centerTitle: true,

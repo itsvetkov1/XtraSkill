@@ -5,22 +5,29 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'core/theme.dart';
 import 'providers/auth_provider.dart';
 import 'providers/conversation_provider.dart';
 import 'providers/document_provider.dart';
 import 'providers/project_provider.dart';
+import 'providers/theme_provider.dart';
 import 'providers/thread_provider.dart';
 import 'screens/auth/callback_screen.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/home_screen.dart';
+import 'screens/settings_screen.dart';
 import 'screens/splash_screen.dart';
 import 'screens/projects/project_list_screen.dart';
 import 'screens/projects/project_detail_screen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Load theme preference to prevent white flash on dark mode (SET-06)
+  final prefs = await SharedPreferences.getInstance();
+  final themeProvider = await ThemeProvider.load(prefs);
 
   // Global error handlers to prevent crashes
   FlutterError.onError = (FlutterErrorDetails details) {
@@ -56,16 +63,19 @@ Future<void> main() async {
 
   // Use path-based URLs instead of hash-based for web
   usePathUrlStrategy();
-  runApp(const MyApp());
+  runApp(MyApp(themeProvider: themeProvider));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final ThemeProvider themeProvider;
+
+  const MyApp({super.key, required this.themeProvider});
 
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
+        ChangeNotifierProvider.value(value: themeProvider),
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => ConversationProvider()),
         ChangeNotifierProvider(create: (_) => ProjectProvider()),
@@ -74,13 +84,17 @@ class MyApp extends StatelessWidget {
       ],
       child: Builder(
         builder: (context) {
-          return MaterialApp.router(
-            title: 'Business Analyst Assistant',
-            theme: AppTheme.lightTheme,
-            darkTheme: AppTheme.darkTheme,
-            themeMode: ThemeMode.system,
-            routerConfig: _router(context),
-            debugShowCheckedModeBanner: false,
+          return Consumer<ThemeProvider>(
+            builder: (context, theme, _) {
+              return MaterialApp.router(
+                title: 'Business Analyst Assistant',
+                theme: AppTheme.lightTheme,
+                darkTheme: AppTheme.darkTheme,
+                themeMode: theme.themeMode,
+                routerConfig: _router(context),
+                debugShowCheckedModeBanner: false,
+              );
+            },
           );
         },
       ),
@@ -150,6 +164,10 @@ class MyApp extends StatelessWidget {
             final id = state.pathParameters['id']!;
             return ProjectDetailScreen(projectId: id);
           },
+        ),
+        GoRoute(
+          path: '/settings',
+          builder: (context, state) => const SettingsScreen(),
         ),
       ],
       refreshListenable: authProvider,

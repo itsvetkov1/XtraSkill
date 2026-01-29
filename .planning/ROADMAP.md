@@ -1,14 +1,22 @@
 # Project Roadmap
 
 **Project:** Business Analyst Assistant
-**Version:** MVP v1.0
-**Last Updated:** 2026-01-28
+**Version:** Beta v1.5 - UI/UX Excellence
+**Last Updated:** 2026-01-29
+
+## Milestones
+
+- ✅ **MVP v1.0** - Phases 1-5 (shipped 2026-01-28)
+- 🚧 **Beta v1.5 - UI/UX Excellence** - Phases 6-10 (in progress)
 
 ## Overview
 
-This roadmap delivers an AI-powered conversational platform for business analysts in 8-10 weeks through 5 phases. The structure follows the critical dependency chain: authentication and infrastructure enable project/document management, which provides context for AI-assisted discovery conversations, which generate exportable artifacts for stakeholder delivery. Each phase delivers a complete, verifiable capability that unblocks the next phase.
+Beta v1.5 transforms the MVP into an executive-demo-ready application through five focused phases. The milestone follows a clear dependency chain: theme infrastructure enables settings page, navigation foundation supports all screens, deletion capabilities require stable navigation, and polish features enhance the complete experience. Each phase delivers a coherent, verifiable capability that builds toward professional, intuitive cross-platform UX.
 
 ## Phases
+
+<details>
+<summary>✅ MVP v1.0 (Phases 1-5) - SHIPPED 2026-01-28</summary>
 
 ### Phase 1: Foundation & Authentication
 **Goal:** Users can securely access the application from any device with persistent authentication.
@@ -28,19 +36,19 @@ This roadmap delivers an AI-powered conversational platform for business analyst
 - PLAT-05: Data automatically syncs across devices when user logs in
 
 **Success Criteria:**
-**Plans:** 3 plans
-
-Plans:
-- [x] 01-01-PLAN.md — Database schema + FastAPI server setup
-- [x] 01-02-PLAN.md — OAuth backend + Flutter OAuth flows
-- [x] 01-03-PLAN.md — Cross-platform testing & verification
-
 1. User can create account using Google work email and is immediately logged in
 2. User can create account using Microsoft work email and is immediately logged in
 3. User can log in on web browser, close browser, return later and remain logged in
 4. User can log in on mobile device, close app, reopen and remain logged in
 5. User can log out from any page and is redirected to login screen
 6. User's authentication works identically on web, Android, and iOS
+
+**Plans:** 3 plans
+
+Plans:
+- [x] 01-01-PLAN.md — Database schema + FastAPI server setup
+- [x] 01-02-PLAN.md — OAuth backend + Flutter OAuth flows
+- [x] 01-03-PLAN.md — Cross-platform testing & verification
 
 ---
 
@@ -66,6 +74,12 @@ Plans:
 - CONV-05: Threads display in chronological order with most recent first
 
 **Success Criteria:**
+1. User can create project named "Client Portal Redesign" with description and see it in project list
+2. User can upload text file "requirements.txt" to project and view its contents in app
+3. User can create multiple threads within project ("Login Flow", "Dashboard Features") that appear in thread list
+4. User can switch between projects and see only that project's threads and documents (no cross-contamination)
+5. User can update project name from "Client Portal" to "Customer Portal" and change persists
+
 **Plans:** 5 plans
 
 Plans:
@@ -74,12 +88,6 @@ Plans:
 - [x] 02-03-PLAN.md — Document management with encryption and FTS5
 - [x] 02-04-PLAN.md — Thread management API and UI
 - [x] 02-05-PLAN.md — Integration testing and verification
-
-1. User can create project named "Client Portal Redesign" with description and see it in project list
-2. User can upload text file "requirements.txt" to project and view its contents in app
-3. User can create multiple threads within project ("Login Flow", "Dashboard Features") that appear in thread list
-4. User can switch between projects and see only that project's threads and documents (no cross-contamination)
-5. User can update project name from "Client Portal" to "Customer Portal" and change persists
 
 ---
 
@@ -99,13 +107,6 @@ Plans:
 - AI-06: AI responses stream progressively to user (SSE)
 - AI-07: Token usage is tracked and enforced per request, conversation, and user
 
-**Plans:** 3 plans
-
-Plans:
-- [x] 03-01-PLAN.md — Backend AI service with Claude integration and SSE streaming
-- [x] 03-02-PLAN.md — Token tracking and thread summarization services
-- [x] 03-03-PLAN.md — Flutter conversation UI with SSE streaming
-
 **Success Criteria:**
 1. User types "We need a user login feature" and AI streams response immediately asking clarifying questions about auth methods
 2. AI proactively asks "What happens if user enters wrong password 5 times?" without user prompting
@@ -113,6 +114,13 @@ Plans:
 4. AI remembers earlier discussion about OAuth when user asks follow-up question 10 messages later
 5. Thread summary updates from "New Conversation" to "User Login Feature - OAuth with MFA" after 5 exchanges
 6. User can send 50 messages in thread and AI still references decisions from message 10
+
+**Plans:** 3 plans
+
+Plans:
+- [x] 03-01-PLAN.md — Backend AI service with Claude integration and SSE streaming
+- [x] 03-02-PLAN.md — Token tracking and thread summarization services
+- [x] 03-03-PLAN.md — Flutter conversation UI with SSE streaming
 
 ---
 
@@ -153,12 +161,12 @@ Plans:
 - ART-03: User can request requirements documents from conversation (enhanced via BRD template)
 
 **Success Criteria:**
-1. AI asks mode question at session start: Meeting Mode vs Document Refinement Mode ✅
-2. AI maintains one-question-at-a-time protocol with rationale and 3 answer options ✅
-3. AI clarifies ambiguous terms ("seamless", "scalable") before proceeding ✅
-4. AI redirects technical implementation discussions to business focus ✅
-5. Generated BRDs follow complete template structure with all sections ✅
-6. Skill behavior validated through integration tests ✅
+1. AI asks mode question at session start: Meeting Mode vs Document Refinement Mode
+2. AI maintains one-question-at-a-time protocol with rationale and 3 answer options
+3. AI clarifies ambiguous terms ("seamless", "scalable") before proceeding
+4. AI redirects technical implementation discussions to business focus
+5. Generated BRDs follow complete template structure with all sections
+6. Skill behavior validated through integration tests
 
 **Implementation:**
 - Transformed `.claude/business-analyst/` skill (5 files) into 7,437-token XML system prompt
@@ -199,33 +207,183 @@ Plans:
 4. All loading states display skeleton loaders or progress indicators (no blank screens)
 5. User encounters error (network failure, API timeout) and sees helpful error message with recovery action
 
+</details>
+
+---
+
+## 🚧 Beta v1.5 - UI/UX Excellence (In Progress)
+
+**Milestone Goal:** Transform the MVP into an executive-demo-ready application through comprehensive navigation improvements, professional empty states, deletion capabilities, and visual consistency enhancements.
+
+### Phase 6: Theme Management Foundation
+**Goal:** Users can switch between light and dark themes with persistent preferences that load instantly on app startup.
+
+**Dependencies:** None (independent infrastructure phase)
+
+**Requirements Covered:**
+- SET-03: Settings page includes light/dark theme toggle switch
+- SET-04: Theme preference persists across app restarts (SharedPreferences)
+- SET-06: Theme loads before MaterialApp initialization (prevent white flash on dark mode)
+- SET-07: Theme respects system preference on first launch (iOS/Android/web)
+
+**Success Criteria:**
+1. User toggles theme to dark mode and all screens immediately reflect dark theme
+2. User closes and reopens app, dark theme persists without white flash during startup
+3. New user launches app and theme matches their system preference (dark OS = dark app)
+4. User can switch theme on any screen and preference saves within 1 second
+5. Theme switching works identically on web, Android, and iOS
+
+**Plans:** TBD
+
+Plans:
+- [ ] 06-01: [TBD during planning]
+
+---
+
+### Phase 7: Responsive Navigation Infrastructure
+**Goal:** Users access persistent navigation on every screen with responsive behavior that adapts from mobile to desktop seamlessly.
+
+**Dependencies:** None (can run parallel to Phase 6)
+
+**Requirements Covered:**
+- NAV-01: Persistent sidebar navigation visible on all screens with responsive behavior (desktop always-visible ≥900px, mobile hamburger <600px)
+- NAV-02: Breadcrumb navigation displays current location path (e.g., "Projects > Project Name > Thread Name")
+- NAV-03: Back arrows show destination context (e.g., "← Projects" or "← Project Name")
+- NAV-04: Navigation highlights current screen location in sidebar
+- NAV-05: Sidebar state persists across navigation (expanded/collapsed preference on desktop)
+
+**Success Criteria:**
+1. User navigates from Projects to Thread on desktop and sidebar remains visible with current location highlighted
+2. User navigates same path on mobile and sees hamburger menu with drawer that highlights current location
+3. User resizes browser from 1200px to 500px and navigation smoothly transitions from sidebar to drawer
+4. User sees breadcrumb "Projects > Client Portal > Login Thread" and can click any segment to navigate
+5. User collapses sidebar on desktop, navigates between screens, and sidebar remains collapsed
+
+**Plans:** TBD
+
+Plans:
+- [ ] 07-01: [TBD during planning]
+- [ ] 07-02: [TBD during planning]
+
+---
+
+### Phase 8: Settings Page & User Preferences
+**Goal:** Users access centralized settings page to view profile, manage theme, check token usage, and log out.
+
+**Dependencies:** Phase 6 (requires ThemeProvider), Phase 7 (settings is a navigation destination)
+
+**Requirements Covered:**
+- SET-01: Settings page displays user profile information (email, name from OAuth provider)
+- SET-02: Settings page provides logout button with confirmation
+- SET-05: Settings page displays current month token budget usage (used/limit with percentage)
+
+**Success Criteria:**
+1. User navigates to Settings page and sees their email and name from OAuth provider
+2. User taps logout button, sees confirmation dialog, confirms, and is redirected to login screen
+3. User views token budget section showing "1,234 / 10,000 tokens used (12%)" with visual progress indicator
+4. Settings page renders correctly on mobile (sectioned ListTiles) and desktop (same layout, centered)
+
+**Plans:** TBD
+
+Plans:
+- [ ] 08-01: [TBD during planning]
+
+---
+
+### Phase 9: Deletion Flows with Undo
+**Goal:** Users can delete projects, threads, documents, and messages with confirmation dialogs and undo capability to prevent accidental data loss.
+
+**Dependencies:** Phase 7 (requires navigation for post-delete routing)
+
+**Requirements Covered:**
+- DEL-01: User can delete projects with confirmation dialog showing cascade impact ("This will delete X threads and Y documents")
+- DEL-02: User can delete threads with confirmation dialog showing impact ("This will delete X messages")
+- DEL-03: User can delete documents from project (confirmation dialog)
+- DEL-04: User can delete individual messages from thread (confirmation dialog)
+- DEL-05: Backend performs cascade deletes maintaining referential integrity (threads→messages, projects→threads→messages)
+- DEL-06: Deleted items show SnackBar with undo action (10-second window)
+- DEL-07: Deletion uses optimistic UI updates (immediate removal from list, rollback on error)
+
+**Success Criteria:**
+1. User deletes project with 3 threads and 5 documents, sees confirmation "This will delete 3 threads and 5 documents", confirms, and project disappears with undo SnackBar
+2. User taps undo within 10 seconds and project reappears in list with all threads and documents intact
+3. User deletes thread, navigates to different screen, undo expires, returns to project and thread is permanently gone
+4. User deletes document, sees optimistic removal, backend fails, document reappears with error message
+5. User deletes message from thread, message disappears immediately, can undo within 10 seconds
+
+**Plans:** TBD
+
+Plans:
+- [ ] 09-01: [TBD during planning]
+- [ ] 09-02: [TBD during planning]
+
+---
+
+### Phase 10: Polish & Empty States
+**Goal:** Users encounter professional empty states with clear guidance and enjoy consistent visual polish across all screens.
+
+**Dependencies:** Phase 9 (empty states appear after deleting last item)
+
+**Requirements Covered:**
+- ONBOARD-01: Projects list displays empty state when user has no projects (illustration + message + "Create Project" CTA)
+- ONBOARD-02: Threads list displays empty state when project has no threads (message + "Start Conversation" CTA)
+- ONBOARD-03: Documents list displays empty state when project has no documents (message + "Upload Document" CTA)
+- ONBOARD-04: Home screen displays primary action buttons ("Start Conversation", "Browse Projects") after authentication
+- ONBOARD-05: Home screen removes development phase information ("Next Steps") and displays user-oriented welcome
+- CONV-UI-01: AI mode selection presents as clickable ChoiceChip buttons (Meeting Mode, Document Refinement Mode) instead of typed "A"/"B" responses
+- CONV-UI-02: Message pills have improved readability (increased padding, font size 15-16px)
+- CONV-UI-03: Thread list items display mode indicator (chip or colored dot showing which mode was used)
+- POLISH-01: Date/time formatting is consistent: relative for recent (<7 days: "4d ago", "Yesterday"), absolute for older (>7 days: "Jan 18, 2026")
+- POLISH-02: Project detail headers are consolidated to reduce vertical space waste (single line name + metadata, not duplicate)
+- POLISH-03: Thread list items show preview text (first line of last message, truncated to 80 chars)
+- POLISH-04: Project cards display metadata badges (thread count, document count)
+- POLISH-05: All dates use `intl` package with locale-aware formatting (not hard-coded strings)
+
+**Success Criteria:**
+1. New user with zero projects sees empty state with illustration, message "No projects yet", and prominent "Create Project" button
+2. User deletes last thread in project and immediately sees empty state "No conversations yet - Start one to begin exploring requirements"
+3. User starts new conversation and sees two ChoiceChip buttons (Meeting Mode / Document Refinement Mode) instead of text prompt
+4. User views thread list and sees preview "User wants authentication with social login..." under thread title
+5. User sees consistent dates: threads from today show "2h ago", threads from last week show "Jan 22, 2026"
+
+**Plans:** TBD
+
+Plans:
+- [ ] 10-01: [TBD during planning]
+- [ ] 10-02: [TBD during planning]
+
 ---
 
 ## Progress
 
-| Phase | Status | Requirements | Completion |
-|-------|--------|--------------|------------|
-| 1 - Foundation & Authentication | Complete | 10 | 100% |
-| 2 - Project & Document Management | Complete | 14 | 100% |
-| 3 - AI-Powered Conversations | Complete | 9 | 100% |
-| 4 - Artifact Generation & Export | Complete | 7 | 100% |
-| 4.1 - Agent SDK & Skill Integration | Complete | 3 (enhanced) | 100% |
-| 5 - Cross-Platform Polish & Launch | Complete | 1 | 100% |
+**Execution Order:**
+Phases execute in numeric order: 6 → 7 → 8 → 9 → 10
 
-**Total Requirements Covered:** 41/41 (includes 40 v1 requirements + PLAT-06 counted separately)
-**Estimated Timeline:** 8-10 weeks (solo developer, 20-30 hours/week)
+| Phase | Milestone | Plans Complete | Status | Completed |
+|-------|-----------|----------------|--------|-----------|
+| 1. Foundation & Authentication | MVP v1.0 | 3/3 | Complete | 2026-01-19 |
+| 2. Project & Document Management | MVP v1.0 | 5/5 | Complete | 2026-01-21 |
+| 3. AI-Powered Conversations | MVP v1.0 | 3/3 | Complete | 2026-01-24 |
+| 4. Artifact Generation & Export | MVP v1.0 | - | Complete | 2026-01-26 |
+| 4.1. Agent SDK & Skill Integration | MVP v1.0 | 4/4 | Complete | 2026-01-27 |
+| 5. Cross-Platform Polish & Launch | MVP v1.0 | 5/5 | Complete | 2026-01-28 |
+| 6. Theme Management Foundation | Beta v1.5 | 0/TBD | Not started | - |
+| 7. Responsive Navigation Infrastructure | Beta v1.5 | 0/TBD | Not started | - |
+| 8. Settings Page & User Preferences | Beta v1.5 | 0/TBD | Not started | - |
+| 9. Deletion Flows with Undo | Beta v1.5 | 0/TBD | Not started | - |
+| 10. Polish & Empty States | Beta v1.5 | 0/TBD | Not started | - |
 
 ---
 
 ## Phase Ordering Rationale
 
-**Dependency-driven:** Each phase is blocked by previous phases completing. Authentication enables project creation. Projects enable document upload. Documents enable AI context search. AI conversations enable artifact generation. All features complete before cross-platform polish.
+**Dependency-driven:** Phase 6 (Theme) is independent infrastructure that Phase 8 (Settings) consumes. Phase 7 (Navigation) is foundational for all screens and required by Phase 9 (Deletion) for post-delete routing. Phase 10 (Polish) depends on Phase 9 for empty state triggers.
 
-**Risk-driven:** Token tracking in Phase 1 (before AI ships) prevents cost explosion. Document encryption and FTS5 indexing in Phase 2 (before AI search) prevents security debt and shallow RAG. AI service in Phase 3 as longest phase allows buffer time.
+**Risk-driven:** Theme infrastructure (Phase 6) completed early prevents FOUC issues during demos. Navigation foundation (Phase 7) established before complex deletion flows to ensure stable post-delete routing. Backend cascade deletes (Phase 9) front-loaded to validate database constraints before polish features.
 
-**Value-driven:** Phase 3 delivers core value proposition (AI-assisted discovery). Phase 4 completes value loop (conversation -> insights -> deliverable documents). Phase 5 ensures professional quality before user validation.
+**Value-driven:** Phase 7 (Navigation) delivers critical "never get lost" UX immediately. Phase 8 (Settings) provides central control point for executive demos. Phase 9 (Deletion) removes "can't clean up test data" friction. Phase 10 (Polish) maximizes first-impression quality for demo scenarios.
 
 ---
 
-*Last updated: 2026-01-28 (Phase 5 complete - all 5 phases executed)*
-*Status: MVP v1.0 COMPLETE - Ready for production deployment*
+*Last updated: 2026-01-29 (Beta v1.5 roadmap created)*
+*Status: Beta v1.5 Phase 6 ready to plan*

@@ -153,10 +153,46 @@ This section maps requirements to roadmap phases. Updated during roadmap creatio
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| (Populated by gsd-roadmapper) | | |
+| NAV-01 | Phase 7 | Pending |
+| NAV-02 | Phase 7 | Pending |
+| NAV-03 | Phase 7 | Pending |
+| NAV-04 | Phase 7 | Pending |
+| NAV-05 | Phase 7 | Pending |
+| ONBOARD-01 | Phase 10 | Pending |
+| ONBOARD-02 | Phase 10 | Pending |
+| ONBOARD-03 | Phase 10 | Pending |
+| ONBOARD-04 | Phase 10 | Pending |
+| ONBOARD-05 | Phase 10 | Pending |
+| DEL-01 | Phase 9 | Pending |
+| DEL-02 | Phase 9 | Pending |
+| DEL-03 | Phase 9 | Pending |
+| DEL-04 | Phase 9 | Pending |
+| DEL-05 | Phase 9 | Pending |
+| DEL-06 | Phase 9 | Pending |
+| DEL-07 | Phase 9 | Pending |
+| SET-01 | Phase 8 | Pending |
+| SET-02 | Phase 8 | Pending |
+| SET-03 | Phase 6 | Pending |
+| SET-04 | Phase 6 | Pending |
+| SET-05 | Phase 8 | Pending |
+| SET-06 | Phase 6 | Pending |
+| SET-07 | Phase 6 | Pending |
+| CONV-UI-01 | Phase 10 | Pending |
+| CONV-UI-02 | Phase 10 | Pending |
+| CONV-UI-03 | Phase 10 | Pending |
+| POLISH-01 | Phase 10 | Pending |
+| POLISH-02 | Phase 10 | Pending |
+| POLISH-03 | Phase 10 | Pending |
+| POLISH-04 | Phase 10 | Pending |
+| POLISH-05 | Phase 10 | Pending |
 
 **Coverage:**
-- Beta v1.5 requirements: 29 total
+- Beta v1.5 requirements: 32/32 mapped (100%)
+- Phase 6 (Theme Management): 4 requirements
+- Phase 7 (Navigation Infrastructure): 5 requirements
+- Phase 8 (Settings Page): 3 requirements
+- Phase 9 (Deletion Flows): 7 requirements
+- Phase 10 (Polish & Empty States): 13 requirements
 - v2.0 requirements: 9 deferred
 - Out of scope: 8+ features
 
@@ -210,7 +246,7 @@ Beta v1.5 success will be measured by:
 ---
 
 *Requirements baseline established: 2026-01-29*
-*Total Beta v1.5 requirements: 29*
+*Total Beta v1.5 requirements: 32*
 *Total v2.0 requirements: 9*
 *Out of scope: 8+*
-*Traceability updated: [Pending roadmap creation]*
+*Traceability updated: 2026-01-29*

@@ -138,14 +138,22 @@ class _MyAppState extends State<MyApp> {
           return '/home';
         }
 
+        // CRITICAL: If auth check is still loading, redirect to splash to wait
+        // This prevents premature redirects to login when navigating directly to
+        // protected routes (e.g., /settings) before auth state is restored
+        if (isLoading && !isSplash && !isLogin && !isCallback) {
+          return '/splash';
+        }
+
         // If on splash and auth check complete (not loading) and not authenticated,
         // redirect to login
         if (isSplash && !isLoading && !isAuthenticated) {
           return '/login';
         }
 
-        // If not authenticated and not on splash/login/callback, redirect to login
-        if (!isAuthenticated && !isSplash && !isLogin && !isCallback) {
+        // If not authenticated (and not loading) and not on splash/login/callback,
+        // redirect to login
+        if (!isAuthenticated && !isLoading && !isSplash && !isLogin && !isCallback) {
           return '/login';
         }
 

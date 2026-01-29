@@ -25,7 +25,9 @@ class AuthProvider extends ChangeNotifier {
   /// Auth service for OAuth flows and token management
   final AuthService _authService;
 
-  AuthState _state = AuthState.unauthenticated;
+  // Start in loading state to prevent premature redirects before auth check completes
+  // This ensures GoRouter's redirect waits for checkAuthStatus() to finish
+  AuthState _state = AuthState.loading;
   String? _userId;
   String? _email;
   String? _errorMessage;

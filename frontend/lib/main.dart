@@ -12,6 +12,7 @@ import 'providers/auth_provider.dart';
 import 'providers/conversation_provider.dart';
 import 'providers/document_provider.dart';
 import 'providers/project_provider.dart';
+import 'providers/navigation_provider.dart';
 import 'providers/theme_provider.dart';
 import 'providers/thread_provider.dart';
 import 'screens/auth/callback_screen.dart';
@@ -25,9 +26,10 @@ import 'screens/projects/project_detail_screen.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Load theme preference to prevent white flash on dark mode (SET-06)
+  // Load preferences to prevent state flash on startup (SET-06, NAV-01)
   final prefs = await SharedPreferences.getInstance();
   final themeProvider = await ThemeProvider.load(prefs);
+  final navigationProvider = await NavigationProvider.load(prefs);
 
   // Global error handlers to prevent crashes
   FlutterError.onError = (FlutterErrorDetails details) {
@@ -63,13 +65,21 @@ Future<void> main() async {
 
   // Use path-based URLs instead of hash-based for web
   usePathUrlStrategy();
-  runApp(MyApp(themeProvider: themeProvider));
+  runApp(MyApp(
+    themeProvider: themeProvider,
+    navigationProvider: navigationProvider,
+  ));
 }
 
 class MyApp extends StatefulWidget {
   final ThemeProvider themeProvider;
+  final NavigationProvider navigationProvider;
 
-  const MyApp({super.key, required this.themeProvider});
+  const MyApp({
+    super.key,
+    required this.themeProvider,
+    required this.navigationProvider,
+  });
 
   @override
   State<MyApp> createState() => _MyAppState();
@@ -84,6 +94,7 @@ class _MyAppState extends State<MyApp> {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider.value(value: widget.themeProvider),
+        ChangeNotifierProvider.value(value: widget.navigationProvider),
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => ConversationProvider()),
         ChangeNotifierProvider(create: (_) => ProjectProvider()),

@@ -4,25 +4,84 @@ library;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../models/token_usage.dart';
+import '../providers/auth_provider.dart';
 import '../providers/theme_provider.dart';
+import '../services/auth_service.dart';
 
-/// Settings screen content displaying theme toggle and user preferences
+/// Settings screen content displaying user profile, theme toggle, usage, and logout
 ///
 /// This widget provides the content only - the ResponsiveScaffold shell
 /// handles all navigation (sidebar, drawer, AppBar, breadcrumbs).
-class SettingsScreen extends StatelessWidget {
+class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
+
+  @override
+  State<SettingsScreen> createState() => _SettingsScreenState();
+}
+
+class _SettingsScreenState extends State<SettingsScreen> {
+  bool _isLoadingUsage = true;
+  TokenUsage? _usage;
+  String? _usageError;
+
+  @override
+  void initState() {
+    super.initState();
+    // Fetch usage data after the first frame to ensure context is ready
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _fetchUsage();
+    });
+  }
+
+  Future<void> _fetchUsage() async {
+    if (!mounted) return;
+
+    setState(() {
+      _isLoadingUsage = true;
+      _usageError = null;
+    });
+
+    try {
+      final authService = AuthService();
+      final usageData = await authService.getUsage();
+
+      if (!mounted) return;
+
+      setState(() {
+        _usage = TokenUsage.fromJson(usageData);
+        _isLoadingUsage = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+
+      setState(() {
+        _usageError = 'Unable to load usage data';
+        _isLoadingUsage = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return ListView(
       children: [
-        // Theme Section
+        // Account Section
+        _buildSectionHeader(context, 'Account'),
+        Consumer<AuthProvider>(
+          builder: (context, authProvider, _) {
+            return _buildProfileTile(context, authProvider);
+          },
+        ),
+        const Divider(),
+
+        // Appearance Section
         _buildSectionHeader(context, 'Appearance'),
         Consumer<ThemeProvider>(
           builder: (context, themeProvider, _) {
             return SwitchListTile(
               title: const Text('Dark Mode'),
+              subtitle: const Text('Use dark theme'),
               value: themeProvider.isDarkMode,
               onChanged: (_) => themeProvider.toggleTheme(),
             );
@@ -30,13 +89,15 @@ class SettingsScreen extends StatelessWidget {
         ),
         const Divider(),
 
-        // Placeholder for future settings sections (SET-01, SET-02, SET-05 in Phase 8)
-        _buildSectionHeader(context, 'Account'),
-        const ListTile(
-          title: Text('Profile'),
-          subtitle: Text('Coming soon'),
-          enabled: false,
-        ),
+        // Usage Section
+        _buildSectionHeader(context, 'Usage'),
+        _buildUsageTile(context),
+        const Divider(),
+
+        // Actions Section
+        _buildSectionHeader(context, 'Actions'),
+        _buildLogoutTile(context),
+        const SizedBox(height: 32),
       ],
     );
   }
@@ -52,5 +113,130 @@ class SettingsScreen extends StatelessWidget {
             ),
       ),
     );
+  }
+
+  Widget _buildProfileTile(BuildContext context, AuthProvider authProvider) {
+    final email = authProvider.email ?? 'Unknown';
+    final displayName = authProvider.displayName;
+    final initials = _getInitials(displayName ?? email);
+
+    return ListTile(
+      leading: CircleAvatar(
+        backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+        child: Text(
+          initials,
+          style: TextStyle(
+            color: Theme.of(context).colorScheme.onPrimaryContainer,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
+      title: Text(displayName ?? email),
+      subtitle: displayName != null ? Text(email) : null,
+    );
+  }
+
+  String _getInitials(String name) {
+    final parts =
+        name.split(RegExp(r'[\s@]+')).where((p) => p.isNotEmpty).toList();
+    if (parts.isEmpty) return '?';
+    if (parts.length == 1) return parts[0][0].toUpperCase();
+    return '${parts[0][0]}${parts[1][0]}'.toUpperCase();
+  }
+
+  Widget _buildUsageTile(BuildContext context) {
+    if (_isLoadingUsage) {
+      return const ListTile(
+        title: Text('Monthly Token Budget'),
+        subtitle: Padding(
+          padding: EdgeInsets.only(top: 8),
+          child: LinearProgressIndicator(),
+        ),
+      );
+    }
+
+    if (_usageError != null || _usage == null) {
+      return ListTile(
+        title: const Text('Monthly Token Budget'),
+        subtitle: Text(
+          _usageError ?? 'Unable to load usage data',
+          style: TextStyle(color: Theme.of(context).colorScheme.error),
+        ),
+        trailing: IconButton(
+          icon: const Icon(Icons.refresh),
+          onPressed: _fetchUsage,
+          tooltip: 'Retry',
+        ),
+      );
+    }
+
+    final percentText = _usage!.costPercentageDisplay;
+    final percentage = _usage!.costPercentage;
+
+    return ListTile(
+      title: const Text('Monthly Token Budget'),
+      subtitle: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SizedBox(height: 8),
+          LinearProgressIndicator(
+            value: percentage,
+            backgroundColor:
+                Theme.of(context).colorScheme.surfaceContainerHighest,
+            color: percentage > 0.8
+                ? Colors.orange
+                : Theme.of(context).colorScheme.primary,
+          ),
+          const SizedBox(height: 4),
+          Text(
+            '\$${_usage!.totalCost.toStringAsFixed(2)} / \$${_usage!.budget.toStringAsFixed(2)} used ($percentText)',
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLogoutTile(BuildContext context) {
+    return ListTile(
+      leading: Icon(Icons.logout, color: Theme.of(context).colorScheme.error),
+      title: Text(
+        'Log Out',
+        style: TextStyle(color: Theme.of(context).colorScheme.error),
+      ),
+      onTap: () => _showLogoutConfirmation(context),
+    );
+  }
+
+  Future<void> _showLogoutConfirmation(BuildContext context) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          title: const Text('Log Out'),
+          content: const Text('Are you sure you want to log out?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(false),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(true),
+              style: TextButton.styleFrom(
+                foregroundColor: Theme.of(dialogContext).colorScheme.error,
+              ),
+              child: const Text('Log Out'),
+            ),
+          ],
+        );
+      },
+    );
+
+    // CRITICAL: Check context.mounted before using context after await
+    if (confirmed == true && context.mounted) {
+      await context.read<AuthProvider>().logout();
+      // GoRouter redirect handles navigation to login automatically
+    }
   }
 }

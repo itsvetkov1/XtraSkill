@@ -46,6 +46,9 @@ class User(Base):
     )
     oauth_id: Mapped[str] = mapped_column(String(255), unique=True, nullable=False, index=True)
 
+    # User profile from OAuth provider
+    display_name: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
+
     # Audit timestamps with timezone awareness
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),

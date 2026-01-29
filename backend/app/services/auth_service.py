@@ -124,12 +124,14 @@ class OAuth2Service:
         # Extract user data
         oauth_id = user_info["id"]
         email = user_info["email"]
+        display_name = user_info.get("name")
 
         # Create or update user in database
         user = await self._upsert_user(
             oauth_provider=OAuthProvider.GOOGLE,
             oauth_id=oauth_id,
             email=email,
+            display_name=display_name,
         )
 
         return user
@@ -206,12 +208,14 @@ class OAuth2Service:
         # Extract user data
         oauth_id = user_info["id"]
         email = user_info["mail"] or user_info.get("userPrincipalName")
+        display_name = user_info.get("displayName")
 
         # Create or update user in database
         user = await self._upsert_user(
             oauth_provider=OAuthProvider.MICROSOFT,
             oauth_id=oauth_id,
             email=email,
+            display_name=display_name,
         )
 
         return user
@@ -221,6 +225,7 @@ class OAuth2Service:
         oauth_provider: OAuthProvider,
         oauth_id: str,
         email: str,
+        display_name: Optional[str] = None,
     ) -> User:
         """
         Create new user or update existing user by oauth_provider + oauth_id.
@@ -229,6 +234,7 @@ class OAuth2Service:
             oauth_provider: OAuth provider (Google or Microsoft)
             oauth_id: Provider-specific user ID
             email: User's email address
+            display_name: User's display name from OAuth provider
 
         Returns:
             User object (created or existing)
@@ -242,14 +248,16 @@ class OAuth2Service:
         user = result.scalar_one_or_none()
 
         if user:
-            # Update existing user (in case email changed)
+            # Update existing user (in case email or display name changed)
             user.email = email
+            user.display_name = display_name
         else:
             # Create new user
             user = User(
                 oauth_provider=oauth_provider,
                 oauth_id=oauth_id,
                 email=email,
+                display_name=display_name,
             )
             self.db.add(user)
 

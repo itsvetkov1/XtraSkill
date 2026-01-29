@@ -153,11 +153,11 @@ This section maps requirements to roadmap phases. Updated during roadmap creatio
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| NAV-01 | Phase 7 | Pending |
-| NAV-02 | Phase 7 | Pending |
-| NAV-03 | Phase 7 | Pending |
-| NAV-04 | Phase 7 | Pending |
-| NAV-05 | Phase 7 | Pending |
+| NAV-01 | Phase 7 | Complete |
+| NAV-02 | Phase 7 | Complete |
+| NAV-03 | Phase 7 | Complete |
+| NAV-04 | Phase 7 | Complete |
+| NAV-05 | Phase 7 | Complete |
 | ONBOARD-01 | Phase 10 | Pending |
 | ONBOARD-02 | Phase 10 | Pending |
 | ONBOARD-03 | Phase 10 | Pending |
@@ -170,11 +170,11 @@ This section maps requirements to roadmap phases. Updated during roadmap creatio
 | DEL-05 | Phase 9 | Pending |
 | DEL-06 | Phase 9 | Pending |
 | DEL-07 | Phase 9 | Pending |
-| SET-01 | Phase 8 | Pending |
-| SET-02 | Phase 8 | Pending |
+| SET-01 | Phase 8 | Complete |
+| SET-02 | Phase 8 | Complete |
 | SET-03 | Phase 6 | Complete |
 | SET-04 | Phase 6 | Complete |
-| SET-05 | Phase 8 | Pending |
+| SET-05 | Phase 8 | Complete |
 | SET-06 | Phase 6 | Complete |
 | SET-07 | Phase 6 | Complete |
 | CONV-UI-01 | Phase 10 | Pending |

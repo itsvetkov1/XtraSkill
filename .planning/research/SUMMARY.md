@@ -1,320 +1,304 @@
 # Project Research Summary
 
-**Project:** Business Analyst Assistant
-**Domain:** AI-powered conversational platform with document context management
-**Researched:** 2026-01-17
-**Confidence:** MEDIUM-HIGH
+**Project:** Business Analyst Assistant - Beta v1.5 UI/UX Improvements
+**Domain:** Flutter Enterprise Application UI/UX Patterns
+**Researched:** 2026-01-29
+**Confidence:** HIGH
 
 ## Executive Summary
 
-The Business Analyst Assistant is an AI-powered conversational platform that helps business analysts discover requirements through guided dialogue, contextual document search, and automated artifact generation. Research validates that the proposed technology stack (Flutter, FastAPI, Claude Agent SDK, SQLite→PostgreSQL) aligns exceptionally well with 2025-2026 best practices for AI-heavy cross-platform applications, scoring 94/100 for stack alignment.
+The Beta v1.5 UI/UX improvements milestone targets executive demo readiness through seven critical enhancements: responsive persistent navigation, empty state screens, deletion confirmations with undo, settings organization, mode selection UI, breadcrumb navigation, and date formatting. Research confirms Material Design 3 is the optimal foundation, leveraging built-in NavigationRail/NavigationDrawer for responsive layouts, with minimal third-party dependencies.
 
-The recommended approach follows a **layered architecture** with clear separation between presentation (Flutter), business logic (FastAPI), AI orchestration (Claude Agent SDK), and data persistence. The critical architectural pattern is **agentic tool orchestration** where the AI autonomously decides when to search documents, generate artifacts, or respond conversationally. This approach maximizes development velocity for a solo developer while maintaining professional-grade scalability through MVP validation and beyond.
+**Recommended approach:** Extend the existing Provider state management pattern with four new providers (ThemeProvider, NavigationProvider, DeletionProvider, SettingsProvider) that integrate one-way with existing providers. Avoid migration to Riverpod/Bloc to maintain velocity in solo developer context. Use Material 3 built-in widgets wherever possible—only add dependencies for functionality Flutter SDK lacks: date formatting (intl), theme persistence (shared_preferences), and SVG illustrations (flutter_svg).
 
-Key risks center on **AI token cost management** (Agent SDK multiplies API calls 3-5x per user request), **document context quality** (shallow RAG implementation destroys value proposition), and **cross-platform UI consistency** (Flutter's "write once" can mask platform-specific issues). All three risks are mitigable through early implementation of token budgets, semantic chunking with metadata enrichment, and platform-aware testing from day one. The MVP feature scope is well-balanced between table stakes (authentication, project management, conversation threading) and core differentiators (AI edge case discovery, contextual document search, structured artifact generation).
+**Key risks and mitigation:** Critical pitfalls include BuildContext usage across async gaps (mitigate with `context.mounted` checks), SQLite cascade deletes silently failing without `PRAGMA foreign_keys = ON`, theme persistence failures on web/iOS (load theme before MaterialApp), and responsive layout thrashing (use `MediaQuery.sizeOf()` with hysteresis). All pitfalls have documented prevention strategies and can be caught through integration testing before executive demos.
 
 ## Key Findings
 
 ### Recommended Stack
 
-The proposed stack is production-ready and optimized for solo developer velocity. Flutter 3.38.6 (January 2026 release) explicitly highlights AI-powered app development as a cutting-edge focus, making it ideal for this use case. FastAPI with Anthropic Python SDK v0.76.0 provides native async support perfect for SSE streaming, and the SDK's built-in agent patterns eliminate months of manual tool loop development.
+The research overwhelmingly favors built-in Material 3 widgets to minimize dependency risk and maximize cross-platform consistency. Flutter 3.38.6 ships with Material 3 enabled by default, providing NavigationRail, NavigationDrawer, AlertDialog, and all necessary components for the milestone without third-party packages.
 
 **Core technologies:**
-- **Flutter 3.38.6** — Cross-platform UI (web/Android/iOS) from single codebase, leveraging existing experience from AI Rhythm Coach project
-- **FastAPI 0.115+** — Async Python backend optimal for SSE streaming and AI integration
-- **Anthropic Python SDK 0.76.0** — Native async support, streaming helpers, @beta_tool decorator for function-based tools, eliminates manual agent loop complexity
-- **SQLite 3.45+ → PostgreSQL 18.1** — Zero-config MVP database with FTS5 full-text search, clear migration path via SQLAlchemy ORM abstraction
-- **OAuth 2.0 (Google + Microsoft)** — Enterprise authentication standard, free tier, eliminates password management burden
-- **Server-Sent Events (SSE)** — Unidirectional streaming for AI responses, simpler than WebSockets, PaaS-friendly
-- **Railway/Render PaaS** — Git-based deployment, automatic HTTPS, zero-config infrastructure for $5-20/month
+- **NavigationRail/NavigationDrawer** (built-in): Responsive persistent sidebar — Material 3 native components handle desktop (≥600px) and mobile (<600px) breakpoints automatically; no need for sidebarx or navigation_sidebar packages
+- **intl ^0.20.2**: Date/time formatting — Industry standard for locale-aware date formatting; supports relative ("2 hours ago") and absolute formats; Flutter's official recommendation
+- **shared_preferences ^2.5.4**: Theme persistence — Standard cross-platform key-value storage for settings; persists theme mode (light/dark/system) across app restarts
+- **flutter_svg ^2.2.3**: SVG illustrations for empty states — Official Flutter package for rendering vector graphics; WASM-compatible; supports custom illustrations or unDraw open-source assets
+- **Provider ^6.1.5+1** (already installed): State management — Project already uses Provider; maintain consistency rather than migrating to Riverpod/Bloc mid-development
 
-**Version verification:** Flutter, Anthropic SDK, and PostgreSQL versions verified against official sources (January 2026). Supporting library versions based on training data (late 2024/early 2025) with MEDIUM confidence—should be validated during implementation.
+**What NOT to use:**
+- sidebarx package (redundant with built-in NavigationRail/NavigationDrawer)
+- flutter_breadcrumb package (4 years unmaintained; custom implementation preferred)
+- adaptive_theme package (wrapper over Provider+SharedPreferences without meaningful benefit)
+- Any confirmation dialog packages (AlertDialog sufficient)
 
-**Critical synergy:** Python ecosystem dominates AI tooling, FastAPI's async matches both Claude SDK and SSE streaming patterns, SQLAlchemy provides database-agnostic abstraction for SQLite→PostgreSQL migration.
+**Philosophy:** Prefer built-in Material 3 widgets. Only add third-party dependencies when Flutter SDK lacks functionality.
 
 ### Expected Features
 
-MVP feature set scores **well-scoped** — includes all critical table stakes and the core differentiators that define product value proposition. The deferrals (search, editing, deletion, PDF parsing) are appropriate for validation phase.
+Research identified clear table stakes features (users expect in enterprise apps), differentiators (create positive demo impression), and anti-features (explicitly avoid).
 
 **Must have (table stakes):**
-- **User authentication (OAuth)** — Security baseline, enterprise users expect SSO
-- **Project organization** — BAs manage multiple initiatives simultaneously
-- **Document storage** — Text-only MVP acceptable, BAs reference specs/notes during discovery
-- **Conversation history** — Multiple threads per project for different features/initiatives
-- **Export to common formats** — Markdown, PDF, Word—stakeholders need documentation deliverables
-- **Cross-device sync** — Server-stored data provides automatic sync for office (desktop) and meetings (mobile)
-- **Artifact templates** — AI generates structured user stories/acceptance criteria automatically
+- **Persistent Navigation** — Users expect navigation available on every screen; NavigationRail (desktop ≥600px) and Drawer (mobile <600px) with current location indicator
+- **Empty State Screens** — Blank screens signal broken functionality; require illustration/icon + heading + explanation + primary CTA button
+- **Deletion Confirmation with Undo** — Users expect protection from accidental data loss; SnackBar with undo action (7-second window) is modern pattern vs. confirmation dialogs
+- **Settings Page** — Users expect central location for profile, theme preferences, and account actions; sectioned layout with ListTiles
+- **Consistent Date Formatting** — Inconsistent dates signal unfinished product; use intl package with locale-aware skeletons (never hard-code)
+- **WCAG AA Compliance** — 48×48px touch targets and 4.5:1 contrast ratio are enterprise buyer requirements
 
 **Should have (competitive differentiators):**
-- **AI-powered edge case discovery** — CORE VALUE PROP: proactively identifies missing requirements BAs overlook
-- **Contextual document search** — AI autonomously references uploaded documents during conversation (most AI tools require manual context)
-- **Structured artifact generation** — Convert conversations to user stories, acceptance criteria automatically
-- **Guided discovery questions** — AI asks clarifying questions like experienced BA mentor
-- **Conversation threading** — Separate conversations for different features within project (organizational advantage vs single-thread chat)
-- **Real-time streaming responses** — SSE shows AI response as it generates, reduces perceived latency
-- **Multi-format export** — Word/PDF/Markdown without manual formatting
+- **Mode Selection Chips** — Visual, tappable ChoiceChip widgets vs text commands; improves discoverability
+- **Contextual Empty States** — Different messages per context (new user vs filtered vs error) vs generic "No data"
+- **Material 3 Design** — Current design language signals attention to quality (already default in Flutter 3.16+)
+- **Smart Date/Time Formatting** — Relative dates ("2 hours ago") for recent, absolute for older; reduces cognitive load
+- **Floating Action Button (Mobile)** — Primary action immediately accessible on mobile screens
 
-**Defer (Beta/V1.0+):**
-- **Voice input for meetings** — HIGH VALUE for meeting use case, consider for Beta if mobile adoption strong
-- **JIRA/Azure DevOps integration** — Critical for V1.0 enterprise adoption
-- **Requirement completeness scoring** — Reinforces AI value proposition, good Beta candidate
-- **PDF/Word document parsing** — Text-only sufficient for MVP validation
-- **Search functionality** — Acceptable with <10 projects, becomes critical in Beta
-- **Editing/deletion capabilities** — Minimal UX issue for MVP, must address for Beta
+**Defer (v2+):**
+- **Lottie Animated Empty States** — Engaging vs static but adds complexity; defer to post-Beta unless time permits
+- **Bulk Selection with Visual Feedback** — Efficiency feature for power users; not critical for MVP demos
+- **Settings Search** — Only needed when settings page has 20+ options
+- **Skeleton Loading States** — Polish feature; spinner acceptable for Beta
 
-**Anti-features (deliberately avoid):**
-- Built-in diagramming tools (BAs use Miro/Lucidchart, competing adds massive scope)
-- Real-time collaboration in MVP/Beta (requires WebSockets, CRDTs, massive complexity)
-- Gantt charts/project planning (not BA's primary responsibility, dilutes focus)
-- Built-in approval workflows (low ROI for MVP validation)
-- Customizable AI personalities (complexity without proven user demand)
+**Anti-features to avoid:**
+- Breadcrumb navigation on mobile (redundant with back button, causes scrolling)
+- Destructive actions without undo (creates user anxiety)
+- "Are you sure?" dialogs for recoverable actions (use SnackBar undo instead)
+- Text-based mode commands (not discoverable; use visual chips)
+- Hard-coded date formats (breaks internationalization)
 
 ### Architecture Approach
 
-The recommended architecture follows a **layered separation of concerns** with stateless API design enabling horizontal scaling and natural cross-device synchronization. The critical innovation is using Claude Agent SDK as the orchestration layer—the SDK handles tool invocation timing, multi-turn conversation management, streaming assembly, and error recovery, eliminating weeks of manual implementation.
+The architecture follows **minimal disruption** by extending the existing Provider pattern with new providers that have clear boundaries and single responsibilities. New providers coordinate with existing providers through one-way dependencies and notifications, avoiding circular dependencies.
+
+**Provider hierarchy:**
+```
+MaterialApp (root)
+├── MultiProvider
+    ├── AuthProvider (existing)
+    ├── ThemeProvider (NEW - independent)
+    ├── NavigationProvider (NEW - listens to AuthProvider)
+    ├── SettingsProvider (NEW - reads from AuthProvider/ThemeProvider - OPTIONAL)
+    ├── ProjectProvider (existing)
+    ├── DocumentProvider (existing)
+    ├── ThreadProvider (existing)
+    ├── ConversationProvider (existing)
+    └── DeletionProvider (NEW - coordinates with all CRUD providers)
+```
 
 **Major components:**
-1. **Flutter Client** — UI rendering, user input, state management (Provider), SSE consumption via Dio + sse_client
-2. **FastAPI Server** — Request routing, authentication (JWT validation), business logic (project/thread/document CRUD), response streaming (EventSourceResponse)
-3. **AI Service** — Agent session management, tool orchestration, streaming coordination via Claude Agent SDK
-4. **Claude Agent SDK** — Tool execution loop, AI reasoning, response generation, communicates with Anthropic API and custom tools
-5. **Custom Tools** — DocumentSearch (FTS5 query), ArtifactGenerator (structured formatting), ThreadSummarizer (UI summaries)
-6. **SQLite Database** — Data persistence, full-text search (FTS5), encrypted storage (Fernet), clear PostgreSQL migration path
+1. **ThemeProvider** — Manages light/dark/system theme mode with SharedPreferences persistence; independent provider loaded before MaterialApp builds to prevent flash of unstyled content (FOUC)
+2. **NavigationProvider** — Tracks navigation state (selectedIndex, sidebar expanded/collapsed, current route) across responsive breakpoints; listens to AuthProvider for logout navigation reset
+3. **DeletionProvider** — Coordinates cascade deletes with optimistic UI updates and rollback on failure; implements undo pattern by deferring hard deletes until SnackBar dismissed
+4. **ResponsiveScaffold** — Wrapper component that switches between NavigationRail (desktop) and Drawer (mobile) based on MediaQuery.sizeOf() with hysteresis to prevent thrashing
 
-**Key patterns to follow:**
-- **Agentic tool orchestration** — AI decides when to use tools based on context, not explicit user commands or keyword matching
-- **Streaming-first response design** — Yield chunks from Agent SDK immediately via SSE, update Flutter UI progressively for better UX
-- **Conversation context management** — Limit to last 20 messages + project metadata to avoid token explosion while maintaining coherent responses
-- **Stateless API with centralized state** — Backend doesn't hold session state in memory (all state in database), enables horizontal scaling and cross-device sync
-- **Layered separation** — Presentation (Flutter) → Business Logic (FastAPI) → Orchestration (Agent SDK) → Data (SQLite + Claude API), each layer single responsibility
+**Key architectural patterns:**
+- **Optimistic updates:** Remove item from UI immediately, call backend API, rollback on error (better perceived performance)
+- **Soft delete:** Mark items as deleted, show undo SnackBar, finalize deletion after timeout (prevents undo race conditions)
+- **Responsive breakpoints:** <600px mobile, 600-900px tablet, ≥900px desktop (Material Design standard)
+- **Theme loading:** Load from SharedPreferences before runApp() to prevent white flash on dark theme startup
 
-**Critical dependency chain:** Database → Auth → Projects → Documents → AI Service → Streaming → Artifacts. This ordering is non-negotiable—each phase depends on the previous being functional.
+**Integration strategy:** Add new providers to MultiProvider without modifying existing providers. New screens use new providers, existing screens continue working until gradually migrated. No breaking changes to existing MVP users.
 
 ### Critical Pitfalls
 
-Research identified 13 pitfalls across critical/moderate/minor severity. The top 5 require prevention from Phase 1:
+Research identified nine critical pitfalls with documented prevention strategies. All are testable and preventable through code review practices and integration testing.
 
-1. **Uncontrolled AI token costs** — Agent SDK multiplies API calls 3-5x per user request; without budgets, costs spiral to $500-2000/month before revenue. **Prevention:** Implement token budgets BEFORE launch (8K per request, 50K per conversation, 200K per user per day), monitor from day one, use prompt caching (70% discount), smart context windowing (last 5 messages + summary, not all 50 messages). Phase 1 must include analytics table logging tokens per request.
+1. **BuildContext Used Across Async Gaps** — Deletion confirmations and navigation operations fail with "setState() called after dispose()" when BuildContext is used after await without checking `context.mounted`. **Prevention:** Add `if (!context.mounted) return;` after every async gap before using context; enable `use_build_context_synchronously` lint.
 
-2. **Shallow document context (useless RAG problem)** — Document search ships but doesn't help users; AI references documents superficially without deep understanding. **Prevention:** Semantic chunking (split on document structure, not character limits), metadata enrichment (document type, section headers, date), relevance filtering (top 3-5 chunks with confidence scores, not 20), hybrid search (semantic + keyword matching). Phase 2 must implement semantic chunking before document search ships.
+2. **SQLite Foreign Keys Disabled by Default** — Deleting projects doesn't cascade to threads/documents despite `ON DELETE CASCADE` in schema because SQLite ignores constraints without `PRAGMA foreign_keys = ON`. **Prevention:** Execute `PRAGMA foreign_keys = ON` in database onCreate and onOpen callbacks; verify with tests checking orphaned records don't accumulate.
 
-3. **Cross-platform UI/UX inconsistency** — Flutter app behaves differently on web vs mobile; desktop users expect keyboard shortcuts, mobile users expect gestures. **Prevention:** Responsive design from day one, platform-aware widgets (Platform.isAndroid/isIOS/isWeb), adaptive navigation (drawer on mobile, sidebar on web), test matrix (Chrome web + Android emulator + iOS simulator per PR). Phase 1 establishes responsive patterns, all subsequent phases test on all platforms.
+3. **SharedPreferences Theme Persistence Not Guaranteed** — User switches to dark theme, app restarts, theme reverts to light because SharedPreferences writes may not persist before page unload (especially web). **Prevention:** Load theme in main() before runApp(), verify write succeeded, test persistence on all three platforms (web/Android/iOS).
 
-4. **Conversation state explosion (lost context)** — As conversations grow (50+ messages), AI forgets earlier context, contradicts previous statements, repeats questions. **Prevention:** Conversation summarization (every 10 messages create rolling summary), explicit state tracking (artifacts created, stakeholders identified, decisions made), context prioritization (recent 5 messages + summary + relevant artifacts, not all 50 messages), state hydration in system prompt. Phase 2 adds summarization before long conversations become common.
+4. **Theme Flash on App Startup (FOUC)** — App loads with light theme for 100-500ms then switches to dark; happens when MaterialApp builds before async SharedPreferences loading completes. **Prevention:** Load theme synchronously before runApp() using WidgetsFlutterBinding.ensureInitialized().
 
-5. **Authentication/security debt** — MVP ships with basic auth; adding OAuth, encryption, or compliance features later requires database migrations and breaking changes. **Prevention:** OAuth from day one (Google/Microsoft SSO for BA users), encryption at rest (Fernet for documents), row-level security (user_id foreign keys), audit logging for compliance. Phase 1 must include production-ready auth—cannot defer.
+5. **MediaQuery Rebuild Thrashing** — Sidebar switches between NavigationDrawer and NavigationRail repeatedly when window resized near 600px breakpoint; each switch triggers expensive full tree rebuild. **Prevention:** Use MediaQuery.sizeOf() instead of MediaQuery.of(), add hysteresis (50px buffer) to breakpoint checks, use const widgets.
 
-**Moderate pitfalls** (address by Beta): Generic AI responses (not BA-specific), no offline capability for mobile meetings, poor artifact export formatting for enterprise tools, SQLite scalability limits ignored (no migration plan).
+6. **Drawer State Lost on Navigation** — User expands project list in drawer, navigates to screen, returns, expansion state reset because each route creates new Scaffold/Drawer instance. **Prevention:** Use StatefulShellRoute to preserve single Scaffold instance across navigation.
 
-**Minor pitfalls** (fixable post-launch): No loading states, missing search across conversations, no keyboard shortcuts for desktop power users.
+7. **Deletion Confirmation Race Conditions with Undo** — User deletes project, backend call completes, taps UNDO but data already gone from database. **Prevention:** Implement soft delete pattern (mark as deleted, show undo, finalize after timeout) or defer hard delete until SnackBar dismissed.
+
+8. **Empty State Detection with Race Conditions** — User deletes last project, but empty state doesn't appear because deletion + refetch race each other; or both empty state and list appear simultaneously. **Prevention:** Use explicit loading/empty/hasData state enums with mutually exclusive conditionals in widgets.
+
+9. **Deep Link State Sync with Breadcrumbs** — User opens deep link to /projects/abc/threads/xyz, breadcrumb shows "Home > ???" because navigation stack wasn't built; GoRouter jumps directly to route. **Prevention:** Build breadcrumbs from route path parsing, not navigation stack; handle iOS deep link "/" redirect.
+
+**Severity assessment:** Pitfalls 1-4 are blockers (causes crashes or data loss); pitfalls 5-7 are high-priority UX issues; pitfalls 8-9 are polish issues. All have clear prevention strategies documented in PITFALLS.md with code examples.
 
 ## Implications for Roadmap
 
-Based on research, the roadmap should follow a **7-phase structure** aligned with critical dependency chain and risk mitigation priorities. Total MVP timeline: 8-10 weeks for solo developer.
+Based on combined research, the Beta v1.5 UI/UX improvements should be structured into 4-5 phases ordered by dependencies and demo value. The architecture research reveals clear dependency chains: theme management must precede settings page, navigation foundation must precede deletion flows.
 
-### Phase 1: Foundation & Authentication (Weeks 1-3)
-**Rationale:** Database and auth are blockers for all user-specific features. OAuth must be production-ready from day one to avoid security debt. Token tracking analytics must exist before AI service ships to prevent cost explosion.
+### Suggested Phase Structure
 
-**Delivers:**
-- SQLite database with Postgres-compatible schema + SQLAlchemy ORM + Alembic migrations
-- FastAPI server with health check + CORS + basic routing
-- OAuth 2.0 integration (Google + Microsoft) with JWT generation/validation
-- Flutter app shell with navigation + OAuth flow + secure token storage
-- Analytics table for token usage tracking
+**Phase 1: Theme Management Foundation (Week 1)**
+- **Rationale:** Theme switching is independent of other features and affects every screen; must be complete before Settings page. Loading theme before MaterialApp is critical to prevent FOUC during demos.
+- **Delivers:** ThemeProvider with SharedPreferences persistence, MaterialApp theme switching, no white flash on startup
+- **Technologies:** Provider pattern, shared_preferences package
+- **Addresses:** Table stakes feature (theme switching), differentiator (Material 3 design)
+- **Avoids:** Pitfall #3 (persistence failure), Pitfall #4 (FOUC)
+- **Research flag:** Standard pattern; skip phase research
 
-**Addresses:** Table stakes authentication, avoids authentication/security debt pitfall (PITFALL #5)
+**Phase 2: Responsive Navigation (Week 1-2)**
+- **Rationale:** Navigation structure affects all other screens; must be in place before implementing deletion flows, settings, or breadcrumbs. Responsive layout is critical for cross-platform demo success.
+- **Delivers:** NavigationProvider, ResponsiveScaffold wrapper, NavigationRail (desktop), NavigationDrawer (mobile), persistent navigation across all screens
+- **Technologies:** Built-in NavigationRail/NavigationDrawer, LayoutBuilder for breakpoints
+- **Addresses:** Table stakes (persistent navigation, current location indicator), differentiator (responsive breakpoint transitions)
+- **Avoids:** Pitfall #5 (rebuild thrashing), Pitfall #6 (drawer state loss)
+- **Research flag:** Needs phase research for StatefulShellRoute integration with GoRouter
 
-**Avoids:** Designing SQLite-specific schema that breaks PostgreSQL migration (PITFALL #10)
+**Phase 3: Settings Page (Week 2)**
+- **Rationale:** Settings page is a navigation destination; requires navigation infrastructure from Phase 2 and theme management from Phase 1. High demo value (shows profile, logout, preferences).
+- **Delivers:** Settings screen with profile display, theme toggle, logout button; sectioned layout with ListTiles
+- **Technologies:** Built-in Material 3 widgets (ListTile, SwitchListTile, Divider)
+- **Addresses:** Table stakes (settings page), uses ThemeProvider and AuthProvider
+- **Avoids:** No critical pitfalls; standard patterns
+- **Research flag:** Standard pattern; skip phase research
 
-**Research flag:** Standard patterns (OAuth, FastAPI setup), skip /gsd:research-phase
+**Phase 4: Deletion Flows with Undo (Week 2)**
+- **Rationale:** Deletion affects projects, threads, documents; requires navigation to be stable. Backend cascade delete endpoints needed. Critical for data management demos.
+- **Delivers:** DeletionProvider, confirmation dialogs, SnackBar undo pattern, cascade delete implementation
+- **Technologies:** Built-in AlertDialog, SnackBar, Backend FastAPI cascade delete endpoints
+- **Addresses:** Table stakes (deletion confirmation with undo)
+- **Avoids:** Pitfall #1 (BuildContext async gaps), Pitfall #2 (SQLite cascade), Pitfall #7 (undo race conditions)
+- **Research flag:** Needs phase research for backend cascade delete SQL patterns
 
----
-
-### Phase 2: Project & Document Management (Weeks 3-4)
-**Rationale:** AI needs projects and documents to search. Document upload with encryption and FTS5 indexing must be functional before AI service can use DocumentSearch tool.
-
-**Delivers:**
-- Project CRUD endpoints + ownership validation
-- Thread CRUD endpoints + multiple threads per project
-- Document upload + Fernet encryption + FTS5 indexing
-- Flutter project/thread/document UI
-
-**Addresses:** Table stakes (project organization, document storage)
-
-**Avoids:** Plaintext document storage security risk (PITFALL #5)
-
-**Research flag:** Standard CRUD patterns, skip /gsd:research-phase
-
----
-
-### Phase 3: AI Service Core (Weeks 4-6)
-**Rationale:** Core value proposition. Agent SDK integration with custom tools is the highest complexity phase—allow extra time. Must implement semantic chunking and token budgets BEFORE shipping to avoid shallow RAG (PITFALL #2) and cost explosion (PITFALL #1).
-
-**Delivers:**
-- Claude Agent SDK integration with AsyncAnthropic client
-- Custom tools: DocumentSearch (FTS5 + semantic chunking), ArtifactGenerator (structured formatting)
-- Message persistence + conversation history assembly (last 20 messages)
-- Token budget implementation (8K/request, 50K/conversation, 200K/user/day)
-- Prompt caching setup (system prompt caching for 70% cost reduction)
-- BA-specific system prompt with few-shot examples
-
-**Addresses:** Core differentiators (AI edge case discovery, contextual document search, guided questions)
-
-**Avoids:** Uncontrolled token costs (PITFALL #1), shallow document context (PITFALL #2), generic AI responses (PITFALL #7)
-
-**Research flag:** HIGH—Agent SDK tool integration is new technology, consider /gsd:research-phase for tool implementation patterns
-
----
-
-### Phase 4: Streaming Interface (Weeks 6-7)
-**Rationale:** Users expect real-time AI responses. SSE streaming is critical for UX—without it, feels slow/broken. Must handle connection failures to avoid half-written message problems.
-
-**Delivers:**
-- SSE endpoint in FastAPI (EventSourceResponse)
-- Flutter SSE client integration (sse_client package)
-- Real-time UI updates (progressive text rendering)
-- Tool call indicators ("Searching documents...")
-- Connection error handling + heartbeat + completion markers
-- Graceful degradation (fallback on stream failure)
-
-**Addresses:** Differentiator (real-time streaming responses), table stakes (conversation history)
-
-**Avoids:** Streaming response failures (PITFALL #6)
-
-**Research flag:** MEDIUM—SSE on Flutter may need debugging, consider /gsd:research-phase if issues arise
-
----
-
-### Phase 5: Artifacts & Export (Weeks 7-8)
-**Rationale:** Key differentiator for BAs—structured artifact generation saves hours of documentation time. Export formats critical for stakeholder delivery.
-
-**Delivers:**
-- Artifact storage (database model + foreign key to message)
-- ArtifactGenerator tool integration
-- Export endpoints: Markdown (trivial), PDF (WeasyPrint), Word (python-docx)
-- Flutter artifact display + export UI
-- ThreadSummarizer tool for conversation summaries
-
-**Addresses:** Core differentiators (structured artifact generation, multi-format export)
-
-**Avoids:** Poor artifact export formatting (PITFALL #9)
-
-**Research flag:** LOW—Export libraries well-documented, skip /gsd:research-phase unless PDF layout issues emerge
-
----
-
-### Phase 6: Cross-Platform Polish (Weeks 8-9)
-**Rationale:** Must test on all platforms before MVP launch to catch platform-specific issues. Responsive design prevents web/mobile inconsistency.
-
-**Delivers:**
-- Responsive design refinements (drawer on mobile, sidebar on web)
-- Platform-specific adaptations (Cupertino widgets on iOS, Material on Android)
-- Loading states + skeleton loaders + progress indicators
-- Error handling + user feedback + Sentry integration
-- Cross-device testing (Chrome web + Android + iOS)
-- Performance optimization (async queries, lazy loading)
-
-**Addresses:** Table stakes (cross-device sync), UX quality
-
-**Avoids:** Cross-platform UI/UX inconsistency (PITFALL #3)
-
-**Research flag:** Standard Flutter patterns, skip /gsd:research-phase
-
----
-
-### Phase 7: MVP Validation & Launch (Week 10)
-**Rationale:** Final testing, deployment, and user validation before Beta features.
-
-**Delivers:**
-- PaaS deployment (Railway $5/month starter tier)
-- Environment variables + secrets management
-- OAuth app credentials configured (Google/Microsoft consoles)
-- End-to-end testing on all platforms
-- Documentation (setup instructions, user guide basics)
-- Monitoring dashboard (token usage, error rates, user activity)
-
-**Addresses:** Operational readiness
-
-**Avoids:** No new feature development, focus on validation
-
-**Research flag:** PaaS deployment well-documented, skip /gsd:research-phase
-
----
+**Phase 5: Polish Features (Week 3)**
+- **Rationale:** Empty states, breadcrumbs, date formatting are polish features that enhance demo quality but aren't blockers. Can be implemented in parallel after core infrastructure complete.
+- **Delivers:** Empty state screens (illustration + message + CTA), breadcrumb navigation (desktop only), consistent date formatting with intl package, mode selection chips
+- **Technologies:** flutter_svg, intl package, built-in ChoiceChip
+- **Addresses:** Table stakes (empty states, date formatting), differentiators (contextual empty states, mode selection chips)
+- **Avoids:** Pitfall #8 (empty state races), Pitfall #9 (deep link breadcrumbs)
+- **Research flag:** Standard patterns; skip phase research
 
 ### Phase Ordering Rationale
 
-**Dependency-driven:** Database → Auth → Projects → Documents → AI Service → Streaming → Artifacts is the only viable order. Each phase is blocked by previous phases completing.
+1. **Theme first** because it's independent and affects every screen's appearance; loading before MaterialApp prevents FOUC in demos
+2. **Navigation second** because it's the structural foundation all other screens depend on; responsive layout critical for cross-platform demos
+3. **Settings third** because it requires both theme management (Phase 1) and navigation infrastructure (Phase 2); high visibility in executive demos
+4. **Deletion fourth** because it requires stable navigation for post-delete routing and builds on existing CRUD providers
+5. **Polish last** because these features enhance but aren't blockers; can be parallelized after infrastructure complete
 
-**Risk-driven:** Token budgets and analytics in Phase 1 (before AI ships), semantic chunking in Phase 3 (before document search ships), cross-platform testing in Phase 6 (before launch) prevent critical pitfalls.
+**Dependencies discovered:**
+- Settings page → Theme management (uses ThemeProvider)
+- Settings page → Navigation (is a navigation destination)
+- Deletion flows → Navigation (post-delete routing)
+- Deletion flows → Backend cascade delete endpoints
+- Breadcrumbs → Navigation (parses route paths)
+- Empty states → Deletion flows (appear after deleting last item)
 
-**Value-driven:** AI Service (Phase 3) is the longest/hardest phase but delivers core value proposition. Artifacts (Phase 5) complete the value loop (conversation → AI insights → deliverable documents).
+**Architecture-informed groupings:**
+- Phase 1+2 establish Provider infrastructure (ThemeProvider, NavigationProvider)
+- Phase 3+4 consume infrastructure (Settings uses providers, Deletion coordinates providers)
+- Phase 5 is pure UI polish (doesn't extend architecture)
+
+**Pitfall avoidance strategy:**
+- Phase 1 addresses theme persistence pitfalls before Settings depends on it
+- Phase 2 addresses navigation state pitfalls before complex drawer interactions
+- Phase 4 front-loads deletion pitfalls (cascade, undo races) with backend work
+- Phase 5 defers polish pitfalls (empty state races, deep link breadcrumbs) to end when foundation stable
 
 ### Research Flags
 
 **Phases likely needing deeper research during planning:**
-
-- **Phase 3 (AI Service Core):** Agent SDK tool integration is new technology with limited production examples. Consider /gsd:research-phase for:
-  - Custom tool implementation patterns
-  - Prompt caching setup for cost optimization
-  - Semantic chunking strategies for BA documents
-  - Token budget enforcement patterns
-
-- **Phase 4 (Streaming Interface):** Flutter SSE client may have platform-specific quirks. Consider /gsd:research-phase if:
-  - SSE connection stability issues on mobile
-  - EventSource API behaves differently on web vs mobile
-  - Connection failure/retry patterns unclear
+- **Phase 2 (Navigation):** StatefulShellRoute integration with existing GoRouter configuration; drawer state preservation patterns may need Context7 search for "Flutter StatefulShellRoute drawer state"
+- **Phase 4 (Deletion):** Backend SQLite/PostgreSQL cascade delete patterns; Python/FastAPI transaction handling for atomic deletes across tables
 
 **Phases with standard patterns (skip research-phase):**
+- **Phase 1 (Theme):** Theme switching with Provider is well-documented; SharedPreferences persistence has clear examples in official docs
+- **Phase 3 (Settings):** Settings page layout is standard Material Design pattern; ListTile components are well-documented
+- **Phase 5 (Polish):** Empty states, breadcrumbs, date formatting are established patterns with clear implementation guides
 
-- **Phase 1 (Foundation & Auth):** OAuth 2.0, FastAPI setup, SQLAlchemy ORM—all well-documented standard patterns
-- **Phase 2 (Project & Document Management):** Standard CRUD operations, file upload, database encryption
-- **Phase 5 (Artifacts & Export):** python-docx, WeasyPrint, ReportLab—mature libraries with extensive documentation
-- **Phase 6 (Cross-Platform Polish):** Flutter responsive design and Material 3 patterns are established
-- **Phase 7 (MVP Launch):** Railway/Render deployment well-documented
+**Validation needed during implementation:**
+- Test theme persistence on all three platforms (web shows timing issues in research)
+- Verify SQLite PRAGMA foreign_keys = ON works on mobile devices (not just development)
+- Test responsive breakpoints on actual tablets (not just browser resize)
+- Validate undo timing across slow network connections
 
 ## Confidence Assessment
 
 | Area | Confidence | Notes |
 |------|------------|-------|
-| Stack | HIGH | Flutter 3.38.6, Anthropic SDK 0.76.0, PostgreSQL 18.1 verified via official sources (Jan 2026). Supporting libraries based on training data (late 2024/early 2025). |
-| Features | MEDIUM-HIGH | Table stakes and differentiators identified based on BA tool patterns and AI assistant landscape. Anti-features validated against solo developer constraints. Not verified with current 2026 market research. |
-| Architecture | HIGH | Layered architecture, Agent SDK orchestration, SSE streaming—all verified against official documentation and technical specification alignment. Build order validated against dependency graph. |
-| Pitfalls | MEDIUM-HIGH | Critical pitfalls (token costs, RAG quality, cross-platform) based on established AI assistant patterns. BA-specific pitfalls inferred from domain knowledge but not verified with current case studies. |
+| Stack | HIGH | All packages verified on pub.dev with recent updates (2-6 months); built-in Material 3 widgets confirmed in official Flutter docs; versions compatible with project's Flutter 3.38.6 |
+| Features | MEDIUM-HIGH | Table stakes features verified with official Material Design 3 specs and Flutter docs; differentiators based on 2025-2026 community articles (Medium, dev.to); anti-features from UX best practices |
+| Architecture | HIGH | Provider integration patterns verified in existing codebase; optimistic update pattern documented in official Flutter docs; responsive layout breakpoints match Material Design guidelines |
+| Pitfalls | HIGH | All critical pitfalls verified with official Flutter documentation, GitHub issues, or current Stack Overflow discussions; prevention strategies tested by community; code examples provided |
 
-**Overall confidence:** MEDIUM-HIGH
+**Overall confidence:** HIGH
 
-Research is production-ready for roadmap creation. Stack recommendations are verified and current. Architecture patterns align with technical specification. Feature scope is well-balanced. Pitfall prevention strategies are actionable.
+Research is comprehensive across all four areas. Stack recommendations are conservative (favor built-in widgets). Features are clearly categorized (table stakes vs differentiators vs anti-features). Architecture extends existing patterns rather than introducing new paradigms. Pitfalls are well-documented with prevention strategies.
 
 ### Gaps to Address
 
-**AI token cost monitoring:** Research recommends specific budgets (8K/request, 50K/conversation) but actual costs depend on prompt complexity and Agent SDK behavior. **Mitigation:** Implement monitoring in Phase 1, adjust budgets during Phase 3 based on actual usage patterns.
+**Gaps identified during research:**
 
-**Agent SDK tool examples:** Official documentation provides patterns but limited production examples for complex multi-tool scenarios. **Mitigation:** Plan extra time in Phase 3 for tool integration experimentation, consider /gsd:research-phase if complexity exceeds expectations.
+1. **Empty state illustration style** — Research didn't find definitive guidance on whether illustrations should be line art, flat color, or full color for enterprise context. Material Design 3 doesn't specify. **Resolution:** Make decision based on brand guidelines during Phase 5 planning; download 2-3 unDraw illustrations in different styles for A/B comparison.
 
-**Semantic chunking strategies:** Research identifies semantic chunking as critical but doesn't specify algorithm (sentence-based? paragraph-based? document structure-based?). **Mitigation:** Research during Phase 3 planning, evaluate libraries (LangChain splitters, semantic-text-splitter) with BA document samples.
+2. **Bulk deletion confirmation timing** — For bulk operations (deleting 10+ items), research unclear whether 10-second undo window is sufficient or should have confirmation dialog first. **Resolution:** Implement 10-second window for Beta v1.5, gather user feedback during demos, adjust if needed.
 
-**Flutter SSE performance:** sse_client package confidence is MEDIUM—limited information on production stability across platforms. **Mitigation:** Prototype SSE streaming early in Phase 4, have fallback plan (polling or complete response) if streaming proves unstable.
+3. **Token budget API design** — Settings page should display token budget, but backend API doesn't exist yet. Research didn't cover backend endpoint design. **Resolution:** Add as subtask in Phase 3 planning; coordinate with backend implementation to define /users/me/token-budget endpoint.
 
-**PostgreSQL migration trigger:** Research recommends "migrate at 1000 users" but doesn't define precise metrics (write latency? concurrent connections? database size?). **Mitigation:** Define specific metrics during Phase 1 implementation (e.g., "migrate when p95 write latency > 100ms OR concurrent users > 500").
+4. **Keyboard shortcuts for desktop** — Desktop users may expect Ctrl+N for new conversation, Ctrl+F for search; research mentions but doesn't prioritize. **Resolution:** Defer to post-Beta; gather feedback during executive demos on whether keyboard shortcuts are expected.
 
-**BA-specific prompt quality:** Generic system prompt may not produce professional BA artifacts without domain-tuned examples. **Mitigation:** User (developer) has BA experience—leverage domain knowledge during Phase 3 prompt engineering, iterate with real BA document samples.
+5. **Internationalization priority** — intl package supports 50+ languages, but BA Assistant currently English-only. Research doesn't answer when to internationalize or which languages first. **Resolution:** Product decision needed; defer internationalization beyond Beta v1.5 unless executive demos require specific language support.
+
+**Gaps are acceptable for Beta v1.5:** None are blockers. Illustration style and bulk deletion timing can be resolved through quick prototyping in Phase 5. Token budget API is straightforward backend work. Keyboard shortcuts and internationalization are explicitly deferred to post-Beta based on feedback.
 
 ## Sources
 
 ### Primary (HIGH confidence)
-- **STACK.md** — Technology stack recommendations with version verification (Flutter 3.38.6, Anthropic SDK 0.76.0, PostgreSQL 18.1 verified via official sources Jan 2026)
-- **ARCHITECTURE.md** — Layered architecture patterns, Agent SDK integration, SSE streaming, verified against official Claude SDK and Flutter documentation
-- **Claude Agent SDK documentation** — Tool orchestration patterns, streaming setup, async patterns
-- **Flutter official documentation** — Cross-platform patterns, SSE client libraries, Material 3 responsive design
+
+**Official Flutter Documentation:**
+- [Material Design for Flutter](https://docs.flutter.dev/ui/design/material) — Material 3 default status, theme configuration
+- [Flutter Accessibility](https://docs.flutter.dev/ui/accessibility-and-internationalization/accessibility) — WCAG compliance guidelines, touch target sizing
+- [NavigationRail class - Flutter API](https://api.flutter.dev/flutter/material/NavigationRail-class.html) — Responsive sidebar patterns
+- [NavigationDrawer class - Flutter API](https://api.flutter.dev/flutter/material/NavigationDrawer-class.html) — Mobile drawer patterns
+- [AlertDialog class - Flutter API](https://api.flutter.dev/flutter/material/AlertDialog-class.html) — Confirmation dialog implementation
+- [General approach to adaptive apps](https://docs.flutter.dev/ui/adaptive-responsive/general) — Responsive breakpoint guidance
+- [use_build_context_synchronously lint rule](https://dart.dev/tools/linter-rules/use_build_context_synchronously) — Async gap context safety
+- [Flutter optimistic state pattern](https://docs.flutter.dev/app-architecture/design-patterns/optimistic-state) — Optimistic update implementation
+
+**Package Documentation (pub.dev):**
+- [intl 0.20.2](https://pub.dev/packages/intl) — Date/time internationalization
+- [provider 6.1.5+1](https://pub.dev/packages/provider) — State management (already in project)
+- [shared_preferences 2.5.4](https://pub.dev/packages/shared_preferences) — Key-value persistence
+- [flutter_svg 2.2.3](https://pub.dev/packages/flutter_svg) — SVG rendering
+
+**Material Design 3 Specifications:**
+- [Navigation rail – Material Design 3](https://m3.material.io/components/navigation-rail/overview) — Desktop sidebar patterns
+- [Navigation drawer – Material Design 3](https://m3.material.io/components/navigation-drawer/guidelines) — Mobile drawer patterns
+- [Dialogs – Material Design 3](https://m3.material.io/components/dialogs) — Confirmation dialog patterns
 
 ### Secondary (MEDIUM confidence)
-- **FEATURES.md** — Feature landscape analysis based on training knowledge of BA tools (JIRA, Confluence, Azure DevOps, Notion, Miro), AI assistants (ChatGPT, Claude, specialized tools), not verified with current 2026 market data
-- **PITFALLS.md** — Domain pitfalls based on training knowledge of AI assistant patterns, conversational platform development, Flutter cross-platform development, not verified with recent case studies
-- **User-provided context** — Implementation Roadmap, Technical Specification, Technology Stack documents (HIGH confidence for project-specific decisions)
 
-### Tertiary (LOW confidence)
-- Library versions for supporting tools (SQLAlchemy 2.0+, Provider 6.1+, python-jose 3.3+) based on training data late 2024/early 2025, should be validated via PyPI/pub.dev during implementation
+**Flutter Community Resources (2025-2026):**
+- [Building Beautiful Responsive UI in Flutter: Complete Guide for 2026](https://medium.com/@saadalidev/building-beautiful-responsive-ui-in-flutter-a-complete-guide-for-2026-ea43f6c49b85) — Responsive breakpoints, LayoutBuilder patterns
+- [Modern Flutter UI in 2026: Design Patterns & Best Practices](https://medium.com/@expertappdevs/how-to-build-modern-ui-in-flutter-design-patterns-64615b5815fb) — Enterprise patterns, Material 3 adoption
+- [Complete Flutter Guide: Dark Mode & Theme Switching](https://medium.com/@amazing_gs/complete-flutter-guide-how-to-implement-dark-mode-dynamic-theming-and-theme-switching-ddabaef48d5a) — Theme persistence patterns
+- [Responsive layouts: Split View and Drawer Navigation](https://codewithandrea.com/articles/flutter-responsive-layouts-split-view-drawer-navigation/) — Navigation state management
+
+**State Management & Architecture:**
+- [Flutter State Management in 2026: Choosing the Right Approach](https://medium.com/@Sofia52/flutter-state-management-in-2026-choosing-the-right-approach-811b866d9b1b) — Provider vs Riverpod vs Bloc comparison
+- [Optimistic State in Flutter Explained](https://medium.com/@geraldnuraj/optimistic-state-in-flutter-explained-3dec68ae6252) — Optimistic update patterns with rollback
+
+**Pitfalls & Issues:**
+- [GitHub Issue #126756: SnackBar cannot auto dismiss when has action](https://github.com/flutter/flutter/issues/126756) — SnackBar with action button behavior
+- [GitHub Issue #146476: Keep state alive when opening/closing Scaffold's drawer](https://github.com/flutter/flutter/issues/146476) — Drawer state preservation
+- [GitHub Issue #67925: SharedPreferences not persistent](https://github.com/flutter/flutter/issues/67925) — SharedPreferences timing issues
+- [SQLite Foreign Key Support](https://sqlite.org/foreignkeys.html) — PRAGMA foreign_keys documentation
+- [Do Not Use BuildContext in Async Gaps](https://medium.com/nerd-for-tech/do-not-use-buildcontext-in-async-gaps-why-and-how-to-handle-flutter-context-correctly-870b924eb42e) — Context safety patterns
+
+### Tertiary (LOW confidence - community examples)
+
+- [unDraw free illustrations](https://undraw.co/) — Open-source illustration library for empty states
+- [Implementing breadcrumb in Flutter](https://amir-p.medium.com/implementing-breadcrumb-in-flutter-6ca9b8144206) — Custom breadcrumb implementation patterns
+- [Flutter Settings Pages Templates](https://fluttertemplates.dev/widgets/must_haves/settings_page) — Settings page organization patterns
 
 ---
-*Research completed: 2026-01-17*
-*Ready for roadmap: yes*
+
+**Research completed:** 2026-01-29
+**Ready for roadmap:** YES
+
+**Next steps for orchestrator:**
+1. Use "Implications for Roadmap" section to structure Beta v1.5 phases
+2. Flag Phase 2 and Phase 4 for phase-specific research (StatefulShellRoute, cascade deletes)
+3. Defer Phase 1, 3, 5 research (standard patterns)
+4. Use Confidence Assessment and Gaps to inform validation tasks during implementation

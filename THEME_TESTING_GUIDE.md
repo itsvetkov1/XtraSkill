@@ -3,6 +3,8 @@
 **Phase 6: Theme Management Foundation**
 Test the new dark mode feature with persistent preferences across platforms.
 
+**⚠️ IMPORTANT:** You must be **logged in** (Google or Microsoft OAuth) before accessing Settings. The `/settings` route is protected by authentication.
+
 ---
 
 ## Quick Setup (Another PC)
@@ -62,16 +64,35 @@ flutter run -d chrome
 
 ## Testing Theme Features
 
+### Test 0: Login First (REQUIRED)
+
+**What:** Authenticate before accessing Settings
+
+1. App launches and shows **Splash Screen** → automatically redirects to **Login Screen**
+2. Click either **"Continue with Google"** or **"Continue with Microsoft"** button
+3. Complete OAuth flow in browser popup/redirect
+4. **Verify:** You're redirected back to app and see **Home Screen**
+5. **Verify:** You're now logged in (authenticated)
+
+**Expected:** Successful login, Home screen displays
+
+**Note:** Backend must be running (`python run.py` in backend folder) for OAuth to work.
+
+---
+
 ### Test 1: Navigate to Settings
 
 **What:** Access the new Settings page with theme toggle
 
-1. App launches in **light theme** (white background)
-2. In the URL bar, type: `/settings`
-3. **Verify:** Settings page displays with "Appearance" section
-4. **Verify:** "Dark Mode" toggle switch is visible and OFF
+1. **Ensure you're logged in** (see Test 0 above)
+2. App is in **light theme** (white background)
+3. In the URL bar, type: `/settings` and press Enter
+4. **Verify:** Settings page displays with "Appearance" section
+5. **Verify:** "Dark Mode" toggle switch is visible and OFF
 
 **Expected:** Settings screen loads, toggle is OFF (light theme default)
+
+**If redirected to login:** You're not authenticated - complete Test 0 first
 
 ---
 
@@ -221,6 +242,10 @@ flutter run -d chrome
 ---
 
 ## Troubleshooting
+
+### Redirected to Login When Accessing /settings
+**Symptom:** Typing `/settings` redirects to login screen
+**Fix:** You need to be logged in first. Complete Test 0 (Login) before accessing Settings. All routes except `/splash`, `/login`, and `/auth/callback` require authentication.
 
 ### Backend Not Running
 **Symptom:** Frontend crashes or shows connection errors

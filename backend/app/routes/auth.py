@@ -247,6 +247,35 @@ async def get_current_user_info(
     return {
         "id": user_obj.id,
         "email": user_obj.email,
+        "display_name": user_obj.display_name,
         "oauth_provider": user_obj.oauth_provider.value,
         "created_at": user_obj.created_at.isoformat(),
+    }
+
+
+@router.get("/usage")
+async def get_user_usage(
+    user: dict = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    Get current month token usage for authenticated user.
+
+    Requires valid JWT token in Authorization header.
+
+    Returns:
+        Usage object with total_cost, total_requests, total_input_tokens,
+        total_output_tokens, month_start, budget
+    """
+    from app.services.token_tracking import get_monthly_usage
+
+    usage = await get_monthly_usage(db, user["user_id"])
+
+    return {
+        "total_cost": float(usage["total_cost"]),
+        "total_requests": usage["total_requests"],
+        "total_input_tokens": usage["total_input_tokens"],
+        "total_output_tokens": usage["total_output_tokens"],
+        "month_start": usage["month_start"],
+        "budget": float(usage["budget"]),
     }

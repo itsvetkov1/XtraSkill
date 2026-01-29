@@ -6,11 +6,11 @@
 
 ## Summary
 
-This phase implements the core value proposition of the BA Assistant: converting AI conversations into professional business analysis deliverables. The implementation involves three key areas: (1) artifact generation via Claude AI using structured prompts, (2) document export using python-docx for Word and WeasyPrint for PDF, and (3) a new Artifact data model with associated API endpoints and Flutter UI components.
+This phase implements the core value proposition of the BA Assistant: converting AI conversations into professional business analysis deliverables. The implementation involves three key areas: (1) artifact generation via Claude Agent SDK with autonomous tool use, (2) document export using python-docx for Word and WeasyPrint for PDF, and (3) a new Artifact data model with associated API endpoints and Flutter UI components.
 
-The standard approach uses Claude to generate structured content from conversation context, stores artifacts as JSON with rendered markdown, and provides backend-side document conversion. Frontend implements quick action buttons above chat input and displays artifacts both inline in conversation and in a dedicated artifacts list view.
+The Agent SDK approach extends the existing ai_service.py tool execution pattern from Phase 3. Claude receives a `save_artifact` tool that allows it to autonomously create artifacts during conversations. This enables Claude to search documents for context first, then generate artifacts with full project awareness. Users can request artifacts naturally in chat ("generate user stories for login") and Claude decides when and how to use the tool.
 
-**Primary recommendation:** Generate artifacts server-side using Claude with structured output prompts, store as JSON with markdown content, convert to PDF/Word on-demand via backend API endpoints, and stream file bytes to Flutter for download.
+**Primary recommendation:** Extend ai_service.py with `save_artifact` tool following existing `search_documents` pattern. Claude autonomously generates and saves artifacts during conversation flow. Backend stores artifacts in database, converts to PDF/Word on-demand via export endpoints.
 
 ## Standard Stack
 
@@ -106,52 +106,70 @@ class Artifact(Base):
     thread: Mapped["Thread"] = relationship(back_populates="artifacts")
 ```
 
-### Pattern 2: Claude Structured Generation
-**What:** Use system prompts to generate artifacts in consistent formats
-**When to use:** For all artifact generation requests
+### Pattern 2: Claude Agent SDK with save_artifact Tool
+**What:** Extend existing tool execution pattern with artifact generation capability
+**When to use:** For all artifact generation - Claude autonomously decides when to create artifacts
 **Example:**
 ```python
-# Source: Custom design based on existing ai_service.py patterns
-USER_STORY_PROMPT = """Based on the conversation above, generate user stories in the following format:
+# Source: Extension of existing ai_service.py tool pattern
+SAVE_ARTIFACT_TOOL = {
+    "name": "save_artifact",
+    "description": """Save a business analysis artifact to the current conversation thread.
 
-## User Story [N]: [Title]
+USE THIS TOOL WHEN:
+- User requests user stories, acceptance criteria, or requirements documents
+- You have gathered enough context from conversation and documents to generate a complete artifact
+- User asks to "create", "generate", "write", or "document" requirements
 
-**As a** [role]
-**I want** [capability]
-**So that** [benefit]
+BEFORE USING:
+- Consider using search_documents first to gather project context
+- Review the full conversation history for all requirements discussed
+- Ensure you capture ALL discussed requirements, not just recent ones
 
-### Acceptance Criteria
-- Given [precondition], when [action], then [expected result]
-- Given [precondition], when [action], then [expected result]
+You may call this tool multiple times to save multiple artifacts (e.g., user stories AND acceptance criteria).""",
+    "input_schema": {
+        "type": "object",
+        "properties": {
+            "artifact_type": {
+                "type": "string",
+                "enum": ["user_stories", "acceptance_criteria", "requirements_doc"],
+                "description": "Type of artifact: user_stories (Given/When/Then format), acceptance_criteria (testable checklist), requirements_doc (formal IEEE 830-style document)"
+            },
+            "title": {
+                "type": "string",
+                "description": "Descriptive title for the artifact, e.g., 'Login Feature - User Stories'"
+            },
+            "content_markdown": {
+                "type": "string",
+                "description": "Full artifact content in markdown format. Use proper headers, lists, and formatting."
+            }
+        },
+        "required": ["artifact_type", "title", "content_markdown"]
+    }
+}
 
-### Notes
-[Any clarifications or edge cases discussed]
+# Tool execution in ai_service.py
+async def execute_tool(self, tool_name: str, tool_input: dict, project_id: str, thread_id: str, db) -> str:
+    if tool_name == "save_artifact":
+        artifact = Artifact(
+            thread_id=thread_id,
+            artifact_type=ArtifactType(tool_input["artifact_type"]),
+            title=tool_input["title"],
+            content_markdown=tool_input["content_markdown"]
+        )
+        db.add(artifact)
+        await db.commit()
+        return f"Artifact saved: {artifact.title} (ID: {artifact.id}). User can export as PDF, Word, or Markdown."
 
----
-
-Generate user stories for ALL requirements discussed in the conversation. Number them sequentially."""
-
-async def generate_artifact(
-    artifact_type: ArtifactType,
-    messages: List[Dict[str, Any]],
-    client: AsyncAnthropic
-) -> str:
-    prompt = ARTIFACT_PROMPTS[artifact_type]
-
-    # Add generation request to messages
-    generation_messages = messages + [
-        {"role": "user", "content": f"Please generate the following artifact:\n\n{prompt}"}
-    ]
-
-    response = await client.messages.create(
-        model="claude-sonnet-4-5-20250514",
-        max_tokens=8192,  # Larger for documents
-        messages=generation_messages,
-        system="You are a Business Analyst creating professional documentation."
-    )
-
-    return response.content[0].text
+    elif tool_name == "search_documents":
+        # Existing search logic...
 ```
+
+**Key benefits over simple prompt approach:**
+1. Claude can search documents first for better context
+2. Claude can create multiple artifacts in one conversation turn
+3. Consistent with Phase 3 tool execution pattern
+4. More autonomous - Claude decides artifact structure based on conversation
 
 ### Pattern 3: Export Service with FastAPI FileResponse
 **What:** Generate documents server-side and stream to client
@@ -263,18 +281,18 @@ MimeType _getMimeType(String format) {
 }
 ```
 
-### Pattern 5: Quick Actions Bar
-**What:** Row of buttons above chat input for common artifact generation
-**When to use:** Always visible in conversation screen
+### Pattern 5: Quick Actions Bar (Chat-based)
+**What:** Row of buttons above chat input that send predefined messages to trigger artifact generation
+**When to use:** Always visible in conversation screen for quick access
 **Example:**
 ```dart
 // Source: Custom design based on existing chat_input.dart patterns
 class QuickActionsBar extends StatelessWidget {
-  final void Function(String artifactType) onGenerateArtifact;
+  final void Function(String message) onSendMessage;  // Sends as chat message
   final bool enabled;
 
   const QuickActionsBar({
-    required this.onGenerateArtifact,
+    required this.onSendMessage,
     this.enabled = true,
   });
 
@@ -288,19 +306,20 @@ class QuickActionsBar extends StatelessWidget {
           _ActionChip(
             icon: Icons.list_alt,
             label: 'User Stories',
-            onPressed: enabled ? () => onGenerateArtifact('user_stories') : null,
+            // Sends chat message that triggers Claude to use save_artifact tool
+            onPressed: enabled ? () => onSendMessage('Generate user stories from our conversation') : null,
           ),
           const SizedBox(width: 8),
           _ActionChip(
             icon: Icons.check_circle_outline,
             label: 'Acceptance Criteria',
-            onPressed: enabled ? () => onGenerateArtifact('acceptance_criteria') : null,
+            onPressed: enabled ? () => onSendMessage('Generate acceptance criteria from our conversation') : null,
           ),
           const SizedBox(width: 8),
           _ActionChip(
             icon: Icons.description,
             label: 'Requirements Doc',
-            onPressed: enabled ? () => onGenerateArtifact('requirements_doc') : null,
+            onPressed: enabled ? () => onSendMessage('Generate a requirements document from our conversation') : null,
           ),
         ],
       ),
@@ -309,11 +328,14 @@ class QuickActionsBar extends StatelessWidget {
 }
 ```
 
+**Key insight:** Quick action buttons simply send chat messages. Claude autonomously decides to use the `save_artifact` tool based on the message content. This keeps all generation flowing through the same Agent SDK pipeline.
+
 ### Anti-Patterns to Avoid
 - **Client-side PDF generation:** Avoid generating PDFs in Flutter; server-side is more reliable and consistent
 - **Storing rendered HTML/PDF in database:** Store markdown source, render on-demand for flexibility
-- **Blocking artifact generation:** Use streaming feedback like existing chat; generation can take 10-30 seconds
-- **Hardcoded artifact templates in code:** Use Jinja2 templates for HTML; easier to update styling
+- **Separate generation endpoint:** Don't create a separate `/generate-artifact` endpoint; use existing chat flow with tool execution for consistency
+- **Bypassing Agent SDK:** Don't call Claude directly for generation; use the tool execution pattern so Claude can search documents first
+- **Hardcoded artifact templates in code:** Use Jinja2 templates for HTML export; easier to update styling
 
 ## Don't Hand-Roll
 
@@ -355,11 +377,14 @@ Problems that look simple but have existing solutions:
 **How to avoid:** file_saver 0.3.1 handles this; test on web explicitly
 **Warning signs:** "Platform not supported" errors; download button does nothing on web
 
-### Pitfall 5: Artifact Generation Timeout
-**What goes wrong:** Generation takes too long; user sees no feedback
-**Why it happens:** Requirements docs can be large; Claude streams slowly
-**How to avoid:** Show generation status/progress; consider streaming artifact content
-**Warning signs:** Users clicking generate multiple times; complaints about "hanging"
+### Pitfall 5: Artifact Generation via Agent SDK
+**What goes wrong:** User doesn't realize artifact was created; no visual confirmation
+**Why it happens:** Tool execution happens mid-stream; artifact saved silently
+**How to avoid:**
+- Emit `artifact_created` SSE event when save_artifact tool executes
+- Frontend displays artifact card inline in chat
+- Claude confirms artifact creation in its response text
+**Warning signs:** Users asking "did it save?"; artifacts created but not visible in UI
 
 ## Code Examples
 

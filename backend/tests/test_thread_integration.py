@@ -68,6 +68,7 @@ class TestThreadEndpoints:
             name="Test Project",
         )
         db_session.add(user)
+        await db_session.commit()
         db_session.add(project)
         await db_session.commit()
 
@@ -123,6 +124,7 @@ class TestThreadEndpoints:
             name="Test Project",
         )
         db_session.add(user)
+        await db_session.commit()
         db_session.add(project)
         await db_session.commit()
 
@@ -176,7 +178,9 @@ class TestThreadEndpoints:
             title="Test Thread",
         )
         db_session.add(user)
+        await db_session.commit()
         db_session.add(project)
+        await db_session.commit()
         db_session.add(thread)
         await db_session.commit()
 

@@ -1,20 +1,17 @@
-"""
-AI Service for Claude API integration.
+# Business Analyst System Prompt
 
-Uses direct Anthropic API with document search and artifact generation tools.
-Note: AgentService requires Claude Code CLI which may not be installed.
-"""
-import anthropic
-from typing import AsyncGenerator, List, Dict, Any, Optional
-from app.config import settings
-from app.services.document_search import search_documents
-from app.models import Artifact, ArtifactType
+**Version:** 1.0
+**Last Updated:** 2026-01-26
+**Purpose:** Production system prompt for BA Assistant FastAPI backend using Anthropic Messages API
 
-# Claude model to use
-MODEL = "claude-sonnet-4-5-20250929"
+---
 
-# System prompt for BA assistant behavior - Business Analyst Skill (transformed from .claude/business-analyst/)
-SYSTEM_PROMPT = """<system_prompt>
+## System Prompt (XML Format)
+
+This system prompt should be passed to the Anthropic Messages API in the `system` parameter for all business analyst conversations.
+
+```xml
+<system_prompt>
   <quick_reference>
     <purpose>Systematic business requirements discovery assistant for sales teams conducting customer meetings. Guide users through structured one-question-at-a-time discovery, then generate comprehensive Business Requirements Documents (BRDs).</purpose>
 
@@ -517,246 +514,127 @@ SYSTEM_PROMPT = """<system_prompt>
       Focus: Platform requirements (iOS/Android), offline functionality, notifications, location-based features, device capabilities, app store distribution
     </mobile_applications>
   </domain_adaptations>
-</system_prompt>"""
+</system_prompt>
+```
 
-# Tool definition for document search
-DOCUMENT_SEARCH_TOOL = {
-    "name": "search_documents",
-    "description": """Search project documents for relevant information.
+---
 
-USE THIS TOOL WHEN:
-- User mentions documents, files, or project materials
-- User asks about policies, requirements, or specifications
-- User references something that might be in uploaded documents
-- You need context about the project to answer accurately
-- Discussion involves specific features, constraints, or decisions that may be documented
+## Usage Instructions
 
-DO NOT USE WHEN:
-- User is asking general questions not related to project documents
-- You already have sufficient context from conversation history
+### Integration with FastAPI Backend
 
-Returns: Document snippets with filenames and relevance scores.""",
-    "input_schema": {
-        "type": "object",
-        "properties": {
-            "query": {
-                "type": "string",
-                "description": "Search query to find relevant documents. Use specific terms from the conversation."
-            }
-        },
-        "required": ["query"]
-    }
-}
+1. **Load the system prompt:**
+   ```python
+   # In ai_service.py
+   SYSTEM_PROMPT = """[paste XML content above, starting from <system_prompt> tag]"""
+   ```
 
-# Tool definition for saving artifacts
-SAVE_ARTIFACT_TOOL = {
-    "name": "save_artifact",
-    "description": """Save a business analysis artifact to the current conversation thread.
+2. **Pass to Anthropic Messages API:**
+   ```python
+   async with self.client.messages.stream(
+       model=MODEL,
+       max_tokens=4096,
+       messages=messages,  # Full conversation history
+       tools=self.tools,   # search_documents, save_artifact
+       system=SYSTEM_PROMPT
+   ) as stream:
+       # Handle streaming response
+   ```
 
-USE THIS TOOL WHEN:
-- User requests user stories, acceptance criteria, or requirements documents
-- You have gathered enough context from conversation and documents
-- User asks to "create", "generate", "write", or "document" requirements
+3. **Message history format:**
+   The backend should maintain conversation history and pass it with each request:
+   ```python
+   messages = [
+       {"role": "user", "content": "Help me gather requirements"},
+       {"role": "assistant", "content": "Which mode: (A) Meeting Mode..."},
+       {"role": "user", "content": "Meeting Mode"},
+       {"role": "assistant", "content": "What is the primary business objective..."}
+       # ... full conversation history
+   ]
+   ```
 
-BEFORE USING:
-- Consider using search_documents first to gather project context
-- Review the full conversation for ALL requirements discussed
-- Ensure comprehensive coverage, not just recent messages
+### Testing the System Prompt
 
-You may call this tool multiple times to create multiple artifacts.""",
-    "input_schema": {
-        "type": "object",
-        "properties": {
-            "artifact_type": {
-                "type": "string",
-                "enum": ["user_stories", "acceptance_criteria", "requirements_doc"],
-                "description": "Type: user_stories (Given/When/Then), acceptance_criteria (testable checklist), requirements_doc (IEEE 830-style)"
-            },
-            "title": {
-                "type": "string",
-                "description": "Descriptive title, e.g., 'Login Feature - User Stories'"
-            },
-            "content_markdown": {
-                "type": "string",
-                "description": "Full artifact content in markdown with proper headers and formatting"
-            }
-        },
-        "required": ["artifact_type", "title", "content_markdown"]
-    }
-}
+**Test Case 1: Mode Detection**
+```
+User: "Help me gather requirements for a customer"
+Expected: Assistant asks which mode (Meeting vs Document Refinement)
+```
 
+**Test Case 2: One-Question-at-a-Time**
+```
+User: "Meeting Mode"
+Expected: ONE question with rationale and three options
+Verify: No batched questions
+```
 
-class AIService:
-    """Claude AI service for streaming chat with tool use."""
+**Test Case 3: Zero-Assumption Protocol**
+```
+User: "We need a seamless experience"
+Expected: Clarification with specific interpretations: (A) ..., (B) ..., (C) ...
+```
 
-    def __init__(self):
-        self.client = anthropic.AsyncAnthropic(api_key=settings.anthropic_api_key)
-        self.tools = [DOCUMENT_SEARCH_TOOL, SAVE_ARTIFACT_TOOL]
+**Test Case 4: Technical Boundary**
+```
+User: "Should we use React or Vue?"
+Expected: Acknowledgment → redirect → business-focused question
+Verify: No technical discussion
+```
 
-    async def execute_tool(
-        self,
-        tool_name: str,
-        tool_input: dict,
-        project_id: str,
-        thread_id: str,
-        db
-    ) -> tuple[str, Optional[dict]]:
-        """
-        Execute a tool and return result as string plus optional event data.
+**Test Case 5: Tool Usage**
+```
+User: "The customer mentioned compliance requirements in their docs"
+Expected: search_documents tool call with query about compliance
+```
 
-        Returns:
-            tuple: (result_string, optional_event_dict)
-            - result_string: Text to send back to Claude
-            - optional_event_dict: Event to yield to frontend (e.g., artifact_created)
-        """
-        if tool_name == "save_artifact":
-            artifact = Artifact(
-                thread_id=thread_id,
-                artifact_type=ArtifactType(tool_input["artifact_type"]),
-                title=tool_input["title"],
-                content_markdown=tool_input["content_markdown"]
-            )
-            db.add(artifact)
-            await db.commit()
-            await db.refresh(artifact)
+**Test Case 6: BRD Generation**
+```
+User: "Generate the BRD"
+Expected: Pre-flight validation check → save_artifact tool call with full BRD
+Verify: All 13 BRD sections present
+```
 
-            # Return success message and event for frontend
-            event_data = {
-                "id": artifact.id,
-                "artifact_type": artifact.artifact_type.value,
-                "title": artifact.title
-            }
-            return (
-                f"Artifact saved successfully: '{artifact.title}' (ID: {artifact.id}). "
-                "User can now export as PDF, Word, or Markdown from the artifacts list.",
-                event_data
-            )
+---
 
-        elif tool_name == "search_documents":
-            query = tool_input.get("query", "")
-            results = await search_documents(db, project_id, query)
+## Changelog
 
-            if not results:
-                return ("No relevant documents found for this query.", None)
+### Version 1.0 (2026-01-26)
+- Initial production system prompt
+- Transformed from business-analyst skill (SKILL.md + 4 reference files)
+- Preserves all critical behaviors: one-question-at-a-time, mode detection, zero-assumption protocol, technical boundaries, BRD generation
+- Integrated with search_documents and save_artifact tools
+- Optimized for token efficiency (~2300 tokens) while maintaining complete behavioral coverage
+- Structured for multi-turn conversation context in FastAPI backend
 
-            formatted = []
-            for doc_id, filename, snippet, score in results[:5]:
-                # Clean up snippet HTML markers for Claude
-                clean_snippet = snippet.replace("<mark>", "**").replace("</mark>", "**")
-                formatted.append(f"**{filename}**:\n{clean_snippet}")
+---
 
-            return ("\n\n---\n\n".join(formatted), None)
+## Maintenance Notes
 
-        return (f"Unknown tool: {tool_name}", None)
+**When to update this prompt:**
+- Discovery framework priorities change
+- New error scenarios identified
+- BRD template structure evolves
+- Tool interfaces change (search_documents, save_artifact)
+- Tone guidelines need adjustment based on user feedback
 
-    async def stream_chat(
-        self,
-        messages: List[Dict[str, Any]],
-        project_id: str,
-        thread_id: str,
-        db
-    ) -> AsyncGenerator[Dict[str, Any], None]:
-        """
-        Stream chat response from Claude with tool use.
+**What to preserve:**
+- One-question-at-a-time mandate
+- Mode detection at session start
+- Zero-assumption protocol
+- Technical boundary enforcement
+- Tool usage patterns
+- BRD structure (13 sections)
 
-        Yields SSE-formatted events:
-        - text_delta: Incremental text from Claude
-        - tool_executing: Tool is being executed
-        - artifact_created: An artifact was generated and saved
-        - message_complete: Final message with usage stats
-        - error: Error occurred
-        """
-        import json
+**Token budget:**
+- Current: ~2300 tokens
+- Target: <3000 tokens
+- If exceeding: Compress examples, consolidate similar protocols, remove redundancy
 
-        try:
-            while True:
-                async with self.client.messages.stream(
-                    model=MODEL,
-                    max_tokens=4096,
-                    messages=messages,
-                    tools=self.tools,
-                    system=SYSTEM_PROMPT
-                ) as stream:
-                    accumulated_text = ""
+---
 
-                    async for text in stream.text_stream:
-                        accumulated_text += text
-                        yield {
-                            "event": "text_delta",
-                            "data": json.dumps({"text": text})
-                        }
+## Related Documentation
 
-                    final = await stream.get_final_message()
-
-                    # Check if we need to execute tools
-                    if final.stop_reason != "tool_use":
-                        # Done - yield completion event
-                        yield {
-                            "event": "message_complete",
-                            "data": json.dumps({
-                                "content": accumulated_text,
-                                "usage": {
-                                    "input_tokens": final.usage.input_tokens,
-                                    "output_tokens": final.usage.output_tokens
-                                }
-                            })
-                        }
-                        return
-
-                    # Execute tools
-                    tool_results = []
-                    for block in final.content:
-                        if block.type == "tool_use":
-                            # Show tool-specific status
-                            if block.name == "save_artifact":
-                                yield {
-                                    "event": "tool_executing",
-                                    "data": json.dumps({"status": "Generating artifact..."})
-                                }
-                            else:
-                                yield {
-                                    "event": "tool_executing",
-                                    "data": json.dumps({"status": "Searching project documents..."})
-                                }
-
-                            result, event_data = await self.execute_tool(
-                                block.name,
-                                block.input,
-                                project_id,
-                                thread_id,
-                                db
-                            )
-                            tool_results.append({
-                                "type": "tool_result",
-                                "tool_use_id": block.id,
-                                "content": result
-                            })
-
-                            # Emit artifact_created event if artifact was saved
-                            if event_data and block.name == "save_artifact":
-                                yield {
-                                    "event": "artifact_created",
-                                    "data": json.dumps(event_data)
-                                }
-
-                    # Continue conversation with tool results
-                    messages.append({"role": "assistant", "content": final.content})
-                    messages.append({"role": "user", "content": tool_results})
-
-                    # Yield accumulated text before tool call
-                    if accumulated_text:
-                        yield {
-                            "event": "text_delta",
-                            "data": json.dumps({"text": "\n\n"})
-                        }
-
-        except anthropic.APIError as e:
-            yield {
-                "event": "error",
-                "data": json.dumps({"message": f"AI service error: {str(e)}"})
-            }
-        except Exception as e:
-            yield {
-                "event": "error",
-                "data": json.dumps({"message": f"Unexpected error: {str(e)}"})
-            }
+- Original skill files: `G:\git_repos\BA_assistant\.claude\business-analyst\`
+- Backend implementation: `G:\git_repos\BA_assistant\backend\app\services\ai_service.py`
+- Tool definitions: See DOCUMENT_SEARCH_TOOL and SAVE_ARTIFACT_TOOL in ai_service.py
+- Project context: `G:\git_repos\BA_assistant\.planning\PROJECT.md`

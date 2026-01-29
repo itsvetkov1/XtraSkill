@@ -1,211 +1,149 @@
 # Requirements
 
 **Project:** Business Analyst Assistant
-**Version:** MVP v1.0
-**Last Updated:** 2026-01-17
+**Version:** Beta v1.5 - UI/UX Excellence
+**Last Updated:** 2026-01-29
 
 ## Overview
 
-This document defines functional requirements for the Business Analyst Assistant MVP. Requirements are organized by category and assigned unique identifiers (REQ-IDs) for traceability to roadmap phases. Each requirement represents a specific user capability that must be delivered.
+This document defines functional requirements for Beta v1.5, focusing on UI/UX improvements to prepare the application for executive demos and wider user testing. Requirements transform the MVP into a polished, intuitive experience through navigation enhancements, professional empty states, deletion capabilities, and visual consistency improvements.
 
-## v1 Requirements (MVP)
+## Beta v1.5 Requirements
 
-### Authentication (AUTH)
-
-| REQ-ID | Requirement | Priority | Complexity |
-|--------|-------------|----------|------------|
-| **AUTH-01** | User can create account via Google OAuth 2.0 | CRITICAL | Medium |
-| **AUTH-02** | User can create account via Microsoft OAuth 2.0 | CRITICAL | Medium |
-| **AUTH-03** | User can log in with Google account and stay logged in across sessions | CRITICAL | Medium |
-| **AUTH-04** | User can log in with Microsoft account and stay logged in across sessions | CRITICAL | Medium |
-| **AUTH-05** | User can log out from any page | HIGH | Low |
-
-**Category Rationale:** OAuth-only authentication eliminates password management complexity and aligns with enterprise BA users who have Google Workspace or Microsoft 365 work accounts.
-
----
-
-### Project Management (PROJ)
+### Navigation & Layout (NAV)
 
 | REQ-ID | Requirement | Priority | Complexity |
 |--------|-------------|----------|------------|
-| **PROJ-01** | User can create new projects with name and optional description | CRITICAL | Low |
-| **PROJ-02** | User can view list of all their projects | CRITICAL | Low |
-| **PROJ-03** | User can open a project to view its contents (threads and documents) | CRITICAL | Low |
-| **PROJ-04** | Projects maintain isolated contexts (documents and threads don't leak across projects) | CRITICAL | Medium |
-| **PROJ-05** | User can update project name and description | MEDIUM | Low |
+| **NAV-01** | Persistent sidebar navigation visible on all screens with responsive behavior (desktop always-visible ≥900px, mobile hamburger <600px) | CRITICAL | High |
+| **NAV-02** | Breadcrumb navigation displays current location path (e.g., "Projects > Project Name > Thread Name") | HIGH | Medium |
+| **NAV-03** | Back arrows show destination context (e.g., "← Projects" or "← Project Name") | MEDIUM | Low |
+| **NAV-04** | Navigation highlights current screen location in sidebar | HIGH | Low |
+| **NAV-05** | Sidebar state persists across navigation (expanded/collapsed preference on desktop) | MEDIUM | Medium |
 
-**Category Rationale:** BAs manage multiple client initiatives simultaneously and need clear organizational boundaries between projects.
+**Category Rationale:** Navigation is the critical foundation - users reported getting lost without persistent sidebar. Fixes the #1 critical UX issue from analysis.
 
 ---
 
-### Document Management (DOC)
+### User Guidance & Onboarding (ONBOARD)
 
 | REQ-ID | Requirement | Priority | Complexity |
 |--------|-------------|----------|------------|
-| **DOC-01** | User can upload text documents (.txt, .md) to a project | HIGH | Medium |
-| **DOC-02** | User can view list of documents uploaded to a project | HIGH | Low |
-| **DOC-03** | Documents are stored encrypted at rest | HIGH | Medium |
-| **DOC-04** | Documents are indexed for full-text search (FTS5) | HIGH | Medium |
-| **DOC-05** | User can view document content within the application | MEDIUM | Low |
+| **ONBOARD-01** | Projects list displays empty state when user has no projects (illustration + message + "Create Project" CTA) | CRITICAL | Low |
+| **ONBOARD-02** | Threads list displays empty state when project has no threads (message + "Start Conversation" CTA) | CRITICAL | Low |
+| **ONBOARD-03** | Documents list displays empty state when project has no documents (message + "Upload Document" CTA) | CRITICAL | Low |
+| **ONBOARD-04** | Home screen displays primary action buttons ("Start Conversation", "Browse Projects") after authentication | CRITICAL | Low |
+| **ONBOARD-05** | Home screen removes development phase information ("Next Steps") and displays user-oriented welcome | CRITICAL | Low |
 
-**Category Rationale:** BAs reference existing requirements documents, stakeholder notes, and project context during discovery conversations. Text-only in MVP to reduce complexity; PDF/Word parsing deferred to Beta.
+**Category Rationale:** Empty states prevent "blank screen" confusion for new users during executive demos. Fixes critical first-impression issues.
 
 ---
 
-### Conversation Management (CONV)
+### Data Management - Deletion (DEL)
 
 | REQ-ID | Requirement | Priority | Complexity |
 |--------|-------------|----------|------------|
-| **CONV-01** | User can create multiple conversation threads within a project | CRITICAL | Low |
-| **CONV-02** | User can view list of threads in a project with AI-generated summaries | HIGH | Medium |
-| **CONV-03** | User can open a thread to view full conversation history | CRITICAL | Low |
-| **CONV-04** | User can send messages in a thread | CRITICAL | Medium |
-| **CONV-05** | Threads display in chronological order with most recent first | MEDIUM | Low |
-| **CONV-06** | Thread summaries automatically update as conversation progresses | HIGH | Medium |
+| **DEL-01** | User can delete projects with confirmation dialog showing cascade impact ("This will delete X threads and Y documents") | HIGH | High |
+| **DEL-02** | User can delete threads with confirmation dialog showing impact ("This will delete X messages") | HIGH | Medium |
+| **DEL-03** | User can delete documents from project (confirmation dialog) | HIGH | Low |
+| **DEL-04** | User can delete individual messages from thread (confirmation dialog) | MEDIUM | Medium |
+| **DEL-05** | Backend performs cascade deletes maintaining referential integrity (threads→messages, projects→threads→messages) | CRITICAL | High |
+| **DEL-06** | Deleted items show SnackBar with undo action (10-second window) | HIGH | High |
+| **DEL-07** | Deletion uses optimistic UI updates (immediate removal from list, rollback on error) | MEDIUM | Medium |
 
-**Category Rationale:** Multiple threads per project allow BAs to explore different features or initiatives independently without context contamination.
+**Category Rationale:** Deletion was deferred from MVP. Research shows undo pattern (SnackBar) is table stakes for Flutter apps. Bringing forward from original Beta scope.
 
 ---
 
-### AI Core (AI)
+### Settings & Preferences (SET)
 
 | REQ-ID | Requirement | Priority | Complexity |
 |--------|-------------|----------|------------|
-| **AI-01** | AI provides real-time streaming responses during conversation | CRITICAL | High |
-| **AI-02** | AI proactively identifies edge cases and missing requirements | CRITICAL | High |
-| **AI-03** | AI autonomously searches project documents when conversation requires context | CRITICAL | High |
-| **AI-04** | AI asks clarifying questions to explore requirements deeply | HIGH | Medium |
-| **AI-05** | AI maintains conversation context across multiple messages | CRITICAL | Medium |
-| **AI-06** | AI responses stream progressively to user (SSE) | HIGH | High |
-| **AI-07** | Token usage is tracked and enforced per request, conversation, and user | CRITICAL | Medium |
+| **SET-01** | Settings page displays user profile information (email, name from OAuth provider) | HIGH | Low |
+| **SET-02** | Settings page provides logout button with confirmation | HIGH | Low |
+| **SET-03** | Settings page includes light/dark theme toggle switch | HIGH | Medium |
+| **SET-04** | Theme preference persists across app restarts (SharedPreferences) | CRITICAL | Medium |
+| **SET-05** | Settings page displays current month token budget usage (used/limit with percentage) | MEDIUM | Medium |
+| **SET-06** | Theme loads before MaterialApp initialization (prevent white flash on dark mode) | CRITICAL | Low |
+| **SET-07** | Theme respects system preference on first launch (iOS/Android/web) | MEDIUM | Low |
 
-**Category Rationale:** Core value proposition—AI-assisted discovery must feel natural, proactive, and contextually aware. Token tracking prevents cost explosion from Agent SDK.
+**Category Rationale:** Settings page was referenced in sidebar but didn't exist. Theme toggle and token budget display add transparency and user control.
 
 ---
 
-### Artifact Generation (ART)
+### Conversation UI Enhancements (CONV-UI)
 
 | REQ-ID | Requirement | Priority | Complexity |
 |--------|-------------|----------|------------|
-| **ART-01** | User can request structured user stories from conversation | HIGH | Medium |
-| **ART-02** | User can request acceptance criteria from conversation | HIGH | Medium |
-| **ART-03** | User can request requirements documents from conversation | HIGH | Medium |
-| **ART-04** | Generated artifacts are stored and associated with conversation thread | HIGH | Medium |
-| **ART-05** | User can export artifacts in Markdown format | HIGH | Low |
-| **ART-06** | User can export artifacts in PDF format | HIGH | High |
-| **ART-07** | User can export artifacts in Word (.docx) format | HIGH | High |
+| **CONV-UI-01** | AI mode selection presents as clickable ChoiceChip buttons (Meeting Mode, Document Refinement Mode) instead of typed "A"/"B" responses | HIGH | Medium |
+| **CONV-UI-02** | Message pills have improved readability (increased padding, font size 15-16px) | MEDIUM | Low |
+| **CONV-UI-03** | Thread list items display mode indicator (chip or colored dot showing which mode was used) | LOW | Low |
 
-**Category Rationale:** Converting conversations to deliverable documentation saves BAs hours per week and ensures stakeholders receive professional artifacts.
+**Category Rationale:** Mode selection via typing "A" or "B" creates friction and feels dated. ChoiceChips are standard Material 3 pattern for exclusive selection.
 
 ---
 
-### Platform & Sync (PLAT)
+### Visual Polish & Consistency (POLISH)
 
 | REQ-ID | Requirement | Priority | Complexity |
 |--------|-------------|----------|------------|
-| **PLAT-01** | Application works on web browsers (Chrome, Firefox, Safari, Edge) | CRITICAL | Medium |
-| **PLAT-02** | Application works on Android devices (native Flutter app) | CRITICAL | Medium |
-| **PLAT-03** | Application works on iOS devices (native Flutter app) | CRITICAL | Medium |
-| **PLAT-04** | All user data persists on server (not local storage only) | CRITICAL | Low |
-| **PLAT-05** | Data automatically syncs across devices when user logs in | CRITICAL | Low |
-| **PLAT-06** | UI is responsive and adapts to screen size (mobile, tablet, desktop) | HIGH | Medium |
+| **POLISH-01** | Date/time formatting is consistent: relative for recent (<7 days: "4d ago", "Yesterday"), absolute for older (>7 days: "Jan 18, 2026") | HIGH | Low |
+| **POLISH-02** | Project detail headers are consolidated to reduce vertical space waste (single line name + metadata, not duplicate) | MEDIUM | Low |
+| **POLISH-03** | Thread list items show preview text (first line of last message, truncated to 80 chars) | MEDIUM | Low |
+| **POLISH-04** | Project cards display metadata badges (thread count, document count) | LOW | Low |
+| **POLISH-05** | All dates use `intl` package with locale-aware formatting (not hard-coded strings) | MEDIUM | Low |
 
-**Category Rationale:** BAs work in office (desktop) and on-site meetings (mobile). Cross-device sync must be automatic and seamless.
+**Category Rationale:** Visual consistency improvements caught by UX analysis. Date formatting inconsistency ("4d ago" vs "2026-01-19") was flagged as unprofessional.
 
 ---
 
-## v2 Requirements (Beta)
+## v2.0 Requirements (Deferred to Next Milestone)
 
-Deferred to Beta phase for validation learning and velocity management.
-
-### Search & Navigation (SEARCH)
+### Search & Discovery (SEARCH)
 
 | REQ-ID | Requirement | Rationale for Deferral |
 |--------|-------------|------------------------|
-| **SEARCH-01** | User can search across all projects | Acceptable for MVP with <10 projects; becomes critical in Beta |
-| **SEARCH-02** | User can search within a project across threads | Manual browsing acceptable for MVP; improves UX in Beta |
-| **SEARCH-03** | User can filter threads by date or activity | Low friction for MVP; nice-to-have for Beta |
+| **SEARCH-01** | User can search across all projects by name or description | Beta v1.5 focuses on navigation and polish; search deferred to v2.0 per original plan |
+| **SEARCH-02** | User can search within project across threads | Same as SEARCH-01 |
+| **SEARCH-03** | User can filter projects by date or activity | Same as SEARCH-01 |
 
-### Editing & Deletion (EDIT)
-
-| REQ-ID | Requirement | Rationale for Deferral |
-|--------|-------------|------------------------|
-| **EDIT-01** | User can delete projects | Maintains velocity by deferring cascade delete logic; no data loss risk |
-| **EDIT-02** | User can delete threads | Similar to EDIT-01; defer complexity |
-| **EDIT-03** | User can delete documents | Minor UX friction; users can upload new version |
-| **EDIT-04** | User can edit their messages in a conversation | Threads are append-only in MVP; low user frustration |
-| **EDIT-05** | User can delete individual messages | Similar to EDIT-04; defer to Beta |
-
-### Document Parsing (PARSE)
+### Advanced Features (ADVANCED)
 
 | REQ-ID | Requirement | Rationale for Deferral |
 |--------|-------------|------------------------|
-| **PARSE-01** | User can upload PDF documents | Text-only validates document usefulness first; users copy-paste for MVP |
-| **PARSE-02** | User can upload Word (.docx) documents | Similar to PARSE-01; reduces MVP complexity |
-| **PARSE-03** | System extracts text content from PDFs automatically | High complexity; defer until text-only validated |
-| **PARSE-04** | System extracts text content from Word docs automatically | Similar to PARSE-03 |
+| **ADVANCED-01** | Keyboard shortcuts for desktop power users (Cmd+N for new conversation, etc.) | Nice-to-have; defer until post-Beta user feedback validates need |
+| **ADVANCED-02** | Contextual empty state illustrations (different images per scenario) | Single generic illustration sufficient for Beta; A/B test later |
+| **ADVANCED-03** | Bulk deletion (multi-select) | Single-item deletion sufficient; bulk adds UI complexity |
+| **ADVANCED-04** | Thread archiving and starring | Organization features defer to v2.0 |
+| **ADVANCED-05** | Message editing (not just deletion) | Editing introduces conversation coherence complexity |
 
 ---
 
-## Out of Scope (V1.0+)
+## Out of Scope (V2.0+)
 
-Features explicitly excluded from MVP and Beta to maintain focus and velocity.
-
-### Collaboration (COLLAB)
+### Collaboration & Sharing (COLLAB)
 
 | Feature | Rationale |
 |---------|-----------|
 | Multi-user project sharing | Single-user per account validates core value first; team features add massive complexity |
 | Real-time collaboration (simultaneous editing) | Requires WebSockets, CRDTs, conflict resolution; deferred until strong user demand |
-| Comments on artifacts | Low ROI for single-user MVP; defer to team collaboration phase |
-| Project permissions and roles | Not needed until multi-user features |
-
-### Notifications (NOTIF)
-
-| Feature | Rationale |
-|---------|-----------|
-| Push notifications | Not needed for single-user synchronous workflow |
-| Email notifications | Similar to push; no async collaboration to notify about |
-| In-app notification center | Low priority until team features create notification need |
-
-### Offline & Mobile (MOBILE)
-
-| Feature | Rationale |
-|---------|-----------|
-| Offline mode with sync | Complex sync engine; validate need through usage data first |
-| Voice input for messages | HIGH VALUE for meetings; consider for Beta if mobile adoption strong |
-| Meeting recording and transcription | Legal/compliance complexity; integrate with existing tools if needed |
-
-### AI Customization (AI-CUSTOM)
-
-| Feature | Rationale |
-|---------|-----------|
-| Custom AI personalities | Single consistent BA behavior; defer unless strong user demand |
-| User-defined prompt templates | Low ROI; AI already generates any artifact type on demand |
-| Fine-tuned models | Overkill for MVP; prompt engineering sufficient |
+| Comments on artifacts | Low ROI for single-user; defer to team collaboration phase |
 
 ### Integrations (INTEGR)
 
 | Feature | Rationale |
 |---------|-----------|
-| JIRA integration (import/export) | CRITICAL for V1.0 enterprise adoption; defer until MVP validates core value |
-| Azure DevOps integration | Similar to JIRA; high enterprise value but defer to V1.0 |
-| Confluence export | Lower priority than JIRA; V1.0+ |
-| GitHub Issues integration | Niche use case; post-V1.0 |
-| Slack/Teams notifications | Not needed until team collaboration features |
+| JIRA integration (import/export) | CRITICAL for v2.0 enterprise adoption; defer until MVP validates core value |
+| Azure DevOps integration | Similar to JIRA; high enterprise value but defer to v2.0 |
+| Confluence export | Lower priority than JIRA; v2.0+ |
 
-### Advanced Features (ADVANCED)
+### Advanced UX (UX-ADVANCED)
 
 | Feature | Rationale |
 |---------|-----------|
-| Requirement dependency mapping | Nice-to-have visualization; not core value prop |
-| Requirement completeness scoring | HIGH VALUE for reinforcing AI value; good Beta candidate |
-| Stakeholder persona management | Enterprise feature; defer to V1.0+ |
-| Comparison with industry standards | Niche (regulated industries only); post-V1.0 |
-| Built-in diagramming tools | BAs use Miro/Lucidchart; competing adds massive scope |
-| Gantt charts / project planning | Not BA's primary responsibility; stay focused on requirements |
-| Approval workflows | Low ROI for MVP; stakeholders approve in existing tools |
-| Analytics dashboard | Not valuable until user has dozens of projects; defer to post-V1.0 |
+| Offline mode with sync | Complex sync engine; validate need through usage data first |
+| Voice input for messages | HIGH VALUE for meetings; consider for v2.0 if mobile adoption strong |
+| Customizable themes (beyond light/dark) | Light/dark sufficient; custom themes add complexity without clear ROI |
+| Accessibility features beyond WCAG AA | WCAG AA is table stakes (48×48px touch targets, 4.5:1 contrast); enhanced features (screen reader optimizations, high contrast mode) defer to v2.0 based on user requests |
 
 ---
 
@@ -215,49 +153,12 @@ This section maps requirements to roadmap phases. Updated during roadmap creatio
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| AUTH-01 | Phase 1 | Complete |
-| AUTH-02 | Phase 1 | Complete |
-| AUTH-03 | Phase 1 | Complete |
-| AUTH-04 | Phase 1 | Complete |
-| AUTH-05 | Phase 1 | Complete |
-| PLAT-01 | Phase 1 | Complete |
-| PLAT-02 | Phase 1 | Complete |
-| PLAT-03 | Phase 1 | Complete |
-| PLAT-04 | Phase 1 | Complete |
-| PLAT-05 | Phase 1 | Complete |
-| PROJ-01 | Phase 2 | Complete |
-| PROJ-02 | Phase 2 | Complete |
-| PROJ-03 | Phase 2 | Complete |
-| PROJ-04 | Phase 2 | Complete |
-| PROJ-05 | Phase 2 | Complete |
-| DOC-01 | Phase 2 | Complete |
-| DOC-02 | Phase 2 | Complete |
-| DOC-03 | Phase 2 | Complete |
-| DOC-04 | Phase 2 | Complete |
-| DOC-05 | Phase 2 | Complete |
-| CONV-01 | Phase 2 | Complete |
-| CONV-02 | Phase 2 | Complete |
-| CONV-03 | Phase 2 | Complete |
-| CONV-05 | Phase 2 | Complete |
-| CONV-04 | Phase 3 | Complete |
-| CONV-06 | Phase 3 | Complete |
-| AI-01 | Phase 3 | Complete |
-| AI-02 | Phase 3 | Complete |
-| AI-03 | Phase 3 | Complete |
-| AI-04 | Phase 3 | Complete |
-| AI-05 | Phase 3 | Complete |
-| AI-06 | Phase 3 | Complete |
-| AI-07 | Phase 3 | Complete |
-| ART-01 | Phase 4 | Complete |
-| ART-02 | Phase 4 | Complete |
-| ART-03 | Phase 4 | Complete |
-| ART-04 | Phase 4 | Complete |
-| ART-05 | Phase 4 | Complete |
-| ART-06 | Phase 4 | Complete |
-| ART-07 | Phase 4 | Complete |
-| PLAT-06 | Phase 5 | Complete |
+| (Populated by gsd-roadmapper) | | |
 
-**Coverage:** 41/41 requirements mapped (40 v1 + PLAT-06 responsive design)
+**Coverage:**
+- Beta v1.5 requirements: 29 total
+- v2.0 requirements: 9 deferred
+- Out of scope: 8+ features
 
 ---
 
@@ -272,43 +173,44 @@ Each requirement will have detailed acceptance criteria defined during phase pla
 
 Example format:
 ```
-**Given** user is logged in and viewing project
-**When** user clicks "New Thread" button
-**Then** new thread is created with timestamp and empty message list
-**And** user is navigated to thread view
-**And** thread appears in project thread list with "Untitled" summary
+**Given** user has zero projects
+**When** user navigates to Projects screen
+**Then** empty state displays with illustration
+**And** message reads "No projects yet"
+**And** "Create Project" button is prominently visible
+**And** tapping button opens create project dialog
 ```
 
 ---
 
 ## Success Metrics
 
-MVP success will be measured by:
+Beta v1.5 success will be measured by:
 
-1. **Core Value Validation:**
-   - AI successfully identifies edge cases BAs missed in 80%+ of conversations
-   - Generated artifacts require minimal editing (<10% word changes) before use
-   - Users complete requirement discovery 50%+ faster than traditional methods
+1. **Executive Demo Readiness:**
+   - Zero navigation confusion (user can move between any two screens without backtracking)
+   - Professional first impression (no blank screens, consistent polish)
+   - All destructive actions have confirmation + undo (no fear of data loss)
 
 2. **User Engagement:**
-   - Users create 3+ projects within first month
-   - Users conduct 5+ conversation threads per project
-   - Users export 50%+ of generated artifacts
+   - Empty state CTAs increase feature discovery (track clicks)
+   - Home screen CTAs reduce time-to-first-conversation
+   - Theme toggle used by 30%+ of users
 
-3. **Technical Performance:**
-   - AI token costs stay under $100/month for 10 active users
-   - Streaming responses begin within 500ms of user message
-   - Cross-device sync completes within 2 seconds
+3. **Technical Quality:**
+   - Zero BuildContext async crashes (lint rule enforced)
+   - Theme persistence 100% reliable (no white flash, survives restart)
+   - Cascade deletes never orphan data (integration tests verify)
 
-4. **Platform Adoption:**
-   - 50%+ of users access from mobile device at least once
-   - 70%+ of users access from both web and mobile
-   - No platform-specific bug complaints
+4. **UX Consistency:**
+   - Date formatting consistent across all screens
+   - Navigation state preserved (sidebar expansion, breadcrumbs accurate)
+   - Deletion undo works 100% of time within 10-second window
 
 ---
 
-*Requirements baseline established: 2026-01-17*
-*Total v1 requirements: 40*
-*Total v2 requirements: 11*
-*Out of scope: 25+*
-*Traceability updated: 2026-01-17*
+*Requirements baseline established: 2026-01-29*
+*Total Beta v1.5 requirements: 29*
+*Total v2.0 requirements: 9*
+*Out of scope: 8+*
+*Traceability updated: [Pending roadmap creation]*

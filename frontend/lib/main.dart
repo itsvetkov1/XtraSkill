@@ -77,17 +77,6 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   late final GoRouter _routerInstance;
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    // Create router only once when dependencies are available
-    if (!_isRouterInitialized) {
-      _routerInstance = _createRouter(context);
-      _isRouterInitialized = true;
-    }
-  }
-
   bool _isRouterInitialized = false;
 
   @override

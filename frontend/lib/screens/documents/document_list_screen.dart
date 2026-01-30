@@ -4,6 +4,7 @@ import 'package:skeletonizer/skeletonizer.dart';
 
 import '../../models/document.dart';
 import '../../providers/document_provider.dart';
+import '../../widgets/delete_confirmation_dialog.dart';
 import 'document_upload_screen.dart';
 import 'document_viewer_screen.dart';
 
@@ -106,7 +107,45 @@ class _DocumentListScreenState extends State<DocumentListScreen> {
                       'Uploaded: ${_formatDate(doc.createdAt)}',
                       style: const TextStyle(fontSize: 12),
                     ),
-                    trailing: const Icon(Icons.chevron_right),
+                    trailing: provider.isLoading
+                        ? const Icon(Icons.chevron_right)
+                        : PopupMenuButton<String>(
+                            onSelected: (value) {
+                              if (value == 'view') {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        DocumentViewerScreen(documentId: doc.id),
+                                  ),
+                                );
+                              } else if (value == 'delete') {
+                                _deleteDocument(context, doc.id);
+                              }
+                            },
+                            itemBuilder: (context) => [
+                              const PopupMenuItem(
+                                value: 'view',
+                                child: Row(
+                                  children: [
+                                    Icon(Icons.visibility),
+                                    SizedBox(width: 8),
+                                    Text('View'),
+                                  ],
+                                ),
+                              ),
+                              const PopupMenuItem(
+                                value: 'delete',
+                                child: Row(
+                                  children: [
+                                    Icon(Icons.delete_outline),
+                                    SizedBox(width: 8),
+                                    Text('Delete'),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
                     onTap: provider.isLoading
                         ? null
                         : () {
@@ -126,21 +165,35 @@ class _DocumentListScreenState extends State<DocumentListScreen> {
         },
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
+        onPressed: () async {
+          await Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) =>
+              builder: (ctx) =>
                   DocumentUploadScreen(projectId: widget.projectId),
             ),
-          ).then((_) {
-            // Refresh list after upload
+          );
+          // Refresh list after upload
+          if (context.mounted) {
             context.read<DocumentProvider>().loadDocuments(widget.projectId);
-          });
+          }
         },
         child: const Icon(Icons.add),
       ),
     );
+  }
+
+  /// Delete document with confirmation
+  Future<void> _deleteDocument(BuildContext context, String documentId) async {
+    final confirmed = await showDeleteConfirmationDialog(
+      context: context,
+      itemType: 'document',
+      // No cascade message - documents don't have children
+    );
+
+    if (confirmed && context.mounted) {
+      context.read<DocumentProvider>().deleteDocument(context, documentId);
+    }
   }
 
   String _formatDate(DateTime date) {

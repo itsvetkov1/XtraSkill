@@ -8,6 +8,7 @@ import 'package:skeletonizer/skeletonizer.dart';
 
 import '../../models/thread.dart';
 import '../../providers/thread_provider.dart';
+import '../../widgets/delete_confirmation_dialog.dart';
 import '../conversation/conversation_screen.dart';
 import 'thread_create_dialog.dart';
 
@@ -63,6 +64,19 @@ class _ThreadListScreenState extends State<ThreadListScreen> {
         builder: (context) => ConversationScreen(threadId: threadId),
       ),
     );
+  }
+
+  /// Delete thread with confirmation
+  Future<void> _deleteThread(BuildContext context, String threadId) async {
+    final confirmed = await showDeleteConfirmationDialog(
+      context: context,
+      itemType: 'thread',
+      cascadeMessage: 'This will delete all messages in this thread.',
+    );
+
+    if (confirmed && context.mounted) {
+      context.read<ThreadProvider>().deleteThread(context, threadId);
+    }
   }
 
   /// Create placeholder thread for skeleton loader
@@ -159,7 +173,27 @@ class _ThreadListScreenState extends State<ThreadListScreen> {
                       subtitle: Text(
                         'Created ${_formatDate(thread.createdAt)} • $messageCount messages',
                       ),
-                      trailing: const Icon(Icons.chevron_right),
+                      trailing: provider.isLoading
+                          ? const Icon(Icons.chevron_right)
+                          : PopupMenuButton<String>(
+                              onSelected: (value) {
+                                if (value == 'delete') {
+                                  _deleteThread(context, thread.id);
+                                }
+                              },
+                              itemBuilder: (context) => [
+                                const PopupMenuItem(
+                                  value: 'delete',
+                                  child: Row(
+                                    children: [
+                                      Icon(Icons.delete_outline),
+                                      SizedBox(width: 8),
+                                      Text('Delete'),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
                       onTap: provider.isLoading ? null : () => _onThreadTap(thread.id),
                     ),
                   );

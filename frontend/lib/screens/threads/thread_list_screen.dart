@@ -139,8 +139,34 @@ class _ThreadListScreenState extends State<ThreadListScreen> {
                         title,
                         style: Theme.of(context).textTheme.titleMedium,
                       ),
-                      subtitle: Text(
-                        '${DateFormatter.format(thread.updatedAt)} • $messageCount messages',
+                      subtitle: Row(
+                        children: [
+                          Icon(
+                            Icons.schedule,
+                            size: 14,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            DateFormatter.format(thread.updatedAt),
+                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Icon(
+                            Icons.message_outlined,
+                            size: 14,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            '$messageCount',
+                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            ),
+                          ),
+                        ],
                       ),
                       trailing: provider.isLoading
                           ? const Icon(Icons.chevron_right)

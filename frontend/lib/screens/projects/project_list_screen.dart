@@ -253,11 +253,54 @@ class _ProjectCard extends StatelessWidget {
                 ),
               ],
               const SizedBox(height: 8),
-              Text(
-                'Updated ${DateFormatter.format(project.updatedAt)}',
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              Row(
+                children: [
+                  // Thread count badge (if available from detail API)
+                  if (project.threads != null) ...[
+                    Icon(
+                      Icons.chat_bubble_outline,
+                      size: 14,
                       color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
+                    const SizedBox(width: 4),
+                    Text(
+                      '${project.threads!.length}',
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                  ],
+                  // Document count badge (if available from detail API)
+                  if (project.documents != null) ...[
+                    Icon(
+                      Icons.description_outlined,
+                      size: 14,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      '${project.documents!.length}',
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                  ],
+                  // Date (always shown)
+                  Icon(
+                    Icons.schedule,
+                    size: 14,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                  const SizedBox(width: 4),
+                  Text(
+                    DateFormatter.format(project.updatedAt),
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                ],
               ),
             ],
           ),

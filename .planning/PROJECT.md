@@ -29,7 +29,15 @@ Previous features (v1.5):
 
 **Codebase:** ~12,000 lines of Dart/Python across Flutter frontend and FastAPI backend.
 
-## Current Milestone: Planning Next
+## Current Milestone: v1.7 URL & Deep Links
+
+**Goal:** Fix router infrastructure so URLs are bookmarkable, shareable, and survive page refresh.
+
+**Target features:**
+- Unique conversation URLs (`/projects/:projectId/threads/:threadId`)
+- URL preservation on page refresh (return to same page, not `/home`)
+- Auth redirect with return URL (login completes to intended destination)
+- Graceful handling of invalid routes (404 states)
 
 **Previous:** v1.6 UX Quick Wins (complete)
 
@@ -83,7 +91,10 @@ Previous features (v1.5):
 
 ### Active
 
-(None — planning next milestone)
+- [ ] Conversations have unique URLs (`/projects/:projectId/threads/:threadId`)
+- [ ] URL preserved on page refresh (authenticated user stays on same page)
+- [ ] Auth redirect stores return URL and completes to intended destination
+- [ ] Invalid routes handled gracefully (404 error states with navigation options)
 
 ### Deferred
 
@@ -154,4 +165,4 @@ BAs prepare for meetings by uploading existing requirements or stakeholder notes
 | Return 404 for non-owner | Security: don't leak thread existence to non-owners | ✓ Implemented (Phase 14) |
 
 ---
-*Last updated: 2026-01-30 after v1.6 milestone completion*
+*Last updated: 2026-01-31 after v1.7 milestone start*

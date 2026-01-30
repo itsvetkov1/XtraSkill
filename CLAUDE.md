@@ -203,6 +203,56 @@ Thumbs.db
 
 ---
 
+## Deferred Testing Workflow
+
+### Rule: Collect Testing Points, Continue Development
+
+**Context:** User may not be able to test immediately during development sessions. Don't block on manual testing checkpoints.
+
+**Workflow:**
+
+1. **During execution:** When a plan has `autonomous: false` (checkpoint), complete all tasks normally
+2. **At checkpoint:** Instead of waiting for user approval, document all test cases in `.planning/TESTING-QUEUE.md`
+3. **Continue execution:** Proceed with phase verification and completion
+4. **Later testing:** User requests testing points with "show me what needs testing" or similar
+
+**TESTING-QUEUE.md structure:**
+```markdown
+## Phase X: Phase Name
+
+**Status:** Pending user testing
+**Collected:** YYYY-MM-DD
+
+### Test Environment Setup
+[Setup steps]
+
+### Test Cases
+
+#### TC-XX-01: Test Name
+1. Step 1
+2. Step 2
+3. **Expected:** [expected result]
+
+### Results
+| Test Case | Status | Notes |
+|-----------|--------|-------|
+| TC-XX-01 | Pending | |
+```
+
+**When user asks for testing:**
+- Point them to `.planning/TESTING-QUEUE.md`
+- After testing, user reports results
+- Update Results table with outcomes
+- Create fix plans if issues found
+
+**Benefits:**
+- Development velocity maintained
+- Testing requirements captured systematically
+- User tests when convenient
+- Clear traceability of what was tested
+
+---
+
 ## Summary
 
 **The Golden Rule:**

@@ -7,7 +7,7 @@ All endpoints require authentication and enforce project ownership.
 
 from typing import List, Optional
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Response, status
 from pydantic import BaseModel, Field
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -253,3 +253,46 @@ async def update_project(
         created_at=project.created_at.isoformat(),
         updated_at=project.updated_at.isoformat(),
     )
+
+
+@router.delete("/projects/{project_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_project(
+    project_id: str,
+    current_user: dict = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    Delete a project and all related data.
+
+    Cascades to delete all threads, documents, and messages via database
+    foreign key constraints (ON DELETE CASCADE).
+
+    Args:
+        project_id: Project UUID
+        current_user: Authenticated user from JWT token
+        db: Database session
+
+    Returns:
+        204 No Content on success
+
+    Raises:
+        401: If user not authenticated
+        404: If project not found or not owned by user
+    """
+    # Query project
+    stmt = select(Project).where(Project.id == project_id)
+    result = await db.execute(stmt)
+    project = result.scalar_one_or_none()
+
+    # Verify project exists and is owned by current user
+    if not project or project.user_id != current_user["user_id"]:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Project not found",
+        )
+
+    # Delete project (cascades to threads, documents, messages)
+    await db.delete(project)
+    await db.commit()
+
+    return Response(status_code=status.HTTP_204_NO_CONTENT)

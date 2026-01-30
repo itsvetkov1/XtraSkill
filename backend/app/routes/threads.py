@@ -8,7 +8,7 @@ AI will generate summaries and populate messages in Phase 3.
 
 from typing import List, Optional
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Response, status
 from pydantic import BaseModel, Field
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -254,3 +254,58 @@ async def get_thread(
             for msg in sorted_messages
         ],
     )
+
+
+@router.delete(
+    "/threads/{thread_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+)
+async def delete_thread(
+    thread_id: str,
+    current_user: dict = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    Delete a thread and all related data.
+
+    Cascades to delete all messages and artifacts via database
+    foreign key constraints (ON DELETE CASCADE).
+
+    Args:
+        thread_id: Thread UUID
+        current_user: Authenticated user from JWT
+        db: Database session
+
+    Returns:
+        204 No Content on success
+
+    Raises:
+        404: Thread not found or doesn't belong to user's project
+    """
+    # Get thread with project loaded for ownership check
+    stmt = (
+        select(Thread)
+        .where(Thread.id == thread_id)
+        .options(selectinload(Thread.project))
+    )
+    result = await db.execute(stmt)
+    thread = result.scalar_one_or_none()
+
+    if not thread:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Thread not found"
+        )
+
+    # Validate thread belongs to user's project
+    if thread.project.user_id != current_user["user_id"]:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Thread not found"
+        )
+
+    # Delete thread (cascades to messages, artifacts)
+    await db.delete(thread)
+    await db.commit()
+
+    return Response(status_code=status.HTTP_204_NO_CONTENT)

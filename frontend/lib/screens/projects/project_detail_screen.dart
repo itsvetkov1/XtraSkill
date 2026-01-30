@@ -2,10 +2,12 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../../providers/project_provider.dart';
 import '../../providers/thread_provider.dart';
+import '../../widgets/delete_confirmation_dialog.dart';
 import '../documents/document_upload_screen.dart';
 import '../threads/thread_list_screen.dart';
 
@@ -120,6 +122,11 @@ class _ProjectDetailScreenState extends State<ProjectDetailScreen>
                         icon: const Icon(Icons.edit),
                         tooltip: 'Edit Project',
                         onPressed: () => _showEditProjectDialog(context),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.delete_outline),
+                        tooltip: 'Delete Project',
+                        onPressed: () => _deleteProject(context),
                       ),
                     ],
                   ),
@@ -263,6 +270,22 @@ class _ProjectDetailScreenState extends State<ProjectDetailScreen>
         ],
       ),
     );
+  }
+
+  /// Delete project with confirmation
+  Future<void> _deleteProject(BuildContext context) async {
+    final confirmed = await showDeleteConfirmationDialog(
+      context: context,
+      itemType: 'project',
+      cascadeMessage: 'This will delete all threads and documents in this project.',
+    );
+
+    if (confirmed && context.mounted) {
+      context.read<ProjectProvider>().deleteProject(context, widget.projectId);
+
+      // Navigate back to projects list
+      context.go('/projects');
+    }
   }
 
   String _formatDate(DateTime date) {

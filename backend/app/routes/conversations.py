@@ -6,7 +6,7 @@ Uses direct Anthropic API for Claude conversations with document search
 and artifact generation tools.
 """
 import json
-from fastapi import APIRouter, Depends, HTTPException, Request, status
+from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from pydantic import BaseModel, Field
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -14,7 +14,7 @@ from sqlalchemy.orm import selectinload
 from sse_starlette.sse import EventSourceResponse
 
 from app.database import get_db
-from app.models import Thread, Project
+from app.models import Message, Thread, Project
 from app.utils.jwt import get_current_user
 from app.services.ai_service import AIService
 from app.services.conversation_service import (
@@ -179,3 +179,52 @@ async def stream_chat(
             "Cache-Control": "no-cache",
         }
     )
+
+
+@router.delete(
+    "/threads/{thread_id}/messages/{message_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+)
+async def delete_message(
+    thread_id: str,
+    message_id: str,
+    current_user: dict = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    Delete a single message from a thread.
+
+    Args:
+        thread_id: Thread UUID
+        message_id: Message UUID
+        current_user: Authenticated user from JWT
+        db: Database session
+
+    Returns:
+        204 No Content on success
+
+    Raises:
+        404: Thread/message not found or not owned by user
+    """
+    # First validate thread ownership
+    await validate_thread_access(db, thread_id, current_user["user_id"])
+
+    # Query message by ID and thread_id
+    stmt = select(Message).where(
+        Message.id == message_id,
+        Message.thread_id == thread_id
+    )
+    result = await db.execute(stmt)
+    message = result.scalar_one_or_none()
+
+    if not message:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Message not found"
+        )
+
+    # Delete message
+    await db.delete(message)
+    await db.commit()
+
+    return Response(status_code=status.HTTP_204_NO_CONTENT)

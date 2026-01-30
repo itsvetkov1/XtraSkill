@@ -5,7 +5,7 @@ Handles file upload, listing, viewing, and search for project documents.
 """
 
 from typing import List
-from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
+from fastapi import APIRouter, Depends, File, HTTPException, Response, status, UploadFile
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -196,3 +196,44 @@ async def search_project_documents(
         }
         for doc_id, filename, snippet, score in results
     ]
+
+
+@router.delete("/documents/{document_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_document(
+    document_id: str,
+    current_user: dict = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Delete a document.
+
+    Verifies user owns the project containing the document.
+
+    Args:
+        document_id: Document UUID
+        current_user: Authenticated user from JWT
+        db: Database session
+
+    Returns:
+        204 No Content on success
+
+    Raises:
+        404: Document not found or not owned by user
+    """
+    # Get document with project join to verify ownership
+    stmt = select(Document).join(Project).where(
+        Document.id == document_id,
+        Project.user_id == current_user["user_id"]
+    )
+    doc = (await db.execute(stmt)).scalar_one_or_none()
+    if not doc:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Document not found"
+        )
+
+    # Delete document
+    await db.delete(doc)
+    await db.commit()
+
+    return Response(status_code=status.HTTP_204_NO_CONTENT)

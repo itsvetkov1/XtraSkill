@@ -1,8 +1,9 @@
 # THREAD-001: Add Retry Mechanism for Failed AI Messages
 
 **Priority:** Critical
-**Status:** Open
+**Status:** Done
 **Component:** Conversation Screen
+**Completed:** 2026-01-30 (v1.6)
 
 ---
 
@@ -22,10 +23,10 @@ Error banner only shows "Dismiss" - no way to retry. User must retype their mess
 
 ## Acceptance Criteria
 
-- [ ] Error banner shows "Dismiss | Retry" actions
-- [ ] Retry resends the last user message
-- [ ] ConversationProvider stores last sent message for retry
-- [ ] Works for both network errors and API errors
+- [x] Error banner shows "Dismiss | Retry" actions
+- [x] Retry resends the last user message
+- [x] ConversationProvider stores last sent message for retry
+- [x] Works for both network errors and API errors
 
 ---
 

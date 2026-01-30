@@ -20,11 +20,11 @@
 
 | Priority | Total | Open | In Progress | Done |
 |----------|-------|------|-------------|------|
-| Critical | 6 | 6 | 0 | 0 |
+| Critical | 6 | 4 | 0 | 2 |
 | High | 10 | 10 | 0 | 0 |
 | Medium | 9 | 9 | 0 | 0 |
 | Low | 4 | 4 | 0 | 0 |
-| **Total** | **29** | **29** | **0** | **0** |
+| **Total** | **29** | **27** | **0** | **2** |
 
 ---
 
@@ -38,8 +38,8 @@ Work items ranked by impact, dependencies, and user value.
 | 2 | [US-004](US-004_unique-conversation-urls.md) | Unique conversation URLs | Critical | **Prerequisite** for US-001, US-002, NAV-001 |
 | 3 | [US-001](US-001_url-preservation-on-refresh.md) | URL preservation on refresh | Critical | Core navigation fix; depends on US-004 |
 | 4 | [US-003](US-003_auth-redirect-with-return-url.md) | Auth redirect with return URL | Critical | Login UX; prevents user frustration |
-| 5 | [THREAD-001](THREAD-001_retry-failed-messages.md) | Retry failed AI messages | Critical | Error recovery; prevents lost work |
-| 6 | [THREAD-002](THREAD-002_copy-ai-responses.md) | Copy AI responses | Critical | Core workflow; daily pain point |
+| 5 | [THREAD-001](THREAD-001_retry-failed-messages.md) | Retry failed AI messages | Critical | ~~Error recovery; prevents lost work~~ **DONE** |
+| 6 | [THREAD-002](THREAD-002_copy-ai-responses.md) | Copy AI responses | Critical | ~~Core workflow; daily pain point~~ **DONE** |
 | 7 | [THREAD-003](THREAD-003_rename-thread.md) | Rename thread after creation | High | Usability; many "Untitled" threads |
 | 8 | [THREAD-004](THREAD-004_network-interruption-streaming.md) | Handle network interruption | High | Data loss prevention |
 | 9 | [US-002](US-002_deep-link-support.md) | Deep link support | High | Sharing/bookmarking; depends on US-004 |
@@ -76,8 +76,8 @@ Blocking issues and core workflow problems. Address first.
 | 2 | [US-004](US-004_unique-conversation-urls.md) | Unique conversation URLs | Open | Router |
 | 3 | [US-001](US-001_url-preservation-on-refresh.md) | URL preservation on refresh | Open | Router |
 | 4 | [US-003](US-003_auth-redirect-with-return-url.md) | Auth redirect with return URL | Open | Auth |
-| 5 | [THREAD-001](THREAD-001_retry-failed-messages.md) | Retry failed AI messages | Open | Conversation |
-| 6 | [THREAD-002](THREAD-002_copy-ai-responses.md) | Copy AI responses | Open | Message Bubble |
+| 5 | [THREAD-001](THREAD-001_retry-failed-messages.md) | Retry failed AI messages | **Done** | Conversation |
+| 6 | [THREAD-002](THREAD-002_copy-ai-responses.md) | Copy AI responses | **Done** | Message Bubble |
 
 ---
 

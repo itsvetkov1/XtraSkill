@@ -1,8 +1,9 @@
 # THREAD-002: Add Copy Functionality for AI Responses
 
 **Priority:** Critical
-**Status:** Open
+**Status:** Done
 **Component:** Message Bubble
+**Completed:** 2026-01-30 (v1.6)
 
 ---
 
@@ -22,10 +23,10 @@ Message Bubble has "Selectable text" but no explicit copy button. Mobile users s
 
 ## Acceptance Criteria
 
-- [ ] Copy icon button visible on all assistant messages
-- [ ] Long-press menu includes "Copy" option (alongside Delete)
-- [ ] Copy action copies full message to clipboard
-- [ ] Snackbar confirms "Copied to clipboard"
+- [x] Copy icon button visible on all assistant messages
+- [x] Long-press menu includes "Copy" option (alongside Delete)
+- [x] Copy action copies full message to clipboard
+- [x] Snackbar confirms "Copied to clipboard"
 
 ---
 

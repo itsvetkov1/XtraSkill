@@ -1,211 +1,237 @@
-# Research Summary: v1.6 UX Quick Wins
+# Research Summary: v1.7 URL & Deep Links
 
-**Milestone:** v1.6 UX Quick Wins
-**Synthesized:** 2026-01-30
-**Confidence:** HIGH
+**Milestone:** v1.7 - URL & Deep Linking
+**Synthesized:** 2026-01-31
+**Overall Confidence:** HIGH
 
 ---
 
 ## Executive Summary
 
-The v1.6 UX Quick Wins milestone targets four well-established interaction patterns: message retry, clipboard copy, thread rename, and OAuth provider display. Research confirms all four features can be implemented using **zero new Flutter packages** -- the existing stack (Flutter SDK, Provider, Dio) provides everything needed. This is a low-risk, high-reward milestone with clear industry patterns to follow.
+The BA Assistant v1.7 deep linking milestone is a **configuration and pattern implementation project**, not a technology adoption project. The existing stack (GoRouter 17.0.1, Flutter 3.9+, path URL strategy via `usePathUrlStrategy()`) already provides everything needed. No new packages are required. The primary work involves extending the GoRouter redirect logic to preserve URLs through the OAuth authentication flow, adding nested thread routes (`/projects/:id/threads/:threadId`), and implementing proper 404 error handling.
 
-The recommended approach is to build frontend-only features first (copy button, retry mechanism, auth provider display) in parallel, then tackle the full-stack feature (thread rename) which requires a new backend endpoint. The most critical finding is that the retry mechanism requires careful state management to avoid the "duplicate message" problem -- storing failed message content separately and removing the failed message before retrying.
+The current codebase has a solid foundation but contains **one critical gap**: the redirect logic discards the user's intended destination when redirecting to login, causing all authenticated users to land on `/home` regardless of their original deep link target. The fix is well-documented in GoRouter patterns: capture `state.matchedLocation` (or `state.uri.toString()` for query params) into a `returnUrl` query parameter, preserve it through the OAuth flow via session storage, and redirect to it after authentication completes.
 
-Key risks are manageable: clipboard operations need cross-platform testing (especially web), TextEditingController disposal must follow existing codebase patterns to avoid memory leaks, and SnackBar behavior changes in recent Flutter versions require explicit duration settings. All pitfalls have documented prevention strategies.
+The main risks are **router recreation destroying URL state on refresh** (already mitigated by the `_routerInstance` pattern but needs verification), **infinite redirect loops** when extending the redirect logic (add defensive null returns), and **production server configuration** (path-based URLs require SPA rewrite rules). All risks have documented prevention strategies with high confidence. Mobile-specific deep linking (Android App Links, iOS Universal Links) should be deferred to post-v1.7 as web is the primary platform.
 
 ---
 
 ## Key Findings
 
-### Recommended Stack
+### From STACK-DEEP-LINKING.md
 
 | Technology | Decision | Rationale |
 |------------|----------|-----------|
-| Clipboard | Flutter SDK `Clipboard.setData()` | Built-in, cross-platform, no package needed |
-| Dialogs | Flutter SDK `showDialog()` + `AlertDialog` | Pattern already exists in codebase |
-| Retry | Provider state management | Extend existing `ConversationProvider` |
-| Auth Icons | Material Icons or text indicator | Avoid brand icon packages (2MB overhead) |
+| go_router 17.0.1 | KEEP | Full deep linking support built-in, no upgrade needed |
+| flutter_web_plugins | KEEP | `usePathUrlStrategy()` already configured in main.dart:74 |
+| provider 6.1.5 | KEEP | `refreshListenable` pattern already working for auth |
+| app_links | DO NOT ADD | Only needed for navigation stack preservation; overkill for URL sharing use case |
+| uni_links | DO NOT ADD | Deprecated in favor of app_links |
 
-**Critical:** No new dependencies required. Total new packages: 0.
+**Key insight:** Router instance already created correctly outside build() with `_isRouterInitialized` flag (main.dart:114-117). This pattern protects against rebuilds within widget lifecycle.
 
-**Backend API needed:** `PATCH /api/threads/{id}` endpoint for thread rename.
+### From FEATURES-v1.7-deep-linking.md
 
-### Feature Expectations
+**Table Stakes (Must Have v1.7):**
+| Feature | Complexity | Notes |
+|---------|------------|-------|
+| URL reflects current page | Low | Basic GoRoute definition for threads |
+| Refresh preserves location | Medium | Store/restore URL through auth flow |
+| Bookmarkable URLs | Low | Follows from correct route structure |
+| Auth redirect to intended destination | Medium | Query parameter pattern `?returnUrl=` |
+| 404 handling for invalid routes | Medium | Custom error page with navigation options |
+| Hierarchical URL structure | Low | `/projects/:id/threads/:threadId` nested routes |
 
-#### Table Stakes (Must Have for MVP)
+**Differentiators (Nice to Have v1.7):**
+- Copy current URL button (Low effort, high value)
+- Tab state in URL via query params (Medium effort)
 
-| Feature | Requirement | Complexity |
-|---------|-------------|------------|
-| Retry | Visual failure indicator (red icon) | Low |
-| Retry | Tap-to-retry preserves original message | Low |
-| Retry | Loading state during retry | Low |
-| Copy | Copy button on AI messages only | Low |
-| Copy | "Copied!" confirmation feedback | Low |
-| Rename | Rename from thread list menu | Low |
-| Rename | Pre-filled dialog with current title | Low |
-| Auth | Show provider name ("Signed in with Google") | Low |
+**Defer to v2.0:**
+- Mobile deep links (Android App Links, iOS Universal Links)
+- Link previews (Open Graph metadata)
+- Smart redirect with scroll/state preservation
 
-#### Differentiators (Nice-to-Have)
+**Anti-Features (Do NOT Build):**
+- Custom URL schemes (baassistant://) - insecure, unprofessional
+- Sensitive data in URLs - use opaque IDs only
+- Hash-based URLs - already using path strategy correctly
 
-| Feature | Value | Defer To |
-|---------|-------|----------|
-| Contextual error messages | Better UX than generic errors | Consider for v1.6 |
-| Haptic feedback on copy | Mobile polish | v2.0 |
-| Inline thread editing | No dialog needed | v2.0 |
-| Auto-retry on reconnection | Reduces manual effort | v2.0 |
-| Copy code blocks separately | Markdown parsing needed | v2.0 |
+### From ARCHITECTURE-v1.7-deep-linking.md
 
-#### Anti-Features (Do NOT Build)
+**Core Components:**
 
-- **Silent failure** -- Always show visible error indicator
-- **Copy on user messages** -- User already has their text
-- **Auto-rename without consent** -- Only rename on explicit action
-- **Blocking retry dialog** -- Use inline retry, not modal
+| Component | Responsibility | Changes Needed |
+|-----------|----------------|----------------|
+| GoRouter redirect | URL parsing, redirect decisions, returnUrl preservation | Extend to capture/forward returnUrl |
+| AuthProvider | Auth state, notifies router, holds returnUrl state | Add `_returnUrl` field and accessors |
+| AuthService | Token storage, OAuth flow | Add session storage for returnUrl before OAuth |
+| ConversationScreen | Display conversation | Accept both projectId and threadId params |
+| ThreadListScreen | List threads | Replace Navigator.push() with context.go() |
 
-### Architecture Approach
+**URL Storage Strategy:**
+1. Query parameter for splash/login transitions (visible for debugging)
+2. Session storage before OAuth redirect (survives external redirect)
+3. Retrieve from session storage after callback, navigate to stored URL
 
-**Component Changes by Feature:**
+**Breaking Changes:**
+- `ConversationScreen(threadId)` becomes `ConversationScreen(projectId, threadId)`
+- `Navigator.push()` calls in ThreadListScreen must become `context.go()` for URL sync
 
-| Feature | Components Affected | Backend Changes |
-|---------|---------------------|-----------------|
-| Retry | ConversationProvider, ConversationScreen | None |
-| Copy | MessageBubble only | None |
-| Rename | ThreadProvider, ThreadService, ThreadListScreen, Backend | New PATCH endpoint |
-| Auth Icon | AuthProvider (read existing), SettingsScreen | None |
+### From PITFALLS-v1.7-deep-linking.md
 
-**Data Flow Patterns:**
+**Critical Pitfalls (Cause rewrites/bugs):**
 
-1. **Retry:** Store failed message content in provider -> Remove failed message from list -> Resend via existing `sendMessage()`
-2. **Copy:** UI-only -> `Clipboard.setData()` -> Show SnackBar confirmation
-3. **Rename:** Optimistic UI update -> API call -> Rollback on failure
-4. **Auth Icon:** Read `oauth_provider` from existing `/auth/me` response -> Display icon
+| # | Pitfall | Prevention | Phase |
+|---|---------|------------|-------|
+| 1 | Router recreation destroys URL state | Create GoRouter outside widget tree, verify current pattern | Phase 1 |
+| 2 | Missing return URL after OAuth | Capture `state.uri.toString()` into `returnUrl` query param | Phase 2 |
+| 3 | StatefulShellRoute deep link branch conflict | Use parentNavigatorKey, test back navigation | Phase 1 |
+| 4 | iOS cold start deep link race condition | Handle "/" -> actual path gracefully, test on real devices | Phase 4 |
+| 5 | refreshListenable infinite redirect loop | Return null when already at target, never notify from redirect | Phase 2 |
 
-**Existing Patterns to Reuse:**
-- `ThreadCreateDialog` for dialog/controller pattern
-- Optimistic updates from delete flows
-- SnackBar feedback from existing features
-- Provider + Service separation
+**Moderate Pitfalls:**
 
-### Critical Pitfalls
-
-#### Critical Pitfalls (Must Prevent)
-
-| Pitfall | Risk | Prevention |
-|---------|------|------------|
-| Duplicate messages on retry | HIGH | Track failed message separately, remove before retry |
-| Clipboard silent failure | MEDIUM | Wrap in try-catch, show error SnackBar on failure |
-| TextEditingController memory leak | HIGH | Follow ThreadCreateDialog disposal pattern |
-
-#### Moderate Pitfalls (Plan For)
-
-| Pitfall | Risk | Prevention |
-|---------|------|------------|
-| Dialog build context issues | MEDIUM | Never call showDialog in build(), use callbacks |
-| SnackBar persistence changes | LOW | Set explicit duration, use clearSnackBars() |
-| OAuth brand violations | LOW | Use text indicator, avoid custom brand icons |
+| # | Pitfall | Prevention | Phase |
+|---|---------|------------|-------|
+| 6 | Path URL strategy needs server config | Document SPA rewrite rules, test production refresh | Phase 5 |
+| 7 | No 404 handling for invalid deep links | Add errorBuilder to GoRouter, screen-level resource validation | Phase 3 |
+| 8 | URL fragment loss with OAuth | Capture fragment before usePathUrlStrategy(), verify OAuth works | Phase 2 |
+| 9 | Back navigation history corruption | Design decision: go() replaces stack, consider manual stack construction | Phase 3 |
+| 10 | Query parameters lost in redirect | Use `state.uri.toString()` not `state.matchedLocation` | Phase 2 |
 
 ---
 
-## Implications for Roadmap
+## Recommended Phase Structure
 
-### Recommended Phase Structure
+Based on combined research analysis, the v1.7 milestone should be structured into **4 phases** with dependencies flowing sequentially:
 
-Based on dependencies and complexity analysis:
+### Phase 1: Route Architecture Foundation
 
-```
-Phase 1: Copy AI Response (THREAD-002)       [Frontend-only, no dependencies]
-Phase 2: Retry Failed Message (THREAD-001)   [Frontend-only, provider changes]
-Phase 3: Auth Provider Display (SETTINGS-001) [Frontend-only, read existing data]
-Phase 4: Thread Rename (THREAD-003)          [Full-stack, backend endpoint needed]
-```
-
-### Phase Details
-
-#### Phase 1: Copy AI Response
-
-**Rationale:** Lowest complexity, highest immediate value. Users currently rely on manual text selection.
+**Rationale:** All other features depend on stable URL state and correct route structure. Must be bulletproof before adding auth complexity.
 
 **Delivers:**
-- Copy button on assistant message bubbles
-- "Copied to clipboard" SnackBar confirmation
-- Cross-platform clipboard support
+- Nested thread routes: `/projects/:id/threads/:threadId`
+- Verified router instance stability on refresh
+- errorBuilder for 404 states (route-level)
+- Debug logging enabled (`debugLogDiagnostics: kDebugMode`)
 
-**Pitfalls to Avoid:**
-- Silent clipboard failure (use try-catch)
-- Copy button on user messages (filter to assistant only)
+**Features from research:**
+- Hierarchical URL structure (table stakes)
+- 404 handling for invalid routes (partial - route-level)
 
-**Estimated Effort:** 1-2 hours
+**Pitfalls to avoid:**
+- #1 Router Recreation Destroys URL State
+- #3 StatefulShellRoute Deep Link Branch Conflict
+- #11 Missing Debug Logging
 
-#### Phase 2: Retry Failed Message
+**Research needed:** NO - well-documented GoRouter patterns
 
-**Rationale:** Essential error recovery. Must be implemented carefully to avoid duplicate message bug.
+---
 
-**Delivers:**
-- Failed message state tracking in ConversationProvider
-- Retry button in error banner
-- Clear error state on successful retry
+### Phase 2: Auth Flow with URL Preservation
 
-**Pitfalls to Avoid:**
-- Duplicate messages (remove failed message before retry)
-- Retry during streaming (check isStreaming)
-
-**Estimated Effort:** 2-3 hours
-
-#### Phase 3: Auth Provider Display
-
-**Rationale:** Simple read-only feature. Backend already returns `oauth_provider` in `/auth/me`.
+**Rationale:** Depends on Phase 1 route stability. This is the highest-value change - makes deep links actually work for logged-out users.
 
 **Delivers:**
-- "Signed in with Google/Microsoft" text in Settings
-- Optional provider icon (Material Icons)
+- returnUrl capture in redirect logic
+- Session storage integration for OAuth flow
+- Full URL preservation including query parameters
+- Login screen reads and uses returnUrl
+- Callback screen restores returnUrl after OAuth
 
-**Pitfalls to Avoid:**
-- Brand guideline violations (use text or generic icons)
-- Missing oauth_provider field in AuthProvider state
+**Features from research:**
+- Auth redirect to intended destination (table stakes)
+- URL reflects current page through auth flow (table stakes)
 
-**Estimated Effort:** 30 minutes - 1 hour
+**Pitfalls to avoid:**
+- #2 Missing Return URL After OAuth
+- #5 refreshListenable Infinite Redirect Loop
+- #8 URL Fragment Loss with OAuth
+- #10 Query Parameters Lost in Redirect
 
-#### Phase 4: Thread Rename
+**Research needed:** NO - standard GoRouter redirect patterns
 
-**Rationale:** Full-stack feature. Requires backend endpoint first, then frontend integration.
+---
+
+### Phase 3: Screen-Level URL Integration
+
+**Rationale:** Depends on routes (Phase 1) and auth flow (Phase 2). This phase connects the URL structure to actual screen behavior.
 
 **Delivers:**
-- Backend `PATCH /api/threads/{id}` endpoint
-- Rename option in thread popup menu
-- Rename dialog (based on ThreadCreateDialog pattern)
-- Optimistic UI update with rollback
+- ConversationScreen accepts projectId + threadId from URL
+- ThreadListScreen uses `context.go()` instead of Navigator.push()
+- Resource-level 404 states (project not found, thread not found)
+- Proper back navigation from deep-linked screens
 
-**Pitfalls to Avoid:**
-- TextEditingController memory leak (follow disposal pattern)
-- Empty title validation (decide on rules)
+**Features from research:**
+- URL reflects current page (table stakes - completion)
+- Bookmarkable URLs (table stakes - completion)
+- 404 handling for invalid routes (table stakes - resource-level)
 
-**Estimated Effort:** 3-4 hours (1hr backend, 2-3hr frontend)
+**Pitfalls to avoid:**
+- #7 No 404 Handling for Invalid Deep Links
+- #9 Back Navigation History Corruption
+- #13 Missing URL Encoding for IDs
 
-### Research Flags
+**Research needed:** NO - standard screen implementation patterns
 
-| Phase | Research Needed | Why |
-|-------|-----------------|-----|
-| Phase 1 (Copy) | None | Standard pattern, well-documented |
-| Phase 2 (Retry) | None | Codebase already has error handling infrastructure |
-| Phase 3 (Auth) | None | Backend already returns needed data |
-| Phase 4 (Rename) | Minimal | Backend endpoint straightforward, matches existing patterns |
+---
 
-**All phases use well-documented patterns.** No additional research needed before implementation.
+### Phase 4: Testing & Validation
 
-### Build Order Dependencies
+**Rationale:** Comprehensive testing after all features implemented. Includes platform-specific edge cases.
 
-```
-Independent (can run in parallel):
-- Phase 1: Copy AI Response
-- Phase 2: Retry Failed Message
-- Phase 3: Auth Provider Display
+**Delivers:**
+- Browser refresh preserves URL (all route types)
+- Deep link from external source works
+- Auth redirect with return URL (full flow)
+- Invalid route/resource handling verified
+- Documentation for production deployment (SPA rewrite rules)
 
-Sequential (must wait):
-- Phase 4: Thread Rename (backend first, then frontend)
-```
+**Features from research:**
+- Refresh preserves location (table stakes - verification)
+- All table stakes verified end-to-end
 
-**Recommendation:** Execute Phases 1-3 in parallel, then Phase 4.
+**Pitfalls to avoid:**
+- #4 iOS Cold Start Deep Link Race Condition
+- #6 Path URL Strategy Requires Server Configuration
+- #12 Route Path Typos in Deep Link Configuration
+
+**Research needed:** MAYBE - if iOS/Android native deep links added later
+
+---
+
+## Critical Pitfalls to Address (Top 5)
+
+### 1. Router Recreation Destroys URL State (CRITICAL)
+**Phase:** 1
+**Risk:** After page refresh, app briefly loads correct URL then redirects to /home
+**Prevention:** Verify `_routerInstance` pattern survives full page refresh; consider moving to top-level final variable
+**Test:** Navigate to `/projects/abc/threads/xyz`, F5 refresh, verify URL maintained
+
+### 2. Missing Return URL After OAuth (CRITICAL)
+**Phase:** 2
+**Risk:** Users always land on /home after OAuth, losing their deep link destination
+**Prevention:** Capture `state.uri.toString()` into `returnUrl` param, store in session storage before OAuth, restore after callback
+**Test:** Deep link while logged out, complete OAuth, verify landing on original URL
+
+### 3. refreshListenable Infinite Redirect Loop (CRITICAL)
+**Phase:** 2
+**Risk:** App freezes, browser tab crashes due to redirect loop
+**Prevention:** Always return null when already at correct location; never call notifyListeners() from redirect; add defensive checks
+**Test:** Login/logout cycles with slow network simulation
+
+### 4. Path URL Strategy Server Configuration (CRITICAL for Production)
+**Phase:** 4 (document in Phase 1)
+**Risk:** Production deployment returns 404 on any URL refresh
+**Prevention:** Document SPA rewrite rules for common servers (Firebase, nginx, Apache); test staging deployment
+**Test:** Deploy to staging, refresh on nested route
+
+### 5. StatefulShellRoute Deep Link Branch Conflict (HIGH)
+**Phase:** 1
+**Risk:** Back button skips expected screens after deep link, navigation history corrupted
+**Prevention:** Test back navigation explicitly; use parentNavigatorKey if needed; verify tab switching preserves state
+**Test:** Deep link to thread, press back, verify you reach project detail (not home)
 
 ---
 
@@ -213,52 +239,79 @@ Sequential (must wait):
 
 | Area | Confidence | Notes |
 |------|------------|-------|
-| Stack | HIGH | All features use Flutter SDK built-ins, no new packages |
-| Features | HIGH | Patterns verified across ChatGPT, Claude, Slack competitors |
-| Architecture | HIGH | Fits cleanly into existing Provider architecture |
-| Pitfalls | HIGH | Documented from official Flutter docs and codebase analysis |
+| Stack | HIGH | No new packages needed; GoRouter 17.0.1 is feature-complete for this use case |
+| Features | HIGH | Table stakes are well-defined; official Flutter/GoRouter docs cover all patterns |
+| Architecture | HIGH | Existing codebase has correct foundation; changes are incremental |
+| Pitfalls | HIGH | GitHub issues document real bugs with verified solutions |
 
-### Gaps to Address
+### Research Gaps
 
-1. **Message status field:** Current `Message` model lacks `status` enum (pending/sent/failed). May need to add for clean retry implementation, or use separate tracking in provider.
+1. **Production server configuration** - Exact deployment target not confirmed (Firebase? nginx? Vercel?). Document multiple options, confirm during Phase 4.
 
-2. **Thread rename endpoint:** Backend `PATCH /api/threads/{id}` does not exist. Must be created following existing endpoint patterns.
+2. **iOS cold start timing** - Testing only possible on real iOS devices. May need adjustment if flash of wrong screen occurs.
 
-3. **OAuth provider in AuthProvider:** Field exists in backend response but not stored in frontend state. Simple addition to `handleCallback()` and `checkAuthStatus()`.
-
----
-
-## Total Estimated Effort
-
-| Phase | Feature | Backend | Frontend | Total |
-|-------|---------|---------|----------|-------|
-| 1 | Copy | 0h | 1-2h | 1-2h |
-| 2 | Retry | 0h | 2-3h | 2-3h |
-| 3 | Auth Display | 0h | 0.5-1h | 0.5-1h |
-| 4 | Rename | 1h | 2-3h | 3-4h |
-| **Total** | | **1h** | **5.5-9h** | **6.5-10h** |
+3. **Query parameter encoding edge cases** - If project/thread IDs ever contain special characters, additional encoding may be needed. Current UUIDs should be safe.
 
 ---
 
-## Sources
+## Implications for Roadmap
 
-### Official Documentation
-- [Flutter Clipboard API](https://api.flutter.dev/flutter/services/Clipboard-class.html)
-- [Flutter showDialog](https://api.flutter.dev/flutter/material/showDialog.html)
-- [Flutter SnackBar Breaking Change](https://docs.flutter.dev/release/breaking-changes/snackbar-with-action-behavior-update)
-- [Google Sign-In Branding](https://developers.google.com/identity/branding-guidelines)
+### Phase Dependencies
 
-### UX Pattern References
-- [Mobbin - Error Message Patterns](https://mobbin.com/glossary/error-message)
-- [PatternFly - Clipboard Copy](https://www.patternfly.org/components/clipboard-copy/)
-- [Atlassian - Inline Edit](https://atlassian.design/components/inline-edit/)
-- [Stream - Chat UX Best Practices](https://getstream.io/blog/chat-ux/)
+```
+Phase 1: Route Architecture  -->  Phase 2: Auth Flow  -->  Phase 3: Screen Integration  -->  Phase 4: Testing
+   |                                    |
+   +-- Must be stable first            +-- Highest user value
+```
 
-### Community Resources
-- [DCM Blog - 15 Common Flutter Mistakes 2025](https://dcm.dev/blog/2025/03/24/fifteen-common-mistakes-flutter-dart-development)
-- [LogRocket - Copy to Clipboard Flutter](https://blog.logrocket.com/implementing-copy-clipboard-flutter/)
-- [Flutter Mastery - Error Handling and Retry](https://fluttermasterylibrary.com/6/9/2/3/)
+### Phase Research Flags
+
+| Phase | Needs `/gsd:research-phase`? | Rationale |
+|-------|------------------------------|-----------|
+| Phase 1 | NO | Standard GoRouter nested routes |
+| Phase 2 | NO | Standard redirect patterns |
+| Phase 3 | NO | Standard screen implementation |
+| Phase 4 | MAYBE | If iOS/Android native deep links added |
+
+### Estimated Complexity
+
+- **Phase 1:** Low complexity, high importance (foundation)
+- **Phase 2:** Medium complexity (redirect logic, session storage)
+- **Phase 3:** Low complexity (screen changes, navigation updates)
+- **Phase 4:** Low complexity (testing, documentation)
+
+### Key Decision Points
+
+1. **Back navigation behavior:** When user deep links to thread, should back button:
+   - Go to parent project detail? (Recommended - matches URL hierarchy)
+   - Go nowhere/close? (Current go() behavior)
+
+2. **Copy URL button:** Include in v1.7 (low effort) or defer?
+
+3. **Query param state:** Include tab state in URL (`?tab=threads`) in v1.7 or defer?
 
 ---
 
-*Research synthesis complete. All four UX features are achievable with existing stack. Ready for roadmap creation.*
+## Sources (Aggregated)
+
+### Official Documentation (HIGH Confidence)
+- [go_router package](https://pub.dev/packages/go_router) - v17.0.1 reference
+- [Flutter Deep Linking](https://docs.flutter.dev/ui/navigation/deep-linking)
+- [Flutter URL Strategies](https://docs.flutter.dev/ui/navigation/url-strategies)
+- [GoRouter Error Handling](https://pub.dev/documentation/go_router/latest/topics/Error%20handling-topic.html)
+- [GoRouter Redirection](https://pub.dev/documentation/go_router/latest/topics/Redirection-topic.html)
+
+### Verified GitHub Issues (HIGH Confidence)
+- [Router recreation URL loss #172026](https://github.com/flutter/flutter/issues/172026)
+- [Nested app refresh loses route #114597](https://github.com/flutter/flutter/issues/114597)
+- [StatefulShellRoute deep link conflict #134373](https://github.com/flutter/flutter/issues/134373)
+- [Infinite redirect loops #118061](https://github.com/flutter/flutter/issues/118061)
+- [PathUrlStrategy 404 on refresh #107996](https://github.com/flutter/flutter/issues/107996)
+
+### Community Resources (MEDIUM Confidence)
+- [CodeWithAndrea Deep Links Guide](https://codewithandrea.com/articles/flutter-deep-links/)
+- [Flutter Auth Flow with GoRouter](https://blog.ishangavidusha.com/flutter-authentication-flow-with-go-router-and-provider)
+
+---
+
+*Synthesized from: STACK-DEEP-LINKING.md, FEATURES-v1.7-deep-linking.md, ARCHITECTURE-v1.7-deep-linking.md, PITFALLS-v1.7-deep-linking.md*

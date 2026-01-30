@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-01-30)
 
 ## Current Position
 
-Phase: 14 - Thread Rename (In Progress)
-Plan: 01 of 4 complete
-Status: Backend endpoint complete, frontend remaining
-Last activity: 2026-01-30 - Completed 14-01-PLAN.md
+Phase: 14 - Thread Rename (Complete)
+Plan: 02 of 02 complete
+Status: Phase complete - thread rename feature fully functional
+Last activity: 2026-01-30 - Completed 14-02-PLAN.md
 
-Progress: [################----] 4/5 phases complete (v1.6)
+Progress: [####################] 5/5 phases complete (v1.6)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 38 (20 in MVP v1.0, 15 in Beta v1.5, 3 in UX v1.6)
-- Average duration: ~18 minutes (MVP v1.0), ~7 minutes (Beta v1.5), ~3 minutes (UX v1.6)
+- Total plans completed: 39 (20 in MVP v1.0, 15 in Beta v1.5, 4 in UX v1.6)
+- Average duration: ~18 minutes (MVP v1.0), ~7 minutes (Beta v1.5), ~5 minutes (UX v1.6)
 - Total execution time: ~6 hours (MVP v1.0), ~90 minutes (Beta v1.5)
 
 **By Milestone:**
@@ -30,7 +30,7 @@ Progress: [################----] 4/5 phases complete (v1.6)
 |-----------|--------|-------|--------|
 | MVP v1.0 | 1-5 (includes 4.1) | 20/20 | Complete (2026-01-28) |
 | Beta v1.5 | 6-10 | 15/15 | Complete (2026-01-30) |
-| UX v1.6 | 11-14 | 4/? | In Progress |
+| UX v1.6 | 11-14 | 4/4 | Complete (2026-01-30) |
 
 ## Accumulated Context
 
@@ -51,17 +51,17 @@ Previous milestone decisions archived in .planning/milestones/v1.5-ROADMAP.md.
 1. Copy (simplest, highest immediate value) - COMPLETE
 2. Retry (provider changes, must avoid duplicate message bug) - COMPLETE
 3. Auth Display (simple read-only) - COMPLETE
-4. Thread Rename (full-stack, backend first) - IN PROGRESS
+4. Thread Rename (full-stack, backend first) - COMPLETE
 
 **Phase 14 decisions:**
 - Use PATCH (not PUT) for partial title update
 - Return 404 for non-owner (security: don't leak existence)
+- Preserve messageCount when updating thread in provider (API doesn't return it)
+- Reload thread in ConversationProvider after rename (separate state copy)
 
 ### Pending Todos
 
-- Plan 14-02: Frontend ThreadService.renameThread() method
-- Plan 14-03: Frontend ThreadProvider.renameThread() with optimistic UI
-- Plan 14-04: Frontend rename dialog and UI entry points
+None - v1.6 milestone complete.
 
 ### Blockers/Concerns
 
@@ -70,9 +70,9 @@ None active.
 ## Session Continuity
 
 Last session: 2026-01-30
-Stopped at: Completed Phase 14-01
+Stopped at: Completed Phase 14-02 (v1.6 milestone complete)
 Resume file: None
-Next action: `/gsd:execute-plan 14-02` - Execute frontend service plan
+Next action: Plan next milestone or user testing
 
 ---
 

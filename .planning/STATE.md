@@ -11,16 +11,16 @@ See: .planning/PROJECT.md (updated 2026-01-29)
 ## Current Position
 
 Phase: 10 of 10 (Polish & Empty States)
-Plan: 2 of 5 in current phase
+Plan: 4 of 5 in current phase
 Status: In progress
-Last activity: 2026-01-30 — Completed 10-01-PLAN.md (Foundation Infrastructure) and 10-02-PLAN.md (Home Screen Redesign)
+Last activity: 2026-01-30 — Completed 10-04-PLAN.md (Conversation UI Enhancements)
 
-Progress: [██████████████████░░] 92% (9/10 phases, 2/5 plans in Phase 10)
+Progress: [███████████████████░] 96% (9/10 phases, 4/5 plans in Phase 10)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 30 (20 in MVP v1.0, 10 in Beta v1.5)
+- Total plans completed: 32 (20 in MVP v1.0, 12 in Beta v1.5)
 - Average duration: ~18 minutes (MVP v1.0), ~7 minutes (Beta v1.5)
 - Total execution time: ~6 hours (MVP v1.0), ~85 minutes (Beta v1.5)
 
@@ -29,7 +29,7 @@ Progress: [██████████████████░░] 92% (9/
 | Milestone | Phases | Plans | Status |
 |-----------|--------|-------|--------|
 | MVP v1.0 | 1-5 (includes 4.1) | 20/20 | Complete (2026-01-28) |
-| Beta v1.5 | 6-10 | 10/TBD | In progress (09 complete) |
+| Beta v1.5 | 6-10 | 12/TBD | In progress (10 in progress) |
 
 **Recent Trend:**
 - MVP v1.0 completed successfully (all 41 requirements delivered)
@@ -41,6 +41,8 @@ Progress: [██████████████████░░] 92% (9/
 - Plan 09-02 completed: Frontend deletion services and providers with optimistic UI and undo
 - Plan 09-03 completed: UI integration with delete buttons, confirmation dialogs, post-delete navigation
 - Plan 10-01 completed: Foundation infrastructure (DateFormatter utility + EmptyState widget)
+- Plan 10-02 completed: Home screen redesign with user greeting and relative timestamps
+- Plan 10-04 completed: Conversation UI enhancements (ModeSelector widget + MessageBubble readability)
 
 ## Accumulated Context
 
@@ -76,6 +78,8 @@ Recent decisions affecting current work:
 - **Phase 10:** Greeting fallback: displayName -> email prefix -> "there" for graceful degradation
 - **Phase 10:** 7-day threshold for relative vs absolute dates (timeago for <7 days, intl DateFormat for >=7 days)
 - **Phase 10:** EmptyState widget: FilledButton.icon CTA per Material 3, 64px themed icon
+- **Phase 10:** ActionChip (not ChoiceChip) for mode selection since it's tap-action not toggle-selection
+- **Phase 10:** Explicit typography sizing (15px font, 1.4 line height) for consistent readability
 
 ### Pending Todos
 
@@ -95,6 +99,6 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-01-30
-Stopped at: Completed 10-01-PLAN.md (Foundation Infrastructure)
+Stopped at: Completed 10-04-PLAN.md (Conversation UI Enhancements)
 Resume file: None
-Next action: Execute 10-03-PLAN.md (Empty States for List Screens)
+Next action: Execute 10-03-PLAN.md (Empty States for List Screens) or 10-05-PLAN.md (Documents Empty State)

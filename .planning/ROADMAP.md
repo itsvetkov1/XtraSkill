@@ -336,7 +336,7 @@ Plans:
 - ONBOARD-05: Home screen removes development phase information ("Next Steps") and displays user-oriented welcome
 - CONV-UI-01: AI mode selection presents as clickable ChoiceChip buttons (Meeting Mode, Document Refinement Mode) instead of typed "A"/"B" responses
 - CONV-UI-02: Message pills have improved readability (increased padding, font size 15-16px)
-- CONV-UI-03: Thread list items display mode indicator (chip or colored dot showing which mode was used)
+- CONV-UI-03: Thread list items display mode indicator (chip or colored dot showing which mode was used) [LOW - deferred]
 - POLISH-01: Date/time formatting is consistent: relative for recent (<7 days: "4d ago", "Yesterday"), absolute for older (>7 days: "Jan 18, 2026")
 - POLISH-02: Project detail headers are consolidated to reduce vertical space waste (single line name + metadata, not duplicate)
 - POLISH-03: Thread list items show preview text (first line of last message, truncated to 80 chars)
@@ -350,11 +350,14 @@ Plans:
 4. User views thread list and sees preview "User wants authentication with social login..." under thread title
 5. User sees consistent dates: threads from today show "2h ago", threads from last week show "Jan 22, 2026"
 
-**Plans:** TBD
+**Plans:** 5 plans
 
 Plans:
-- [ ] 10-01: [TBD during planning]
-- [ ] 10-02: [TBD during planning]
+- [ ] 10-01-PLAN.md — DateFormatter utility + EmptyState widget infrastructure
+- [ ] 10-02-PLAN.md — Home screen redesign with user greeting and action buttons
+- [ ] 10-03-PLAN.md — Update list screens to use EmptyState widget
+- [ ] 10-04-PLAN.md — Conversation enhancements (mode selector, message readability)
+- [ ] 10-05-PLAN.md — Visual polish (dates, previews, badges, header consolidation)
 
 ---
 
@@ -375,7 +378,7 @@ Phases execute in numeric order: 6 → 7 → 8 → 9 → 10
 | 7. Responsive Navigation Infrastructure | Beta v1.5 | 3/3 | Complete | 2026-01-29 |
 | 8. Settings Page & User Preferences | Beta v1.5 | 2/2 | Complete | 2026-01-29 |
 | 9. Deletion Flows with Undo | Beta v1.5 | 3/3 | Complete | 2026-01-30 |
-| 10. Polish & Empty States | Beta v1.5 | 0/TBD | Not started | - |
+| 10. Polish & Empty States | Beta v1.5 | 0/5 | Planned | - |
 
 ---
 
@@ -390,4 +393,4 @@ Phases execute in numeric order: 6 → 7 → 8 → 9 → 10
 ---
 
 *Last updated: 2026-01-30*
-*Status: Beta v1.5 Phase 9 complete, Phase 10 ready for planning*
+*Status: Beta v1.5 Phase 10 planned, ready for execution*

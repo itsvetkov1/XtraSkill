@@ -123,6 +123,11 @@ class _ConversationScreenState extends State<ConversationScreen> {
                       onPressed: provider.clearError,
                       child: const Text('Dismiss'),
                     ),
+                    if (provider.canRetry)
+                      TextButton(
+                        onPressed: provider.retryLastMessage,
+                        child: const Text('Retry'),
+                      ),
                   ],
                 ),
 

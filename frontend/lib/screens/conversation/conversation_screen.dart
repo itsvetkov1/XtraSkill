@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import '../../models/message.dart';
 import '../../providers/conversation_provider.dart';
 import '../../widgets/delete_confirmation_dialog.dart';
+import '../../widgets/mode_selector.dart';
 import 'widgets/chat_input.dart';
 import 'widgets/message_bubble.dart';
 import 'widgets/streaming_message.dart';
@@ -148,32 +149,43 @@ class _ConversationScreenState extends State<ConversationScreen> {
     final messages = provider.messages;
 
     if (messages.isEmpty && !provider.isStreaming) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(32),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                Icons.chat_bubble_outline,
-                size: 64,
-                color: Theme.of(context).colorScheme.outline,
+      return SingleChildScrollView(
+        child: Column(
+          children: [
+            // Guidance text
+            Padding(
+              padding: const EdgeInsets.all(32),
+              child: Column(
+                children: [
+                  Icon(
+                    Icons.chat_bubble_outline,
+                    size: 64,
+                    color: Theme.of(context).colorScheme.outline,
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Start a conversation',
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Choose a mode to begin, or just start typing to ask about your requirements.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(height: 16),
-              Text(
-                'Start a conversation',
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'Ask about your requirements and I\'ll help identify edge cases, suggest clarifications, and reference your project documents.',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
-              ),
-            ],
-          ),
+            ),
+            // Mode selector below
+            ModeSelector(
+              onModeSelected: (mode) {
+                // Send mode selection as user message
+                provider.sendMessage(mode);
+              },
+            ),
+          ],
         ),
       );
     }

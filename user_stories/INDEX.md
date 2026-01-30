@@ -21,10 +21,10 @@
 | Priority | Total | Open | In Progress | Done |
 |----------|-------|------|-------------|------|
 | Critical | 6 | 4 | 0 | 2 |
-| High | 10 | 10 | 0 | 0 |
+| High | 10 | 9 | 0 | 1 |
 | Medium | 9 | 9 | 0 | 0 |
 | Low | 4 | 4 | 0 | 0 |
-| **Total** | **29** | **27** | **0** | **2** |
+| **Total** | **29** | **26** | **0** | **3** |
 
 ---
 
@@ -40,7 +40,7 @@ Work items ranked by impact, dependencies, and user value.
 | 4 | [US-003](US-003_auth-redirect-with-return-url.md) | Auth redirect with return URL | Critical | Login UX; prevents user frustration |
 | 5 | [THREAD-001](THREAD-001_retry-failed-messages.md) | Retry failed AI messages | Critical | ~~Error recovery; prevents lost work~~ **DONE** |
 | 6 | [THREAD-002](THREAD-002_copy-ai-responses.md) | Copy AI responses | Critical | ~~Core workflow; daily pain point~~ **DONE** |
-| 7 | [THREAD-003](THREAD-003_rename-thread.md) | Rename thread after creation | High | Usability; many "Untitled" threads |
+| 7 | [THREAD-003](THREAD-003_rename-thread.md) | Rename thread after creation | High | ~~Usability; many "Untitled" threads~~ **DONE** |
 | 8 | [THREAD-004](THREAD-004_network-interruption-streaming.md) | Handle network interruption | High | Data loss prevention |
 | 9 | [US-002](US-002_deep-link-support.md) | Deep link support | High | Sharing/bookmarking; depends on US-004 |
 | 10 | [DELETE-001](DELETE-001_undo-behavior.md) | Consistent undo behavior | High | UX consistency across resources |
@@ -87,7 +87,7 @@ High-value features and UX improvements.
 
 | Rank | ID | Title | Status | Component |
 |------|-----|-------|--------|-----------|
-| 7 | [THREAD-003](THREAD-003_rename-thread.md) | Rename thread after creation | Open | Thread List |
+| 7 | [THREAD-003](THREAD-003_rename-thread.md) | Rename thread after creation | **Done** | Thread List |
 | 8 | [THREAD-004](THREAD-004_network-interruption-streaming.md) | Handle network interruption | Open | Streaming |
 | 9 | [US-002](US-002_deep-link-support.md) | Deep link support | Open | Router |
 | 10 | [DELETE-001](DELETE-001_undo-behavior.md) | Consistent undo behavior | Open | Deletion |

@@ -1,8 +1,9 @@
 # THREAD-003: Add Ability to Rename Thread After Creation
 
 **Priority:** Critical
-**Status:** Open
+**Status:** Done
 **Component:** Conversation Screen, Thread List
+**Completed:** 2026-01-30 (v1.6)
 
 ---
 
@@ -22,10 +23,10 @@ Thread title can only be set at creation. Users end up with many "Untitled" thre
 
 ## Acceptance Criteria
 
-- [ ] Edit icon in ConversationScreen AppBar opens rename dialog
-- [ ] "Rename" option added to Thread List PopupMenu
-- [ ] Pre-fills current title in text field
-- [ ] Empty title defaults to "Untitled"
+- [x] Edit icon in ConversationScreen AppBar opens rename dialog
+- [x] "Rename" option added to Thread List PopupMenu
+- [x] Pre-fills current title in text field
+- [x] Empty title defaults to "Untitled"
 
 ---
 

@@ -70,26 +70,26 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| RETRY-01 | TBD | Pending |
-| RETRY-02 | TBD | Pending |
-| RETRY-03 | TBD | Pending |
-| RETRY-04 | TBD | Pending |
-| COPY-01 | TBD | Pending |
-| COPY-02 | TBD | Pending |
-| COPY-03 | TBD | Pending |
-| COPY-04 | TBD | Pending |
-| THREAD-01 | TBD | Pending |
-| THREAD-02 | TBD | Pending |
-| THREAD-03 | TBD | Pending |
-| THREAD-04 | TBD | Pending |
-| SETTINGS-01 | TBD | Pending |
-| SETTINGS-02 | TBD | Pending |
+| COPY-01 | Phase 11 | Pending |
+| COPY-02 | Phase 11 | Pending |
+| COPY-03 | Phase 11 | Pending |
+| COPY-04 | Phase 11 | Pending |
+| RETRY-01 | Phase 12 | Pending |
+| RETRY-02 | Phase 12 | Pending |
+| RETRY-03 | Phase 12 | Pending |
+| RETRY-04 | Phase 12 | Pending |
+| SETTINGS-01 | Phase 13 | Pending |
+| SETTINGS-02 | Phase 13 | Pending |
+| THREAD-01 | Phase 14 | Pending |
+| THREAD-02 | Phase 14 | Pending |
+| THREAD-03 | Phase 14 | Pending |
+| THREAD-04 | Phase 14 | Pending |
 
 **Coverage:**
 - v1 requirements: 14 total
-- Mapped to phases: 0
-- Unmapped: 14
+- Mapped to phases: 14
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-01-30*
-*Last updated: 2026-01-30 after initial definition*
+*Last updated: 2026-01-30 after roadmap creation*

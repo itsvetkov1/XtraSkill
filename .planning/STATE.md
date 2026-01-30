@@ -6,16 +6,16 @@ See: .planning/PROJECT.md (updated 2026-01-30)
 
 **Core value:** Business analysts reduce time spent on requirement documentation while improving completeness through AI-assisted discovery conversations that systematically explore edge cases and generate production-ready artifacts.
 
-**Current focus:** Planning next milestone (v2.0)
+**Current focus:** v1.6 UX Quick Wins - Reduce friction in conversation workflow
 
 ## Current Position
 
-Phase: Milestone complete
+Phase: 11 - Copy AI Response (Pending)
 Plan: None active
-Status: Ready for next milestone
-Last activity: 2026-01-30 — v1.5 milestone complete
+Status: Ready to plan Phase 11
+Last activity: 2026-01-30 - Roadmap created for v1.6
 
-Progress: Beta v1.5 shipped. Planning v2.0.
+Progress: [--------------------] 0/4 phases complete
 
 ## Performance Metrics
 
@@ -30,17 +30,32 @@ Progress: Beta v1.5 shipped. Planning v2.0.
 |-----------|--------|-------|--------|
 | MVP v1.0 | 1-5 (includes 4.1) | 20/20 | Complete (2026-01-28) |
 | Beta v1.5 | 6-10 | 15/15 | Complete (2026-01-30) |
+| UX v1.6 | 11-14 | 0/? | In Progress |
 
 ## Accumulated Context
 
 ### Decisions
 
 Decisions are logged in PROJECT.md Key Decisions table.
-All milestone decisions archived in .planning/milestones/v1.5-ROADMAP.md.
+Previous milestone decisions archived in .planning/milestones/v1.5-ROADMAP.md.
+
+### v1.6 Context
+
+**Research findings:**
+- Zero new packages needed (Flutter SDK sufficient)
+- Phases 11-13 are frontend-only, can parallelize
+- Phase 14 (Thread Rename) requires backend PATCH endpoint
+- Key pitfall: Retry requires careful state tracking to avoid duplicate messages
+
+**Phase ordering rationale:**
+1. Copy (simplest, highest immediate value)
+2. Retry (provider changes, must avoid duplicate message bug)
+3. Auth Display (simple read-only)
+4. Thread Rename (full-stack, backend first)
 
 ### Pending Todos
 
-None — milestone complete.
+None - ready to plan first phase.
 
 ### Blockers/Concerns
 
@@ -49,6 +64,10 @@ None active.
 ## Session Continuity
 
 Last session: 2026-01-30
-Stopped at: Completed v1.5 milestone
+Stopped at: Roadmap created
 Resume file: None
-Next action: `/gsd:new-milestone` — start v2.0 planning
+Next action: `/gsd:plan-phase 11` - Plan Copy AI Response phase
+
+---
+
+*State updated: 2026-01-30*

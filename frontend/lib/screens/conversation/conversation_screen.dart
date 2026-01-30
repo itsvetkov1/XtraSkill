@@ -8,6 +8,7 @@ import '../../models/message.dart';
 import '../../providers/conversation_provider.dart';
 import '../../widgets/delete_confirmation_dialog.dart';
 import '../../widgets/mode_selector.dart';
+import '../threads/thread_rename_dialog.dart';
 import 'widgets/chat_input.dart';
 import 'widgets/message_bubble.dart';
 import 'widgets/streaming_message.dart';
@@ -96,6 +97,26 @@ class _ConversationScreenState extends State<ConversationScreen> {
     }
   }
 
+  /// Show rename dialog for current thread
+  void _showRenameDialog() {
+    final provider = context.read<ConversationProvider>();
+    final thread = provider.thread;
+    if (thread == null) return;
+
+    showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => ThreadRenameDialog(
+        threadId: thread.id,
+        currentTitle: thread.title,
+      ),
+    ).then((renamed) {
+      // Reload thread to get updated title
+      if (renamed == true && mounted) {
+        provider.loadThread(widget.threadId);
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Consumer<ConversationProvider>(
@@ -110,6 +131,13 @@ class _ConversationScreenState extends State<ConversationScreen> {
         return Scaffold(
           appBar: AppBar(
             title: Text(provider.thread?.title ?? 'New Conversation'),
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.edit_outlined),
+                tooltip: 'Rename conversation',
+                onPressed: provider.thread != null ? _showRenameDialog : null,
+              ),
+            ],
           ),
           body: Column(
             children: [

@@ -4,7 +4,9 @@ library;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../models/message.dart';
 import '../../providers/conversation_provider.dart';
+import '../../widgets/delete_confirmation_dialog.dart';
 import 'widgets/chat_input.dart';
 import 'widgets/message_bubble.dart';
 import 'widgets/streaming_message.dart';
@@ -51,6 +53,45 @@ class _ConversationScreenState extends State<ConversationScreen> {
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeOut,
       );
+    }
+  }
+
+  /// Show message options bottom sheet
+  void _showMessageOptions(BuildContext context, Message message) {
+    showModalBottomSheet(
+      context: context,
+      builder: (sheetContext) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.delete_outline),
+              title: const Text('Delete message'),
+              onTap: () {
+                Navigator.pop(sheetContext);
+                _deleteMessage(context, message.id);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Delete message with confirmation
+  Future<void> _deleteMessage(BuildContext context, String messageId) async {
+    final confirmed = await showDeleteConfirmationDialog(
+      context: context,
+      itemType: 'message',
+      // No cascade message - messages don't have children
+    );
+
+    if (confirmed && context.mounted) {
+      context.read<ConversationProvider>().deleteMessage(
+            context,
+            widget.threadId,
+            messageId,
+          );
     }
   }
 
@@ -150,7 +191,11 @@ class _ConversationScreenState extends State<ConversationScreen> {
           );
         }
 
-        return MessageBubble(message: messages[index]);
+        final message = messages[index];
+        return GestureDetector(
+          onLongPress: () => _showMessageOptions(context, message),
+          child: MessageBubble(message: message),
+        );
       },
     );
   }

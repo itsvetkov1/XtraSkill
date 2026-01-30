@@ -109,8 +109,8 @@ Plans:
 
 **Plans:** 2 plans
 Plans:
-- [ ] 14-01-PLAN.md - Backend PATCH endpoint for thread rename
-- [ ] 14-02-PLAN.md - Frontend service, provider, dialog, and UI integration
+- [x] 14-01-PLAN.md - Backend PATCH endpoint for thread rename
+- [x] 14-02-PLAN.md - Frontend service, provider, dialog, and UI integration
 
 ---
 
@@ -121,7 +121,7 @@ Plans:
 | 11 | Copy AI Response | 4 | Complete | 2026-01-30 |
 | 12 | Retry Failed Message | 4 | Complete | 2026-01-30 |
 | 13 | Auth Provider Display | 2 | Complete | 2026-01-30 |
-| 14 | Thread Rename | 4 | Planned | - |
+| 14 | Thread Rename | 4 | Complete | 2026-01-30 |
 
 **Total:** 14 requirements across 4 phases
 
@@ -135,4 +135,4 @@ Recommended order: 11 -> 12 -> 13 -> 14
 ---
 
 *Roadmap created: 2026-01-30*
-*Last updated: 2026-01-30 (Phase 14 planned)*
+*Last updated: 2026-01-30 (Phase 14 complete - v1.6 milestone complete)*

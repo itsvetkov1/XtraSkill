@@ -23,7 +23,17 @@ The application is executive-demo-ready with polished UI/UX:
 
 **Codebase:** 11,778 lines of Dart/Python across Flutter frontend and FastAPI backend.
 
-## Next Milestone Goals
+## Current Milestone: v1.6 UX Quick Wins
+
+**Goal:** Reduce friction in the core conversation workflow — users can recover from errors, copy content easily, organize threads, and identify their account.
+
+**Target features:**
+- Retry mechanism for failed AI messages
+- Copy functionality for AI responses
+- Thread rename after creation
+- Auth provider indicator in Settings
+
+## Future Milestone Goals
 
 **v2.0 — Search, Previews & Integrations** (planned)
 
@@ -68,6 +78,13 @@ The application is executive-demo-ready with polished UI/UX:
 - ✓ Project cards display metadata badges (thread count, document count) — Beta v1.5
 
 ### Active
+
+- [ ] User can retry a failed AI request without retyping message (THREAD-001)
+- [ ] User can copy AI-generated content with one tap (THREAD-002)
+- [ ] User can rename conversation thread after creation (THREAD-003)
+- [ ] User can see which OAuth provider they're signed in with (SETTINGS-001)
+
+### Deferred
 
 - [ ] Thread list items show preview of last message (deferred from Beta v1.5 - requires backend API)
 - [ ] Thread list items display mode indicator (deferred from Beta v1.5 - requires backend tracking)
@@ -133,4 +150,4 @@ BAs prepare for meetings by uploading existing requirements or stakeholder notes
 | ActionChip for mode selection | Tap-action semantics (not toggle), immediate response initiation | ✓ Implemented (Phase 10) |
 
 ---
-*Last updated: 2026-01-30 after Beta v1.5 milestone completion*
+*Last updated: 2026-01-30 after v1.6 milestone initialization*

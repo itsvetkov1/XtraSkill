@@ -158,11 +158,11 @@ This section maps requirements to roadmap phases. Updated during roadmap creatio
 | NAV-03 | Phase 7 | Complete |
 | NAV-04 | Phase 7 | Complete |
 | NAV-05 | Phase 7 | Complete |
-| ONBOARD-01 | Phase 10 | Pending |
-| ONBOARD-02 | Phase 10 | Pending |
-| ONBOARD-03 | Phase 10 | Pending |
-| ONBOARD-04 | Phase 10 | Pending |
-| ONBOARD-05 | Phase 10 | Pending |
+| ONBOARD-01 | Phase 10 | Complete |
+| ONBOARD-02 | Phase 10 | Complete |
+| ONBOARD-03 | Phase 10 | Complete |
+| ONBOARD-04 | Phase 10 | Complete |
+| ONBOARD-05 | Phase 10 | Complete |
 | DEL-01 | Phase 9 | Complete |
 | DEL-02 | Phase 9 | Complete |
 | DEL-03 | Phase 9 | Complete |
@@ -177,14 +177,14 @@ This section maps requirements to roadmap phases. Updated during roadmap creatio
 | SET-05 | Phase 8 | Complete |
 | SET-06 | Phase 6 | Complete |
 | SET-07 | Phase 6 | Complete |
-| CONV-UI-01 | Phase 10 | Pending |
-| CONV-UI-02 | Phase 10 | Pending |
-| CONV-UI-03 | Phase 10 | Pending |
-| POLISH-01 | Phase 10 | Pending |
-| POLISH-02 | Phase 10 | Pending |
-| POLISH-03 | Phase 10 | Pending |
-| POLISH-04 | Phase 10 | Pending |
-| POLISH-05 | Phase 10 | Pending |
+| CONV-UI-01 | Phase 10 | Complete |
+| CONV-UI-02 | Phase 10 | Complete |
+| CONV-UI-03 | Phase 10 | Deferred (v2.0) |
+| POLISH-01 | Phase 10 | Complete |
+| POLISH-02 | Phase 10 | Complete |
+| POLISH-03 | Phase 10 | Deferred (v2.0) |
+| POLISH-04 | Phase 10 | Complete |
+| POLISH-05 | Phase 10 | Complete |
 
 **Coverage:**
 - Beta v1.5 requirements: 32/32 mapped (100%)
@@ -247,6 +247,7 @@ Beta v1.5 success will be measured by:
 
 *Requirements baseline established: 2026-01-29*
 *Total Beta v1.5 requirements: 32*
-*Total v2.0 requirements: 9*
+*Total v2.0 requirements: 9 + 2 deferred (CONV-UI-03, POLISH-03)*
 *Out of scope: 8+*
 *Traceability updated: 2026-01-30*
+*Beta v1.5 complete: 30/32 requirements (2 deferred to v2.0)*

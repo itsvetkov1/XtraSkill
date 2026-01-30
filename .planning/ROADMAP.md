@@ -353,11 +353,13 @@ Plans:
 **Plans:** 5 plans
 
 Plans:
-- [ ] 10-01-PLAN.md — DateFormatter utility + EmptyState widget infrastructure
-- [ ] 10-02-PLAN.md — Home screen redesign with user greeting and action buttons
-- [ ] 10-03-PLAN.md — Update list screens to use EmptyState widget
-- [ ] 10-04-PLAN.md — Conversation enhancements (mode selector, message readability)
-- [ ] 10-05-PLAN.md — Visual polish (dates, previews, badges, header consolidation)
+- [x] 10-01-PLAN.md — DateFormatter utility + EmptyState widget infrastructure
+- [x] 10-02-PLAN.md — Home screen redesign with user greeting and action buttons
+- [x] 10-03-PLAN.md — Update list screens to use EmptyState widget
+- [x] 10-04-PLAN.md — Conversation enhancements (mode selector, message readability)
+- [x] 10-05-PLAN.md — Visual polish (dates, previews, badges, header consolidation)
+
+**Note:** POLISH-03 (thread preview text) and CONV-UI-03 (thread mode indicator) deferred to v2.0 - requires backend API changes.
 
 ---
 
@@ -378,7 +380,7 @@ Phases execute in numeric order: 6 → 7 → 8 → 9 → 10
 | 7. Responsive Navigation Infrastructure | Beta v1.5 | 3/3 | Complete | 2026-01-29 |
 | 8. Settings Page & User Preferences | Beta v1.5 | 2/2 | Complete | 2026-01-29 |
 | 9. Deletion Flows with Undo | Beta v1.5 | 3/3 | Complete | 2026-01-30 |
-| 10. Polish & Empty States | Beta v1.5 | 0/5 | Planned | - |
+| 10. Polish & Empty States | Beta v1.5 | 5/5 | Complete | 2026-01-30 |
 
 ---
 
@@ -393,4 +395,4 @@ Phases execute in numeric order: 6 → 7 → 8 → 9 → 10
 ---
 
 *Last updated: 2026-01-30*
-*Status: Beta v1.5 Phase 10 planned, ready for execution*
+*Status: Beta v1.5 COMPLETE - All phases executed, 30/32 requirements delivered (2 deferred to v2.0)*

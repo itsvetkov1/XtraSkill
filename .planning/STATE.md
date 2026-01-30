@@ -78,6 +78,7 @@ Recent decisions affecting current work:
 - **Phase 10:** Explicit typography sizing (15px font, 1.4 line height) for consistent readability
 - **Phase 10:** Centralized DateFormatter replaces all inline _formatDate methods
 - **Phase 10:** Project detail header consolidated: titleLarge, integrated date, reduced padding
+- **Phase 10:** POLISH-03 (thread preview) and CONV-UI-03 (thread mode indicator) deferred to v2.0 - requires backend API changes
 
 ### Pending Todos
 
@@ -92,4 +93,4 @@ None active. All technical concerns addressed during execution.
 Last session: 2026-01-30
 Stopped at: Completed 10-05-PLAN.md (Visual Polish) - Phase 10 complete
 Resume file: None
-Next action: Beta v1.5 milestone complete - await user direction for next milestone
+Next action: `/gsd:audit-milestone` to verify requirements and cross-phase integration

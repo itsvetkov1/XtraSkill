@@ -8,6 +8,8 @@ import 'package:skeletonizer/skeletonizer.dart';
 
 import '../../models/project.dart';
 import '../../providers/project_provider.dart';
+import '../../utils/date_formatter.dart';
+import '../../widgets/empty_state.dart';
 import '../../widgets/responsive_layout.dart';
 
 /// Project list screen content showing all user's projects
@@ -69,27 +71,12 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
 
           // Show empty state when not loading and no projects
           if (!provider.isLoading && provider.projects.isEmpty) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.folder_outlined,
-                      size: 64, color: Theme.of(context).colorScheme.primary),
-                  const SizedBox(height: 16),
-                  Text(
-                    'No projects yet',
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
-                  const SizedBox(height: 8),
-                  const Text('Create your first project to get started'),
-                  const SizedBox(height: 24),
-                  ElevatedButton.icon(
-                    onPressed: () => _showCreateProjectDialog(context),
-                    icon: const Icon(Icons.add),
-                    label: const Text('Create Project'),
-                  ),
-                ],
-              ),
+            return EmptyState(
+              icon: Icons.folder_outlined,
+              title: 'No projects yet',
+              message: 'Create your first project to get started!',
+              buttonLabel: 'Create Project',
+              onPressed: () => _showCreateProjectDialog(context),
             );
           }
 

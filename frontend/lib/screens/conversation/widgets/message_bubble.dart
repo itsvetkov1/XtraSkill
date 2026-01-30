@@ -23,8 +23,8 @@ class MessageBubble extends StatelessWidget {
         constraints: BoxConstraints(
           maxWidth: MediaQuery.of(context).size.width * 0.8,
         ),
-        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-        padding: const EdgeInsets.all(12),
+        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+        padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: isUser
               ? theme.colorScheme.primary
@@ -39,6 +39,8 @@ class MessageBubble extends StatelessWidget {
         child: SelectableText(
           message.content,
           style: TextStyle(
+            fontSize: 15, // Explicit font size for readability
+            height: 1.4, // Line height for better readability
             color: isUser
                 ? theme.colorScheme.onPrimary
                 : theme.colorScheme.onSurface,

@@ -80,6 +80,10 @@ Plans:
 
 **Effort Estimate:** 30 minutes - 1 hour
 
+**Plans:** 1 plan
+Plans:
+- [ ] 13-01-PLAN.md - Add authProvider field to provider and display in settings profile
+
 ---
 
 ### Phase 14: Thread Rename
@@ -126,4 +130,4 @@ Recommended order: 11 -> 12 -> 13 -> 14
 ---
 
 *Roadmap created: 2026-01-30*
-*Last updated: 2026-01-30 (Phase 12 complete)*
+*Last updated: 2026-01-30 (Phase 13 planned)*

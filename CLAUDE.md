@@ -253,6 +253,99 @@ Thumbs.db
 
 ---
 
+## User Story Management
+
+### Rule: Maintain Stories in `/user_stories/`
+
+**Location:** All user stories, bugs, and feature requests live in `/user_stories/`
+
+**Structure:**
+```
+user_stories/
+├── INDEX.md              # Master catalog of all stories
+├── BACKLOG.md            # Future enhancements (parking lot)
+├── BUG-XXX_short-name.md # Bug reports
+├── US-XXX_short-name.md  # User stories (URL/navigation)
+├── THREAD-XXX_*.md       # Conversation/thread features
+├── DOC-XXX_*.md          # Document features or documentation tasks
+└── [PREFIX]-XXX_*.md     # Other categorized stories
+```
+
+### Rule: Auto-Create Stories from Bug Reports
+
+When user reports a bug or requests a feature:
+
+1. **Create story file** in `/user_stories/` with appropriate prefix
+2. **Use standard format:**
+   ```markdown
+   # [ID]: [Title]
+
+   **Priority:** Critical | High | Medium | Low
+   **Status:** Open | In Progress | Done | Wont Do
+   **Component:** [Affected component]
+
+   ---
+
+   ## User Story
+   As a [user], I want [goal], So that [benefit].
+
+   ---
+
+   ## Problem
+   [Description of current behavior/issue]
+
+   ---
+
+   ## Acceptance Criteria
+   - [ ] Criterion 1
+   - [ ] Criterion 2
+
+   ---
+
+   ## Technical References
+   - `path/to/relevant/file.dart`
+   ```
+
+3. **Update INDEX.md** - Add story to appropriate priority table
+4. **Commit and push** both files
+
+### Rule: Keep INDEX.md Current
+
+After any story change:
+
+1. Update status in INDEX.md table
+2. Update summary counts at top
+3. Commit: `docs(stories): update INDEX with [story-id] status`
+
+### Story ID Prefixes
+
+| Prefix | Use For |
+|--------|---------|
+| BUG- | Bug reports with root cause analysis |
+| US- | URL/Navigation/Router user stories |
+| THREAD- | Conversation and thread features |
+| NAV- | Navigation and breadcrumb features |
+| DOC- | Document upload/view features OR documentation tasks |
+| DELETE- | Deletion behavior |
+| BUDGET- | Token budget and usage features |
+| HOME- | Home screen features |
+| SETTINGS- | Settings screen features |
+| PROJECT- | Project management features |
+| RESPONSIVE- | Responsive layout features |
+| AUTH- | Authentication features |
+| STATE- | State management |
+| ENH- | Future enhancements (in BACKLOG.md) |
+
+### Workflow Integration
+
+When starting work on a story:
+1. Update status to "In Progress" in INDEX.md
+2. Reference story ID in commit messages: `feat(THREAD-001): add retry button`
+3. When complete, update status to "Done"
+4. Check off acceptance criteria in story file
+
+---
+
 ## Summary
 
 **The Golden Rule:**
@@ -275,5 +368,6 @@ After every code/doc change: COMMIT + PUSH immediately
 
 ---
 
-*Last updated: 2026-01-29*
+*Last updated: 2026-01-30*
 *Established during Phase 6 execution*
+*User story management added during QA session*

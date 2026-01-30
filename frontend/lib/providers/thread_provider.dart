@@ -123,6 +123,47 @@ class ThreadProvider extends ChangeNotifier {
     }
   }
 
+  /// Rename a thread
+  ///
+  /// Updates thread title via API and syncs local state.
+  /// Updates both _threads list and _selectedThread if applicable.
+  Future<Thread?> renameThread(String threadId, String? title) async {
+    _loading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      final updatedThread = await _threadService.renameThread(threadId, title);
+
+      // Update in threads list
+      final index = _threads.indexWhere((t) => t.id == threadId);
+      if (index != -1) {
+        _threads[index] = Thread(
+          id: updatedThread.id,
+          projectId: updatedThread.projectId,
+          title: updatedThread.title,
+          createdAt: updatedThread.createdAt,
+          updatedAt: updatedThread.updatedAt,
+          messageCount: _threads[index].messageCount, // Preserve local count
+        );
+      }
+
+      // Update selected thread if it's the same one
+      if (_selectedThread?.id == threadId) {
+        _selectedThread = updatedThread;
+      }
+
+      _error = null;
+      return updatedThread;
+    } catch (e) {
+      _error = e.toString();
+      return null;
+    } finally {
+      _loading = false;
+      notifyListeners();
+    }
+  }
+
   /// Clear threads list and selected thread
   ///
   /// Used when switching projects or logging out.

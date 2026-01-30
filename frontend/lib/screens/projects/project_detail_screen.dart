@@ -289,10 +289,6 @@ class _ProjectDetailScreenState extends State<ProjectDetailScreen>
       context.go('/projects');
     }
   }
-
-  String _formatDate(DateTime date) {
-    return '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
-  }
 }
 
 /// Documents tab showing list of documents in project

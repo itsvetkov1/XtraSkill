@@ -254,7 +254,7 @@ class _ProjectCard extends StatelessWidget {
               ],
               const SizedBox(height: 8),
               Text(
-                'Updated ${_formatDate(project.updatedAt)}',
+                'Updated ${DateFormatter.format(project.updatedAt)}',
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
@@ -264,26 +264,5 @@ class _ProjectCard extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  String _formatDate(DateTime date) {
-    final now = DateTime.now();
-    final difference = now.difference(date);
-
-    if (difference.inDays == 0) {
-      if (difference.inHours == 0) {
-        if (difference.inMinutes == 0) {
-          return 'just now';
-        }
-        return '${difference.inMinutes}m ago';
-      }
-      return '${difference.inHours}h ago';
-    } else if (difference.inDays == 1) {
-      return 'yesterday';
-    } else if (difference.inDays < 7) {
-      return '${difference.inDays}d ago';
-    } else {
-      return '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
-    }
   }
 }

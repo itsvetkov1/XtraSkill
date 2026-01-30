@@ -104,20 +104,33 @@ class _ProjectDetailScreenState extends State<ProjectDetailScreen>
 
         return Column(
           children: [
-            // Project info header
+            // Project info header - consolidated for reduced vertical space
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               color: Theme.of(context).colorScheme.surfaceContainerHighest,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   Row(
                     children: [
                       Expanded(
-                        child: Text(
-                          project.name,
-                          style: Theme.of(context).textTheme.headlineSmall,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              project.name,
+                              style: Theme.of(context).textTheme.titleLarge,
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              'Updated ${DateFormatter.format(project.updatedAt)}',
+                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                       IconButton(
@@ -140,20 +153,6 @@ class _ProjectDetailScreenState extends State<ProjectDetailScreen>
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
                   ],
-                  const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      Text(
-                        'Created ${DateFormatter.format(project.createdAt)}',
-                        style: Theme.of(context).textTheme.bodySmall,
-                      ),
-                      const SizedBox(width: 16),
-                      Text(
-                        'Updated ${DateFormatter.format(project.updatedAt)}',
-                        style: Theme.of(context).textTheme.bodySmall,
-                      ),
-                    ],
-                  ),
                 ],
               ),
             ),

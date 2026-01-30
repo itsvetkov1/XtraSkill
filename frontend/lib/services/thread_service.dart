@@ -146,4 +146,32 @@ class ThreadService {
       throw Exception('Failed to delete thread: ${e.message}');
     }
   }
+
+  /// Rename a thread
+  ///
+  /// [threadId] - ID of the thread to rename
+  /// [title] - New title (or null to clear)
+  ///
+  /// Returns updated Thread object
+  Future<Thread> renameThread(String threadId, String? title) async {
+    try {
+      final headers = await _getAuthHeaders();
+      final response = await _dio.patch(
+        '$_baseUrl/api/threads/$threadId',
+        options: Options(headers: headers),
+        data: {
+          'title': title,
+        },
+      );
+
+      return Thread.fromJson(response.data as Map<String, dynamic>);
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 401 || e.response?.statusCode == 403) {
+        throw Exception('Authentication required');
+      } else if (e.response?.statusCode == 404) {
+        throw Exception('Thread not found');
+      }
+      throw Exception('Failed to rename thread: ${e.message}');
+    }
+  }
 }

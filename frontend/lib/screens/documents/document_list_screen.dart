@@ -4,7 +4,9 @@ import 'package:skeletonizer/skeletonizer.dart';
 
 import '../../models/document.dart';
 import '../../providers/document_provider.dart';
+import '../../utils/date_formatter.dart';
 import '../../widgets/delete_confirmation_dialog.dart';
+import '../../widgets/empty_state.dart';
 import 'document_upload_screen.dart';
 import 'document_viewer_screen.dart';
 
@@ -69,23 +71,23 @@ class _DocumentListScreenState extends State<DocumentListScreen> {
 
           // Show empty state when not loading and no documents
           if (!provider.isLoading && provider.documents.isEmpty) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.folder_open, size: 64, color: Colors.grey),
-                  const SizedBox(height: 16),
-                  const Text(
-                    'No documents uploaded',
-                    style: TextStyle(fontSize: 18, color: Colors.grey),
+            return EmptyState(
+              icon: Icons.description_outlined,
+              title: 'No documents yet',
+              message: 'Upload documents to provide context for AI conversations.',
+              buttonLabel: 'Upload Document',
+              buttonIcon: Icons.upload_file,
+              onPressed: () async {
+                await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (ctx) => DocumentUploadScreen(projectId: widget.projectId),
                   ),
-                  const SizedBox(height: 8),
-                  const Text(
-                    'Tap the + button to upload a document',
-                    style: TextStyle(color: Colors.grey),
-                  ),
-                ],
-              ),
+                );
+                if (context.mounted) {
+                  context.read<DocumentProvider>().loadDocuments(widget.projectId);
+                }
+              },
             );
           }
 
@@ -104,7 +106,7 @@ class _DocumentListScreenState extends State<DocumentListScreen> {
                     leading: const Icon(Icons.description, size: 40),
                     title: Text(doc.filename),
                     subtitle: Text(
-                      'Uploaded: ${_formatDate(doc.createdAt)}',
+                      'Uploaded ${DateFormatter.format(doc.createdAt)}',
                       style: const TextStyle(fontSize: 12),
                     ),
                     trailing: provider.isLoading
@@ -196,7 +198,4 @@ class _DocumentListScreenState extends State<DocumentListScreen> {
     }
   }
 
-  String _formatDate(DateTime date) {
-    return '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
-  }
 }

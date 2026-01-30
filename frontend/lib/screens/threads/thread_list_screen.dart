@@ -2,13 +2,14 @@
 library;
 
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
 import '../../models/thread.dart';
 import '../../providers/thread_provider.dart';
+import '../../utils/date_formatter.dart';
 import '../../widgets/delete_confirmation_dialog.dart';
+import '../../widgets/empty_state.dart';
 import '../conversation/conversation_screen.dart';
 import 'thread_create_dialog.dart';
 
@@ -33,21 +34,6 @@ class _ThreadListScreenState extends State<ThreadListScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<ThreadProvider>().loadThreads(widget.projectId);
     });
-  }
-
-  String _formatDate(DateTime date) {
-    final now = DateTime.now();
-    final difference = now.difference(date);
-
-    if (difference.inDays == 0) {
-      return 'Today ${DateFormat.jm().format(date)}';
-    } else if (difference.inDays == 1) {
-      return 'Yesterday';
-    } else if (difference.inDays < 7) {
-      return '${difference.inDays} days ago';
-    } else {
-      return DateFormat.yMMMd().format(date);
-    }
   }
 
   void _showCreateDialog() {
@@ -117,30 +103,13 @@ class _ThreadListScreenState extends State<ThreadListScreen> {
 
           // Show empty state when not loading and no threads
           if (!provider.isLoading && provider.threads.isEmpty) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.chat_bubble_outline,
-                    size: 64,
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'No conversations yet',
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
-                  const SizedBox(height: 8),
-                  const Text('Start a conversation to discuss requirements'),
-                  const SizedBox(height: 24),
-                  ElevatedButton.icon(
-                    onPressed: _showCreateDialog,
-                    icon: const Icon(Icons.add_comment),
-                    label: const Text('New Conversation'),
-                  ),
-                ],
-              ),
+            return EmptyState(
+              icon: Icons.chat_bubble_outline,
+              title: 'No conversations yet',
+              message: 'Start a conversation to discuss requirements with AI assistance.',
+              buttonLabel: 'Start Conversation',
+              buttonIcon: Icons.add_comment,
+              onPressed: _showCreateDialog,
             );
           }
 
@@ -171,7 +140,7 @@ class _ThreadListScreenState extends State<ThreadListScreen> {
                         style: Theme.of(context).textTheme.titleMedium,
                       ),
                       subtitle: Text(
-                        'Created ${_formatDate(thread.createdAt)} • $messageCount messages',
+                        '${DateFormatter.format(thread.updatedAt)} • $messageCount messages',
                       ),
                       trailing: provider.isLoading
                           ? const Icon(Icons.chevron_right)

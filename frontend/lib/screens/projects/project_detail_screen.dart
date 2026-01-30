@@ -7,7 +7,9 @@ import 'package:provider/provider.dart';
 
 import '../../providers/project_provider.dart';
 import '../../providers/thread_provider.dart';
+import '../../utils/date_formatter.dart';
 import '../../widgets/delete_confirmation_dialog.dart';
+import '../../widgets/empty_state.dart';
 import '../documents/document_upload_screen.dart';
 import '../threads/thread_list_screen.dart';
 
@@ -142,12 +144,12 @@ class _ProjectDetailScreenState extends State<ProjectDetailScreen>
                   Row(
                     children: [
                       Text(
-                        'Created: ${_formatDate(project.createdAt)}',
+                        'Created ${DateFormatter.format(project.createdAt)}',
                         style: Theme.of(context).textTheme.bodySmall,
                       ),
                       const SizedBox(width: 16),
                       Text(
-                        'Updated: ${_formatDate(project.updatedAt)}',
+                        'Updated ${DateFormatter.format(project.updatedAt)}',
                         style: Theme.of(context).textTheme.bodySmall,
                       ),
                     ],
@@ -308,34 +310,19 @@ class _DocumentsTab extends StatelessWidget {
 
         // Empty state
         if (project.documents == null || project.documents!.isEmpty) {
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.description_outlined,
-                    size: 64, color: Theme.of(context).colorScheme.primary),
-                const SizedBox(height: 16),
-                Text(
-                  'No documents yet',
-                  style: Theme.of(context).textTheme.titleLarge,
+          return EmptyState(
+            icon: Icons.description_outlined,
+            title: 'No documents yet',
+            message: 'Upload documents to provide context for AI conversations.',
+            buttonLabel: 'Upload Document',
+            buttonIcon: Icons.upload_file,
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => DocumentUploadScreen(projectId: projectId),
                 ),
-                const SizedBox(height: 8),
-                const Text('Upload documents to provide context for AI conversations'),
-                const SizedBox(height: 24),
-                ElevatedButton.icon(
-                  onPressed: () {
-                    // Navigate to document upload screen
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) => DocumentUploadScreen(projectId: projectId),
-                      ),
-                    );
-                  },
-                  icon: const Icon(Icons.upload_file),
-                  label: const Text('Upload Document'),
-                ),
-              ],
-            ),
+              );
+            },
           );
         }
 

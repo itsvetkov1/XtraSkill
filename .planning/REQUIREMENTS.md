@@ -30,8 +30,8 @@ Requirements for v1.6 UX Quick Wins release. Each maps to roadmap phases.
 
 ### Settings Enhancement
 
-- [ ] **SETTINGS-01**: Auth provider indicator shown in Settings profile section
-- [ ] **SETTINGS-02**: Display format: "Signed in with Google" or "Signed in with Microsoft"
+- [x] **SETTINGS-01**: Auth provider indicator shown in Settings profile section
+- [x] **SETTINGS-02**: Display format: "Signed in with Google" or "Signed in with Microsoft"
 
 ## v2 Requirements
 
@@ -78,8 +78,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | RETRY-02 | Phase 12 | Complete |
 | RETRY-03 | Phase 12 | Complete |
 | RETRY-04 | Phase 12 | Complete |
-| SETTINGS-01 | Phase 13 | Pending |
-| SETTINGS-02 | Phase 13 | Pending |
+| SETTINGS-01 | Phase 13 | Complete |
+| SETTINGS-02 | Phase 13 | Complete |
 | THREAD-01 | Phase 14 | Pending |
 | THREAD-02 | Phase 14 | Pending |
 | THREAD-03 | Phase 14 | Pending |
@@ -92,4 +92,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-01-30*
-*Last updated: 2026-01-30 (Phase 12 complete)*
+*Last updated: 2026-01-30 (Phase 13 complete)*

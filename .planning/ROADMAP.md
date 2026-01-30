@@ -82,7 +82,7 @@ Plans:
 
 **Plans:** 1 plan
 Plans:
-- [ ] 13-01-PLAN.md - Add authProvider field to provider and display in settings profile
+- [x] 13-01-PLAN.md - Add authProvider field to provider and display in settings profile
 
 ---
 
@@ -115,7 +115,7 @@ Plans:
 |-------|------|--------------|--------|----------|
 | 11 | Copy AI Response | 4 | Complete | 2026-01-30 |
 | 12 | Retry Failed Message | 4 | Complete | 2026-01-30 |
-| 13 | Auth Provider Display | 2 | Pending | - |
+| 13 | Auth Provider Display | 2 | Complete | 2026-01-30 |
 | 14 | Thread Rename | 4 | Pending | - |
 
 **Total:** 14 requirements across 4 phases
@@ -130,4 +130,4 @@ Recommended order: 11 -> 12 -> 13 -> 14
 ---
 
 *Roadmap created: 2026-01-30*
-*Last updated: 2026-01-30 (Phase 13 planned)*
+*Last updated: 2026-01-30 (Phase 13 complete)*

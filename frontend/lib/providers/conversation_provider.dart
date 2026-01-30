@@ -50,6 +50,9 @@ class ConversationProvider extends ChangeNotifier {
   /// Timer for deferred deletion
   Timer? _deleteTimer;
 
+  /// Content of the last message that failed to send
+  String? _lastFailedMessage;
+
   ConversationProvider({
     AIService? aiService,
     ThreadService? threadService,
@@ -77,6 +80,9 @@ class ConversationProvider extends ChangeNotifier {
   /// Error message
   String? get error => _error;
 
+  /// Whether retry is available
+  bool get canRetry => _lastFailedMessage != null && _error != null;
+
   /// Load a thread with its message history
   Future<void> loadThread(String threadId) async {
     _loading = true;
@@ -101,6 +107,7 @@ class ConversationProvider extends ChangeNotifier {
     if (_thread == null || _isStreaming) return;
 
     _error = null;
+    _lastFailedMessage = content;
 
     // Add user message optimistically (will be confirmed by refresh)
     final userMessage = Message(
@@ -135,10 +142,11 @@ class ConversationProvider extends ChangeNotifier {
           );
           _messages.add(assistantMessage);
 
-          // Clear streaming state
+          // Clear streaming state and retry state on success
           _isStreaming = false;
           _streamingText = '';
           _statusMessage = null;
+          _lastFailedMessage = null;
           notifyListeners();
 
           // Optionally refresh thread to get server-confirmed messages
@@ -172,10 +180,28 @@ class ConversationProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Clear error message
+  /// Clear error message and failed message state
   void clearError() {
     _error = null;
+    _lastFailedMessage = null; // Dismiss means "I don't want to retry"
     notifyListeners();
+  }
+
+  /// Retry the last failed message
+  void retryLastMessage() {
+    if (_lastFailedMessage == null) return;
+
+    final content = _lastFailedMessage!;
+    _lastFailedMessage = null;
+    _error = null;
+
+    // Remove the optimistic user message that was added on first attempt
+    // to avoid duplicates when sendMessage adds it again
+    if (_messages.isNotEmpty && _messages.last.role == MessageRole.user) {
+      _messages.removeLast();
+    }
+
+    sendMessage(content);
   }
 
   /// Delete message with optimistic UI and undo support

@@ -163,13 +163,13 @@ This section maps requirements to roadmap phases. Updated during roadmap creatio
 | ONBOARD-03 | Phase 10 | Pending |
 | ONBOARD-04 | Phase 10 | Pending |
 | ONBOARD-05 | Phase 10 | Pending |
-| DEL-01 | Phase 9 | Pending |
-| DEL-02 | Phase 9 | Pending |
-| DEL-03 | Phase 9 | Pending |
-| DEL-04 | Phase 9 | Pending |
-| DEL-05 | Phase 9 | Pending |
-| DEL-06 | Phase 9 | Pending |
-| DEL-07 | Phase 9 | Pending |
+| DEL-01 | Phase 9 | Complete |
+| DEL-02 | Phase 9 | Complete |
+| DEL-03 | Phase 9 | Complete |
+| DEL-04 | Phase 9 | Complete |
+| DEL-05 | Phase 9 | Complete |
+| DEL-06 | Phase 9 | Complete |
+| DEL-07 | Phase 9 | Complete |
 | SET-01 | Phase 8 | Complete |
 | SET-02 | Phase 8 | Complete |
 | SET-03 | Phase 6 | Complete |
@@ -249,4 +249,4 @@ Beta v1.5 success will be measured by:
 *Total Beta v1.5 requirements: 32*
 *Total v2.0 requirements: 9*
 *Out of scope: 8+*
-*Traceability updated: 2026-01-29*
+*Traceability updated: 2026-01-30*

@@ -317,9 +317,9 @@ Plans:
 **Plans:** 3 plans
 
 Plans:
-- [ ] 09-01-PLAN.md — Backend DELETE endpoints for projects, threads, documents, messages
-- [ ] 09-02-PLAN.md — Frontend services, providers with optimistic delete and undo
-- [ ] 09-03-PLAN.md — UI integration with confirmation dialogs and delete triggers
+- [x] 09-01-PLAN.md — Backend DELETE endpoints for projects, threads, documents, messages
+- [x] 09-02-PLAN.md — Frontend services, providers with optimistic delete and undo
+- [x] 09-03-PLAN.md — UI integration with confirmation dialogs and delete triggers
 
 ---
 
@@ -374,7 +374,7 @@ Phases execute in numeric order: 6 → 7 → 8 → 9 → 10
 | 6. Theme Management Foundation | Beta v1.5 | 2/2 | Complete | 2026-01-29 |
 | 7. Responsive Navigation Infrastructure | Beta v1.5 | 3/3 | Complete | 2026-01-29 |
 | 8. Settings Page & User Preferences | Beta v1.5 | 2/2 | Complete | 2026-01-29 |
-| 9. Deletion Flows with Undo | Beta v1.5 | 0/3 | Planned | - |
+| 9. Deletion Flows with Undo | Beta v1.5 | 3/3 | Complete | 2026-01-30 |
 | 10. Polish & Empty States | Beta v1.5 | 0/TBD | Not started | - |
 
 ---
@@ -390,4 +390,4 @@ Phases execute in numeric order: 6 → 7 → 8 → 9 → 10
 ---
 
 *Last updated: 2026-01-30*
-*Status: Beta v1.5 Phase 9 planned (3 plans), ready for execution*
+*Status: Beta v1.5 Phase 9 complete, Phase 10 ready for planning*

@@ -6,8 +6,10 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 import 'core/theme.dart';
+import 'utils/date_formatter.dart';
 import 'providers/auth_provider.dart';
 import 'providers/conversation_provider.dart';
 import 'providers/document_provider.dart';
@@ -26,6 +28,10 @@ import 'widgets/responsive_scaffold.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize date formatting locales for intl package (POLISH-01)
+  await initializeDateFormatting();
+  DateFormatter.init();
 
   // Load preferences to prevent state flash on startup (SET-06, NAV-01)
   final prefs = await SharedPreferences.getInstance();

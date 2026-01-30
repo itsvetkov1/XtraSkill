@@ -27,6 +27,11 @@ class ThreadCreate(BaseModel):
     title: Optional[str] = Field(None, max_length=255)
 
 
+class ThreadUpdate(BaseModel):
+    """Request model for updating a thread."""
+    title: Optional[str] = Field(None, max_length=255)
+
+
 class MessageResponse(BaseModel):
     """Response model for a message."""
     id: str
@@ -253,6 +258,68 @@ async def get_thread(
             )
             for msg in sorted_messages
         ],
+    )
+
+
+@router.patch(
+    "/threads/{thread_id}",
+    response_model=ThreadResponse,
+)
+async def rename_thread(
+    thread_id: str,
+    update_data: ThreadUpdate,
+    current_user: dict = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    Rename a thread (update its title).
+
+    Args:
+        thread_id: ID of the thread to rename
+        update_data: Thread update data (title)
+        current_user: Authenticated user from JWT
+        db: Database session
+
+    Returns:
+        Updated thread with new title and timestamps
+
+    Raises:
+        404: Thread not found or doesn't belong to user's project
+        400: Title exceeds 255 characters (handled by Pydantic)
+    """
+    # Get thread with project loaded for ownership check
+    stmt = (
+        select(Thread)
+        .where(Thread.id == thread_id)
+        .options(selectinload(Thread.project))
+    )
+    result = await db.execute(stmt)
+    thread = result.scalar_one_or_none()
+
+    if not thread:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Thread not found"
+        )
+
+    # Validate thread belongs to user's project
+    if thread.project.user_id != current_user["user_id"]:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Thread not found"
+        )
+
+    # Update thread title
+    thread.title = update_data.title
+    await db.commit()
+    await db.refresh(thread)
+
+    return ThreadResponse(
+        id=thread.id,
+        project_id=thread.project_id,
+        title=thread.title,
+        created_at=thread.created_at.isoformat(),
+        updated_at=thread.updated_at.isoformat(),
     )
 
 

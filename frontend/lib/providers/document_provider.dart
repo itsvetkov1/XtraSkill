@@ -1,4 +1,5 @@
-import 'package:flutter/foundation.dart';
+import 'dart:async';
+import 'package:flutter/material.dart';
 import '../models/document.dart';
 import '../services/document_service.dart';
 
@@ -14,6 +15,15 @@ class DocumentProvider extends ChangeNotifier {
   String? _error;
   double _uploadProgress = 0.0;
   bool _uploading = false;
+
+  /// Item pending deletion (during undo window)
+  Document? _pendingDelete;
+
+  /// Index where item was before removal (for restoration)
+  int _pendingDeleteIndex = 0;
+
+  /// Timer for deferred deletion
+  Timer? _deleteTimer;
 
   DocumentProvider({DocumentService? service})
       : _service = service ?? DocumentService();
@@ -123,5 +133,88 @@ class DocumentProvider extends ChangeNotifier {
       notifyListeners();
       rethrow;
     }
+  }
+
+  /// Delete document with optimistic UI and undo support
+  ///
+  /// Immediately removes from list, shows SnackBar with undo.
+  /// Actual deletion happens after 10 seconds unless undone.
+  Future<void> deleteDocument(BuildContext context, String documentId) async {
+    // Find document in list
+    final index = _documents.indexWhere((d) => d.id == documentId);
+    if (index == -1) return;
+
+    // Cancel any previous pending delete (commit it immediately)
+    if (_pendingDelete != null) {
+      await _commitPendingDelete();
+    }
+
+    // Remove optimistically
+    _pendingDelete = _documents[index];
+    _pendingDeleteIndex = index;
+    _documents.removeAt(index);
+
+    // Clear selected if it was the deleted document
+    if (_selectedDocument?.id == documentId) {
+      _selectedDocument = null;
+    }
+
+    notifyListeners();
+
+    // Show undo SnackBar
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).clearSnackBars();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('Document deleted'),
+          duration: const Duration(seconds: 10),
+          action: SnackBarAction(
+            label: 'Undo',
+            onPressed: () => _undoDelete(),
+          ),
+        ),
+      );
+    }
+
+    // Start deletion timer
+    _deleteTimer?.cancel();
+    _deleteTimer = Timer(const Duration(seconds: 10), () {
+      _commitPendingDelete();
+    });
+  }
+
+  void _undoDelete() {
+    _deleteTimer?.cancel();
+    if (_pendingDelete != null) {
+      // Restore at original position (or start if index invalid)
+      final insertIndex = _pendingDeleteIndex.clamp(0, _documents.length);
+      _documents.insert(insertIndex, _pendingDelete!);
+      _pendingDelete = null;
+      notifyListeners();
+    }
+  }
+
+  Future<void> _commitPendingDelete() async {
+    if (_pendingDelete == null) return;
+
+    final documentToDelete = _pendingDelete!;
+    final originalIndex = _pendingDeleteIndex;
+    _pendingDelete = null;
+
+    try {
+      await _service.deleteDocument(documentToDelete.id);
+    } catch (e) {
+      // Rollback: restore to list
+      final insertIndex = originalIndex.clamp(0, _documents.length);
+      _documents.insert(insertIndex, documentToDelete);
+      _error = 'Failed to delete document: $e';
+      notifyListeners();
+    }
+  }
+
+  @override
+  void dispose() {
+    _deleteTimer?.cancel();
+    super.dispose();
   }
 }

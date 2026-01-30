@@ -1,7 +1,8 @@
 /// Conversation state management with streaming support.
 library;
 
-import 'package:flutter/foundation.dart';
+import 'dart:async';
+import 'package:flutter/material.dart';
 
 import '../models/message.dart';
 import '../models/thread.dart';
@@ -36,6 +37,18 @@ class ConversationProvider extends ChangeNotifier {
 
   /// Error message if something failed
   String? _error;
+
+  /// Message pending deletion (during undo window)
+  Message? _pendingDelete;
+
+  /// Index where message was before removal (for restoration)
+  int _pendingDeleteIndex = 0;
+
+  /// Thread ID for pending delete (needed for backend call)
+  String? _pendingDeleteThreadId;
+
+  /// Timer for deferred deletion
+  Timer? _deleteTimer;
 
   ConversationProvider({
     AIService? aiService,
@@ -163,5 +176,91 @@ class ConversationProvider extends ChangeNotifier {
   void clearError() {
     _error = null;
     notifyListeners();
+  }
+
+  /// Delete message with optimistic UI and undo support
+  ///
+  /// Immediately removes from list, shows SnackBar with undo.
+  /// Actual deletion happens after 10 seconds unless undone.
+  Future<void> deleteMessage(
+    BuildContext context,
+    String threadId,
+    String messageId,
+  ) async {
+    // Find message in list
+    final index = _messages.indexWhere((m) => m.id == messageId);
+    if (index == -1) return;
+
+    // Cancel any previous pending delete (commit it immediately)
+    if (_pendingDelete != null) {
+      await _commitPendingDelete();
+    }
+
+    // Remove optimistically
+    _pendingDelete = _messages[index];
+    _pendingDeleteIndex = index;
+    _pendingDeleteThreadId = threadId;
+    _messages.removeAt(index);
+
+    notifyListeners();
+
+    // Show undo SnackBar
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).clearSnackBars();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('Message deleted'),
+          duration: const Duration(seconds: 10),
+          action: SnackBarAction(
+            label: 'Undo',
+            onPressed: () => _undoDelete(),
+          ),
+        ),
+      );
+    }
+
+    // Start deletion timer
+    _deleteTimer?.cancel();
+    _deleteTimer = Timer(const Duration(seconds: 10), () {
+      _commitPendingDelete();
+    });
+  }
+
+  void _undoDelete() {
+    _deleteTimer?.cancel();
+    if (_pendingDelete != null) {
+      // Restore at original position (or end if index invalid)
+      final insertIndex = _pendingDeleteIndex.clamp(0, _messages.length);
+      _messages.insert(insertIndex, _pendingDelete!);
+      _pendingDelete = null;
+      _pendingDeleteThreadId = null;
+      notifyListeners();
+    }
+  }
+
+  Future<void> _commitPendingDelete() async {
+    if (_pendingDelete == null || _pendingDeleteThreadId == null) return;
+
+    final messageToDelete = _pendingDelete!;
+    final threadId = _pendingDeleteThreadId!;
+    final originalIndex = _pendingDeleteIndex;
+    _pendingDelete = null;
+    _pendingDeleteThreadId = null;
+
+    try {
+      await _aiService.deleteMessage(threadId, messageToDelete.id);
+    } catch (e) {
+      // Rollback: restore to list
+      final insertIndex = originalIndex.clamp(0, _messages.length);
+      _messages.insert(insertIndex, messageToDelete);
+      _error = 'Failed to delete message: $e';
+      notifyListeners();
+    }
+  }
+
+  @override
+  void dispose() {
+    _deleteTimer?.cancel();
+    super.dispose();
   }
 }

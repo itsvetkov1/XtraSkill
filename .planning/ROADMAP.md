@@ -33,7 +33,7 @@ This milestone delivers four friction-reduction features for the conversation wo
 
 **Plans:** 1 plan
 Plans:
-- [ ] 11-01-PLAN.md - Add copy button to assistant messages with clipboard integration
+- [x] 11-01-PLAN.md - Add copy button to assistant messages with clipboard integration
 
 ---
 
@@ -105,7 +105,7 @@ Plans:
 
 | Phase | Name | Requirements | Status | Verified |
 |-------|------|--------------|--------|----------|
-| 11 | Copy AI Response | 4 | Planned | - |
+| 11 | Copy AI Response | 4 | Complete | 2026-01-30 |
 | 12 | Retry Failed Message | 4 | Pending | - |
 | 13 | Auth Provider Display | 2 | Pending | - |
 | 14 | Thread Rename | 4 | Pending | - |
@@ -122,4 +122,4 @@ Recommended order: 11 -> 12 -> 13 -> 14
 ---
 
 *Roadmap created: 2026-01-30*
-*Last updated: 2026-01-30*
+*Last updated: 2026-01-30 (Phase 11 complete)*

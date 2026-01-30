@@ -13,7 +13,7 @@ See: .planning/PROJECT.md (updated 2026-01-29)
 Phase: 10 of 10 (Polish & Empty States)
 Plan: 2 of 5 in current phase
 Status: In progress
-Last activity: 2026-01-30 — Completed 10-02-PLAN.md (Home Screen Redesign)
+Last activity: 2026-01-30 — Completed 10-01-PLAN.md (Foundation Infrastructure) and 10-02-PLAN.md (Home Screen Redesign)
 
 Progress: [██████████████████░░] 92% (9/10 phases, 2/5 plans in Phase 10)
 
@@ -40,6 +40,7 @@ Progress: [██████████████████░░] 92% (9/
 - Plan 09-01 completed: Backend DELETE endpoints for projects, threads, documents, messages
 - Plan 09-02 completed: Frontend deletion services and providers with optimistic UI and undo
 - Plan 09-03 completed: UI integration with delete buttons, confirmation dialogs, post-delete navigation
+- Plan 10-01 completed: Foundation infrastructure (DateFormatter utility + EmptyState widget)
 
 ## Accumulated Context
 
@@ -73,6 +74,8 @@ Recent decisions affecting current work:
 - **Phase 9:** PopupMenuButton for list item delete options (extensible for future actions)
 - **Phase 9:** Long-press bottom sheet for message deletion (mobile-friendly pattern)
 - **Phase 10:** Greeting fallback: displayName -> email prefix -> "there" for graceful degradation
+- **Phase 10:** 7-day threshold for relative vs absolute dates (timeago for <7 days, intl DateFormat for >=7 days)
+- **Phase 10:** EmptyState widget: FilledButton.icon CTA per Material 3, 64px themed icon
 
 ### Pending Todos
 
@@ -92,6 +95,6 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-01-30
-Stopped at: Completed 10-02-PLAN.md (Home Screen Redesign)
+Stopped at: Completed 10-01-PLAN.md (Foundation Infrastructure)
 Resume file: None
 Next action: Execute 10-03-PLAN.md (Empty States for List Screens)

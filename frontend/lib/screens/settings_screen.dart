@@ -118,7 +118,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Widget _buildProfileTile(BuildContext context, AuthProvider authProvider) {
     final email = authProvider.email ?? 'Unknown';
     final displayName = authProvider.displayName;
+    final provider = authProvider.authProvider;
     final initials = _getInitials(displayName ?? email);
+
+    // Determine if we need three lines:
+    // Line 1: displayName (or email if no displayName)
+    // Line 2: email (only if displayName exists)
+    // Line 3: "Signed in with X" (if provider exists)
+    final hasDisplayName = displayName != null;
+    final hasProvider = provider != null;
+    final isThreeLine = hasDisplayName && hasProvider;
 
     return ListTile(
       leading: CircleAvatar(
@@ -132,8 +141,54 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ),
       ),
       title: Text(displayName ?? email),
-      subtitle: displayName != null ? Text(email) : null,
+      subtitle: _buildProfileSubtitle(context, email, displayName, provider),
+      isThreeLine: isThreeLine,
     );
+  }
+
+  Widget? _buildProfileSubtitle(
+    BuildContext context,
+    String email,
+    String? displayName,
+    String? provider,
+  ) {
+    final lines = <Widget>[];
+
+    // Show email if we have a display name (email becomes secondary)
+    if (displayName != null) {
+      lines.add(Text(email));
+    }
+
+    // Show provider if available
+    if (provider != null) {
+      lines.add(
+        Text(
+          'Signed in with ${_formatProviderName(provider)}',
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+        ),
+      );
+    }
+
+    if (lines.isEmpty) return null;
+    if (lines.length == 1) return lines.first;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: lines,
+    );
+  }
+
+  String _formatProviderName(String provider) {
+    switch (provider.toLowerCase()) {
+      case 'google':
+        return 'Google';
+      case 'microsoft':
+        return 'Microsoft';
+      default:
+        return provider;
+    }
   }
 
   String _getInitials(String name) {

@@ -107,6 +107,11 @@ Plans:
 
 **Effort Estimate:** 3-4 hours (1hr backend, 2-3hr frontend)
 
+**Plans:** 2 plans
+Plans:
+- [ ] 14-01-PLAN.md - Backend PATCH endpoint for thread rename
+- [ ] 14-02-PLAN.md - Frontend service, provider, dialog, and UI integration
+
 ---
 
 ## Progress
@@ -116,7 +121,7 @@ Plans:
 | 11 | Copy AI Response | 4 | Complete | 2026-01-30 |
 | 12 | Retry Failed Message | 4 | Complete | 2026-01-30 |
 | 13 | Auth Provider Display | 2 | Complete | 2026-01-30 |
-| 14 | Thread Rename | 4 | Pending | - |
+| 14 | Thread Rename | 4 | Planned | - |
 
 **Total:** 14 requirements across 4 phases
 
@@ -130,4 +135,4 @@ Recommended order: 11 -> 12 -> 13 -> 14
 ---
 
 *Roadmap created: 2026-01-30*
-*Last updated: 2026-01-30 (Phase 13 complete)*
+*Last updated: 2026-01-30 (Phase 14 planned)*

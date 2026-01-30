@@ -31,6 +31,7 @@ class AuthProvider extends ChangeNotifier {
   String? _userId;
   String? _email;
   String? _displayName;
+  String? _authProvider;
   String? _errorMessage;
 
   AuthProvider({AuthService? authService})
@@ -57,6 +58,9 @@ class AuthProvider extends ChangeNotifier {
   /// Error message if authentication failed
   String? get errorMessage => _errorMessage;
 
+  /// OAuth provider used for authentication ("google" or "microsoft")
+  String? get authProvider => _authProvider;
+
   /// Check authentication status on app startup
   ///
   /// Loads stored token and validates it.
@@ -76,6 +80,7 @@ class AuthProvider extends ChangeNotifier {
         _userId = user['id'] as String?;
         _email = user['email'] as String?;
         _displayName = user['display_name'] as String?;
+        _authProvider = user['oauth_provider'] as String?;
         _state = AuthState.authenticated;
       } else {
         _state = AuthState.unauthenticated;
@@ -86,6 +91,7 @@ class AuthProvider extends ChangeNotifier {
       _userId = null;
       _email = null;
       _displayName = null;
+      _authProvider = null;
     }
 
     // Use Future.microtask to defer notification to avoid Flutter Web
@@ -157,6 +163,7 @@ class AuthProvider extends ChangeNotifier {
       _userId = user['id'] as String?;
       _email = user['email'] as String?;
       _displayName = user['display_name'] as String?;
+      _authProvider = user['oauth_provider'] as String?;
 
       _state = AuthState.authenticated;
       _errorMessage = null;
@@ -186,6 +193,7 @@ class AuthProvider extends ChangeNotifier {
       _userId = null;
       _email = null;
       _displayName = null;
+      _authProvider = null;
       _state = AuthState.unauthenticated;
       _errorMessage = null;
     } catch (e) {
@@ -193,6 +201,7 @@ class AuthProvider extends ChangeNotifier {
       _userId = null;
       _email = null;
       _displayName = null;
+      _authProvider = null;
       _state = AuthState.unauthenticated;
     }
 

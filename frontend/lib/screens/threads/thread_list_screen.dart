@@ -12,6 +12,7 @@ import '../../widgets/delete_confirmation_dialog.dart';
 import '../../widgets/empty_state.dart';
 import '../conversation/conversation_screen.dart';
 import 'thread_create_dialog.dart';
+import 'thread_rename_dialog.dart';
 
 /// Screen showing list of conversation threads in a project
 class ThreadListScreen extends StatefulWidget {
@@ -63,6 +64,17 @@ class _ThreadListScreenState extends State<ThreadListScreen> {
     if (confirmed && context.mounted) {
       context.read<ThreadProvider>().deleteThread(context, threadId);
     }
+  }
+
+  /// Show rename dialog for a thread
+  void _showRenameDialog(Thread thread) {
+    showDialog(
+      context: context,
+      builder: (context) => ThreadRenameDialog(
+        threadId: thread.id,
+        currentTitle: thread.title,
+      ),
+    );
   }
 
   /// Create placeholder thread for skeleton loader
@@ -172,11 +184,23 @@ class _ThreadListScreenState extends State<ThreadListScreen> {
                           ? const Icon(Icons.chevron_right)
                           : PopupMenuButton<String>(
                               onSelected: (value) {
-                                if (value == 'delete') {
+                                if (value == 'rename') {
+                                  _showRenameDialog(thread);
+                                } else if (value == 'delete') {
                                   _deleteThread(context, thread.id);
                                 }
                               },
                               itemBuilder: (context) => [
+                                const PopupMenuItem(
+                                  value: 'rename',
+                                  child: Row(
+                                    children: [
+                                      Icon(Icons.edit_outlined),
+                                      SizedBox(width: 8),
+                                      Text('Rename'),
+                                    ],
+                                  ),
+                                ),
                                 const PopupMenuItem(
                                   value: 'delete',
                                   child: Row(

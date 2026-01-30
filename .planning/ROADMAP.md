@@ -59,7 +59,7 @@ Plans:
 
 **Plans:** 1 plan
 Plans:
-- [ ] 12-01-PLAN.md - Add retry state to provider and retry button to error banner
+- [x] 12-01-PLAN.md - Add retry state to provider and retry button to error banner
 
 ---
 
@@ -110,7 +110,7 @@ Plans:
 | Phase | Name | Requirements | Status | Verified |
 |-------|------|--------------|--------|----------|
 | 11 | Copy AI Response | 4 | Complete | 2026-01-30 |
-| 12 | Retry Failed Message | 4 | Planned | - |
+| 12 | Retry Failed Message | 4 | Complete | 2026-01-30 |
 | 13 | Auth Provider Display | 2 | Pending | - |
 | 14 | Thread Rename | 4 | Pending | - |
 
@@ -126,4 +126,4 @@ Recommended order: 11 -> 12 -> 13 -> 14
 ---
 
 *Roadmap created: 2026-01-30*
-*Last updated: 2026-01-30 (Phase 12 planned)*
+*Last updated: 2026-01-30 (Phase 12 complete)*

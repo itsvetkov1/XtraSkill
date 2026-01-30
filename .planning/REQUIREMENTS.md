@@ -9,17 +9,17 @@ Requirements for v1.6 UX Quick Wins release. Each maps to roadmap phases.
 
 ### Error Recovery
 
-- [ ] **RETRY-01**: Error banner shows "Dismiss | Retry" actions when AI request fails
-- [ ] **RETRY-02**: Retry resends the last user message without retyping
-- [ ] **RETRY-03**: Failed message state tracked in ConversationProvider
-- [ ] **RETRY-04**: Works for both network errors and API errors
+- [x] **RETRY-01**: Error banner shows "Dismiss | Retry" actions when AI request fails
+- [x] **RETRY-02**: Retry resends the last user message without retyping
+- [x] **RETRY-03**: Failed message state tracked in ConversationProvider
+- [x] **RETRY-04**: Works for both network errors and API errors
 
 ### Content Copying
 
-- [ ] **COPY-01**: Copy icon button visible on all assistant messages
-- [ ] **COPY-02**: Copy action copies full message content to clipboard
-- [ ] **COPY-03**: Snackbar confirms "Copied to clipboard"
-- [ ] **COPY-04**: Copy works cross-platform (web, Android, iOS) with error handling
+- [x] **COPY-01**: Copy icon button visible on all assistant messages
+- [x] **COPY-02**: Copy action copies full message content to clipboard
+- [x] **COPY-03**: Snackbar confirms "Copied to clipboard"
+- [x] **COPY-04**: Copy works cross-platform (web, Android, iOS) with error handling
 
 ### Thread Management
 
@@ -70,14 +70,14 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| COPY-01 | Phase 11 | Pending |
-| COPY-02 | Phase 11 | Pending |
-| COPY-03 | Phase 11 | Pending |
-| COPY-04 | Phase 11 | Pending |
-| RETRY-01 | Phase 12 | Pending |
-| RETRY-02 | Phase 12 | Pending |
-| RETRY-03 | Phase 12 | Pending |
-| RETRY-04 | Phase 12 | Pending |
+| COPY-01 | Phase 11 | Complete |
+| COPY-02 | Phase 11 | Complete |
+| COPY-03 | Phase 11 | Complete |
+| COPY-04 | Phase 11 | Complete |
+| RETRY-01 | Phase 12 | Complete |
+| RETRY-02 | Phase 12 | Complete |
+| RETRY-03 | Phase 12 | Complete |
+| RETRY-04 | Phase 12 | Complete |
 | SETTINGS-01 | Phase 13 | Pending |
 | SETTINGS-02 | Phase 13 | Pending |
 | THREAD-01 | Phase 14 | Pending |
@@ -92,4 +92,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-01-30*
-*Last updated: 2026-01-30 after roadmap creation*
+*Last updated: 2026-01-30 (Phase 12 complete)*

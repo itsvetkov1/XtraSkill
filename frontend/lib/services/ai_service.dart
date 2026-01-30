@@ -2,6 +2,7 @@
 library;
 
 import 'dart:convert';
+import 'package:dio/dio.dart';
 import 'package:flutter_client_sse/constants/sse_request_type_enum.dart';
 import 'package:flutter_client_sse/flutter_client_sse.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -43,14 +44,30 @@ class ErrorEvent extends ChatEvent {
 
 /// AI service for streaming chat conversations
 class AIService {
+  /// HTTP client for API requests
+  final Dio _dio;
+
   /// Secure storage for JWT tokens
   final FlutterSecureStorage _storage;
 
   /// Storage key for JWT token
   static const String _tokenKey = 'auth_token';
 
-  AIService({FlutterSecureStorage? storage})
-      : _storage = storage ?? const FlutterSecureStorage();
+  AIService({Dio? dio, FlutterSecureStorage? storage})
+      : _dio = dio ?? Dio(),
+        _storage = storage ?? const FlutterSecureStorage();
+
+  /// Get authorization headers with JWT token
+  Future<Map<String, String>> _getHeaders() async {
+    final token = await _storage.read(key: _tokenKey);
+    if (token == null) {
+      throw Exception('Not authenticated');
+    }
+    return {
+      'Authorization': 'Bearer $token',
+      'Content-Type': 'application/json',
+    };
+  }
 
   /// Stream chat response from AI
   ///
@@ -118,6 +135,26 @@ class AIService {
       }
     } catch (e) {
       yield ErrorEvent(message: 'Connection error: $e');
+    }
+  }
+
+  /// Delete a message from a thread
+  ///
+  /// Returns successfully if deleted, throws on error.
+  Future<void> deleteMessage(String threadId, String messageId) async {
+    try {
+      final headers = await _getHeaders();
+      await _dio.delete(
+        '$apiBaseUrl/api/threads/$threadId/messages/$messageId',
+        options: Options(headers: headers),
+      );
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 401) {
+        throw Exception('Unauthorized - please login again');
+      } else if (e.response?.statusCode == 404) {
+        throw Exception('Message not found');
+      }
+      throw Exception('Failed to delete message: ${e.message}');
     }
   }
 }

@@ -156,4 +156,25 @@ class ProjectService {
       throw Exception('Failed to update project: ${e.message}');
     }
   }
+
+  /// Delete a project by ID
+  ///
+  /// Returns successfully if deleted, throws on error.
+  /// Backend cascades to threads, documents, messages.
+  Future<void> deleteProject(String id) async {
+    try {
+      final headers = await _getHeaders();
+      await _dio.delete(
+        '$_baseUrl/api/projects/$id',
+        options: Options(headers: headers),
+      );
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 401) {
+        throw Exception('Unauthorized - please login again');
+      } else if (e.response?.statusCode == 404) {
+        throw Exception('Project not found');
+      }
+      throw Exception('Failed to delete project: ${e.message}');
+    }
+  }
 }

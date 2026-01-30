@@ -125,4 +125,25 @@ class ThreadService {
       throw Exception('Failed to load thread: ${e.message}');
     }
   }
+
+  /// Delete a thread by ID
+  ///
+  /// Returns successfully if deleted, throws on error.
+  /// Backend cascades to messages in thread.
+  Future<void> deleteThread(String id) async {
+    try {
+      final headers = await _getAuthHeaders();
+      await _dio.delete(
+        '$_baseUrl/api/threads/$id',
+        options: Options(headers: headers),
+      );
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 401 || e.response?.statusCode == 403) {
+        throw Exception('Unauthorized - please login again');
+      } else if (e.response?.statusCode == 404) {
+        throw Exception('Thread not found');
+      }
+      throw Exception('Failed to delete thread: ${e.message}');
+    }
+  }
 }

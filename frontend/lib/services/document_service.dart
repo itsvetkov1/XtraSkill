@@ -104,6 +104,26 @@ class DocumentService {
         .map((json) => DocumentSearchResult.fromJson(json))
         .toList();
   }
+
+  /// Delete a document by ID
+  ///
+  /// Returns successfully if deleted, throws on error.
+  Future<void> deleteDocument(String id) async {
+    try {
+      final options = await _getAuthHeaders();
+      await _dio.delete(
+        '$_baseUrl/api/documents/$id',
+        options: options,
+      );
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 401) {
+        throw Exception('Unauthorized - please login again');
+      } else if (e.response?.statusCode == 404) {
+        throw Exception('Document not found');
+      }
+      throw Exception('Failed to delete document: ${e.message}');
+    }
+  }
 }
 
 /// Document search result with snippet and relevance score.

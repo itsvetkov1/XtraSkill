@@ -31,6 +31,10 @@ This milestone delivers four friction-reduction features for the conversation wo
 
 **Effort Estimate:** 1-2 hours
 
+**Plans:** 1 plan
+Plans:
+- [ ] 11-01-PLAN.md - Add copy button to assistant messages with clipboard integration
+
 ---
 
 ### Phase 12: Retry Failed Message
@@ -101,7 +105,7 @@ This milestone delivers four friction-reduction features for the conversation wo
 
 | Phase | Name | Requirements | Status | Verified |
 |-------|------|--------------|--------|----------|
-| 11 | Copy AI Response | 4 | Pending | - |
+| 11 | Copy AI Response | 4 | Planned | - |
 | 12 | Retry Failed Message | 4 | Pending | - |
 | 13 | Auth Provider Display | 2 | Pending | - |
 | 14 | Thread Rename | 4 | Pending | - |

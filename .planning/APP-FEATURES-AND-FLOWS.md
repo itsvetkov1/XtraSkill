@@ -37,6 +37,7 @@ This document maps every screen, button, feature, and user flow in the applicati
 - Google OAuth 2.0
 - Microsoft OAuth 2.0
 - JWT session management with secure token storage
+- **Token Refresh:** Tokens auto-refresh silently in background; users are never interrupted for re-authentication during normal use
 
 ---
 

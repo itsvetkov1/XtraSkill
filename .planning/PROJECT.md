@@ -10,9 +10,15 @@ Business analysts reduce time spent on requirement documentation while improving
 
 ## Current State
 
-**Shipped:** Beta v1.5 (2026-01-30)
+**Shipped:** v1.6 UX Quick Wins (2026-01-30)
 
-The application is executive-demo-ready with polished UI/UX:
+The application has four additional UX improvements reducing friction in the conversation workflow:
+- One-tap copy for AI responses with cross-platform clipboard support
+- Retry failed AI requests without retyping messages
+- Thread rename via AppBar edit icon or popup menu
+- Auth provider indicator showing "Signed in with Google/Microsoft"
+
+Previous features (v1.5):
 - Persistent responsive sidebar navigation (desktop rail, mobile drawer)
 - Theme management with instant persistence (no white flash)
 - Settings page with profile, token usage, logout
@@ -21,17 +27,11 @@ The application is executive-demo-ready with polished UI/UX:
 - Mode selector chips for AI conversations
 - Consistent date formatting and visual polish
 
-**Codebase:** 11,778 lines of Dart/Python across Flutter frontend and FastAPI backend.
+**Codebase:** ~12,000 lines of Dart/Python across Flutter frontend and FastAPI backend.
 
-## Current Milestone: v1.6 UX Quick Wins
+## Current Milestone: Planning Next
 
-**Goal:** Reduce friction in the core conversation workflow — users can recover from errors, copy content easily, organize threads, and identify their account.
-
-**Target features:**
-- Retry mechanism for failed AI messages
-- Copy functionality for AI responses
-- Thread rename after creation
-- Auth provider indicator in Settings
+**Previous:** v1.6 UX Quick Wins (complete)
 
 ## Future Milestone Goals
 
@@ -76,13 +76,14 @@ The application is executive-demo-ready with polished UI/UX:
 - ✓ Breadcrumb navigation or contextual back arrows show navigation context — Beta v1.5
 - ✓ Message pills have improved readability (padding, font size) — Beta v1.5
 - ✓ Project cards display metadata badges (thread count, document count) — Beta v1.5
+- ✓ User can retry a failed AI request without retyping message — v1.6
+- ✓ User can copy AI-generated content with one tap — v1.6
+- ✓ User can rename conversation thread after creation — v1.6
+- ✓ User can see which OAuth provider they're signed in with — v1.6
 
 ### Active
 
-- [ ] User can retry a failed AI request without retyping message (THREAD-001)
-- [ ] User can copy AI-generated content with one tap (THREAD-002)
-- [ ] User can rename conversation thread after creation (THREAD-003)
-- [ ] User can see which OAuth provider they're signed in with (SETTINGS-001)
+(None — planning next milestone)
 
 ### Deferred
 
@@ -148,6 +149,9 @@ BAs prepare for meetings by uploading existing requirements or stakeholder notes
 | Hard delete with CASCADE | Database handles child record cleanup; simplifies backend code | ✓ Implemented (Phase 09) |
 | 10-second undo window | Timer-based deferred deletion with optimistic UI; industry-standard pattern | ✓ Implemented (Phase 09) |
 | ActionChip for mode selection | Tap-action semantics (not toggle), immediate response initiation | ✓ Implemented (Phase 10) |
+| Synchronous clipboard for Safari | Safari requires clipboard in sync user gesture handler; no async/await | ✓ Implemented (Phase 11) |
+| PATCH for thread rename (not PUT) | Semantically correct for single-field updates | ✓ Implemented (Phase 14) |
+| Return 404 for non-owner | Security: don't leak thread existence to non-owners | ✓ Implemented (Phase 14) |
 
 ---
-*Last updated: 2026-01-30 after v1.6 milestone initialization*
+*Last updated: 2026-01-30 after v1.6 milestone completion*

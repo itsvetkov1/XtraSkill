@@ -1,5 +1,31 @@
 # Project Milestones: Business Analyst Assistant
 
+## v1.6 UX Quick Wins (Shipped: 2026-01-30)
+
+**Delivered:** Four friction-reduction features for the conversation workflow — copy responses, retry failures, auth provider display, and thread rename.
+
+**Phases completed:** 11-14 (5 plans total)
+
+**Key accomplishments:**
+
+- One-tap copy for AI responses with synchronous clipboard integration (Safari compatible)
+- Retry failed messages without retyping with smart duplicate prevention
+- Auth provider indicator in Settings ("Signed in with Google/Microsoft")
+- Thread rename via AppBar edit icon or popup menu with full-stack implementation
+
+**Stats:**
+
+- ~12,000 lines of Dart/Python
+- 4 phases, 5 plans
+- 14/14 requirements satisfied
+- 1 day from start to ship (2026-01-30)
+
+**Git range:** `feat(11-01)` → `feat(14-02)`
+
+**What's next:** v2.0 — Search, Previews & Integrations
+
+---
+
 ## v1.5 Beta - UI/UX Excellence (Shipped: 2026-01-30)
 
 **Delivered:** Executive-demo-ready application with persistent navigation, professional empty states, deletion with undo, and visual polish.
@@ -58,4 +84,4 @@
 
 ---
 
-*Last updated: 2026-01-30*
+*Last updated: 2026-01-30 (v1.6 complete)*

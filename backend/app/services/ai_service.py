@@ -1,17 +1,13 @@
 """
-AI Service for Claude API integration.
+AI Service for LLM-powered chat with document search and artifact tools.
 
-Uses direct Anthropic API with document search and artifact generation tools.
-Note: AgentService requires Claude Code CLI which may not be installed.
+Uses the LLM adapter pattern for provider-agnostic interactions.
+Currently supports Anthropic Claude, with Gemini and DeepSeek planned for Phase 21.
 """
-import anthropic
 from typing import AsyncGenerator, List, Dict, Any, Optional
-from app.config import settings
 from app.services.document_search import search_documents
+from app.services.llm import LLMFactory, StreamChunk
 from app.models import Artifact, ArtifactType
-
-# Claude model to use
-MODEL = "claude-sonnet-4-5-20250929"
 
 # System prompt for BA assistant behavior - Business Analyst Skill (transformed from .claude/business-analyst/)
 SYSTEM_PROMPT = """<system_prompt>
@@ -587,10 +583,16 @@ You may call this tool multiple times to create multiple artifacts.""",
 
 
 class AIService:
-    """Claude AI service for streaming chat with tool use."""
+    """LLM service for streaming chat with tool use via adapter pattern."""
 
-    def __init__(self):
-        self.client = anthropic.AsyncAnthropic(api_key=settings.anthropic_api_key)
+    def __init__(self, provider: str = "anthropic"):
+        """
+        Initialize AI service with specified LLM provider.
+
+        Args:
+            provider: LLM provider name (default: "anthropic")
+        """
+        self.adapter = LLMFactory.create(provider)
         self.tools = [DOCUMENT_SEARCH_TOOL, SAVE_ARTIFACT_TOOL]
 
     async def execute_tool(
@@ -657,10 +659,10 @@ class AIService:
         db
     ) -> AsyncGenerator[Dict[str, Any], None]:
         """
-        Stream chat response from Claude with tool use.
+        Stream chat response using LLM adapter with tool use.
 
         Yields SSE-formatted events:
-        - text_delta: Incremental text from Claude
+        - text_delta: Incremental text from LLM
         - tool_executing: Tool is being executed
         - artifact_created: An artifact was generated and saved
         - message_complete: Final message with usage stats
@@ -670,91 +672,109 @@ class AIService:
 
         try:
             while True:
-                async with self.client.messages.stream(
-                    model=MODEL,
-                    max_tokens=4096,
-                    messages=messages,
-                    tools=self.tools,
-                    system=SYSTEM_PROMPT
-                ) as stream:
-                    accumulated_text = ""
+                accumulated_text = ""
+                tool_calls = []
+                usage_data = None
 
-                    async for text in stream.text_stream:
-                        accumulated_text += text
+                # Stream from adapter
+                async for chunk in self.adapter.stream_chat(
+                    messages=messages,
+                    system_prompt=SYSTEM_PROMPT,
+                    tools=self.tools,
+                    max_tokens=4096
+                ):
+                    if chunk.chunk_type == "text":
+                        accumulated_text += chunk.content
                         yield {
                             "event": "text_delta",
-                            "data": json.dumps({"text": text})
+                            "data": json.dumps({"text": chunk.content})
                         }
 
-                    final = await stream.get_final_message()
+                    elif chunk.chunk_type == "tool_use":
+                        tool_calls.append(chunk.tool_call)
 
-                    # Check if we need to execute tools
-                    if final.stop_reason != "tool_use":
-                        # Done - yield completion event
+                    elif chunk.chunk_type == "complete":
+                        usage_data = chunk.usage
+
+                    elif chunk.chunk_type == "error":
                         yield {
-                            "event": "message_complete",
-                            "data": json.dumps({
-                                "content": accumulated_text,
-                                "usage": {
-                                    "input_tokens": final.usage.input_tokens,
-                                    "output_tokens": final.usage.output_tokens
-                                }
-                            })
+                            "event": "error",
+                            "data": json.dumps({"message": chunk.error})
                         }
                         return
 
-                    # Execute tools
-                    tool_results = []
-                    for block in final.content:
-                        if block.type == "tool_use":
-                            # Show tool-specific status
-                            if block.name == "save_artifact":
-                                yield {
-                                    "event": "tool_executing",
-                                    "data": json.dumps({"status": "Generating artifact..."})
-                                }
-                            else:
-                                yield {
-                                    "event": "tool_executing",
-                                    "data": json.dumps({"status": "Searching project documents..."})
-                                }
+                # If no tool calls, we're done
+                if not tool_calls:
+                    yield {
+                        "event": "message_complete",
+                        "data": json.dumps({
+                            "content": accumulated_text,
+                            "usage": usage_data or {}
+                        })
+                    }
+                    return
 
-                            result, event_data = await self.execute_tool(
-                                block.name,
-                                block.input,
-                                project_id,
-                                thread_id,
-                                db
-                            )
-                            tool_results.append({
-                                "type": "tool_result",
-                                "tool_use_id": block.id,
-                                "content": result
-                            })
+                # Execute tools and continue conversation
+                tool_results = []
+                for tool_call in tool_calls:
+                    tool_name = tool_call["name"]
 
-                            # Emit artifact_created event if artifact was saved
-                            if event_data and block.name == "save_artifact":
-                                yield {
-                                    "event": "artifact_created",
-                                    "data": json.dumps(event_data)
-                                }
-
-                    # Continue conversation with tool results
-                    messages.append({"role": "assistant", "content": final.content})
-                    messages.append({"role": "user", "content": tool_results})
-
-                    # Yield accumulated text before tool call
-                    if accumulated_text:
+                    # Show tool-specific status
+                    if tool_name == "save_artifact":
                         yield {
-                            "event": "text_delta",
-                            "data": json.dumps({"text": "\n\n"})
+                            "event": "tool_executing",
+                            "data": json.dumps({"status": "Generating artifact..."})
+                        }
+                    else:
+                        yield {
+                            "event": "tool_executing",
+                            "data": json.dumps({"status": "Searching project documents..."})
                         }
 
-        except anthropic.APIError as e:
-            yield {
-                "event": "error",
-                "data": json.dumps({"message": f"AI service error: {str(e)}"})
-            }
+                    result, event_data = await self.execute_tool(
+                        tool_name,
+                        tool_call["input"],
+                        project_id,
+                        thread_id,
+                        db
+                    )
+                    tool_results.append({
+                        "type": "tool_result",
+                        "tool_use_id": tool_call["id"],
+                        "content": result
+                    })
+
+                    # Emit artifact_created event if artifact was saved
+                    if event_data and tool_name == "save_artifact":
+                        yield {
+                            "event": "artifact_created",
+                            "data": json.dumps(event_data)
+                        }
+
+                # Build assistant message content for conversation history
+                # Need to reconstruct content blocks for Anthropic format
+                assistant_content = []
+                if accumulated_text:
+                    assistant_content.append({"type": "text", "text": accumulated_text})
+                for tc in tool_calls:
+                    assistant_content.append({
+                        "type": "tool_use",
+                        "id": tc["id"],
+                        "name": tc["name"],
+                        "input": tc["input"]
+                    })
+
+                # Continue conversation with tool results
+                messages.append({"role": "assistant", "content": assistant_content})
+                messages.append({"role": "user", "content": tool_results})
+
+                # Yield accumulated text separator before next iteration
+                if accumulated_text:
+                    yield {
+                        "event": "text_delta",
+                        "data": json.dumps({"text": "\n\n"})
+                    }
+
         except Exception as e:
             yield {
                 "event": "error",

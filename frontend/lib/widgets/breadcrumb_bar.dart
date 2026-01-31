@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
+import '../providers/conversation_provider.dart';
 import '../providers/project_provider.dart';
 
 /// Data class representing a single breadcrumb segment
@@ -89,14 +90,29 @@ class BreadcrumbBar extends StatelessWidget {
         return [const Breadcrumb('Projects')];
       }
 
-      // /projects/:id -> Projects > {Project Name}
+      // /projects/:id or /projects/:id/threads/:threadId
       breadcrumbs.add(const Breadcrumb('Projects', '/projects'));
 
+      // Add project name (segments[1] is the project ID)
       if (segments.length >= 2) {
         final projectProvider = context.read<ProjectProvider>();
         final projectName =
             projectProvider.selectedProject?.name ?? 'Project';
-        breadcrumbs.add(Breadcrumb(projectName));
+
+        // If we have threads segment, project name links to project detail
+        if (segments.length >= 4 && segments[2] == 'threads') {
+          final projectId = segments[1];
+          breadcrumbs.add(Breadcrumb(projectName, '/projects/$projectId'));
+
+          // Add thread/conversation name
+          final conversationProvider = context.read<ConversationProvider>();
+          final threadTitle =
+              conversationProvider.thread?.title ?? 'Conversation';
+          breadcrumbs.add(Breadcrumb(threadTitle));
+        } else {
+          // Just /projects/:id - project name is current page (no link)
+          breadcrumbs.add(Breadcrumb(projectName));
+        }
       }
 
       return breadcrumbs;

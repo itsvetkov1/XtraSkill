@@ -4,8 +4,10 @@ library;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../core/constants.dart';
 import '../models/token_usage.dart';
 import '../providers/auth_provider.dart';
+import '../providers/provider_provider.dart';
 import '../providers/theme_provider.dart';
 import '../services/auth_service.dart';
 
@@ -84,6 +86,40 @@ class _SettingsScreenState extends State<SettingsScreen> {
               subtitle: const Text('Use dark theme'),
               value: themeProvider.isDarkMode,
               onChanged: (_) => themeProvider.toggleTheme(),
+            );
+          },
+        ),
+        const Divider(),
+
+        // Preferences Section
+        _buildSectionHeader(context, 'Preferences'),
+        Consumer<ProviderProvider>(
+          builder: (context, providerProvider, _) {
+            return ListTile(
+              title: const Text('Default AI Provider'),
+              subtitle: const Text('Provider for new conversations'),
+              trailing: DropdownButton<String>(
+                value: providerProvider.selectedProvider,
+                underline: const SizedBox.shrink(),
+                items: ProviderConfigs.all.map((config) {
+                  return DropdownMenuItem<String>(
+                    value: config.id,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(config.icon, color: config.color, size: 20),
+                        const SizedBox(width: 8),
+                        Text(config.displayName),
+                      ],
+                    ),
+                  );
+                }).toList(),
+                onChanged: (value) {
+                  if (value != null) {
+                    providerProvider.setProvider(value);
+                  }
+                },
+              ),
             );
           },
         ),

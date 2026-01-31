@@ -33,7 +33,7 @@ Requirements for URL & Deep Links milestone. Each maps to roadmap phases.
 - [x] **ERR-01**: Invalid route path shows 404 error page with navigation options
 - [x] **ERR-02**: Valid route with non-existent project shows "Project not found" state
 - [x] **ERR-03**: Valid route with non-existent thread shows "Thread not found" state
-- [ ] **ERR-04**: Invalid `returnUrl` (deleted resource) handled gracefully after login
+- [ ] **ERR-04**: Invalid `returnUrl` (deleted resource) handled gracefully after login *(awaiting manual validation)*
 
 ## v2.0 Requirements
 
@@ -83,7 +83,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | ERR-01 | Phase 15 | Complete |
 | ERR-02 | Phase 17 | Complete |
 | ERR-03 | Phase 17 | Complete |
-| ERR-04 | Phase 18 | Pending |
+| ERR-04 | Phase 18 | Awaiting Validation |
 
 **Coverage:**
 - v1.7 requirements: 16 total
@@ -92,4 +92,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-01-31*
-*Last updated: 2026-01-31 after phase 17 completion*
+*Last updated: 2026-01-31 (ERR-04 awaiting manual validation per 18-01-PLAN.md)*

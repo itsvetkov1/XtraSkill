@@ -20,11 +20,15 @@ from app.utils.jwt import get_current_user
 
 router = APIRouter()
 
+# Valid LLM providers for thread binding
+VALID_PROVIDERS = ["anthropic", "google", "deepseek"]
+
 
 # Request/Response models
 class ThreadCreate(BaseModel):
     """Request model for creating a thread."""
     title: Optional[str] = Field(None, max_length=255)
+    model_provider: Optional[str] = Field(None, max_length=20)
 
 
 class ThreadUpdate(BaseModel):
@@ -48,6 +52,7 @@ class ThreadResponse(BaseModel):
     id: str
     project_id: str
     title: Optional[str]
+    model_provider: Optional[str] = "anthropic"  # Default for backward compatibility
     created_at: str
     updated_at: str
 
@@ -113,10 +118,18 @@ async def create_thread(
             detail="Title must be 255 characters or less"
         )
 
+    # Validate provider if provided
+    if thread_data.model_provider and thread_data.model_provider not in VALID_PROVIDERS:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Invalid provider. Valid options: {', '.join(VALID_PROVIDERS)}"
+        )
+
     # Create thread
     thread = Thread(
         project_id=project_id,
-        title=thread_data.title
+        title=thread_data.title,
+        model_provider=thread_data.model_provider or "anthropic"
     )
 
     db.add(thread)
@@ -127,6 +140,7 @@ async def create_thread(
         id=thread.id,
         project_id=thread.project_id,
         title=thread.title,
+        model_provider=thread.model_provider or "anthropic",
         created_at=thread.created_at.isoformat(),
         updated_at=thread.updated_at.isoformat(),
     )
@@ -184,6 +198,7 @@ async def list_threads(
             id=thread.id,
             project_id=thread.project_id,
             title=thread.title,
+            model_provider=thread.model_provider or "anthropic",
             created_at=thread.created_at.isoformat(),
             updated_at=thread.updated_at.isoformat(),
             message_count=len(thread.messages),
@@ -247,6 +262,7 @@ async def get_thread(
         id=thread.id,
         project_id=thread.project_id,
         title=thread.title,
+        model_provider=thread.model_provider or "anthropic",
         created_at=thread.created_at.isoformat(),
         updated_at=thread.updated_at.isoformat(),
         messages=[
@@ -318,6 +334,7 @@ async def rename_thread(
         id=thread.id,
         project_id=thread.project_id,
         title=thread.title,
+        model_provider=thread.model_provider or "anthropic",
         created_at=thread.created_at.isoformat(),
         updated_at=thread.updated_at.isoformat(),
     )

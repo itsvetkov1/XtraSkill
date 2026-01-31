@@ -21,9 +21,8 @@ class LLMProvider(str, Enum):
     the provider-specific API calls and response normalization.
     """
     ANTHROPIC = "anthropic"
-    # Future providers (Phase 21):
-    # GOOGLE = "google"
-    # DEEPSEEK = "deepseek"
+    GOOGLE = "google"
+    DEEPSEEK = "deepseek"
 
 
 @dataclass

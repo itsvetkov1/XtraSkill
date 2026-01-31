@@ -34,6 +34,10 @@ class Settings(BaseSettings):
 
     # AI Service
     anthropic_api_key: str = ""
+    google_api_key: str = ""
+    gemini_model: str = "gemini-3-flash-preview"
+    deepseek_api_key: str = ""
+    deepseek_model: str = "deepseek-reasoner"
 
     # CORS
     cors_origins: str = "http://localhost:3000,http://localhost:8080"

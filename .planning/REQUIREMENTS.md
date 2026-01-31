@@ -10,9 +10,9 @@ Requirements for URL & Deep Links milestone. Each maps to roadmap phases.
 ### Route Architecture
 
 - [x] **ROUTE-01**: Conversations have unique URLs (`/projects/:projectId/threads/:threadId`)
-- [ ] **ROUTE-02**: Browser back/forward navigation works correctly from conversation screen
+- [x] **ROUTE-02**: Browser back/forward navigation works correctly from conversation screen
 - [x] **ROUTE-03**: GoRouter errorBuilder displays 404 page for invalid routes
-- [ ] **ROUTE-04**: ConversationScreen accepts projectId and threadId from URL parameters
+- [x] **ROUTE-04**: ConversationScreen accepts projectId and threadId from URL parameters
 
 ### URL Preservation
 
@@ -31,8 +31,8 @@ Requirements for URL & Deep Links milestone. Each maps to roadmap phases.
 ### Error Handling
 
 - [x] **ERR-01**: Invalid route path shows 404 error page with navigation options
-- [ ] **ERR-02**: Valid route with non-existent project shows "Project not found" state
-- [ ] **ERR-03**: Valid route with non-existent thread shows "Thread not found" state
+- [x] **ERR-02**: Valid route with non-existent project shows "Project not found" state
+- [x] **ERR-03**: Valid route with non-existent thread shows "Thread not found" state
 - [ ] **ERR-04**: Invalid `returnUrl` (deleted resource) handled gracefully after login
 
 ## v2.0 Requirements
@@ -69,9 +69,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | Requirement | Phase | Status |
 |-------------|-------|--------|
 | ROUTE-01 | Phase 15 | Complete |
-| ROUTE-02 | Phase 17 | Pending |
+| ROUTE-02 | Phase 17 | Complete |
 | ROUTE-03 | Phase 15 | Complete |
-| ROUTE-04 | Phase 17 | Pending |
+| ROUTE-04 | Phase 17 | Complete |
 | URL-01 | Phase 16 | Complete |
 | URL-02 | Phase 16 | Complete |
 | URL-03 | Phase 16 | Complete |
@@ -81,8 +81,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | AUTH-03 | Phase 16 | Complete |
 | AUTH-04 | Phase 16 | Complete |
 | ERR-01 | Phase 15 | Complete |
-| ERR-02 | Phase 17 | Pending |
-| ERR-03 | Phase 17 | Pending |
+| ERR-02 | Phase 17 | Complete |
+| ERR-03 | Phase 17 | Complete |
 | ERR-04 | Phase 18 | Pending |
 
 **Coverage:**
@@ -92,4 +92,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-01-31*
-*Last updated: 2026-01-31 after phase 16 completion*
+*Last updated: 2026-01-31 after phase 17 completion*

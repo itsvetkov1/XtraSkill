@@ -82,8 +82,8 @@ Plans:
 **Plans:** 2 plans
 
 Plans:
-- [ ] 17-01-PLAN.md - ResourceNotFoundState widget and project not-found handling
-- [ ] 17-02-PLAN.md - Thread not-found handling and browser history option
+- [x] 17-01-PLAN.md - ResourceNotFoundState widget and project not-found handling
+- [x] 17-02-PLAN.md - Thread not-found handling and browser history option
 
 **Success Criteria:**
 1. User opens conversation via URL `/projects/abc/threads/xyz`, screen loads correct thread
@@ -115,7 +115,7 @@ Plans:
 |-------|------|--------------|--------|
 | 15 | route-architecture | ROUTE-01, ROUTE-03, ERR-01 | Complete |
 | 16 | auth-url-preservation | URL-01-04, AUTH-01-04 | Complete |
-| 17 | screen-url-integration | ROUTE-02, ROUTE-04, ERR-02, ERR-03 | Planned |
+| 17 | screen-url-integration | ROUTE-02, ROUTE-04, ERR-02, ERR-03 | Complete |
 | 18 | validation | ERR-04 | Pending |
 
 **Coverage:** 16/16 requirements mapped
@@ -136,4 +136,4 @@ Decisions made during roadmap creation:
 ---
 
 *Roadmap created: 2026-01-31*
-*Last updated: 2026-01-31 (phase 17 planned)*
+*Last updated: 2026-01-31 (phase 17 complete)*

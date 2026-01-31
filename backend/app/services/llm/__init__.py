@@ -12,10 +12,12 @@ Exports:
     LLMFactory: Factory for creating provider adapters
     AnthropicAdapter: Anthropic Claude adapter implementation
     GeminiAdapter: Google Gemini adapter implementation
+    DeepSeekAdapter: DeepSeek adapter implementation
 """
 from .base import LLMAdapter, LLMProvider, StreamChunk
 from .anthropic_adapter import AnthropicAdapter
 from .gemini_adapter import GeminiAdapter
+from .deepseek_adapter import DeepSeekAdapter
 from .factory import LLMFactory
 
 __all__ = [
@@ -25,4 +27,5 @@ __all__ = [
     "LLMFactory",
     "AnthropicAdapter",
     "GeminiAdapter",
+    "DeepSeekAdapter",
 ]

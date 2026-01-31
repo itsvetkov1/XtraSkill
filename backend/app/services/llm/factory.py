@@ -115,10 +115,14 @@ class LLMFactory:
                 )
             return key
 
-        # Future providers (Phase 21):
-        # if provider == LLMProvider.DEEPSEEK:
-        #     key = settings.deepseek_api_key
-        #     ...
+        if provider == LLMProvider.DEEPSEEK:
+            key = settings.deepseek_api_key
+            if not key:
+                raise ValueError(
+                    "DEEPSEEK_API_KEY not configured. "
+                    "Get API key from https://platform.deepseek.com/api_keys"
+                )
+            return key
 
         raise ValueError(f"No API key configuration for provider: {provider.value}")
 

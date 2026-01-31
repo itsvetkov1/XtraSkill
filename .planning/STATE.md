@@ -10,17 +10,17 @@ See: .planning/PROJECT.md (updated 2026-01-31)
 
 ## Current Position
 
-Phase: 21 - provider-adapters (VERIFIED)
-Plan: All complete
-Status: Phase 21 verified, ready for Phase 22
-Last activity: 2026-01-31 - Phase 21 verified
+Phase: 22 - frontend-provider-ui
+Plan: 01 of 02 complete
+Status: In progress
+Last activity: 2026-01-31 - Completed 22-01-PLAN.md
 
-Progress: [████████████████████] Phase 21: 2/2 plans complete
+Progress: [██████████░░░░░░░░░░] Phase 22: 1/2 plans complete
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 52 (20 in MVP v1.0, 15 in Beta v1.5, 5 in UX v1.6, 8 in URL v1.7, 4 in LLM v1.8)
+- Total plans completed: 53 (20 in MVP v1.0, 15 in Beta v1.5, 5 in UX v1.6, 8 in URL v1.7, 5 in LLM v1.8)
 - Average duration: ~18 minutes (MVP v1.0), ~7 minutes (Beta v1.5), ~5 minutes (UX v1.6), ~4 minutes (URL v1.7), ~7 minutes (Phase 21)
 
 **By Milestone:**
@@ -31,7 +31,7 @@ Progress: [████████████████████] Phase 2
 | Beta v1.5 | 6-10 | 15/15 | Complete (2026-01-30) |
 | UX v1.6 | 11-14 | 5/5 | Complete (2026-01-30) |
 | URL v1.7 | 15-18 | 8/8 | Complete (2026-01-31) |
-| LLM v1.8 | 19-22 | 6/? | In Progress |
+| LLM v1.8 | 19-22 | 7/? | In Progress |
 
 ## Accumulated Context
 
@@ -54,6 +54,11 @@ v1.8 decisions logged in ROADMAP.md.
 - DeepSeek uses OpenAI SDK with base_url override
 - Simple retry: 2 retries, 1 second fixed delay (both providers)
 
+**Phase 22 decisions:**
+- Default provider: anthropic (Claude remains default)
+- SharedPreferences key: defaultLlmProvider
+- Provider list: ['anthropic', 'google', 'deepseek']
+
 ### Pending Todos
 
 - Manual validation tests for v1.7 deep linking (18 test cases in TESTING-QUEUE.md Phase 18 section)
@@ -71,10 +76,10 @@ Research identified potential concerns:
 ## Session Continuity
 
 Last session: 2026-01-31
-Stopped at: Phase 21 verified
+Stopped at: Completed 22-01-PLAN.md
 Resume file: None
-Next action: Run `/gsd:discuss-phase 22` or `/gsd:plan-phase 22`
+Next action: Run `/gsd:execute-plan 22-02` to add provider UI components
 
 ---
 
-*State updated: 2026-01-31 (Phase 21 verified)*
+*State updated: 2026-01-31 (22-01 complete)*

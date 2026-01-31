@@ -102,6 +102,12 @@ Plans:
 **Requirements:**
 - ERR-04: Invalid `returnUrl` (deleted resource) handled gracefully after login
 
+**Plans:** 2 plans
+
+Plans:
+- [ ] 18-01-PLAN.md - End-to-end validation test execution
+- [ ] 18-02-PLAN.md - Production deployment documentation
+
 **Success Criteria:**
 1. User logs in with returnUrl pointing to deleted project, sees graceful error (not crash)
 2. Browser refresh works on all route types (home, settings, project detail, conversation)
@@ -136,4 +142,4 @@ Decisions made during roadmap creation:
 ---
 
 *Roadmap created: 2026-01-31*
-*Last updated: 2026-01-31 (phase 17 complete)*
+*Last updated: 2026-01-31 (phase 18 planned)*

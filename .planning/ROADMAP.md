@@ -56,6 +56,11 @@ Plans:
 3. Chat endpoint selects correct adapter based on thread's provider
 4. SSE stream sends heartbeat events every 15 seconds during extended thinking
 
+**Plans:** 2 plans
+Plans:
+- [ ] 20-01-PLAN.md - Add model_provider column to Thread and update API
+- [ ] 20-02-PLAN.md - Implement SSE heartbeat wrapper for extended thinking
+
 ---
 
 ### Phase 21: provider-adapters
@@ -102,8 +107,8 @@ Plans:
 
 | Phase | Name | Requirements | Status |
 |-------|------|--------------|--------|
-| 19 | backend-abstraction | BACK-01, BACK-02, BACK-06 | Complete ✓ |
-| 20 | database-api | CONV-02, BACK-05 | Pending |
+| 19 | backend-abstraction | BACK-01, BACK-02, BACK-06 | Complete |
+| 20 | database-api | CONV-02, BACK-05 | Planned |
 | 21 | provider-adapters | BACK-03, BACK-04 | Pending |
 | 22 | frontend-provider-ui | SET-01, SET-02, CONV-01, CONV-03, UI-01, UI-02 | Pending |
 
@@ -125,3 +130,4 @@ Plans:
 *Roadmap created: 2026-01-31*
 *Phase 19 planned: 2026-01-31*
 *Phase 19 complete: 2026-01-31*
+*Phase 20 planned: 2026-01-31*

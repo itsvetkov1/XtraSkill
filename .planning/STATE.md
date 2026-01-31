@@ -52,9 +52,12 @@ v1.7 decisions logged in ROADMAP.md.
 - DEC-17-02-02: Navigate to /projects/{projectId} (parent project, not /home)
 - DEC-17-02-03: Set optionURLReflectsImperativeAPIs before usePathUrlStrategy()
 
+**Phase 18 decisions:**
+- DEC-18-01-01: Defer manual testing to TESTING-QUEUE.md (user not available for immediate testing)
+
 ### Pending Todos
 
-None.
+- Manual validation tests for v1.7 deep linking (18 test cases in TESTING-QUEUE.md Phase 18 section)
 
 ### Blockers/Concerns
 
@@ -72,4 +75,4 @@ Next action: Archive v1.7 roadmap to milestones/ and create v1.8 or v2.0 roadmap
 
 ---
 
-*State updated: 2026-01-31 (v1.7 milestone complete)*
+*State updated: 2026-01-31 (18-01 complete with deferred testing)*

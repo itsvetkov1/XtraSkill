@@ -10,6 +10,7 @@ import '../../providers/thread_provider.dart';
 import '../../utils/date_formatter.dart';
 import '../../widgets/delete_confirmation_dialog.dart';
 import '../../widgets/empty_state.dart';
+import '../../widgets/resource_not_found_state.dart';
 import '../documents/document_upload_screen.dart';
 import '../threads/thread_list_screen.dart';
 
@@ -71,7 +72,19 @@ class _ProjectDetailScreenState extends State<ProjectDetailScreen>
           return const Center(child: CircularProgressIndicator());
         }
 
-        // Show error message
+        // Show not-found state (ERR-02) - check BEFORE generic error
+        if (provider.isNotFound) {
+          return ResourceNotFoundState(
+            icon: Icons.folder_off_outlined,
+            title: 'Project not found',
+            message:
+                'This project may have been deleted or you may not have access to it.',
+            buttonLabel: 'Back to Projects',
+            onPressed: () => context.go('/projects'),
+          );
+        }
+
+        // Show error message (network/server errors)
         if (provider.error != null) {
           return Center(
             child: Column(
@@ -88,8 +101,7 @@ class _ProjectDetailScreenState extends State<ProjectDetailScreen>
                 SelectableText(provider.error!),
                 const SizedBox(height: 16),
                 ElevatedButton(
-                  onPressed: () =>
-                      provider.selectProject(widget.projectId),
+                  onPressed: () => provider.selectProject(widget.projectId),
                   child: const Text('Retry'),
                 ),
               ],
@@ -99,7 +111,8 @@ class _ProjectDetailScreenState extends State<ProjectDetailScreen>
 
         final project = provider.selectedProject;
         if (project == null) {
-          return const Center(child: Text('Project not found'));
+          // Shouldn't reach here - either loading, error, or isNotFound
+          return const Center(child: CircularProgressIndicator());
         }
 
         return Column(

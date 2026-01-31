@@ -9,9 +9,9 @@ Requirements for URL & Deep Links milestone. Each maps to roadmap phases.
 
 ### Route Architecture
 
-- [ ] **ROUTE-01**: Conversations have unique URLs (`/projects/:projectId/threads/:threadId`)
+- [x] **ROUTE-01**: Conversations have unique URLs (`/projects/:projectId/threads/:threadId`)
 - [ ] **ROUTE-02**: Browser back/forward navigation works correctly from conversation screen
-- [ ] **ROUTE-03**: GoRouter errorBuilder displays 404 page for invalid routes
+- [x] **ROUTE-03**: GoRouter errorBuilder displays 404 page for invalid routes
 - [ ] **ROUTE-04**: ConversationScreen accepts projectId and threadId from URL parameters
 
 ### URL Preservation
@@ -30,7 +30,7 @@ Requirements for URL & Deep Links milestone. Each maps to roadmap phases.
 
 ### Error Handling
 
-- [ ] **ERR-01**: Invalid route path shows 404 error page with navigation options
+- [x] **ERR-01**: Invalid route path shows 404 error page with navigation options
 - [ ] **ERR-02**: Valid route with non-existent project shows "Project not found" state
 - [ ] **ERR-03**: Valid route with non-existent thread shows "Thread not found" state
 - [ ] **ERR-04**: Invalid `returnUrl` (deleted resource) handled gracefully after login
@@ -68,9 +68,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| ROUTE-01 | Phase 15 | Pending |
+| ROUTE-01 | Phase 15 | Complete |
 | ROUTE-02 | Phase 17 | Pending |
-| ROUTE-03 | Phase 15 | Pending |
+| ROUTE-03 | Phase 15 | Complete |
 | ROUTE-04 | Phase 17 | Pending |
 | URL-01 | Phase 16 | Pending |
 | URL-02 | Phase 16 | Pending |
@@ -80,7 +80,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | AUTH-02 | Phase 16 | Pending |
 | AUTH-03 | Phase 16 | Pending |
 | AUTH-04 | Phase 16 | Pending |
-| ERR-01 | Phase 15 | Pending |
+| ERR-01 | Phase 15 | Complete |
 | ERR-02 | Phase 17 | Pending |
 | ERR-03 | Phase 17 | Pending |
 | ERR-04 | Phase 18 | Pending |
@@ -92,4 +92,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-01-31*
-*Last updated: 2026-01-31 after roadmap creation*
+*Last updated: 2026-01-31 after phase 15 completion*

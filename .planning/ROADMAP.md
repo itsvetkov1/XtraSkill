@@ -3,7 +3,7 @@
 **Milestone:** v1.7
 **Created:** 2026-01-31
 **Depth:** Quick (4 phases)
-**Status:** Planning
+**Status:** In Progress
 
 ---
 
@@ -23,6 +23,12 @@ Implement deep linking and URL preservation for the BA Assistant. Users can book
 - ROUTE-01: Conversations have unique URLs (`/projects/:projectId/threads/:threadId`)
 - ROUTE-03: GoRouter errorBuilder displays 404 page for invalid routes
 - ERR-01: Invalid route path shows 404 error page with navigation options
+
+**Plans:** 2 plans
+
+Plans:
+- [ ] 15-01-error-handling-PLAN.md - 404 error page with errorBuilder
+- [ ] 15-02-thread-routes-PLAN.md - Nested thread routes and navigation
 
 **Success Criteria:**
 1. User navigates to `/projects/abc/threads/xyz` and URL bar shows this path
@@ -95,7 +101,7 @@ Implement deep linking and URL preservation for the BA Assistant. Users can book
 
 | Phase | Name | Requirements | Status |
 |-------|------|--------------|--------|
-| 15 | route-architecture | ROUTE-01, ROUTE-03, ERR-01 | Pending |
+| 15 | route-architecture | ROUTE-01, ROUTE-03, ERR-01 | Planned |
 | 16 | auth-url-preservation | URL-01-04, AUTH-01-04 | Pending |
 | 17 | screen-url-integration | ROUTE-02, ROUTE-04, ERR-02, ERR-03 | Pending |
 | 18 | validation | ERR-04 | Pending |

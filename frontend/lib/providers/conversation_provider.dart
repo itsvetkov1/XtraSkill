@@ -38,6 +38,9 @@ class ConversationProvider extends ChangeNotifier {
   /// Error message if something failed
   String? _error;
 
+  /// Whether the thread was not found (404)
+  bool _isNotFound = false;
+
   /// Message pending deletion (during undo window)
   Message? _pendingDelete;
 
@@ -80,6 +83,9 @@ class ConversationProvider extends ChangeNotifier {
   /// Error message
   String? get error => _error;
 
+  /// Not-found state - true when API returned 404
+  bool get isNotFound => _isNotFound;
+
   /// Whether retry is available
   bool get canRetry => _lastFailedMessage != null && _error != null;
 
@@ -87,6 +93,7 @@ class ConversationProvider extends ChangeNotifier {
   Future<void> loadThread(String threadId) async {
     _loading = true;
     _error = null;
+    _isNotFound = false; // Reset on new load
     notifyListeners();
 
     try {
@@ -95,10 +102,19 @@ class ConversationProvider extends ChangeNotifier {
       _loading = false;
       notifyListeners();
     } catch (e) {
-      _error = e.toString();
+      final errorMessage = e.toString();
+      // Check if it's a 404 "not found" error (from thread_service.dart)
+      if (errorMessage.contains('not found') ||
+          errorMessage.contains('404')) {
+        _isNotFound = true;
+        _error = null; // Not a "real" error, just not found
+      } else {
+        _error = errorMessage;
+        _isNotFound = false;
+      }
       _loading = false;
       notifyListeners();
-      rethrow;
+      // Remove rethrow - let screen handle the not-found state
     }
   }
 
@@ -176,6 +192,7 @@ class ConversationProvider extends ChangeNotifier {
     _statusMessage = null;
     _isStreaming = false;
     _error = null;
+    _isNotFound = false;
     _loading = false;
     notifyListeners();
   }
@@ -183,6 +200,7 @@ class ConversationProvider extends ChangeNotifier {
   /// Clear error message and failed message state
   void clearError() {
     _error = null;
+    _isNotFound = false;
     _lastFailedMessage = null; // Dismiss means "I don't want to retry"
     notifyListeners();
   }

@@ -2,6 +2,7 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
@@ -10,7 +11,6 @@ import '../../providers/thread_provider.dart';
 import '../../utils/date_formatter.dart';
 import '../../widgets/delete_confirmation_dialog.dart';
 import '../../widgets/empty_state.dart';
-import '../conversation/conversation_screen.dart';
 import 'thread_create_dialog.dart';
 import 'thread_rename_dialog.dart';
 
@@ -45,12 +45,7 @@ class _ThreadListScreenState extends State<ThreadListScreen> {
   }
 
   void _onThreadTap(String threadId) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => ConversationScreen(threadId: threadId),
-      ),
-    );
+    context.go('/projects/${widget.projectId}/threads/$threadId');
   }
 
   /// Delete thread with confirmation

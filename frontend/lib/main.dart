@@ -25,6 +25,7 @@ import 'screens/splash_screen.dart';
 import 'screens/not_found_screen.dart';
 import 'screens/projects/project_list_screen.dart';
 import 'screens/projects/project_detail_screen.dart';
+import 'screens/conversation/conversation_screen.dart';
 import 'widgets/responsive_scaffold.dart';
 
 Future<void> main() async {
@@ -246,6 +247,19 @@ class _MyAppState extends State<MyApp> {
                         final id = state.pathParameters['id']!;
                         return ProjectDetailScreen(projectId: id);
                       },
+                      routes: [
+                        GoRoute(
+                          path: 'threads/:threadId',
+                          builder: (context, state) {
+                            final projectId = state.pathParameters['id']!;
+                            final threadId = state.pathParameters['threadId']!;
+                            return ConversationScreen(
+                              projectId: projectId,
+                              threadId: threadId,
+                            );
+                          },
+                        ),
+                      ],
                     ),
                   ],
                 ),

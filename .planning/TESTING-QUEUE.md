@@ -151,4 +151,94 @@ Testing points collected during development for manual verification when availab
 
 ---
 
+## Phase 18: v1.7 URL & Deep Links Validation
+
+**Status:** Pending user testing
+**Collected:** 2026-01-31
+
+### Test Environment Setup
+
+1. Start backend: `cd backend && python run.py`
+2. Start frontend: `cd frontend && flutter run -d chrome`
+3. Use incognito window for clean state between auth tests
+4. Have at least one project with threads for testing
+
+### Test Cases
+
+Full test matrix available in `.planning/phases/18-validation/18-VALIDATION.md`
+
+#### Critical Tests
+
+##### VAL-16 (ERR-04): Login with returnUrl to deleted resource
+
+1. Create a project, note its ID
+2. Delete the project
+3. In incognito, access `/projects/{deleted-id}` while logged out
+4. Complete OAuth login
+5. **Expected:** See "Project not found" state (not crash)
+
+##### SEC-01: Open redirect prevention (external URL)
+
+1. In incognito, access `/login`
+2. In DevTools Console: `sessionStorage.setItem('returnUrl', 'https://evil.com')`
+3. Complete OAuth login
+4. **Expected:** Land on `/home` (external URL rejected)
+
+##### SEC-02: Open redirect prevention (malformed path)
+
+1. In incognito, access `/login`
+2. In DevTools Console: `sessionStorage.setItem('returnUrl', 'not-a-valid-path')`
+3. Complete OAuth login
+4. **Expected:** Land on `/home` (malformed URL rejected)
+
+#### URL Preservation Tests
+
+| Test ID | Requirement | Description |
+|---------|-------------|-------------|
+| VAL-01 | ROUTE-01 | Thread URL shows `/projects/:id/threads/:threadId` |
+| VAL-02 | ROUTE-02 | Browser back/forward navigation works |
+| VAL-03 | ROUTE-03 | Invalid route shows 404 page |
+| VAL-04 | ROUTE-04 | ConversationScreen loads from URL params |
+| VAL-05 | URL-01 | Page refresh preserves URL (authenticated) |
+| VAL-06 | URL-02 | URL preserved through OAuth redirect |
+| VAL-07 | URL-03 | Settings refresh returns to /settings |
+| VAL-08 | URL-04 | Project detail refresh returns correctly |
+| VAL-09 | AUTH-01 | Redirect captures returnUrl query param |
+| VAL-10 | AUTH-02 | Login completes to stored returnUrl |
+| VAL-11 | AUTH-03 | Direct login goes to /home |
+| VAL-12 | AUTH-04 | returnUrl cleared after use |
+| VAL-13 | ERR-01 | Invalid route shows 404 with nav options |
+| VAL-14 | ERR-02 | Deleted project shows "Project not found" |
+| VAL-15 | ERR-03 | Deleted thread shows "Thread not found" |
+| VAL-16 | ERR-04 | Deleted resource via returnUrl handled |
+
+### Results
+
+| Test Case | Status | Notes |
+|-----------|--------|-------|
+| VAL-01 | Pending | |
+| VAL-02 | Pending | |
+| VAL-03 | Pending | |
+| VAL-04 | Pending | |
+| VAL-05 | Pending | |
+| VAL-06 | Pending | |
+| VAL-07 | Pending | |
+| VAL-08 | Pending | |
+| VAL-09 | Pending | |
+| VAL-10 | Pending | |
+| VAL-11 | Pending | |
+| VAL-12 | Pending | |
+| VAL-13 | Pending | |
+| VAL-14 | Pending | |
+| VAL-15 | Pending | |
+| VAL-16 | Pending | |
+| SEC-01 | Pending | |
+| SEC-02 | Pending | |
+
+**Tested by:**
+**Date:**
+**Issues found:**
+
+---
+
 *Add new phases below as development continues*

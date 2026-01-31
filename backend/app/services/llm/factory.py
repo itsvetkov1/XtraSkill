@@ -11,6 +11,8 @@ from typing import Optional
 
 from .base import LLMAdapter, LLMProvider
 from .anthropic_adapter import AnthropicAdapter
+from .gemini_adapter import GeminiAdapter
+from .deepseek_adapter import DeepSeekAdapter
 from app.config import settings
 
 
@@ -32,9 +34,8 @@ class LLMFactory:
     # Registry of provider adapters
     _adapters = {
         LLMProvider.ANTHROPIC: AnthropicAdapter,
-        # Future providers (Phase 21):
-        # LLMProvider.GOOGLE: GoogleAdapter,
-        # LLMProvider.DEEPSEEK: DeepSeekAdapter,
+        LLMProvider.GOOGLE: GeminiAdapter,
+        LLMProvider.DEEPSEEK: DeepSeekAdapter,
     }
 
     @classmethod
@@ -70,8 +71,16 @@ class LLMFactory:
         if not adapter_class:
             raise ValueError(f"No adapter registered for provider: {provider}")
 
-        # Get API key and create adapter
+        # Get API key and determine model
         api_key = cls._get_api_key(provider_enum)
+
+        # Use provider-specific model from settings if not specified
+        if model is None:
+            if provider_enum == LLMProvider.GOOGLE:
+                model = settings.gemini_model
+            elif provider_enum == LLMProvider.DEEPSEEK:
+                model = settings.deepseek_model
+
         return adapter_class(api_key=api_key, model=model)
 
     @classmethod
@@ -97,10 +106,16 @@ class LLMFactory:
                 )
             return key
 
+        if provider == LLMProvider.GOOGLE:
+            key = settings.google_api_key
+            if not key:
+                raise ValueError(
+                    "GOOGLE_API_KEY not configured. "
+                    "Get API key from https://aistudio.google.com/app/apikey"
+                )
+            return key
+
         # Future providers (Phase 21):
-        # if provider == LLMProvider.GOOGLE:
-        #     key = settings.google_api_key
-        #     ...
         # if provider == LLMProvider.DEEPSEEK:
         #     key = settings.deepseek_api_key
         #     ...

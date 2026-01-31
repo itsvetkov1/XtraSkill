@@ -11,9 +11,11 @@ Exports:
     StreamChunk: Dataclass for normalized streaming responses
     LLMFactory: Factory for creating provider adapters
     AnthropicAdapter: Anthropic Claude adapter implementation
+    GeminiAdapter: Google Gemini adapter implementation
 """
 from .base import LLMAdapter, LLMProvider, StreamChunk
 from .anthropic_adapter import AnthropicAdapter
+from .gemini_adapter import GeminiAdapter
 from .factory import LLMFactory
 
 __all__ = [
@@ -22,4 +24,5 @@ __all__ = [
     "StreamChunk",
     "LLMFactory",
     "AnthropicAdapter",
+    "GeminiAdapter",
 ]

@@ -15,10 +15,17 @@ import 'widgets/streaming_message.dart';
 
 /// Main conversation screen with message list and input
 class ConversationScreen extends StatefulWidget {
+  /// Project ID this thread belongs to
+  final String projectId;
+
   /// Thread ID to display
   final String threadId;
 
-  const ConversationScreen({super.key, required this.threadId});
+  const ConversationScreen({
+    super.key,
+    required this.projectId,
+    required this.threadId,
+  });
 
   @override
   State<ConversationScreen> createState() => _ConversationScreenState();

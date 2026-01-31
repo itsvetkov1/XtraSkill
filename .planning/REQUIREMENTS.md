@@ -57,9 +57,9 @@ Explicitly excluded. Documented to prevent scope creep.
 
 | Feature | Reason |
 |---------|--------|
-| Custom URL schemes (baassistant://) | Insecure, unprofessional — use platform deep links instead |
+| Custom URL schemes (baassistant://) | Insecure, unprofessional - use platform deep links instead |
 | Hash-based URLs | Already using path URL strategy correctly |
-| Sensitive data in URLs | Security risk — use opaque IDs only (already implemented) |
+| Sensitive data in URLs | Security risk - use opaque IDs only (already implemented) |
 | Smart redirect with scroll position | Complexity exceeds value for v1.7 |
 
 ## Traceability
@@ -92,4 +92,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-01-31*
-*Last updated: 2026-01-31 after initial definition*
+*Last updated: 2026-01-31 after roadmap creation*

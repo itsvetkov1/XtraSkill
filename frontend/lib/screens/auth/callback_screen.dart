@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../../providers/auth_provider.dart';
+import '../../services/url_storage_service.dart';
 
 /// Callback screen for OAuth redirect
 ///
@@ -60,18 +61,33 @@ class _CallbackScreenState extends State<CallbackScreen> {
       print('DEBUG: After handleCallback - isAuthenticated: ${authProvider.isAuthenticated}');
       print('DEBUG: Error message: ${authProvider.errorMessage}');
 
-      // Navigation is handled automatically by GoRouter's refreshListenable
-      // When authProvider.notifyListeners() is called, the router redirect
-      // will detect isAuthenticated=true and navigate to /home
-      // We only need to handle the error case here
-      if (mounted && !authProvider.isAuthenticated) {
+      // Navigate to return URL or home on success
+      if (mounted && authProvider.isAuthenticated) {
+        // Get stored return URL from sessionStorage
+        final urlStorage = UrlStorageService();
+        final returnUrl = urlStorage.getReturnUrl();
+        print('DEBUG: Retrieved returnUrl from storage: $returnUrl');
+
+        // Clear after retrieval (one-time use, prevents stale redirects)
+        urlStorage.clearReturnUrl();
+
+        // Validate returnUrl (security: prevent open redirect)
+        String destination = '/home';
+        if (returnUrl != null && returnUrl.startsWith('/')) {
+          destination = returnUrl;
+          print('DEBUG: Using returnUrl as destination: $destination');
+        } else if (returnUrl != null) {
+          print('DEBUG: Invalid returnUrl (not relative path), falling back to /home');
+        }
+
+        // Navigate directly - don't rely on GoRouter redirect
+        context.go(destination);
+      } else if (mounted) {
         print('DEBUG: Authentication failed, showing error');
         setState(() {
           _error = authProvider.errorMessage ?? 'Authentication failed';
           _isProcessing = false;
         });
-      } else {
-        print('DEBUG: Authentication successful, router will redirect to home');
       }
     } catch (e) {
       print('DEBUG: Exception caught: $e');

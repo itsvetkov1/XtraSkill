@@ -13,6 +13,7 @@ import '../../widgets/resource_not_found_state.dart';
 import '../threads/thread_rename_dialog.dart';
 import 'widgets/chat_input.dart';
 import 'widgets/message_bubble.dart';
+import 'widgets/provider_indicator.dart';
 import 'widgets/streaming_message.dart';
 
 /// Main conversation screen with message list and input
@@ -193,6 +194,11 @@ class _ConversationScreenState extends State<ConversationScreen> {
               // Message list
               Expanded(
                 child: _buildMessageList(provider),
+              ),
+
+              // Provider indicator
+              ProviderIndicator(
+                provider: provider.thread?.modelProvider,
               ),
 
               // Chat input

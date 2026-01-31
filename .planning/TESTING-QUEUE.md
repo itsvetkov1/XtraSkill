@@ -89,4 +89,66 @@ Testing points collected during development for manual verification when availab
 
 ---
 
+## Phase 15: Route Architecture
+
+**Status:** Pending user testing
+**Collected:** 2026-01-31
+
+### Test Environment Setup
+
+1. Start backend: `cd backend && python run.py`
+2. Start frontend: `cd frontend && flutter run -d chrome`
+3. Log in and have at least one project with threads
+
+### Test Cases
+
+#### TC-15-01: 404 Error Page
+
+1. Navigate to an invalid URL: `http://localhost:PORT/invalid/random/path`
+2. **Expected:** 404 page displays with:
+   - Error icon
+   - "404 - Page Not Found" heading
+   - Message showing the attempted path
+   - "Go to Home" button
+3. Click "Go to Home"
+4. **Expected:** Navigates to /home
+
+#### TC-15-02: Thread URL Structure
+
+1. Navigate to Projects
+2. Click on a project to open it
+3. Click on a thread/conversation
+4. **Expected:** URL bar shows `/projects/[project-id]/threads/[thread-id]`
+
+#### TC-15-03: Thread Breadcrumbs
+
+1. From a thread/conversation view
+2. **Expected:** Breadcrumbs show "Projects > [Project Name] > [Thread Title]"
+3. Click "Projects" in breadcrumb
+4. **Expected:** Navigates to /projects
+5. Navigate back to thread
+6. Click "[Project Name]" in breadcrumb
+7. **Expected:** Navigates to project detail page
+
+#### TC-15-04: Page Refresh on Thread
+
+1. Navigate to a thread (URL shows /projects/.../threads/...)
+2. Press F5 to refresh
+3. **Expected:** Page reloads (may require re-login, but URL structure preserved)
+
+### Results
+
+| Test Case | Status | Notes |
+|-----------|--------|-------|
+| TC-15-01 | Pending | |
+| TC-15-02 | Pending | |
+| TC-15-03 | Pending | |
+| TC-15-04 | Pending | |
+
+**Tested by:**
+**Date:**
+**Issues found:**
+
+---
+
 *Add new phases below as development continues*

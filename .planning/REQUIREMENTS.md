@@ -67,25 +67,25 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| SET-01 | TBD | Pending |
-| SET-02 | TBD | Pending |
-| CONV-01 | TBD | Pending |
-| CONV-02 | TBD | Pending |
-| CONV-03 | TBD | Pending |
-| UI-01 | TBD | Pending |
-| UI-02 | TBD | Pending |
-| BACK-01 | TBD | Pending |
-| BACK-02 | TBD | Pending |
-| BACK-03 | TBD | Pending |
-| BACK-04 | TBD | Pending |
-| BACK-05 | TBD | Pending |
-| BACK-06 | TBD | Pending |
+| SET-01 | Phase 22 | Pending |
+| SET-02 | Phase 22 | Pending |
+| CONV-01 | Phase 22 | Pending |
+| CONV-02 | Phase 20 | Pending |
+| CONV-03 | Phase 22 | Pending |
+| UI-01 | Phase 22 | Pending |
+| UI-02 | Phase 22 | Pending |
+| BACK-01 | Phase 19 | Pending |
+| BACK-02 | Phase 19 | Pending |
+| BACK-03 | Phase 21 | Pending |
+| BACK-04 | Phase 21 | Pending |
+| BACK-05 | Phase 20 | Pending |
+| BACK-06 | Phase 19 | Pending |
 
 **Coverage:**
 - v1.8 requirements: 13 total
-- Mapped to phases: 0 (pending roadmap)
-- Unmapped: 13
+- Mapped to phases: 13
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-01-31*
-*Last updated: 2026-01-31 after initial definition*
+*Last updated: 2026-01-31 after roadmap creation*

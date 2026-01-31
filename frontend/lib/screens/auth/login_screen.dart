@@ -2,9 +2,11 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../../providers/auth_provider.dart';
+import '../../services/url_storage_service.dart';
 
 /// Login screen with Google and Microsoft OAuth buttons
 class LoginScreen extends StatelessWidget {
@@ -117,11 +119,33 @@ class LoginScreen extends StatelessWidget {
   }
 
   void _handleGoogleLogin(BuildContext context) {
+    // Extract returnUrl from current URL query params
+    final uri = GoRouterState.of(context).uri;
+    final returnUrl = uri.queryParameters['returnUrl'];
+
+    // Store before OAuth redirect (browser will leave app)
+    if (returnUrl != null) {
+      final urlStorage = UrlStorageService();
+      urlStorage.storeReturnUrl(Uri.decodeComponent(returnUrl));
+    }
+
+    // Proceed with OAuth
     final authProvider = context.read<AuthProvider>();
     authProvider.loginWithGoogle();
   }
 
   void _handleMicrosoftLogin(BuildContext context) {
+    // Extract returnUrl from current URL query params
+    final uri = GoRouterState.of(context).uri;
+    final returnUrl = uri.queryParameters['returnUrl'];
+
+    // Store before OAuth redirect (browser will leave app)
+    if (returnUrl != null) {
+      final urlStorage = UrlStorageService();
+      urlStorage.storeReturnUrl(Uri.decodeComponent(returnUrl));
+    }
+
+    // Proceed with OAuth
     final authProvider = context.read<AuthProvider>();
     authProvider.loginWithMicrosoft();
   }

@@ -56,8 +56,8 @@ Plans:
 **Plans:** 2 plans
 
 Plans:
-- [ ] 16-01-PLAN.md - UrlStorageService and redirect logic foundation
-- [ ] 16-02-PLAN.md - Login/Callback screen returnUrl integration
+- [x] 16-01-PLAN.md - UrlStorageService and redirect logic foundation
+- [x] 16-02-PLAN.md - Login/Callback screen returnUrl integration
 
 **Success Criteria:**
 1. User refreshes browser on `/settings` and returns to `/settings` after auth check
@@ -108,7 +108,7 @@ Plans:
 | Phase | Name | Requirements | Status |
 |-------|------|--------------|--------|
 | 15 | route-architecture | ROUTE-01, ROUTE-03, ERR-01 | Complete |
-| 16 | auth-url-preservation | URL-01-04, AUTH-01-04 | Planned |
+| 16 | auth-url-preservation | URL-01-04, AUTH-01-04 | Complete |
 | 17 | screen-url-integration | ROUTE-02, ROUTE-04, ERR-02, ERR-03 | Pending |
 | 18 | validation | ERR-04 | Pending |
 
@@ -130,4 +130,4 @@ Decisions made during roadmap creation:
 ---
 
 *Roadmap created: 2026-01-31*
-*Last updated: 2026-01-31 (phase 16 planned)*
+*Last updated: 2026-01-31 (phase 16 complete)*

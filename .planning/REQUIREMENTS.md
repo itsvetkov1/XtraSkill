@@ -16,17 +16,17 @@ Requirements for URL & Deep Links milestone. Each maps to roadmap phases.
 
 ### URL Preservation
 
-- [ ] **URL-01**: Page refresh preserves current URL for authenticated users
-- [ ] **URL-02**: URL preserved through OAuth redirect via session storage
-- [ ] **URL-03**: Settings page refresh returns to `/settings` (not `/home`)
-- [ ] **URL-04**: Project detail refresh returns to `/projects/:id` (not `/home`)
+- [x] **URL-01**: Page refresh preserves current URL for authenticated users
+- [x] **URL-02**: URL preserved through OAuth redirect via session storage
+- [x] **URL-03**: Settings page refresh returns to `/settings` (not `/home`)
+- [x] **URL-04**: Project detail refresh returns to `/projects/:id` (not `/home`)
 
 ### Auth Flow
 
-- [ ] **AUTH-01**: Auth redirect captures intended destination as `returnUrl` query parameter
-- [ ] **AUTH-02**: Login completes to stored `returnUrl` instead of `/home`
-- [ ] **AUTH-03**: Direct login (no returnUrl) goes to `/home`
-- [ ] **AUTH-04**: `returnUrl` cleared from session storage after successful navigation
+- [x] **AUTH-01**: Auth redirect captures intended destination as `returnUrl` query parameter
+- [x] **AUTH-02**: Login completes to stored `returnUrl` instead of `/home`
+- [x] **AUTH-03**: Direct login (no returnUrl) goes to `/home`
+- [x] **AUTH-04**: `returnUrl` cleared from session storage after successful navigation
 
 ### Error Handling
 
@@ -72,14 +72,14 @@ Which phases cover which requirements. Updated during roadmap creation.
 | ROUTE-02 | Phase 17 | Pending |
 | ROUTE-03 | Phase 15 | Complete |
 | ROUTE-04 | Phase 17 | Pending |
-| URL-01 | Phase 16 | Pending |
-| URL-02 | Phase 16 | Pending |
-| URL-03 | Phase 16 | Pending |
-| URL-04 | Phase 16 | Pending |
-| AUTH-01 | Phase 16 | Pending |
-| AUTH-02 | Phase 16 | Pending |
-| AUTH-03 | Phase 16 | Pending |
-| AUTH-04 | Phase 16 | Pending |
+| URL-01 | Phase 16 | Complete |
+| URL-02 | Phase 16 | Complete |
+| URL-03 | Phase 16 | Complete |
+| URL-04 | Phase 16 | Complete |
+| AUTH-01 | Phase 16 | Complete |
+| AUTH-02 | Phase 16 | Complete |
+| AUTH-03 | Phase 16 | Complete |
+| AUTH-04 | Phase 16 | Complete |
 | ERR-01 | Phase 15 | Complete |
 | ERR-02 | Phase 17 | Pending |
 | ERR-03 | Phase 17 | Pending |
@@ -92,4 +92,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-01-31*
-*Last updated: 2026-01-31 after phase 15 completion*
+*Last updated: 2026-01-31 after phase 16 completion*

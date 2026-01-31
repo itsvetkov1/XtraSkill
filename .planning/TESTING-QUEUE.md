@@ -241,4 +241,90 @@ Full test matrix available in `.planning/phases/18-validation/18-VALIDATION.md`
 
 ---
 
+## Phase 22: LLM Provider Selection UI
+
+**Status:** Pending user testing
+**Collected:** 2026-01-31
+**Bug fix included:** 317298e (provider not passed to createThread)
+
+### Test Environment Setup
+
+1. Start backend with API keys configured:
+   ```bash
+   cd backend
+   # Set environment variables for providers you want to test:
+   # ANTHROPIC_API_KEY=your-claude-key (required)
+   # GOOGLE_API_KEY=your-gemini-key (optional)
+   # DEEPSEEK_API_KEY=your-deepseek-key (optional)
+   python run.py
+   ```
+2. Start frontend: `cd frontend && flutter run -d chrome`
+3. Log in and have at least one project
+
+### Test Cases
+
+#### TC-22-01: Provider Selection in Settings
+
+1. Navigate to Settings
+2. Find "Preferences" section
+3. **Expected:** "Default AI Provider" dropdown with Claude/Gemini/DeepSeek options
+4. Each option shows colored icon + provider name
+
+#### TC-22-02: Provider Preference Persistence
+
+1. In Settings, change provider to Gemini
+2. Close app completely (stop flutter run)
+3. Restart app: `flutter run -d chrome`
+4. Navigate to Settings
+5. **Expected:** Gemini is still selected (persisted via SharedPreferences)
+
+#### TC-22-03: New Conversation Uses Selected Provider
+
+1. In Settings, select DeepSeek as default
+2. Navigate to a project
+3. Create new conversation
+4. Send a message
+5. **Expected:** Response comes from DeepSeek API (check backend logs or response style)
+6. Check backend logs for: `Creating adapter for provider: deepseek`
+
+#### TC-22-04: Provider Indicator Shows Thread's Provider
+
+1. Create a conversation with Gemini selected
+2. Note: indicator below messages should show Gemini (blue icon)
+3. Go to Settings, change to DeepSeek
+4. Return to the existing Gemini conversation
+5. **Expected:** Indicator still shows Gemini (thread's bound provider, not current default)
+
+#### TC-22-05: Multiple Providers in Same Project
+
+1. Create conversation A with Claude (orange indicator)
+2. Change default to Gemini
+3. Create conversation B with Gemini (blue indicator)
+4. Switch between A and B
+5. **Expected:** Each shows correct provider indicator
+
+#### TC-22-06: Provider Without API Key Configured
+
+1. Ensure DEEPSEEK_API_KEY is NOT set in backend environment
+2. Select DeepSeek in Settings
+3. Create new conversation, send message
+4. **Expected:** Error message about missing API key (not crash)
+
+### Results
+
+| Test Case | Status | Notes |
+|-----------|--------|-------|
+| TC-22-01 | Pending | |
+| TC-22-02 | Pending | |
+| TC-22-03 | Pending | |
+| TC-22-04 | Pending | |
+| TC-22-05 | Pending | |
+| TC-22-06 | Pending | |
+
+**Tested by:**
+**Date:**
+**Issues found:**
+
+---
+
 *Add new phases below as development continues*

@@ -112,8 +112,10 @@ Plans:
 
 **Plans:** 2 plans
 Plans:
-- [ ] 22-01-PLAN.md - Create ProviderProvider and update Thread model/service
-- [ ] 22-02-PLAN.md - Add provider dropdown to Settings and indicator to conversation
+- [x] 22-01-PLAN.md - Create ProviderProvider and update Thread model/service
+- [x] 22-02-PLAN.md - Add provider dropdown to Settings and indicator to conversation
+
+**Completed:** 2026-01-31
 
 ---
 
@@ -124,7 +126,7 @@ Plans:
 | 19 | backend-abstraction | BACK-01, BACK-02, BACK-06 | Complete |
 | 20 | database-api | CONV-02, BACK-05 | Complete |
 | 21 | provider-adapters | BACK-03, BACK-04 | Complete |
-| 22 | frontend-provider-ui | SET-01, SET-02, CONV-01, CONV-03, UI-01, UI-02 | Planned |
+| 22 | frontend-provider-ui | SET-01, SET-02, CONV-01, CONV-03, UI-01, UI-02 | Complete |
 
 **Coverage:** 13/13 requirements mapped
 
@@ -149,3 +151,4 @@ Plans:
 *Phase 21 planned: 2026-01-31*
 *Phase 21 complete: 2026-01-31*
 *Phase 22 planned: 2026-01-31*
+*Phase 22 complete: 2026-01-31*

@@ -2,20 +2,20 @@
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-01-30)
+See: .planning/PROJECT.md (updated 2026-01-31)
 
 **Core value:** Business analysts reduce time spent on requirement documentation while improving completeness through AI-assisted discovery conversations that systematically explore edge cases and generate production-ready artifacts.
 
-**Current focus:** v1.7 URL & Deep Links - Complete (ready for archival)
+**Current focus:** Ready for v1.8 LLM Provider Switching
 
 ## Current Position
 
-Phase: 18 - validation (COMPLETE)
-Plan: 2/2 complete
-Status: v1.7 milestone complete, ready for archival
-Last activity: 2026-01-31 - Phase 18 execution complete
+Phase: None (between milestones)
+Plan: N/A
+Status: v1.7 archived, ready for v1.8
+Last activity: 2026-01-31 - v1.7 milestone archived
 
-Progress: [████████████████████] Phase 18 complete (2/2 plans)
+Progress: [████████████████████] v1.7 complete and archived
 
 ## Performance Metrics
 
@@ -69,10 +69,10 @@ v1.7 decisions logged in ROADMAP.md.
 ## Session Continuity
 
 Last session: 2026-01-31
-Stopped at: Phase 18 complete, v1.7 milestone complete
+Stopped at: v1.7 milestone archived
 Resume file: None
-Next action: Archive v1.7 roadmap to milestones/ and create v1.8 or v2.0 roadmap
+Next action: Run `/gsd:new-milestone` to start v1.8 LLM Provider Switching
 
 ---
 
-*State updated: 2026-01-31 (18-01 complete with deferred testing)*
+*State updated: 2026-01-31 (v1.7 archived)*

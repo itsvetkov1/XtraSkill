@@ -10,9 +10,16 @@ Business analysts reduce time spent on requirement documentation while improving
 
 ## Current State
 
-**Shipped:** v1.6 UX Quick Wins (2026-01-30)
+**Shipped:** v1.7 URL & Deep Links (2026-01-31)
 
-The application has four additional UX improvements reducing friction in the conversation workflow:
+The application now supports full deep linking and URL preservation:
+- Unique conversation URLs (`/projects/:projectId/threads/:threadId`)
+- URL preserved on page refresh (authenticated users stay on same page)
+- OAuth redirect preserves intended destination via sessionStorage
+- Custom 404 error page with navigation options
+- Graceful "not found" states for deleted projects/threads
+
+Previous features (v1.6):
 - One-tap copy for AI responses with cross-platform clipboard support
 - Retry failed AI requests without retyping messages
 - Thread rename via AppBar edit icon or popup menu
@@ -27,19 +34,17 @@ Previous features (v1.5):
 - Mode selector chips for AI conversations
 - Consistent date formatting and visual polish
 
-**Codebase:** ~12,000 lines of Dart/Python across Flutter frontend and FastAPI backend.
+**Codebase:** ~13,000 lines of Dart/Python across Flutter frontend and FastAPI backend.
 
-## Current Milestone: v1.7 URL & Deep Links
+## Next Milestone Goals
 
-**Goal:** Fix router infrastructure so URLs are bookmarkable, shareable, and survive page refresh.
+**v1.8 — LLM Provider Switching** (planned)
+- Settings page LLM provider selector
+- Support for Gemini 3 Flash Preview
+- Support for DeepSeek v3.2 thinking mode
+- Backend API endpoint switching
 
-**Target features:**
-- Unique conversation URLs (`/projects/:projectId/threads/:threadId`)
-- URL preservation on page refresh (return to same page, not `/home`)
-- Auth redirect with return URL (login completes to intended destination)
-- Graceful handling of invalid routes (404 states)
-
-**Previous:** v1.6 UX Quick Wins (complete)
+**Previous:** v1.7 URL & Deep Links (complete)
 
 ## Future Milestone Goals
 
@@ -88,13 +93,15 @@ Previous features (v1.5):
 - ✓ User can copy AI-generated content with one tap — v1.6
 - ✓ User can rename conversation thread after creation — v1.6
 - ✓ User can see which OAuth provider they're signed in with — v1.6
+- ✓ Conversations have unique URLs (`/projects/:projectId/threads/:threadId`) — v1.7
+- ✓ URL preserved on page refresh (authenticated user stays on same page) — v1.7
+- ✓ Auth redirect stores return URL and completes to intended destination — v1.7
+- ✓ Invalid routes handled gracefully (404 error states with navigation options) — v1.7
+- ✓ Deleted project/thread URLs show "not found" state instead of crash — v1.7
 
 ### Active
 
-- [ ] Conversations have unique URLs (`/projects/:projectId/threads/:threadId`)
-- [ ] URL preserved on page refresh (authenticated user stays on same page)
-- [ ] Auth redirect stores return URL and completes to intended destination
-- [ ] Invalid routes handled gracefully (404 error states with navigation options)
+*No active requirements. Run `/gsd:new-milestone` to define v1.8 requirements.*
 
 ### Deferred
 
@@ -163,6 +170,10 @@ BAs prepare for meetings by uploading existing requirements or stakeholder notes
 | Synchronous clipboard for Safari | Safari requires clipboard in sync user gesture handler; no async/await | ✓ Implemented (Phase 11) |
 | PATCH for thread rename (not PUT) | Semantically correct for single-field updates | ✓ Implemented (Phase 14) |
 | Return 404 for non-owner | Security: don't leak thread existence to non-owners | ✓ Implemented (Phase 14) |
+| sessionStorage for returnUrl | Auto-clears on tab close; ephemeral by design for security | ✓ Implemented (Phase 16) |
+| dart:html for sessionStorage | Simpler API than package:web; migrate to package:web when Wasm becomes default | ✓ Implemented (Phase 16) |
+| GoRouter.optionURLReflectsImperativeAPIs | Enables browser back/forward to work correctly with imperative navigation | ✓ Implemented (Phase 17) |
+| ResourceNotFoundState widget | Reusable widget for deleted project/thread states; consistent UX | ✓ Implemented (Phase 17) |
 
 ---
-*Last updated: 2026-01-31 after v1.7 milestone start*
+*Last updated: 2026-01-31 after v1.7 milestone complete*

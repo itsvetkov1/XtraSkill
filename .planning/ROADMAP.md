@@ -27,8 +27,8 @@ Implement deep linking and URL preservation for the BA Assistant. Users can book
 **Plans:** 2 plans
 
 Plans:
-- [ ] 15-01-error-handling-PLAN.md - 404 error page with errorBuilder
-- [ ] 15-02-thread-routes-PLAN.md - Nested thread routes and navigation
+- [x] 15-01-error-handling-PLAN.md - 404 error page with errorBuilder
+- [x] 15-02-thread-routes-PLAN.md - Nested thread routes and navigation
 
 **Success Criteria:**
 1. User navigates to `/projects/abc/threads/xyz` and URL bar shows this path
@@ -52,6 +52,12 @@ Plans:
 - AUTH-02: Login completes to stored `returnUrl` instead of `/home`
 - AUTH-03: Direct login (no returnUrl) goes to `/home`
 - AUTH-04: `returnUrl` cleared from session storage after successful navigation
+
+**Plans:** 2 plans
+
+Plans:
+- [ ] 16-01-PLAN.md - UrlStorageService and redirect logic foundation
+- [ ] 16-02-PLAN.md - Login/Callback screen returnUrl integration
 
 **Success Criteria:**
 1. User refreshes browser on `/settings` and returns to `/settings` after auth check
@@ -102,7 +108,7 @@ Plans:
 | Phase | Name | Requirements | Status |
 |-------|------|--------------|--------|
 | 15 | route-architecture | ROUTE-01, ROUTE-03, ERR-01 | Complete |
-| 16 | auth-url-preservation | URL-01-04, AUTH-01-04 | Pending |
+| 16 | auth-url-preservation | URL-01-04, AUTH-01-04 | Planned |
 | 17 | screen-url-integration | ROUTE-02, ROUTE-04, ERR-02, ERR-03 | Pending |
 | 18 | validation | ERR-04 | Pending |
 
@@ -124,4 +130,4 @@ Decisions made during roadmap creation:
 ---
 
 *Roadmap created: 2026-01-31*
-*Last updated: 2026-01-31 (phase 15 complete)*
+*Last updated: 2026-01-31 (phase 16 planned)*

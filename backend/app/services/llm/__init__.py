@@ -9,15 +9,17 @@ Exports:
     LLMAdapter: Abstract base class for provider adapters
     LLMProvider: Enum of supported providers
     StreamChunk: Dataclass for normalized streaming responses
+    AnthropicAdapter: Anthropic Claude adapter implementation
 
 Future exports (added in subsequent tasks):
     LLMFactory: Factory for creating provider adapters
-    AnthropicAdapter: Anthropic Claude adapter implementation
 """
 from .base import LLMAdapter, LLMProvider, StreamChunk
+from .anthropic_adapter import AnthropicAdapter
 
 __all__ = [
     "LLMAdapter",
     "LLMProvider",
     "StreamChunk",
+    "AnthropicAdapter",
 ]

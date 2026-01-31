@@ -4,10 +4,111 @@ AI Service for LLM-powered chat with document search and artifact tools.
 Uses the LLM adapter pattern for provider-agnostic interactions.
 Currently supports Anthropic Claude, with Gemini and DeepSeek planned for Phase 21.
 """
+import asyncio
+import json
+import time
 from typing import AsyncGenerator, List, Dict, Any, Optional
 from app.services.document_search import search_documents
 from app.services.llm import LLMFactory, StreamChunk
 from app.models import Artifact, ArtifactType
+
+
+async def stream_with_heartbeat(
+    data_gen: AsyncGenerator[Dict[str, Any], None],
+    initial_delay: float = 5.0,
+    heartbeat_interval: float = 15.0,
+    max_silence: float = 600.0
+) -> AsyncGenerator[Dict[str, Any], None]:
+    """
+    Wrap an async generator with heartbeat comments during silence periods.
+
+    SSE comments (format: ': heartbeat\\n\\n') are invisible to JavaScript
+    EventSource clients but keep the connection alive through proxies.
+
+    Args:
+        data_gen: The source async generator yielding SSE event dicts
+        initial_delay: Seconds before first heartbeat (default: 5s)
+        heartbeat_interval: Seconds between subsequent heartbeats (default: 15s)
+        max_silence: Maximum seconds without data before timeout error (default: 600s/10min)
+
+    Yields:
+        SSE event dicts from source generator, plus heartbeat comments during silence
+    """
+    queue: asyncio.Queue = asyncio.Queue()
+    last_data_time = time.monotonic()
+    done = False
+    first_heartbeat_sent = False
+
+    async def data_producer():
+        """Forward data from source generator to queue."""
+        nonlocal done
+        try:
+            async for item in data_gen:
+                await queue.put(("data", item))
+        except Exception as e:
+            await queue.put(("error", e))
+        finally:
+            done = True
+            await queue.put(("done", None))
+
+    async def heartbeat_producer():
+        """Send heartbeat comments during silence periods."""
+        nonlocal last_data_time, first_heartbeat_sent
+        while not done:
+            await asyncio.sleep(1)  # Check every second
+            silence_duration = time.monotonic() - last_data_time
+
+            # Check for max timeout
+            if silence_duration >= max_silence:
+                await queue.put(("timeout", None))
+                return
+
+            # Determine threshold based on whether first heartbeat sent
+            threshold = initial_delay if not first_heartbeat_sent else heartbeat_interval
+            if silence_duration >= threshold:
+                await queue.put(("heartbeat", None))
+                first_heartbeat_sent = True
+                last_data_time = time.monotonic()  # Reset timer after heartbeat
+
+    # Start both producers as background tasks
+    data_task = asyncio.create_task(data_producer())
+    heartbeat_task = asyncio.create_task(heartbeat_producer())
+
+    try:
+        while True:
+            msg_type, payload = await queue.get()
+
+            if msg_type == "data":
+                last_data_time = time.monotonic()  # Reset on real data
+                first_heartbeat_sent = False  # Reset heartbeat delay for next silence
+                yield payload
+            elif msg_type == "heartbeat":
+                # SSE comment format - sse_starlette handles the ': ' prefix
+                yield {"comment": "heartbeat"}
+            elif msg_type == "timeout":
+                yield {
+                    "event": "error",
+                    "data": json.dumps({"message": "Timeout waiting for LLM response after 10 minutes"})
+                }
+                return
+            elif msg_type == "error":
+                # Re-raise the exception
+                raise payload
+            elif msg_type == "done":
+                return
+    finally:
+        # Clean up tasks
+        data_task.cancel()
+        heartbeat_task.cancel()
+        try:
+            await data_task
+        except asyncio.CancelledError:
+            pass
+        try:
+            await heartbeat_task
+        except asyncio.CancelledError:
+            pass
+
 
 # System prompt for BA assistant behavior - Business Analyst Skill (transformed from .claude/business-analyst/)
 SYSTEM_PROMPT = """<system_prompt>
@@ -668,8 +769,6 @@ class AIService:
         - message_complete: Final message with usage stats
         - error: Error occurred
         """
-        import json
-
         try:
             while True:
                 accumulated_text = ""

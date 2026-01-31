@@ -3,7 +3,7 @@
 **Milestone:** v1.7
 **Created:** 2026-01-31
 **Depth:** Quick (4 phases)
-**Status:** In Progress
+**Status:** Complete
 
 ---
 
@@ -105,8 +105,8 @@ Plans:
 **Plans:** 2 plans
 
 Plans:
-- [ ] 18-01-PLAN.md - End-to-end validation test execution
-- [ ] 18-02-PLAN.md - Production deployment documentation
+- [x] 18-01-PLAN.md - End-to-end validation test execution
+- [x] 18-02-PLAN.md - Production deployment documentation
 
 **Success Criteria:**
 1. User logs in with returnUrl pointing to deleted project, sees graceful error (not crash)
@@ -122,7 +122,7 @@ Plans:
 | 15 | route-architecture | ROUTE-01, ROUTE-03, ERR-01 | Complete |
 | 16 | auth-url-preservation | URL-01-04, AUTH-01-04 | Complete |
 | 17 | screen-url-integration | ROUTE-02, ROUTE-04, ERR-02, ERR-03 | Complete |
-| 18 | validation | ERR-04 | Pending |
+| 18 | validation | ERR-04 | Complete |
 
 **Coverage:** 16/16 requirements mapped
 
@@ -142,4 +142,4 @@ Decisions made during roadmap creation:
 ---
 
 *Roadmap created: 2026-01-31*
-*Last updated: 2026-01-31 (phase 18 planned)*
+*Last updated: 2026-01-31 (phase 18 complete, milestone complete)*

@@ -16,6 +16,7 @@ import 'providers/document_provider.dart';
 import 'providers/project_provider.dart';
 import 'providers/navigation_provider.dart';
 import 'providers/theme_provider.dart';
+import 'providers/provider_provider.dart';
 import 'providers/thread_provider.dart';
 import 'screens/auth/callback_screen.dart';
 import 'screens/auth/login_screen.dart';
@@ -39,6 +40,7 @@ Future<void> main() async {
   final prefs = await SharedPreferences.getInstance();
   final themeProvider = await ThemeProvider.load(prefs);
   final navigationProvider = await NavigationProvider.load(prefs);
+  final providerProvider = await ProviderProvider.load(prefs);
 
   // Global error handlers to prevent crashes
   FlutterError.onError = (FlutterErrorDetails details) {
@@ -81,17 +83,20 @@ Future<void> main() async {
   runApp(MyApp(
     themeProvider: themeProvider,
     navigationProvider: navigationProvider,
+    providerProvider: providerProvider,
   ));
 }
 
 class MyApp extends StatefulWidget {
   final ThemeProvider themeProvider;
   final NavigationProvider navigationProvider;
+  final ProviderProvider providerProvider;
 
   const MyApp({
     super.key,
     required this.themeProvider,
     required this.navigationProvider,
+    required this.providerProvider,
   });
 
   @override
@@ -108,6 +113,7 @@ class _MyAppState extends State<MyApp> {
       providers: [
         ChangeNotifierProvider.value(value: widget.themeProvider),
         ChangeNotifierProvider.value(value: widget.navigationProvider),
+        ChangeNotifierProvider.value(value: widget.providerProvider),
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => ConversationProvider()),
         ChangeNotifierProvider(create: (_) => ProjectProvider()),

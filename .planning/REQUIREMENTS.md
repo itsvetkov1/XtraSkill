@@ -15,7 +15,7 @@ Requirements for LLM provider switching. Each maps to roadmap phases.
 ### Conversation Binding
 
 - [ ] **CONV-01**: New conversations use the currently selected default provider
-- [ ] **CONV-02**: Thread database stores `model_provider` column
+- [x] **CONV-02**: Thread database stores `model_provider` column
 - [ ] **CONV-03**: Returning to existing conversation uses its stored model (not current default)
 
 ### UI Indicators
@@ -29,7 +29,7 @@ Requirements for LLM provider switching. Each maps to roadmap phases.
 - [x] **BACK-02**: Anthropic adapter extracted from current implementation
 - [ ] **BACK-03**: Gemini adapter using `google-genai` SDK with streaming
 - [ ] **BACK-04**: DeepSeek adapter using OpenAI SDK with `base_url` override
-- [ ] **BACK-05**: SSE heartbeats prevent timeout during extended thinking (5+ min)
+- [x] **BACK-05**: SSE heartbeats prevent timeout during extended thinking (5+ min)
 - [x] **BACK-06**: StreamChunk normalizes response format across providers
 
 ## v2.0 Requirements
@@ -70,7 +70,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | SET-01 | Phase 22 | Pending |
 | SET-02 | Phase 22 | Pending |
 | CONV-01 | Phase 22 | Pending |
-| CONV-02 | Phase 20 | Pending |
+| CONV-02 | Phase 20 | Complete |
 | CONV-03 | Phase 22 | Pending |
 | UI-01 | Phase 22 | Pending |
 | UI-02 | Phase 22 | Pending |
@@ -78,7 +78,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | BACK-02 | Phase 19 | Complete |
 | BACK-03 | Phase 21 | Pending |
 | BACK-04 | Phase 21 | Pending |
-| BACK-05 | Phase 20 | Pending |
+| BACK-05 | Phase 20 | Complete |
 | BACK-06 | Phase 19 | Complete |
 
 **Coverage:**
@@ -88,4 +88,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-01-31*
-*Last updated: 2026-01-31 after Phase 19 completion*
+*Last updated: 2026-01-31 after Phase 20 completion*

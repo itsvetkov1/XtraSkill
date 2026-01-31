@@ -72,6 +72,10 @@ Future<void> main() async {
     );
   };
 
+  // Enable URL reflection for browser history consistency (ROUTE-02)
+  // Ensures browser back/forward works correctly with context.go() calls
+  GoRouter.optionURLReflectsImperativeAPIs = true;
+
   // Use path-based URLs instead of hash-based for web
   usePathUrlStrategy();
   runApp(MyApp(

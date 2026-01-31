@@ -27,8 +27,8 @@ Requirements for LLM provider switching. Each maps to roadmap phases.
 
 - [x] **BACK-01**: Adapter pattern abstracts provider API differences
 - [x] **BACK-02**: Anthropic adapter extracted from current implementation
-- [ ] **BACK-03**: Gemini adapter using `google-genai` SDK with streaming
-- [ ] **BACK-04**: DeepSeek adapter using OpenAI SDK with `base_url` override
+- [x] **BACK-03**: Gemini adapter using `google-genai` SDK with streaming
+- [x] **BACK-04**: DeepSeek adapter using OpenAI SDK with `base_url` override
 - [x] **BACK-05**: SSE heartbeats prevent timeout during extended thinking (5+ min)
 - [x] **BACK-06**: StreamChunk normalizes response format across providers
 
@@ -76,8 +76,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | UI-02 | Phase 22 | Pending |
 | BACK-01 | Phase 19 | Complete |
 | BACK-02 | Phase 19 | Complete |
-| BACK-03 | Phase 21 | Pending |
-| BACK-04 | Phase 21 | Pending |
+| BACK-03 | Phase 21 | Complete |
+| BACK-04 | Phase 21 | Complete |
 | BACK-05 | Phase 20 | Complete |
 | BACK-06 | Phase 19 | Complete |
 
@@ -88,4 +88,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-01-31*
-*Last updated: 2026-01-31 after Phase 20 completion*
+*Last updated: 2026-01-31 after Phase 21 completion*

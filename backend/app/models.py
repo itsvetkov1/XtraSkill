@@ -253,6 +253,13 @@ class Thread(Base):
     # Thread metadata
     title: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
 
+    # LLM provider binding (anthropic, google, deepseek)
+    model_provider: Mapped[Optional[str]] = mapped_column(
+        String(20),
+        nullable=True,
+        default="anthropic"
+    )
+
     # Audit timestamps
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),

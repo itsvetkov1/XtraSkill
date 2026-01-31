@@ -4,6 +4,7 @@ library;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../providers/provider_provider.dart';
 import '../../providers/thread_provider.dart';
 
 /// Dialog for creating a new thread in a project
@@ -36,13 +37,15 @@ class _ThreadCreateDialogState extends State<ThreadCreateDialog> {
     setState(() => _isCreating = true);
 
     try {
-      final provider = context.read<ThreadProvider>();
+      final threadProvider = context.read<ThreadProvider>();
+      final providerProvider = context.read<ProviderProvider>();
       final title = _titleController.text.trim();
 
-      // Create thread with title (or null if empty)
-      await provider.createThread(
+      // Create thread with title and current default LLM provider
+      await threadProvider.createThread(
         widget.projectId,
         title.isEmpty ? null : title,
+        provider: providerProvider.selectedProvider,
       );
 
       if (mounted) {

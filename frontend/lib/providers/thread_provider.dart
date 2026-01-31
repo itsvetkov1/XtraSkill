@@ -76,15 +76,16 @@ class ThreadProvider extends ChangeNotifier {
   ///
   /// [projectId] - ID of the project
   /// [title] - Optional title for the thread
+  /// [provider] - Optional LLM provider for the thread (e.g., 'anthropic', 'google', 'deepseek')
   ///
   /// Adds created thread to the list and updates state.
-  Future<Thread> createThread(String projectId, String? title) async {
+  Future<Thread> createThread(String projectId, String? title, {String? provider}) async {
     _loading = true;
     _error = null;
     notifyListeners();
 
     try {
-      final thread = await _threadService.createThread(projectId, title);
+      final thread = await _threadService.createThread(projectId, title, provider: provider);
 
       // Add new thread to the beginning of list (newest first)
       _threads.insert(0, thread);
@@ -145,6 +146,7 @@ class ThreadProvider extends ChangeNotifier {
           createdAt: updatedThread.createdAt,
           updatedAt: updatedThread.updatedAt,
           messageCount: _threads[index].messageCount, // Preserve local count
+          modelProvider: _threads[index].modelProvider, // Preserve provider
         );
       }
 

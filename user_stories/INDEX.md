@@ -1,7 +1,7 @@
 # User Stories Index
 
 **Project:** Business Analyst Assistant
-**Last Updated:** 2026-01-30
+**Last Updated:** 2026-01-31
 
 ---
 
@@ -20,7 +20,7 @@
 
 | Priority | Total | Open | In Progress | Done |
 |----------|-------|------|-------------|------|
-| Critical | 6 | 4 | 0 | 2 |
+| Critical | 6 | 0 | 4 | 2 |
 | High | 10 | 9 | 0 | 1 |
 | Medium | 9 | 9 | 0 | 0 |
 | Low | 4 | 4 | 0 | 0 |
@@ -72,10 +72,10 @@ Blocking issues and core workflow problems. Address first.
 
 | Rank | ID | Title | Status | Component |
 |------|-----|-------|--------|-----------|
-| 1 | [BUG-001](BUG-001_page-refresh-loses-url.md) | Page refresh loses URL | Open | Router |
-| 2 | [US-004](US-004_unique-conversation-urls.md) | Unique conversation URLs | Open | Router |
-| 3 | [US-001](US-001_url-preservation-on-refresh.md) | URL preservation on refresh | Open | Router |
-| 4 | [US-003](US-003_auth-redirect-with-return-url.md) | Auth redirect with return URL | Open | Auth |
+| 1 | [BUG-001](BUG-001_page-refresh-loses-url.md) | Page refresh loses URL | **v1.7** | Router |
+| 2 | [US-004](US-004_unique-conversation-urls.md) | Unique conversation URLs | **v1.7** | Router |
+| 3 | [US-001](US-001_url-preservation-on-refresh.md) | URL preservation on refresh | **v1.7** | Router |
+| 4 | [US-003](US-003_auth-redirect-with-return-url.md) | Auth redirect with return URL | **v1.7** | Auth |
 | 5 | [THREAD-001](THREAD-001_retry-failed-messages.md) | Retry failed AI messages | **Done** | Conversation |
 | 6 | [THREAD-002](THREAD-002_copy-ai-responses.md) | Copy AI responses | **Done** | Message Bubble |
 

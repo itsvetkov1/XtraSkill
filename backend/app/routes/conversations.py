@@ -16,7 +16,7 @@ from sse_starlette.sse import EventSourceResponse
 from app.database import get_db
 from app.models import Message, Thread, Project
 from app.utils.jwt import get_current_user
-from app.services.ai_service import AIService
+from app.services.ai_service import AIService, stream_with_heartbeat
 from app.services.conversation_service import (
     save_message,
     build_conversation_context,
@@ -121,28 +121,39 @@ async def stream_chat(
     ai_service = AIService(provider=provider)
 
     async def event_generator():
-        """Generate SSE events from AI response."""
+        """Generate SSE events from AI response with heartbeat during silence."""
         accumulated_text = ""
         usage_data = None
 
         try:
-            async for event in ai_service.stream_chat(
+            # Create raw stream generator
+            raw_stream = ai_service.stream_chat(
                 conversation,
                 thread.project_id,
                 thread_id,
                 db
-            ):
+            )
+
+            # Wrap with heartbeat for long thinking periods
+            heartbeat_stream = stream_with_heartbeat(raw_stream)
+
+            async for event in heartbeat_stream:
                 # Check for client disconnect
                 if await request.is_disconnected():
                     break
 
+                # Heartbeat events pass through directly (no accumulation)
+                if "comment" in event:
+                    yield event
+                    continue
+
                 # Track accumulated text for saving
-                if event["event"] == "text_delta":
+                if event.get("event") == "text_delta":
                     data = json.loads(event["data"])
                     accumulated_text += data.get("text", "")
 
                 # Track usage for token tracking
-                if event["event"] == "message_complete":
+                if event.get("event") == "message_complete":
                     data = json.loads(event["data"])
                     usage_data = data.get("usage", {})
                     accumulated_text = data.get("content", accumulated_text)

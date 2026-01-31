@@ -115,9 +115,10 @@ async def stream_chat(
     # Build conversation context from thread history
     conversation = await build_conversation_context(db, thread_id)
 
-    # Initialize AI service (uses direct Anthropic API)
-    # Note: AgentService requires Claude Code CLI which is not installed
-    ai_service = AIService()
+    # Use thread's bound provider (set at creation time)
+    # This ensures consistency - conversations stay with their original provider
+    provider = thread.model_provider or "anthropic"
+    ai_service = AIService(provider=provider)
 
     async def event_generator():
         """Generate SSE events from AI response."""

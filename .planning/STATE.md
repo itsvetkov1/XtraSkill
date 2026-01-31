@@ -6,21 +6,21 @@ See: .planning/PROJECT.md (updated 2026-01-30)
 
 **Core value:** Business analysts reduce time spent on requirement documentation while improving completeness through AI-assisted discovery conversations that systematically explore edge cases and generate production-ready artifacts.
 
-**Current focus:** v1.7 URL & Deep Links - Phase 17 plan 1 complete
+**Current focus:** v1.7 URL & Deep Links - Phase 17 plan 2 complete
 
 ## Current Position
 
 Phase: 17 - screen-url-integration (In Progress)
-Plan: 1/3 complete
-Status: Plan 17-01 complete, ready for 17-02
-Last activity: 2026-01-31 - Completed 17-01-PLAN.md
+Plan: 2/3 complete
+Status: Plan 17-02 complete, ready for 17-03
+Last activity: 2026-01-31 - Completed 17-02-PLAN.md
 
-Progress: [█████░░░░░░░░░░░░░░░] Phase 17 in progress (1/3 plans)
+Progress: [██████████░░░░░░░░░░] Phase 17 in progress (2/3 plans)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 45 (20 in MVP v1.0, 15 in Beta v1.5, 5 in UX v1.6, 5 in URL v1.7)
+- Total plans completed: 46 (20 in MVP v1.0, 15 in Beta v1.5, 5 in UX v1.6, 6 in URL v1.7)
 - Average duration: ~18 minutes (MVP v1.0), ~7 minutes (Beta v1.5), ~5 minutes (UX v1.6), ~4 minutes (URL v1.7)
 
 **By Milestone:**
@@ -30,7 +30,7 @@ Progress: [█████░░░░░░░░░░░░░░░] Phase 1
 | MVP v1.0 | 1-5 (includes 4.1) | 20/20 | Complete (2026-01-28) |
 | Beta v1.5 | 6-10 | 15/15 | Complete (2026-01-30) |
 | UX v1.6 | 11-14 | 5/5 | Complete (2026-01-30) |
-| URL v1.7 | 15-18 | 5/? | In Progress |
+| URL v1.7 | 15-18 | 6/? | In Progress |
 
 ## Accumulated Context
 
@@ -48,6 +48,9 @@ v1.7 decisions logged in ROADMAP.md.
 - DEC-17-01-01: Check isNotFound BEFORE error != null (distinct UI states)
 - DEC-17-01-02: Set error=null when isNotFound=true (mutually exclusive states)
 - DEC-17-01-03: Use folder_off_outlined icon for deleted project (visual distinction)
+- DEC-17-02-01: Use speaker_notes_off_outlined icon for thread not-found
+- DEC-17-02-02: Navigate to /projects/{projectId} (parent project, not /home)
+- DEC-17-02-03: Set optionURLReflectsImperativeAPIs before usePathUrlStrategy()
 
 ### Pending Todos
 
@@ -63,10 +66,10 @@ None.
 ## Session Continuity
 
 Last session: 2026-01-31
-Stopped at: Completed 17-01-PLAN.md
+Stopped at: Completed 17-02-PLAN.md
 Resume file: None
-Next action: `/gsd:execute-plan .planning/phases/17-screen-url-integration/17-02-PLAN.md`
+Next action: `/gsd:execute-plan .planning/phases/17-screen-url-integration/17-03-PLAN.md`
 
 ---
 
-*State updated: 2026-01-31 (plan 17-01 complete)*
+*State updated: 2026-01-31 (plan 17-02 complete)*

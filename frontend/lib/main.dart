@@ -22,6 +22,7 @@ import 'screens/auth/login_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/settings_screen.dart';
 import 'screens/splash_screen.dart';
+import 'screens/not_found_screen.dart';
 import 'screens/projects/project_list_screen.dart';
 import 'screens/projects/project_detail_screen.dart';
 import 'widgets/responsive_scaffold.dart';
@@ -263,6 +264,9 @@ class _MyAppState extends State<MyApp> {
         ),
       ],
       refreshListenable: authProvider,
+      errorBuilder: (context, state) {
+        return NotFoundScreen(attemptedPath: state.uri.path);
+      },
     );
   }
 }

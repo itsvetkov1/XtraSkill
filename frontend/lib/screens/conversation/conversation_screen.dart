@@ -2,12 +2,14 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../../models/message.dart';
 import '../../providers/conversation_provider.dart';
 import '../../widgets/delete_confirmation_dialog.dart';
 import '../../widgets/mode_selector.dart';
+import '../../widgets/resource_not_found_state.dart';
 import '../threads/thread_rename_dialog.dart';
 import 'widgets/chat_input.dart';
 import 'widgets/message_bubble.dart';
@@ -135,6 +137,28 @@ class _ConversationScreenState extends State<ConversationScreen> {
           }
         });
 
+        // Show loading indicator (full screen, not in scaffold)
+        if (provider.loading) {
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        }
+
+        // Show not-found state (ERR-03) - full screen, not in scaffold
+        if (provider.isNotFound) {
+          return Scaffold(
+            appBar: AppBar(title: const Text('Thread')),
+            body: ResourceNotFoundState(
+              icon: Icons.speaker_notes_off_outlined,
+              title: 'Thread not found',
+              message:
+                  'This conversation may have been deleted or you may not have access to it.',
+              buttonLabel: 'Back to Project',
+              onPressed: () => context.go('/projects/${widget.projectId}'),
+            ),
+          );
+        }
+
         return Scaffold(
           appBar: AppBar(
             title: Text(provider.thread?.title ?? 'New Conversation'),
@@ -168,9 +192,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
 
               // Message list
               Expanded(
-                child: provider.loading
-                    ? const Center(child: CircularProgressIndicator())
-                    : _buildMessageList(provider),
+                child: _buildMessageList(provider),
               ),
 
               // Chat input

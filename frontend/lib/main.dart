@@ -153,38 +153,47 @@ class _MyAppState extends State<MyApp> {
       redirect: (context, state) {
         final isAuthenticated = authProvider.isAuthenticated;
         final isLoading = authProvider.isLoading;
-        final isSplash = state.matchedLocation == '/splash';
-        final isLogin = state.matchedLocation == '/login';
-        final isCallback = state.matchedLocation == '/auth/callback';
+        final currentPath = state.matchedLocation;
+        final currentUri = state.uri;
+        final isSplash = currentPath == '/splash';
+        final isLogin = currentPath == '/login';
+        final isCallback = currentPath == '/auth/callback';
 
-        // Callback screen: redirect to home when authenticated (processing complete)
-        // Stay on callback if not authenticated (still processing or error)
+        // Extract existing returnUrl from query params
+        final existingReturnUrl = currentUri.queryParameters['returnUrl'];
+
+        // Callback: let CallbackScreen handle navigation (it reads from sessionStorage)
         if (isCallback) {
-          return isAuthenticated ? '/home' : null;
+          return null; // Stay on callback, it handles its own navigation
         }
 
-        // If authenticated and on splash/login, redirect to home
+        // Authenticated user on splash/login: go to returnUrl or /home
         if (isAuthenticated && (isSplash || isLogin)) {
+          if (existingReturnUrl != null) {
+            return Uri.decodeComponent(existingReturnUrl);
+          }
           return '/home';
         }
 
-        // CRITICAL: If auth check is still loading, redirect to splash to wait
-        // This prevents premature redirects to login when navigating directly to
-        // protected routes (e.g., /settings) before auth state is restored
+        // Loading: redirect to splash, preserve returnUrl
+        // CRITICAL: Use state.uri.toString() to capture full URL including query params
         if (isLoading && !isSplash && !isLogin && !isCallback) {
-          return '/splash';
+          final intendedUrl = currentUri.toString();
+          return '/splash?returnUrl=${Uri.encodeComponent(intendedUrl)}';
         }
 
-        // If on splash and auth check complete (not loading) and not authenticated,
-        // redirect to login
+        // Splash done loading, not authenticated: go to login with returnUrl
         if (isSplash && !isLoading && !isAuthenticated) {
+          if (existingReturnUrl != null) {
+            return '/login?returnUrl=$existingReturnUrl'; // Already encoded
+          }
           return '/login';
         }
 
-        // If not authenticated (and not loading) and not on splash/login/callback,
-        // redirect to login
+        // Unauthenticated on protected route: redirect to login with returnUrl
         if (!isAuthenticated && !isLoading && !isSplash && !isLogin && !isCallback) {
-          return '/login';
+          final intendedUrl = currentUri.toString();
+          return '/login?returnUrl=${Uri.encodeComponent(intendedUrl)}';
         }
 
         return null; // No redirect needed

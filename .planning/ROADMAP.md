@@ -31,6 +31,11 @@ Enable users to select from multiple LLM providers (Claude, Gemini, DeepSeek) fo
 3. StreamChunk dataclass provides unified format for content, thinking blocks, and errors
 4. LLMFactory can instantiate adapters by provider name string
 
+**Plans:** 2 plans
+Plans:
+- [ ] 19-01-PLAN.md - Create LLM abstraction layer (base, adapter, factory)
+- [ ] 19-02-PLAN.md - Wire adapter into AIService
+
 ---
 
 ### Phase 20: database-api
@@ -95,7 +100,7 @@ Enable users to select from multiple LLM providers (Claude, Gemini, DeepSeek) fo
 
 | Phase | Name | Requirements | Status |
 |-------|------|--------------|--------|
-| 19 | backend-abstraction | BACK-01, BACK-02, BACK-06 | Pending |
+| 19 | backend-abstraction | BACK-01, BACK-02, BACK-06 | Planned |
 | 20 | database-api | CONV-02, BACK-05 | Pending |
 | 21 | provider-adapters | BACK-03, BACK-04 | Pending |
 | 22 | frontend-provider-ui | SET-01, SET-02, CONV-01, CONV-03, UI-01, UI-02 | Pending |
@@ -116,3 +121,4 @@ Enable users to select from multiple LLM providers (Claude, Gemini, DeepSeek) fo
 ---
 
 *Roadmap created: 2026-01-31*
+*Phase 19 planned: 2026-01-31*

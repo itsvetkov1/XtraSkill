@@ -72,10 +72,11 @@ class ThreadService {
   ///
   /// [projectId] - ID of the project to create thread in
   /// [title] - Optional title for the thread (null for untitled threads)
+  /// [provider] - Optional LLM provider for the thread (defaults to user preference)
   ///
   /// Returns created Thread object
   /// Throws exception if request fails or unauthorized
-  Future<Thread> createThread(String projectId, String? title) async {
+  Future<Thread> createThread(String projectId, String? title, {String? provider}) async {
     try {
       final headers = await _getAuthHeaders();
       final response = await _dio.post(
@@ -83,6 +84,7 @@ class ThreadService {
         options: Options(headers: headers),
         data: {
           if (title != null && title.isNotEmpty) 'title': title,
+          if (provider != null) 'model_provider': provider,
         },
       );
 

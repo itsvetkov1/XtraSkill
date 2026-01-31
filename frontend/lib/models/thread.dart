@@ -8,6 +8,7 @@ class Thread {
   final DateTime updatedAt;
   final int? messageCount; // Optional: only in list view
   final List<Message>? messages; // Optional: only in detail view
+  final String? modelProvider; // LLM provider used for this thread
 
   Thread({
     required this.id,
@@ -17,6 +18,7 @@ class Thread {
     required this.updatedAt,
     this.messageCount,
     this.messages,
+    this.modelProvider,
   });
 
   factory Thread.fromJson(Map<String, dynamic> json) {
@@ -32,6 +34,7 @@ class Thread {
               .map((m) => Message.fromJson(m as Map<String, dynamic>))
               .toList()
           : null,
+      modelProvider: json['model_provider'] as String?,
     );
   }
 
@@ -45,6 +48,7 @@ class Thread {
       if (messageCount != null) 'message_count': messageCount,
       if (messages != null)
         'messages': messages!.map((m) => m.toJson()).toList(),
+      if (modelProvider != null) 'model_provider': modelProvider,
     };
   }
 }

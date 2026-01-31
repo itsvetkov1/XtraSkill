@@ -24,6 +24,9 @@ class ProjectProvider extends ChangeNotifier {
   /// Error message if operation failed
   String? _error;
 
+  /// Whether the selected project was not found (404)
+  bool _isNotFound = false;
+
   /// Item pending deletion (during undo window)
   Project? _pendingDelete;
 
@@ -50,6 +53,9 @@ class ProjectProvider extends ChangeNotifier {
 
   /// Get error message
   String? get error => _error;
+
+  /// Get not-found state - true when API returned 404
+  bool get isNotFound => _isNotFound;
 
   /// Load all projects for current user
   ///
@@ -104,16 +110,27 @@ class ProjectProvider extends ChangeNotifier {
   ///   id: Project UUID
   ///
   /// Loads project with documents and threads from API.
+  /// Sets isNotFound=true if project doesn't exist (404).
   Future<void> selectProject(String id) async {
     _loading = true;
     _error = null;
+    _isNotFound = false; // Reset on new selection
     notifyListeners();
 
     try {
       _selectedProject = await _projectService.getProject(id);
       _error = null;
     } catch (e) {
-      _error = e.toString();
+      final errorMessage = e.toString();
+      // Check if it's a 404 "not found" error (from project_service.dart)
+      if (errorMessage.contains('not found') ||
+          errorMessage.contains('404')) {
+        _isNotFound = true;
+        _error = null; // Not a "real" error, just not found
+      } else {
+        _error = errorMessage;
+        _isNotFound = false;
+      }
       _selectedProject = null;
     } finally {
       _loading = false;
@@ -170,9 +187,10 @@ class ProjectProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Clear error message
+  /// Clear error message and not-found state
   void clearError() {
     _error = null;
+    _isNotFound = false;
     notifyListeners();
   }
 

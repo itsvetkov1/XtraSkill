@@ -1,399 +1,386 @@
-# Feature Landscape
+# Feature Landscape: Multi-LLM Provider Switching
 
-**Domain:** Business Analyst Tools, Requirements Management Platforms, and AI-Powered Discovery Assistants
-**Researched:** 2026-01-17
-**Confidence:** MEDIUM (based on training knowledge without current web verification)
+**Domain:** AI Chat Application with LLM Provider Switching
+**Researched:** 2026-01-31
+**Confidence:** HIGH (verified with multiple sources and competitor analysis)
+
+---
 
 ## Executive Summary
 
-The BA tool landscape spans three categories: traditional requirements management platforms (JIRA, Confluence, Azure DevOps), modern collaboration tools (Notion, Miro, FigJam), and emerging AI assistants (ChatGPT, Claude, specialized domain tools). This research identifies table stakes features users expect, differentiators that provide competitive advantage, and anti-features to deliberately avoid.
+Multi-LLM provider switching is a well-established pattern in AI chat applications. The user's requirements align with industry best practices:
+- Global default model in settings
+- Per-conversation model binding
+- Visual model indicator
+- Conversation model persistence
 
-**Key Finding:** The user's planned MVP features align well with table stakes requirements for a minimal viable product, but are missing several key differentiators that could set this product apart in an emerging AI-BA-assistant space.
+This document categorizes features into table stakes (must have), differentiators (competitive advantage), and anti-features (deliberately NOT building in v1.8).
+
+---
 
 ## Table Stakes
 
-Features users expect from any BA or requirements tool. Missing these makes the product feel incomplete or unprofessional.
+Features users expect from any multi-model AI chat application. Missing = product feels incomplete.
 
-| Feature | Why Expected | Complexity | MVP Status | Notes |
-|---------|--------------|------------|------------|-------|
-| **User Authentication** | Security baseline for enterprise tools | Medium | ✅ Planned | OAuth with Google/Microsoft is excellent choice for enterprise |
-| **Project Organization** | BAs manage multiple initiatives simultaneously | Low | ✅ Planned | Multiple projects per user is essential |
-| **Document Storage** | BAs reference existing specs, notes, diagrams | Medium | ✅ Planned (text-only MVP) | Text-only is acceptable for MVP; PDF/Word parsing expected post-MVP |
-| **Conversation History** | BAs need to review past discussions and decisions | Low | ✅ Planned | Multiple threads per project meets this need |
-| **Export to Common Formats** | Stakeholders need Word/PDF for documentation | Medium | ✅ Planned | Markdown, PDF, Word export covers this well |
-| **Search Functionality** | Find past requirements and discussions | Medium | ⚠️ Deferred to Beta | Acceptable for MVP with <10 projects; becomes critical in Beta |
-| **Version History / Edit Capability** | BAs iterate on requirements frequently | Medium | ⚠️ Deferred to Beta | Lack of editing may frustrate users; consider for MVP if time allows |
-| **Cross-Device Sync** | BAs work in office (desktop) and meetings (mobile) | Low | ✅ Planned | Server-stored data provides this automatically |
-| **Artifact Templates** | Standardized user story/acceptance criteria formats | Low | ✅ Implicit | AI generates structured artifacts; templates not needed |
-| **Sharing/Collaboration** | Share artifacts with stakeholders and developers | High | ⚠️ Minimal (export only) | Export meets minimum bar; real-time collaboration deferred to V1.0+ |
-| **Audit Trail** | Track who changed what when (enterprise requirement) | Medium | ❌ Not Planned | Not critical for MVP with single-user model; becomes critical for team features |
+### TS-01: Global Default Model Setting
 
-**MVP Assessment:** The planned MVP covers 7/11 table stakes features adequately, with 3 deferred to Beta/V1.0 and 1 not planned. This is acceptable for MVP validation but Beta must address search and editing.
+| Aspect | Details |
+|--------|---------|
+| **Feature** | User can set their preferred default model in Settings |
+| **Why Expected** | [Open WebUI](https://docs.openwebui.com/features/chat-features/chat-params/), [TypingMind](https://docs.typingmind.com/feature-list), and all major multi-model interfaces provide this |
+| **Complexity** | Low |
+| **Notes** | Default model auto-selected when starting new conversations |
+
+**Implementation pattern:**
+- Settings page dropdown showing available providers/models
+- Persisted to user preferences (SharedPreferences or backend)
+- Applied automatically to new conversations
+
+### TS-02: Per-Conversation Model Binding
+
+| Aspect | Details |
+|--------|---------|
+| **Feature** | Each conversation remembers which model it uses |
+| **Why Expected** | Core UX pattern in [Open WebUI](https://deepwiki.com/daw/open-webui/3.3-model-selection), [LibreChat](https://github.com/danny-avila/LibreChat/discussions/3999), TypingMind |
+| **Complexity** | Medium |
+| **Notes** | Stored in conversation/thread metadata in database |
+
+**Why this matters:**
+- Users may use different models for different tasks
+- Switching models mid-conversation preserves context but may cause quality inconsistencies
+- Existing conversations should "remember" their model when reopened
+
+### TS-03: Model Selector at Conversation Start
+
+| Aspect | Details |
+|--------|---------|
+| **Feature** | User can select model when starting a new conversation |
+| **Why Expected** | Standard pattern in ChatGPT, Claude.ai, TypingMind, Open WebUI |
+| **Complexity** | Low |
+| **Notes** | Dropdown/selector above or beside chat input for new conversations |
+
+**Implementation options:**
+- Dropdown in chat header (Open WebUI style)
+- Model picker in chat input area (ChatGPT style)
+- Pre-defaults to global setting, can override per-conversation
+
+### TS-04: Visual Model Indicator
+
+| Aspect | Details |
+|--------|---------|
+| **Feature** | Display which model is active for current conversation |
+| **Why Expected** | Users need to know which AI they're talking to for context and cost awareness |
+| **Complexity** | Low |
+| **Notes** | Badge, label, or icon showing current model |
+
+**Common placements:**
+- Below chat input (user's stated preference)
+- In chat header beside conversation title
+- As subtle badge on each AI response bubble
+
+**Reference implementations:**
+- [JetBrains AI Assistant](https://www.jetbrains.com/help/ai-assistant/ai-chat.html) shows model picker with current selection
+- [ChatGPT](https://help.openai.com/en/articles/7864572-what-is-the-chatgpt-model-selector) shows model name in conversation header
+- [Aethera](https://help.aethera.ai/chat-interface/model-selection) shows dropdown with current model visible
+
+### TS-05: Model Persistence on Conversation Return
+
+| Aspect | Details |
+|--------|---------|
+| **Feature** | Returning to existing conversation uses its bound model, not current default |
+| **Why Expected** | Prevents confusion when users switch between conversations |
+| **Complexity** | Low (once TS-02 implemented) |
+| **Notes** | Critical for user's stated requirement |
+
+**User's explicit requirement:** "Existing conversations keep their original model when returning to them"
+
+### TS-06: API Key Management (BYOK)
+
+| Aspect | Details |
+|--------|---------|
+| **Feature** | User provides their own API keys for each provider |
+| **Why Expected** | Standard for cost-optimized multi-provider apps; see [Warp](https://docs.warp.dev/support-and-billing/plans-and-pricing/bring-your-own-api-key), [OpenRouter](https://openrouter.ai/announcements/bring-your-own-api-keys), [GitHub Copilot BYOK](https://github.blog/changelog/2025-11-20-enterprise-bring-your-own-key-byok-for-github-copilot-is-now-in-public-preview/) |
+| **Complexity** | Medium |
+| **Notes** | Keys stored securely (encrypted), never synced to cloud without user consent |
+
+**Security requirements:**
+- Keys stored locally on device OR encrypted at rest in backend
+- Keys never logged or exposed in error messages
+- Clear indication of which keys are configured
+
+### TS-07: Provider Availability Indication
+
+| Aspect | Details |
+|--------|---------|
+| **Feature** | Show which providers are available (have valid API keys) |
+| **Why Expected** | Users need to know what's available before selecting |
+| **Complexity** | Low |
+| **Notes** | Visual indicator (checkmark, green dot) for configured providers |
+
+---
 
 ## Differentiators
 
-Features that set products apart. Not expected by default, but provide competitive advantage when present.
+Features that set product apart. Not expected, but valued. Consider for v1.8 or later versions.
 
-| Feature | Value Proposition | Complexity | MVP Status | Notes |
-|---------|-------------------|------------|------------|-------|
-| **AI-Powered Edge Case Discovery** | Proactively identifies missing requirements BAs overlook | High | ✅ CORE VALUE PROP | This is the main differentiator; must work exceptionally well |
-| **Contextual Document Search** | AI autonomously references uploaded documents during conversation | High | ✅ Planned | Strong differentiator; most AI tools require manual context |
-| **Structured Artifact Generation** | Convert conversations to user stories, acceptance criteria automatically | Medium | ✅ Planned | Valuable; saves BAs hours of documentation time |
-| **Guided Discovery Questions** | AI asks clarifying questions like experienced BA mentor | Medium-High | ✅ Planned (via system prompt) | Strong differentiator if prompting is effective |
-| **Multi-Format Export** | Export to Word/PDF/Markdown without manual formatting | Medium | ✅ Planned | Nice-to-have differentiator; reduces friction |
-| **Conversation Threading** | Separate conversations for different features within project | Low | ✅ Planned | Organizational differentiator vs single-thread chat |
-| **Real-Time Streaming Responses** | See AI response as it generates (reduces perceived latency) | Medium | ✅ Planned (SSE) | UX differentiator; feels more responsive than batch |
-| **Voice Input for Meetings** | Speak requirements instead of typing during client meetings | Medium | ❌ Not Planned | HIGH VALUE for meeting use case; consider for Beta |
-| **Automatic Meeting Summaries** | Record meeting, generate requirements document | High | ❌ Not Planned | HIGH VALUE but complex; good V1.0+ feature |
-| **Requirement Completeness Scoring** | AI evaluates if requirement is fully specified | Medium | ❌ Not Planned | Good differentiator; could add in Beta if MVP validates core value |
-| **Stakeholder Persona Management** | Define stakeholders, AI tailors questions to their concerns | Medium | ❌ Not Planned | Good enterprise feature; V1.0+ |
-| **Integration with Dev Tools** | Push artifacts directly to JIRA/Azure DevOps/GitHub Issues | High | ❌ Not Planned | HIGH VALUE for adoption; critical for V1.0 if enterprise sales |
-| **Custom Artifact Types** | Users define their own document templates beyond user stories | Medium | ⚠️ Flexible (AI generates any type) | MVP allows ad-hoc requests; Beta could add saved templates |
-| **Requirement Dependency Mapping** | Visualize relationships between requirements | High | ❌ Not Planned | Nice-to-have; lower priority than core features |
-| **Comparison with Industry Standards** | AI compares requirements to best practices or regulations | High | ❌ Not Planned | Niche differentiator; only valuable for regulated industries |
+### DIF-01: Cost Indicator per Model
 
-**MVP Assessment:** MVP includes 7 strong differentiators that align with core value proposition. Voice input and JIRA integration are HIGH VALUE additions for Beta/V1.0.
+| Aspect | Details |
+|--------|---------|
+| **Feature** | Show relative cost ($/1M tokens or simple low/medium/high) per model |
+| **Value Proposition** | User's stated goal is cost optimization; helps informed decisions |
+| **Complexity** | Low |
+| **Notes** | Can be static metadata, doesn't need real-time pricing |
 
-## Differentiators by Priority
+**Why valuable:** User explicitly mentioned wanting to switch providers for cost optimization. Showing relative cost helps them make informed decisions.
 
-### Must-Have Differentiators (in MVP)
-1. ✅ AI-powered edge case discovery
-2. ✅ Contextual document search
-3. ✅ Structured artifact generation
-4. ✅ Guided discovery questions
+### DIF-02: Model Capability Tags
 
-### High-Value Additions (Beta/V1.0)
-1. ❌ Voice input for meetings (Beta) - Addresses "mobile meetings" use case directly
-2. ❌ JIRA/Azure DevOps integration (V1.0) - Critical for enterprise adoption
-3. ❌ Requirement completeness scoring (Beta) - Reinforces AI value proposition
-4. ❌ Automatic meeting summaries (V1.0) - High complexity but high value
+| Aspect | Details |
+|--------|---------|
+| **Feature** | Tags showing model strengths (e.g., "Best for code", "Fast", "Creative writing") |
+| **Value Proposition** | Helps users choose right model for their task |
+| **Complexity** | Low |
+| **Notes** | Static metadata per model |
 
-### Nice-to-Have (Post-V1.0)
-1. Stakeholder persona management
-2. Requirement dependency mapping
-3. Comparison with industry standards
+### DIF-03: Quick Model Switcher in Active Conversation
+
+| Aspect | Details |
+|--------|---------|
+| **Feature** | Allow switching model mid-conversation without losing context |
+| **Value Proposition** | Flexibility when starting with cheap model, escalating for complex questions |
+| **Complexity** | Medium |
+| **Notes** | Requires clear UX for context warning |
+
+**Pattern from [TypingMind](https://blog.typingmind.com/optimize-token-costs-for-chatgpt-and-llm-api/):** "When you finish all the tough questions, switch to a more budget-friendly model for easier tasks"
+
+**Warning needed:** "Switching models mid-conversation: New model will receive full conversation history but may respond differently."
+
+### DIF-04: Multi-Model Response Comparison
+
+| Aspect | Details |
+|--------|---------|
+| **Feature** | Send same prompt to multiple models, compare responses side-by-side |
+| **Value Proposition** | Helps evaluate model quality for specific use cases |
+| **Complexity** | High |
+| **Notes** | [TypingMind multi-model feature](https://docs.typingmind.com/manage-and-connect-ai-models/activate-multi-model-responses), [Open WebUI dual-model](https://docs.openwebui.com/features/chat-features/) |
+
+**Defer to post-v1.8:** High complexity, nice-to-have rather than core need.
+
+### DIF-05: Automatic Model Selection Based on Task
+
+| Aspect | Details |
+|--------|---------|
+| **Feature** | "Smart Mode" that routes to appropriate model based on query complexity |
+| **Value Proposition** | Cost optimization without manual selection |
+| **Complexity** | High |
+| **Notes** | Requires query classification, complex to implement well |
+
+**Pattern from [MultipleChat](https://multiple.chat/):** "Smart Mode" uses collaborative AI processing to route to best model.
+
+**Defer:** High complexity, needs sophisticated routing logic.
+
+### DIF-06: Token/Cost Tracking per Model
+
+| Aspect | Details |
+|--------|---------|
+| **Feature** | Show token usage and estimated cost breakdown by model |
+| **Value Proposition** | Direct support for user's cost optimization goal |
+| **Complexity** | Medium |
+| **Notes** | Requires tracking usage per provider |
+
+---
 
 ## Anti-Features
 
-Features to deliberately NOT build. Common in competitors but add complexity without proportional value for this product's positioning.
+Features to explicitly NOT build for v1.8. Common mistakes in this domain.
+
+### AF-01: Mid-Conversation Model Switching Without Warning
 
 | Anti-Feature | Why Avoid | What to Do Instead |
 |--------------|-----------|-------------------|
-| **Built-In Diagramming Tools** | BAs already use Miro, Lucidchart, Figma; competing here adds massive scope | Allow document upload of diagram descriptions; AI references them contextually |
-| **Real-Time Collaboration (MVP/Beta)** | Requires WebSockets, CRDTs, conflict resolution; massive complexity for solo dev | Focus on single-user experience; add sharing via export; defer real-time to V1.0+ |
-| **Gantt Charts / Project Planning** | Not a BA's primary responsibility; dilutes focus from requirements discovery | Stay focused on requirements; let PMs use dedicated tools |
-| **Built-In Approval Workflows** | Enterprise workflow engines are complex; low ROI for MVP validation | Export artifacts, let stakeholders approve in existing tools (email, JIRA) |
-| **Customizable AI Personalities** | Adds complexity, dilutes consistent experience, hard to test | One well-tuned BA assistant personality; optimize for effectiveness |
-| **Video Recording / Transcription** | Meeting recording is legal/compliance minefield; hard to build well | If needed, integrate with existing tools (Zoom, Teams) rather than build |
-| **Advanced Analytics / Dashboards** | Not valuable until user has dozens of completed projects; premature | Simple usage stats in V1.0; defer analytics to post-V1.0 or never |
-| **White-Label / Multi-Tenancy** | Adds architectural complexity; not needed for B2C or small team B2B | Single-instance SaaS; defer multi-tenancy until enterprise sales require it |
-| **Offline-First Mode (MVP/Beta)** | Sync engine complexity is HIGH; conflict resolution is hard | Online-only for MVP/Beta; add offline in V1.0+ if mobile usage data justifies |
-| **Blockchain / NFT Features** | Gimmick with no BA value; adds cost and complexity | Ignore entirely |
-| **Automated Testing of Requirements** | Requires understanding codebase structure; out of scope for BA tool | BAs write testable acceptance criteria; developers write actual tests |
-| **Native Desktop Apps** | Flutter web + mobile covers use cases; desktop adds maintenance burden | PWA (Progressive Web App) for desktop users; skip Electron/native |
+| Silent model switching | Confuses users; context may be interpreted differently | Always show clear indicator when model changes; warn about potential consistency issues |
 
-**Key Principle:** Stay focused on AI-assisted requirements discovery. Avoid feature creep into adjacent domains (diagramming, project management, code testing) where dedicated tools already exist.
+**Source:** [How to fix AI chatbot that switches models mid-conversation](https://www.arsturn.com/blog/how-to-fix-an-ai-chatbot-that-switches-models-mid-conversation) - "The new model often doesn't have the context of the previous conversation. It's like a new person jumping into a conversation without being caught up."
+
+### AF-02: Automatic Model Downgrade Without User Consent
+
+| Anti-Feature | Why Avoid | What to Do Instead |
+|--------------|-----------|-------------------|
+| Auto-switching to cheaper model when budget exhausted | Unexpected behavior change; quality degradation | Show clear budget warning; let user explicitly choose to switch or stop |
+
+### AF-03: Provider-Specific Feature Parity Assumptions
+
+| Anti-Feature | Why Avoid | What to Do Instead |
+|--------------|-----------|-------------------|
+| Assuming all providers support same features | OpenAI has JSON mode, Claude has tool use differences, Gemini has different context windows | Abstract common interface; disable unsupported features per provider |
+
+**Note for BA Assistant:** The current Business Analyst skill uses Claude-specific tool calling. Other providers may need adapted prompts or reduced functionality.
+
+### AF-04: Complex Model Hierarchies/Routing in Settings
+
+| Anti-Feature | Why Avoid | What to Do Instead |
+|--------------|-----------|-------------------|
+| Complex rules for model selection (if X then use Y) | Overwhelming for users; hard to debug | Keep it simple: one default, per-conversation override |
+
+### AF-05: Real-Time Pricing API Integration
+
+| Anti-Feature | Why Avoid | What to Do Instead |
+|--------------|-----------|-------------------|
+| Fetching live pricing from provider APIs | Adds complexity, failure points; pricing rarely changes | Use static cost tier metadata; update with app releases |
+
+### AF-06: Cross-Provider Conversation Migration
+
+| Anti-Feature | Why Avoid | What to Do Instead |
+|--------------|-----------|-------------------|
+| Ability to "migrate" conversation history between providers | Complex; formats differ; expectations mismatch | Per-conversation binding is simpler; user can start new conversation with different model |
+
+### AF-07: Provider Account Linking (OAuth)
+
+| Anti-Feature | Why Avoid | What to Do Instead |
+|--------------|-----------|-------------------|
+| Full OAuth integration with provider accounts | Overly complex; most users just want to paste API keys | Simple API key entry with validation |
+
+---
 
 ## Feature Dependencies
 
-### Critical Path for MVP
 ```
-Authentication
-    ↓
-Project Management
-    ↓
-Document Upload ──→ Document Search (AI tool)
-    ↓                       ↓
-Conversation Threads ──→ AI Discovery
-    ↓                       ↓
-                    Artifact Generation
-                            ↓
-                    Export (Markdown/PDF/Word)
+Global Default Setting (TS-01)
+    |
+    v
+Per-Conversation Model Binding (TS-02)
+    |
+    +---> Model Selector at Start (TS-03)
+    |
+    +---> Model Persistence on Return (TS-05)
+    |
+    v
+Visual Model Indicator (TS-04)
+    |
+    v
+[Optional] Quick Model Switcher (DIF-03)
+
+API Key Management (TS-06)
+    |
+    v
+Provider Availability Indication (TS-07)
+    |
+    +---> Cost Indicator (DIF-01)
+    |
+    +---> Capability Tags (DIF-02)
 ```
 
-**Explanation:**
-- Authentication unlocks all other features (user-specific data)
-- Project Management provides organizational structure
-- Document Upload + Search enable contextual AI responses
-- Conversation Threads provide UI for AI interaction
-- AI Discovery is the core value loop
-- Artifact Generation converts conversation to deliverables
-- Export makes artifacts usable outside the app
+---
 
-### Feature Clusters
+## MVP Recommendation for v1.8
 
-**Cluster 1: Foundation (MVP Week 1-2)**
-- Authentication
-- Project Management
-- Database schema
+### Must Include (Table Stakes)
 
-**Cluster 2: Content Management (MVP Week 3-4)**
-- Document Upload
-- Document Storage (encrypted)
-- Document Search indexing
+1. **TS-01: Global Default Model Setting** - User's explicit requirement
+2. **TS-02: Per-Conversation Model Binding** - User's explicit requirement
+3. **TS-03: Model Selector at Conversation Start** - Natural extension of TS-02
+4. **TS-04: Visual Model Indicator** - User's explicit requirement ("below chat window")
+5. **TS-05: Model Persistence on Return** - User's explicit requirement
+6. **TS-06: API Key Management** - Required for multi-provider to function
+7. **TS-07: Provider Availability Indication** - Necessary UX for key management
 
-**Cluster 3: AI Core (MVP Week 5-6)**
-- Conversation Threads
-- AI Integration (Agent SDK)
-- Document Search Tool
-- Streaming Responses
+### Consider Including (High-Value Differentiators)
 
-**Cluster 4: Deliverables (MVP Week 7-8)**
-- Artifact Generation
-- Artifact Storage
-- Export (Markdown, PDF, Word)
+1. **DIF-01: Cost Indicator** - Directly supports user's cost optimization goal
+2. **DIF-02: Capability Tags** - Low effort, helps model selection
 
-**Cluster 5: Polish (MVP Week 9-10)**
-- Thread Summaries
-- Error Handling
-- UI Refinements
-- Testing
+### Defer to Post-v1.8
 
-## MVP Feature Completeness Assessment
+- **DIF-03: Quick Model Switcher** - Nice to have, adds complexity
+- **DIF-04: Multi-Model Comparison** - High complexity
+- **DIF-05: Automatic Model Selection** - Very high complexity
+- **DIF-06: Token/Cost Tracking per Model** - Medium complexity, post-MVP
 
-### Comparison to User's Planned MVP
+---
 
-| User's MVP Feature | Table Stakes? | Differentiator? | Assessment |
-|-------------------|---------------|-----------------|------------|
-| OAuth Authentication | ✅ Yes | No | Correct priority |
-| Project Management | ✅ Yes | No | Correct priority |
-| Document Upload (text) | ✅ Yes | No | Acceptable simplification; PDF/Word needed in Beta |
-| Conversation Threads | ✅ Yes | ✅ Yes (threading) | Correct priority |
-| AI-Powered Discovery | ✅ Yes | ✅ Yes (CORE) | Correct priority |
-| On-Demand Document Search | ✅ Yes | ✅ Yes (contextual) | Correct priority |
-| Artifact Generation | ✅ Yes | ✅ Yes | Correct priority |
-| Artifact Export | ✅ Yes | ✅ Yes (multi-format) | Correct priority |
-| Thread Summaries | No | ✅ Yes (nice-to-have) | Good addition for UX |
+## Provider-Specific Considerations
 
-**Verdict:** The user's MVP feature set is **well-scoped**. It includes all critical table stakes features and the core differentiators. The deferrals (search, editing, deletion, PDF parsing) are appropriate for MVP validation.
+### Claude (Anthropic) - Currently Implemented
 
-### Recommended Additions (Consider for MVP if time allows)
+- Tool use (function calling) fully supported
+- Current BA skill is Claude-optimized
+- Context window: 200K tokens (Claude 3+)
+- Streaming supported
 
-1. **Basic Message Editing** (Low complexity, HIGH user frustration without it)
-   - Allow users to edit their last message before AI responds
-   - Prevents "oops, typo" scenarios that derail conversation
-   - Complexity: 2-3 days
+### Gemini (Google)
 
-2. **Voice Input (Mobile Only)** (Medium complexity, HIGH value for meeting use case)
-   - Use device speech-to-text API
-   - No custom transcription needed
-   - Complexity: 3-5 days
-   - **HIGH PRIORITY IF MOBILE MEETINGS ARE KEY USE CASE**
+- Tool use supported but different API shape
+- Context window: Up to 1M tokens (Gemini 1.5)
+- May need adapted system prompts
+- Streaming supported
 
-### Recommended Deferrals (Confirm these stay out of MVP)
+### DeepSeek
 
-1. ✅ Search Functionality - Correct to defer (becomes critical in Beta)
-2. ✅ Deletion Capabilities - Correct to defer (minor UX issue only)
-3. ✅ PDF/Word Parsing - Correct to defer (text-only acceptable for validation)
-4. ✅ Real-Time Collaboration - Correct to defer (massive scope)
-5. ✅ Offline Mode - Correct to defer (complex, validate need first)
+- OpenAI-compatible API format
+- Very cost-effective for simpler tasks
+- Limited tool use capabilities
+- May not support all BA skill features
 
-## Feature Complexity vs Value Matrix
+### Abstraction Requirement
 
-### High Value, Low Complexity (DO THESE)
-- ✅ OAuth Authentication (user's MVP)
-- ✅ Project Management (user's MVP)
-- ✅ Conversation Threading (user's MVP)
-- ✅ Artifact Export - Markdown (user's MVP)
-- ⚠️ **Message Editing** (consider adding to MVP)
+The backend needs an abstraction layer that:
+1. Normalizes request/response formats across providers
+2. Handles tool calling differences gracefully
+3. Degrades gracefully when provider doesn't support a feature
+4. Maintains conversation history format compatibility
 
-### High Value, Medium Complexity (MVP CORE)
-- ✅ AI Discovery (user's MVP)
-- ✅ Document Search (user's MVP)
-- ✅ Artifact Generation (user's MVP)
-- ✅ Export - PDF/Word (user's MVP)
-- ⚠️ **Voice Input** (strong candidate for MVP if time allows)
+---
 
-### High Value, High Complexity (BETA/V1.0)
-- JIRA/Azure DevOps Integration (V1.0)
-- PDF/Word Document Parsing (Beta)
-- Requirement Completeness Scoring (Beta)
-- Automatic Meeting Summaries (V1.0)
+## UX Patterns from Competitors
 
-### Medium Value, Low Complexity (POLISH)
-- Thread Summaries (user's MVP - good addition)
-- Custom Artifact Templates (Beta)
-- Usage Analytics (V1.0)
+### Open WebUI Pattern
+- Model dropdown in conversation header
+- Per-chat and per-model settings hierarchy
+- "Set as default" one-click action
+- Model hiding for deprecated options
 
-### Low Value or High Complexity (AVOID)
-- Built-in diagramming
-- Real-time collaboration (MVP/Beta)
-- Gantt charts
-- Approval workflows
-- White-label/multi-tenancy
-- Blockchain features
+### TypingMind Pattern
+- Model selector prominently placed
+- Multi-model responses (premium feature)
+- Clear cost optimization guidance in docs
+- AI character/persona system
 
-## Competitive Landscape Insights
+### ChatGPT Pattern
+- Minimal model selector (hidden in dropdown)
+- Model capabilities explained on hover
+- Conversation locked to model after first message (by design)
 
-### Traditional BA Tools (JIRA, Confluence, Azure DevOps)
-**What they do well:**
-- Integration with dev workflows
-- Approval and workflow management
-- Team collaboration features
-- Enterprise security and compliance
-
-**What they do poorly:**
-- No AI assistance
-- Heavy, complex UIs
-- Require significant training
-- Not optimized for discovery phase (better for tracking than ideation)
-
-**How This Product Differentiates:**
-- Focus on discovery/exploration phase (before JIRA)
-- AI-guided conversation vs form-filling
-- Lightweight, focused experience
-- Eventually integrate with JIRA rather than replace it
-
-### Modern Collaboration Tools (Notion, Miro, FigJam)
-**What they do well:**
-- Beautiful, intuitive UIs
-- Real-time collaboration
-- Flexible, freeform workspaces
-- Great for brainstorming
-
-**What they do poorly:**
-- Not BA-specific (generic tools)
-- No AI assistance for edge cases
-- Require manual structuring
-- No automatic artifact generation
-
-**How This Product Differentiates:**
-- BA-specific AI guidance
-- Structured outputs (user stories, criteria)
-- Automatic edge case identification
-- Purpose-built for requirements discovery
-
-### AI Assistants (ChatGPT, Claude, Copilot)
-**What they do well:**
-- Powerful AI capabilities
-- Conversational interface
-- General knowledge
-
-**What they do poorly:**
-- No project context/memory
-- No document search
-- No structured artifacts
-- Generic, not BA-specific
-- No export to professional formats
-
-**How This Product Differentiates:**
-- Project-scoped context (documents, past conversations)
-- BA-specific prompting and tools
-- Structured artifact generation
-- Professional export formats
-- Purpose-built workflow
-
-## Feature Recommendations Summary
-
-### ✅ MVP Features Are Well-Scoped
-The user's planned MVP includes the right mix of table stakes and differentiators. No major gaps.
-
-### ⚠️ Consider Adding to MVP (if time allows)
-1. **Message Editing** - Low complexity, prevents user frustration
-2. **Voice Input (Mobile)** - Medium complexity, HIGH value for meeting use case
-
-### ✅ Beta Priorities Confirmed
-1. Search Functionality (becomes critical with more data)
-2. PDF/Word Document Parsing (requested by users)
-3. Deletion Capabilities (minor UX issue)
-4. Message Editing (if not in MVP)
-
-### 🎯 V1.0 High-Value Features
-1. **JIRA/Azure DevOps Integration** (critical for enterprise adoption)
-2. **Voice Input** (if not in MVP/Beta) + Meeting Summaries
-3. **Requirement Completeness Scoring** (reinforces AI value prop)
-4. **Team Collaboration** (for multi-BA teams)
-
-### ❌ Anti-Features to Avoid
-- Built-in diagramming
-- Real-time collaboration (until V1.0+)
-- Gantt charts / project planning
-- Approval workflows
-- Customizable AI personalities (until strong user demand)
-- Video recording / transcription
-- Advanced analytics
-- White-label / multi-tenancy
-
-## Domain-Specific Patterns
-
-### What Makes BA Tools Successful
-
-1. **Reduce Documentation Burden** - BAs spend 40-60% of time writing docs; any tool that reduces this wins
-2. **Improve Requirement Completeness** - Missing edge cases cause expensive rework; AI edge case discovery is HIGH value
-3. **Integrate with Existing Workflows** - BAs work with JIRA, Confluence, Word; export and integration critical
-4. **Support Meeting Workflows** - Many requirements gathered in meetings; mobile + voice input valuable
-5. **Provide Structure Without Rigidity** - BAs need templates but also flexibility; AI-generated artifacts balance this well
-
-### What Causes BA Tool Failures
-
-1. **Too Complex** - Enterprise tools with 50+ features overwhelm users
-2. **Too Rigid** - Template-based tools that don't adapt to context
-3. **Poor Integration** - Island tools that don't fit existing workflows
-4. **No AI / Automation** - Manual tools can't compete with AI-assisted alternatives
-5. **Wrong Platform** - Desktop-only or mobile-only when users need both
-
-### How This Product Addresses Success Factors
-
-| Success Factor | How Product Addresses It |
-|---------------|--------------------------|
-| Reduce Documentation Burden | ✅ AI generates structured artifacts automatically |
-| Improve Completeness | ✅ AI proactively identifies edge cases |
-| Integrate with Workflows | ⚠️ Export to Word/PDF (MVP); JIRA integration (V1.0) |
-| Support Meeting Workflows | ⚠️ Mobile app (MVP); Voice input (recommended for Beta) |
-| Structure Without Rigidity | ✅ AI generates any artifact type on demand |
-
-## Confidence Assessment
-
-| Feature Category | Confidence Level | Notes |
-|-----------------|------------------|-------|
-| Traditional BA Tool Features | MEDIUM | Based on training knowledge of JIRA, Confluence, Azure DevOps; not verified with current 2026 sources |
-| Modern Collaboration Tool Features | MEDIUM | Based on training knowledge of Notion, Miro; not verified with current sources |
-| AI Assistant Features | HIGH | Based on direct experience with Claude, understanding of ChatGPT patterns |
-| Table Stakes Identification | HIGH | Consistent patterns across tools and user expectations |
-| Differentiator Identification | MEDIUM | Based on competitive landscape understanding; not verified with current market research |
-| Anti-Feature Identification | HIGH | Based on complexity analysis and focus on core value proposition |
-| MVP Assessment | HIGH | User's MVP is well-aligned with table stakes and core differentiators |
-
-## Research Limitations
-
-**Unable to Access:**
-- Current 2026 market offerings (web search blocked)
-- Recent product announcements or pivots
-- Current pricing and feature comparison data
-- User reviews and satisfaction data
-- Industry analyst reports (Gartner, Forrester)
-
-**Research Based On:**
-- Training data knowledge of BA tools (up to early 2025)
-- User's detailed roadmap and technical specification
-- General understanding of BA workflows and pain points
-- Competitive dynamics between traditional tools, modern collaboration tools, and AI assistants
-
-**Recommendation:** Validate findings with:
-1. Direct competitor research (JIRA + AI plugins, specialized BA AI tools)
-2. User interviews with target BAs about current tool stack
-3. Review of recent BA tool launches (2025-2026)
+---
 
 ## Sources
 
-**Note:** Web search and web fetch were unavailable for this research session. This analysis is based on:
+### Primary Sources
+- [Open WebUI Documentation - Chat Parameters](https://docs.openwebui.com/features/chat-features/chat-params/)
+- [Open WebUI - Model Selection](https://deepwiki.com/daw/open-webui/3.3-model-selection)
+- [TypingMind Feature List](https://docs.typingmind.com/feature-list)
+- [TypingMind Multi-Model Responses](https://docs.typingmind.com/manage-and-connect-ai-models/activate-multi-model-responses)
+- [ChatGPT Model Selector Help](https://help.openai.com/en/articles/7864572-what-is-the-chatgpt-model-selector)
 
-1. **Training Knowledge** (LOW-MEDIUM confidence):
-   - BA tool features (JIRA, Confluence, Azure DevOps, Notion, Miro)
-   - AI assistant patterns (ChatGPT, Claude, specialized tools)
-   - Industry best practices for requirements management
+### BYOK/API Key Management
+- [Warp BYOK Documentation](https://docs.warp.dev/support-and-billing/plans-and-pricing/bring-your-own-api-key)
+- [GitHub Copilot BYOK](https://github.blog/changelog/2025-11-20-enterprise-bring-your-own-key-byok-for-github-copilot-is-now-in-public-preview/)
+- [OpenRouter BYOK](https://openrouter.ai/announcements/bring-your-own-api-keys)
 
-2. **User-Provided Context** (HIGH confidence):
-   - Implementation Roadmap (BA_Assistant_Implementation_Roadmap.md)
-   - Technical Specification (BA_Assistant_Technical_Specification.md)
-   - Project goals and target users
+### Cost Optimization Strategies
+- [TypingMind - Optimize Token Costs](https://blog.typingmind.com/optimize-token-costs-for-chatgpt-and-llm-api/)
+- [Eden AI - Control Token Usage](https://www.edenai.co/post/how-to-control-token-usage-and-cut-costs-on-ai-apis)
 
-3. **Competitive Positioning Analysis** (MEDIUM confidence):
-   - Based on understanding of tool categories and user workflows
-   - Not verified with current 2026 market data
+### Multi-Model Architecture
+- [Stream - Multi-Model AI Chat](https://getstream.io/blog/multi-model-ai-chat/)
+- [Medium - Multi-Provider Chat App](https://medium.com/@richardhightower/multi-provider-chat-app-litellm-streamlit-ollama-gemini-claude-perplexity-and-modern-llm-afd5218c7eab)
+- [Building Multi-AI Chat Platform](https://medium.com/@reactjsbd/building-a-complete-multi-ai-chat-platform-chatgpt-claude-gemini-grok-in-one-interface-4295d10e3174)
 
-**Recommendation:** Supplement this research with current web research once available, focusing on:
-- "AI requirements management tools 2026"
-- "Business analyst AI assistant 2026"
-- "JIRA alternatives with AI 2026"
-- Recent product launches in BA tool space
+### Context/Model Switching Pitfalls
+- [Fix AI Chatbot Model Switching Issues](https://www.arsturn.com/blog/how-to-fix-an-ai-chatbot-that-switches-models-mid-conversation)
+- [LibreChat Model Switching Discussion](https://github.com/danny-avila/LibreChat/discussions/3999)
+- [Cursor Forum - Model Context](https://forum.cursor.com/t/if-i-change-a-model-will-the-new-model-know-the-previous-context/43939)
+
+---
+
+*Research completed 2026-01-31. Ready for requirements definition.*

@@ -1,6 +1,6 @@
-# Research Summary: v1.7 URL & Deep Links
+# Research Summary: Multi-LLM Provider Integration (v1.8)
 
-**Milestone:** v1.7 - URL & Deep Linking
+**Project:** BA Assistant - Multi-Provider Support
 **Synthesized:** 2026-01-31
 **Overall Confidence:** HIGH
 
@@ -8,230 +8,180 @@
 
 ## Executive Summary
 
-The BA Assistant v1.7 deep linking milestone is a **configuration and pattern implementation project**, not a technology adoption project. The existing stack (GoRouter 17.0.1, Flutter 3.9+, path URL strategy via `usePathUrlStrategy()`) already provides everything needed. No new packages are required. The primary work involves extending the GoRouter redirect logic to preserve URLs through the OAuth authentication flow, adding nested thread routes (`/projects/:id/threads/:threadId`), and implementing proper 404 error handling.
+Adding multi-LLM provider support (Claude, Gemini 3 Flash Preview, DeepSeek V3.2 Reasoner) to BA Assistant is a well-understood domain with established patterns. The core challenge is building a proper abstraction layer that normalizes the significant differences in thinking/reasoning mode output formats across providers. The existing Anthropic integration provides a solid foundation - the `sse-starlette` streaming infrastructure remains unchanged, and all three providers support async streaming suitable for the current SSE-based frontend architecture.
 
-The current codebase has a solid foundation but contains **one critical gap**: the redirect logic discards the user's intended destination when redirecting to login, causing all authenticated users to land on `/home` regardless of their original deep link target. The fix is well-documented in GoRouter patterns: capture `state.matchedLocation` (or `state.uri.toString()` for query params) into a `returnUrl` query parameter, preserve it through the OAuth flow via session storage, and redirect to it after authentication completes.
+The recommended approach is an adapter pattern with a factory for provider instantiation. Each provider has unique characteristics: Claude's extended thinking returns `thinking` blocks requiring preservation during tool use; Gemini's thinking mode requires signature passback for multi-turn context; DeepSeek uses the OpenAI SDK with a custom base URL and separates `reasoning_content` from `content`. The abstraction layer must normalize these differences so the frontend receives a unified stream format regardless of provider.
 
-The main risks are **router recreation destroying URL state on refresh** (already mitigated by the `_routerInstance` pattern but needs verification), **infinite redirect loops** when extending the redirect logic (add defensive null returns), and **production server configuration** (path-based URLs require SPA rewrite rules). All risks have documented prevention strategies with high confidence. Mobile-specific deep linking (Android App Links, iOS Universal Links) should be deferred to post-v1.7 as web is the primary platform.
+Key risks center on response format divergence (each provider structures thinking output differently), timeout handling (thinking can delay first token by 30+ seconds), and multi-turn state management (Gemini signatures, Claude thinking blocks). Mitigation requires building response normalization into the adapter layer from day one, implementing SSE heartbeats for long-running requests, and provider-specific conversation state handlers. The cost differential is significant - DeepSeek is 10-30x cheaper than Claude, making this feature valuable for cost optimization.
 
 ---
 
 ## Key Findings
 
-### From STACK-DEEP-LINKING.md
+### From STACK.md
 
-| Technology | Decision | Rationale |
-|------------|----------|-----------|
-| go_router 17.0.1 | KEEP | Full deep linking support built-in, no upgrade needed |
-| flutter_web_plugins | KEEP | `usePathUrlStrategy()` already configured in main.dart:74 |
-| provider 6.1.5 | KEEP | `refreshListenable` pattern already working for auth |
-| app_links | DO NOT ADD | Only needed for navigation stack preservation; overkill for URL sharing use case |
-| uni_links | DO NOT ADD | Deprecated in favor of app_links |
+| Technology | Purpose | Rationale |
+|------------|---------|-----------|
+| `google-genai>=1.51.0` | Gemini 3 API | Required for `thinking_config`; deprecated `google-generativeai` is EOL |
+| `openai>=2.16.0` | DeepSeek API | OpenAI-compatible SDK with custom `base_url` |
+| `anthropic>=0.76.0` | Claude API | Already integrated, continue using |
 
-**Key insight:** Router instance already created correctly outside build() with `_isRouterInitialized` flag (main.dart:114-117). This pattern protects against rebuilds within widget lifecycle.
+**Critical:** Do NOT use `google-generativeai` (EOL Nov 2025) or third-party DeepSeek packages. Use official SDKs only.
 
-### From FEATURES-v1.7-deep-linking.md
+### From FEATURES.md
 
-**Table Stakes (Must Have v1.7):**
-| Feature | Complexity | Notes |
-|---------|------------|-------|
-| URL reflects current page | Low | Basic GoRoute definition for threads |
-| Refresh preserves location | Medium | Store/restore URL through auth flow |
-| Bookmarkable URLs | Low | Follows from correct route structure |
-| Auth redirect to intended destination | Medium | Query parameter pattern `?returnUrl=` |
-| 404 handling for invalid routes | Medium | Custom error page with navigation options |
-| Hierarchical URL structure | Low | `/projects/:id/threads/:threadId` nested routes |
+| Category | Features |
+|----------|----------|
+| **Must Have (Table Stakes)** | Global default model in settings, per-conversation model binding, model selector at conversation start, visual model indicator, model persistence on return, API key management (BYOK), provider availability indication |
+| **Should Have (Differentiators)** | Cost indicator per model, capability tags |
+| **Defer to Post-v1.8** | Quick model switcher mid-conversation, multi-model comparison, automatic model selection, token/cost tracking per model |
 
-**Differentiators (Nice to Have v1.7):**
-- Copy current URL button (Low effort, high value)
-- Tab state in URL via query params (Medium effort)
+**Anti-Features (Explicitly Avoid):**
+- Mid-conversation model switching without warning
+- Automatic model downgrade without consent
+- Provider-specific feature parity assumptions
+- Complex model routing rules
+- Real-time pricing API integration
+- Cross-provider conversation migration
 
-**Defer to v2.0:**
-- Mobile deep links (Android App Links, iOS Universal Links)
-- Link previews (Open Graph metadata)
-- Smart redirect with scroll/state preservation
+### From ARCHITECTURE.md
 
-**Anti-Features (Do NOT Build):**
-- Custom URL schemes (baassistant://) - insecure, unprofessional
-- Sensitive data in URLs - use opaque IDs only
-- Hash-based URLs - already using path strategy correctly
+| Component | Responsibility |
+|-----------|----------------|
+| `LLMAdapter` (abstract) | Unified streaming interface with `stream_chat()`, `normalize_messages()`, `normalize_tools()` |
+| `AnthropicAdapter` | Existing Claude logic extracted to adapter pattern |
+| `GeminiAdapter` | Google GenAI SDK with thinking level configuration |
+| `DeepSeekAdapter` | OpenAI SDK with custom base_url, reasoning_content handling |
+| `LLMFactory` | Provider instantiation with API key lookup |
+| `StreamChunk` | Normalized streaming response dataclass |
 
-### From ARCHITECTURE-v1.7-deep-linking.md
+**Database Changes:**
+- Add `model_provider` (string) and `model_name` (string) columns to `threads` table
+- Optional: `user_preferences` table for default provider
 
-**Core Components:**
+**Key Pattern:** Backend normalizes ALL provider responses to `StreamChunk` format before SSE; frontend treats all providers identically.
 
-| Component | Responsibility | Changes Needed |
-|-----------|----------------|----------------|
-| GoRouter redirect | URL parsing, redirect decisions, returnUrl preservation | Extend to capture/forward returnUrl |
-| AuthProvider | Auth state, notifies router, holds returnUrl state | Add `_returnUrl` field and accessors |
-| AuthService | Token storage, OAuth flow | Add session storage for returnUrl before OAuth |
-| ConversationScreen | Display conversation | Accept both projectId and threadId params |
-| ThreadListScreen | List threads | Replace Navigator.push() with context.go() |
+### From PITFALLS.md
 
-**URL Storage Strategy:**
-1. Query parameter for splash/login transitions (visible for debugging)
-2. Session storage before OAuth redirect (survives external redirect)
-3. Retrieve from session storage after callback, navigate to stored URL
+| Severity | Count | Key Issues |
+|----------|-------|------------|
+| **Critical** | 5 | Thinking format divergence, DeepSeek base URL, parameter incompatibility, streaming timeouts, Gemini thought signatures |
+| **Moderate** | 5 | Token counting variance, thinking token billing, rate limit differences, Claude thinking block preservation, SDK version mismatches |
+| **Minor** | 3 | Error format differences, model name variations, SSE event format differences |
 
-**Breaking Changes:**
-- `ConversationScreen(threadId)` becomes `ConversationScreen(projectId, threadId)`
-- `Navigator.push()` calls in ThreadListScreen must become `context.go()` for URL sync
+---
 
-### From PITFALLS-v1.7-deep-linking.md
+## Critical Pitfalls to Address
 
-**Critical Pitfalls (Cause rewrites/bugs):**
+### 1. Thinking Mode Response Format Divergence (Phase 1)
 
-| # | Pitfall | Prevention | Phase |
-|---|---------|------------|-------|
-| 1 | Router recreation destroys URL state | Create GoRouter outside widget tree, verify current pattern | Phase 1 |
-| 2 | Missing return URL after OAuth | Capture `state.uri.toString()` into `returnUrl` query param | Phase 2 |
-| 3 | StatefulShellRoute deep link branch conflict | Use parentNavigatorKey, test back navigation | Phase 1 |
-| 4 | iOS cold start deep link race condition | Handle "/" -> actual path gracefully, test on real devices | Phase 4 |
-| 5 | refreshListenable infinite redirect loop | Return null when already at target, never notify from redirect | Phase 2 |
+**Problem:** Claude uses `thinking` blocks, Gemini uses `thought` boolean on parts, DeepSeek uses `reasoning_content` field. Parsing failures and UI crashes when switching models.
 
-**Moderate Pitfalls:**
+**Prevention:** Create provider-specific response normalizers BEFORE building unified streaming. Define canonical internal format that ALL providers map to. Test with actual API responses.
 
-| # | Pitfall | Prevention | Phase |
-|---|---------|------------|-------|
-| 6 | Path URL strategy needs server config | Document SPA rewrite rules, test production refresh | Phase 5 |
-| 7 | No 404 handling for invalid deep links | Add errorBuilder to GoRouter, screen-level resource validation | Phase 3 |
-| 8 | URL fragment loss with OAuth | Capture fragment before usePathUrlStrategy(), verify OAuth works | Phase 2 |
-| 9 | Back navigation history corruption | Design decision: go() replaces stack, consider manual stack construction | Phase 3 |
-| 10 | Query parameters lost in redirect | Use `state.uri.toString()` not `state.matchedLocation` | Phase 2 |
+### 2. DeepSeek Base URL Configuration (Phase 1)
+
+**Problem:** DeepSeek uses OpenAI SDK but requires `base_url="https://api.deepseek.com"`. Without it, requests go to OpenAI and fail with 401.
+
+**Prevention:** Use provider-specific client factory pattern. Validate base_url in configuration validation on startup.
+
+### 3. Streaming Timeout and Connection Handling (Phase 2)
+
+**Problem:** Extended thinking can take 30+ seconds before first token. Standard 30s HTTP timeouts kill connection, losing entire response.
+
+**Prevention:** Increase backend timeout to 5+ minutes for thinking requests. Implement SSE heartbeats every 15 seconds. Show "thinking..." indicator before first token.
+
+### 4. Gemini Thought Signatures in Multi-Turn (Phase 3)
+
+**Problem:** Gemini requires "thought signatures" to maintain reasoning context across turns. Dropping these breaks multi-turn thinking conversations.
+
+**Prevention:** Store complete Gemini response parts (don't strip metadata). Pass back entire response with all parts in follow-up requests. Use official Python SDK.
+
+### 5. Claude Extended Thinking Block Preservation (Phase 3)
+
+**Problem:** Claude requires passing back `thinking` blocks when using tools. Stripping them breaks reasoning continuity.
+
+**Prevention:** NEVER strip thinking blocks during tool use loops. Store complete response including all content blocks. Test tool use + thinking combinations explicitly.
 
 ---
 
 ## Recommended Phase Structure
 
-Based on combined research analysis, the v1.7 milestone should be structured into **4 phases** with dependencies flowing sequentially:
+Based on combined architecture and pitfall analysis, the following phase structure addresses dependencies and critical pitfalls in logical order:
 
-### Phase 1: Route Architecture Foundation
+### Phase 1: Backend Abstraction Layer
 
-**Rationale:** All other features depend on stable URL state and correct route structure. Must be bulletproof before adding auth complexity.
-
-**Delivers:**
-- Nested thread routes: `/projects/:id/threads/:threadId`
-- Verified router instance stability on refresh
-- errorBuilder for 404 states (route-level)
-- Debug logging enabled (`debugLogDiagnostics: kDebugMode`)
-
-**Features from research:**
-- Hierarchical URL structure (table stakes)
-- 404 handling for invalid routes (partial - route-level)
-
-**Pitfalls to avoid:**
-- #1 Router Recreation Destroys URL State
-- #3 StatefulShellRoute Deep Link Branch Conflict
-- #11 Missing Debug Logging
-
-**Research needed:** NO - well-documented GoRouter patterns
-
----
-
-### Phase 2: Auth Flow with URL Preservation
-
-**Rationale:** Depends on Phase 1 route stability. This is the highest-value change - makes deep links actually work for logged-out users.
+**Rationale:** Must establish provider abstraction before any other work. Addresses Pitfall 1 (format divergence), Pitfall 2 (base URL), Pitfall 3 (parameters), Pitfall 10 (SDK versions).
 
 **Delivers:**
-- returnUrl capture in redirect logic
-- Session storage integration for OAuth flow
-- Full URL preservation including query parameters
-- Login screen reads and uses returnUrl
-- Callback screen restores returnUrl after OAuth
+- LLMAdapter abstract base class with StreamChunk dataclass
+- AnthropicAdapter (extract from current ai_service.py)
+- LLMFactory with API key validation
+- Configuration updates (new API keys in config.py, .env.example)
+- Provider-specific parameter sanitization
 
-**Features from research:**
-- Auth redirect to intended destination (table stakes)
-- URL reflects current page through auth flow (table stakes)
+**Features:** Foundation for TS-06 (API key management), TS-07 (provider availability)
 
-**Pitfalls to avoid:**
-- #2 Missing Return URL After OAuth
-- #5 refreshListenable Infinite Redirect Loop
-- #8 URL Fragment Loss with OAuth
-- #10 Query Parameters Lost in Redirect
+**Research Needed:** No - well-documented patterns in ARCHITECTURE.md
 
-**Research needed:** NO - standard GoRouter redirect patterns
+### Phase 2: Database Schema and API Updates
 
----
-
-### Phase 3: Screen-Level URL Integration
-
-**Rationale:** Depends on routes (Phase 1) and auth flow (Phase 2). This phase connects the URL structure to actual screen behavior.
+**Rationale:** Thread model must support provider before frontend can select/display. Addresses Pitfall 4 (streaming timeouts), Pitfall 13 (SSE format).
 
 **Delivers:**
-- ConversationScreen accepts projectId + threadId from URL
-- ThreadListScreen uses `context.go()` instead of Navigator.push()
-- Resource-level 404 states (project not found, thread not found)
-- Proper back navigation from deep-linked screens
+- Alembic migration adding `model_provider`, `model_name` to threads
+- Updated Thread model and Pydantic schemas
+- Thread creation API accepts provider/model
+- Chat endpoint uses Thread's provider to select adapter
+- SSE heartbeat implementation for long-running requests
 
-**Features from research:**
-- URL reflects current page (table stakes - completion)
-- Bookmarkable URLs (table stakes - completion)
-- 404 handling for invalid routes (table stakes - resource-level)
+**Features:** TS-02 (per-conversation binding), TS-05 (persistence on return)
 
-**Pitfalls to avoid:**
-- #7 No 404 Handling for Invalid Deep Links
-- #9 Back Navigation History Corruption
-- #13 Missing URL Encoding for IDs
+**Research Needed:** No - standard Alembic/SQLAlchemy patterns
 
-**Research needed:** NO - standard screen implementation patterns
+### Phase 3: Additional Provider Adapters
 
----
-
-### Phase 4: Testing & Validation
-
-**Rationale:** Comprehensive testing after all features implemented. Includes platform-specific edge cases.
+**Rationale:** With abstraction layer proven, add new providers. Addresses Pitfall 5 (Gemini signatures), Pitfall 9 (Claude thinking blocks).
 
 **Delivers:**
-- Browser refresh preserves URL (all route types)
-- Deep link from external source works
-- Auth redirect with return URL (full flow)
-- Invalid route/resource handling verified
-- Documentation for production deployment (SPA rewrite rules)
+- GeminiAdapter with thinking_level configuration
+- DeepSeekAdapter with reasoning_content handling
+- Provider-specific conversation state management
+- Integration tests for all three providers
 
-**Features from research:**
-- Refresh preserves location (table stakes - verification)
-- All table stakes verified end-to-end
+**Features:** Multi-provider capability for TS-03 (model selector)
 
-**Pitfalls to avoid:**
-- #4 iOS Cold Start Deep Link Race Condition
-- #6 Path URL Strategy Requires Server Configuration
-- #12 Route Path Typos in Deep Link Configuration
+**Research Needed:** Maybe - verify Gemini thinking signature passback implementation details
 
-**Research needed:** MAYBE - if iOS/Android native deep links added later
+### Phase 4: Frontend Provider Selection
 
----
+**Rationale:** Backend is complete; frontend can now display and select providers.
 
-## Critical Pitfalls to Address (Top 5)
+**Delivers:**
+- Updated Flutter Thread model with provider fields
+- ProviderSelector widget
+- ThreadCreateDialog with provider/model dropdown
+- Model indicator in ConversationScreen AppBar
+- Settings screen default provider selection
 
-### 1. Router Recreation Destroys URL State (CRITICAL)
-**Phase:** 1
-**Risk:** After page refresh, app briefly loads correct URL then redirects to /home
-**Prevention:** Verify `_routerInstance` pattern survives full page refresh; consider moving to top-level final variable
-**Test:** Navigate to `/projects/abc/threads/xyz`, F5 refresh, verify URL maintained
+**Features:** TS-01 (global default), TS-03 (model selector), TS-04 (visual indicator)
 
-### 2. Missing Return URL After OAuth (CRITICAL)
-**Phase:** 2
-**Risk:** Users always land on /home after OAuth, losing their deep link destination
-**Prevention:** Capture `state.uri.toString()` into `returnUrl` param, store in session storage before OAuth, restore after callback
-**Test:** Deep link while logged out, complete OAuth, verify landing on original URL
+**Research Needed:** No - standard Flutter widget patterns
 
-### 3. refreshListenable Infinite Redirect Loop (CRITICAL)
-**Phase:** 2
-**Risk:** App freezes, browser tab crashes due to redirect loop
-**Prevention:** Always return null when already at correct location; never call notifyListeners() from redirect; add defensive checks
-**Test:** Login/logout cycles with slow network simulation
+### Phase 5: Error Handling and Polish
 
-### 4. Path URL Strategy Server Configuration (CRITICAL for Production)
-**Phase:** 4 (document in Phase 1)
-**Risk:** Production deployment returns 404 on any URL refresh
-**Prevention:** Document SPA rewrite rules for common servers (Firebase, nginx, Apache); test staging deployment
-**Test:** Deploy to staging, refresh on nested route
+**Rationale:** Production hardening after core functionality complete. Addresses Pitfall 8 (rate limits), Pitfall 11 (error formats).
 
-### 5. StatefulShellRoute Deep Link Branch Conflict (HIGH)
-**Phase:** 1
-**Risk:** Back button skips expected screens after deep link, navigation history corrupted
-**Prevention:** Test back navigation explicitly; use parentNavigatorKey if needed; verify tab switching preserves state
-**Test:** Deep link to thread, press back, verify you reach project detail (not home)
+**Delivers:**
+- Per-provider error normalization
+- Exponential backoff with jitter
+- Circuit breaker per provider
+- Rate limit tracking
+- End-to-end testing for all providers
+
+**Features:** Production-ready multi-provider support
+
+**Research Needed:** No - standard resilience patterns
 
 ---
 
@@ -239,79 +189,75 @@ Based on combined research analysis, the v1.7 milestone should be structured int
 
 | Area | Confidence | Notes |
 |------|------------|-------|
-| Stack | HIGH | No new packages needed; GoRouter 17.0.1 is feature-complete for this use case |
-| Features | HIGH | Table stakes are well-defined; official Flutter/GoRouter docs cover all patterns |
-| Architecture | HIGH | Existing codebase has correct foundation; changes are incremental |
-| Pitfalls | HIGH | GitHub issues document real bugs with verified solutions |
+| Stack | HIGH | Official SDK documentation is comprehensive; clear version requirements |
+| Features | HIGH | Competitor analysis from established products (Open WebUI, TypingMind, ChatGPT) |
+| Architecture | HIGH | Adapter pattern well-suited; existing codebase analyzed for integration points |
+| Pitfalls | HIGH | Based on official provider documentation and known API behaviors |
 
-### Research Gaps
+### Gaps to Address During Planning
 
-1. **Production server configuration** - Exact deployment target not confirmed (Firebase? nginx? Vercel?). Document multiple options, confirm during Phase 4.
-
-2. **iOS cold start timing** - Testing only possible on real iOS devices. May need adjustment if flash of wrong screen occurs.
-
-3. **Query parameter encoding edge cases** - If project/thread IDs ever contain special characters, additional encoding may be needed. Current UUIDs should be safe.
+1. **Gemini thinking signature passback:** Documented in principle but implementation details may need verification with actual API testing
+2. **DeepSeek server capacity:** Documentation notes frequent 503 errors due to capacity constraints - may need fallback strategy
+3. **Claude thinking + tool use combination:** May need testing to confirm block preservation requirements with current Claude model
 
 ---
 
 ## Implications for Roadmap
 
-### Phase Dependencies
+### Phase Structure Recommendation
 
-```
-Phase 1: Route Architecture  -->  Phase 2: Auth Flow  -->  Phase 3: Screen Integration  -->  Phase 4: Testing
-   |                                    |
-   +-- Must be stable first            +-- Highest user value
-```
+5 phases over approximately 8 days:
+1. Backend Abstraction Layer (2 days)
+2. Database Schema and API Updates (1 day)
+3. Additional Provider Adapters (2 days)
+4. Frontend Provider Selection (2 days)
+5. Error Handling and Polish (1 day)
 
-### Phase Research Flags
+### Research Flags
 
-| Phase | Needs `/gsd:research-phase`? | Rationale |
-|-------|------------------------------|-----------|
-| Phase 1 | NO | Standard GoRouter nested routes |
-| Phase 2 | NO | Standard redirect patterns |
-| Phase 3 | NO | Standard screen implementation |
-| Phase 4 | MAYBE | If iOS/Android native deep links added |
+| Phase | Research Needed | Rationale |
+|-------|-----------------|-----------|
+| Phase 1 | No | Adapter pattern is well-documented |
+| Phase 2 | No | Standard database migration |
+| Phase 3 | Maybe | Gemini signature passback may need verification |
+| Phase 4 | No | Standard Flutter patterns |
+| Phase 5 | No | Standard resilience patterns |
 
-### Estimated Complexity
+### Critical Success Factors
 
-- **Phase 1:** Low complexity, high importance (foundation)
-- **Phase 2:** Medium complexity (redirect logic, session storage)
-- **Phase 3:** Low complexity (screen changes, navigation updates)
-- **Phase 4:** Low complexity (testing, documentation)
+1. **Abstraction first:** Do not add new providers until adapter interface is proven with extracted Anthropic logic
+2. **Response normalization:** All providers must produce identical StreamChunk format before SSE emission
+3. **Timeout handling:** SSE heartbeats are mandatory for thinking-enabled requests
+4. **State preservation:** Provider-specific conversation state handlers for multi-turn thinking
 
-### Key Decision Points
+### Cost Optimization Opportunity
 
-1. **Back navigation behavior:** When user deep links to thread, should back button:
-   - Go to parent project detail? (Recommended - matches URL hierarchy)
-   - Go nowhere/close? (Current go() behavior)
-
-2. **Copy URL button:** Include in v1.7 (low effort) or defer?
-
-3. **Query param state:** Include tab state in URL (`?tab=threads`) in v1.7 or defer?
+The 10-30x cost difference between DeepSeek and Claude makes provider selection a significant cost lever. Consider making DeepSeek the default for simple tasks and Claude for complex reasoning (user-controlled, not automatic).
 
 ---
 
-## Sources (Aggregated)
+## Aggregated Sources
 
-### Official Documentation (HIGH Confidence)
-- [go_router package](https://pub.dev/packages/go_router) - v17.0.1 reference
-- [Flutter Deep Linking](https://docs.flutter.dev/ui/navigation/deep-linking)
-- [Flutter URL Strategies](https://docs.flutter.dev/ui/navigation/url-strategies)
-- [GoRouter Error Handling](https://pub.dev/documentation/go_router/latest/topics/Error%20handling-topic.html)
-- [GoRouter Redirection](https://pub.dev/documentation/go_router/latest/topics/Redirection-topic.html)
+### Official Documentation (HIGH confidence)
+- [Google GenAI SDK Documentation](https://googleapis.github.io/python-genai/)
+- [Gemini 3 Developer Guide](https://ai.google.dev/gemini-api/docs/gemini-3)
+- [DeepSeek API Docs](https://api-docs.deepseek.com/)
+- [DeepSeek Reasoning Model](https://api-docs.deepseek.com/guides/reasoning_model)
+- [Claude Extended Thinking](https://platform.claude.com/docs/en/docs/build-with-claude/extended-thinking)
+- [OpenAI Python SDK](https://github.com/openai/openai-python)
 
-### Verified GitHub Issues (HIGH Confidence)
-- [Router recreation URL loss #172026](https://github.com/flutter/flutter/issues/172026)
-- [Nested app refresh loses route #114597](https://github.com/flutter/flutter/issues/114597)
-- [StatefulShellRoute deep link conflict #134373](https://github.com/flutter/flutter/issues/134373)
-- [Infinite redirect loops #118061](https://github.com/flutter/flutter/issues/118061)
-- [PathUrlStrategy 404 on refresh #107996](https://github.com/flutter/flutter/issues/107996)
+### Feature Research (HIGH confidence)
+- [Open WebUI Documentation](https://docs.openwebui.com/features/chat-features/)
+- [TypingMind Feature List](https://docs.typingmind.com/feature-list)
+- [ChatGPT Model Selector](https://help.openai.com/en/articles/7864572-what-is-the-chatgpt-model-selector)
 
-### Community Resources (MEDIUM Confidence)
-- [CodeWithAndrea Deep Links Guide](https://codewithandrea.com/articles/flutter-deep-links/)
-- [Flutter Auth Flow with GoRouter](https://blog.ishangavidusha.com/flutter-authentication-flow-with-go-router-and-provider)
+### Architecture Patterns (MEDIUM confidence)
+- [LiteLLM - Multi-Provider Interface](https://docs.litellm.ai/docs/)
+- [Multi-LLM Systems with Abstract Classes](https://medium.com/algomart/multi-llm-systems-with-abstract-classes-in-python-038cd6ce78d5)
+
+### Deprecation Notices (HIGH confidence)
+- [Deprecated generative-ai-python](https://github.com/google-gemini/deprecated-generative-ai-python) - EOL Nov 2025
 
 ---
 
-*Synthesized from: STACK-DEEP-LINKING.md, FEATURES-v1.7-deep-linking.md, ARCHITECTURE-v1.7-deep-linking.md, PITFALLS-v1.7-deep-linking.md*
+*Synthesis completed 2026-01-31. Ready for roadmap creation.*

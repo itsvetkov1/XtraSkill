@@ -36,13 +36,17 @@ Previous features (v1.5):
 
 **Codebase:** ~13,000 lines of Dart/Python across Flutter frontend and FastAPI backend.
 
-## Next Milestone Goals
+## Current Milestone: v1.8 LLM Provider Switching
 
-**v1.8 — LLM Provider Switching** (planned)
-- Settings page LLM provider selector
-- Support for Gemini 3 Flash Preview
-- Support for DeepSeek v3.2 thinking mode
-- Backend API endpoint switching
+**Goal:** Enable cost optimization and model testing by allowing users to switch between AI providers.
+
+**Target features:**
+- Settings page LLM provider selector (Claude / Gemini / DeepSeek)
+- Per-conversation model binding (conversations remember their model)
+- Model indicator below chat window showing current provider
+- Backend adapter pattern for multiple LLM APIs
+- Support for Gemini 3 Flash Preview (`gemini-3-flash-preview`)
+- Support for DeepSeek V3.2 thinking mode (`deepseek-reasoner`)
 
 **Previous:** v1.7 URL & Deep Links (complete)
 
@@ -101,7 +105,11 @@ Previous features (v1.5):
 
 ### Active
 
-*No active requirements. Run `/gsd:new-milestone` to define v1.8 requirements.*
+- [ ] User can select default LLM provider in Settings (Claude, Gemini, DeepSeek)
+- [ ] New conversations use the currently selected default provider
+- [ ] Existing conversations continue with their original model regardless of default
+- [ ] Model indicator displays below chat window showing current provider name
+- [ ] Backend supports multiple LLM provider APIs via adapter pattern
 
 ### Deferred
 
@@ -145,7 +153,7 @@ BAs prepare for meetings by uploading existing requirements or stakeholder notes
 ## Constraints
 
 - **Solo Developer Capacity**: 20-30 hours/week part-time development, must maintain velocity through simplicity choices
-- **Technology Stack**: Flutter (web/Android/iOS), FastAPI (Python), SQLite, Anthropic Messages API (direct), OAuth 2.0, PaaS hosting (Railway/Render)
+- **Technology Stack**: Flutter (web/Android/iOS), FastAPI (Python), SQLite, Multi-LLM APIs (Anthropic/Google/DeepSeek), OAuth 2.0, PaaS hosting (Railway/Render)
 - **AI API Costs**: Monitor token usage closely; estimated $50-100/month, must not exceed budget without user validation
 - **Cross-Platform**: Single codebase must support web, Android, and iOS simultaneously
 - **PaaS Hosting**: Deployment limited to Railway/Render capabilities; no custom infrastructure or Kubernetes
@@ -176,4 +184,4 @@ BAs prepare for meetings by uploading existing requirements or stakeholder notes
 | ResourceNotFoundState widget | Reusable widget for deleted project/thread states; consistent UX | ✓ Implemented (Phase 17) |
 
 ---
-*Last updated: 2026-01-31 after v1.7 milestone complete*
+*Last updated: 2026-01-31 after v1.8 milestone start*

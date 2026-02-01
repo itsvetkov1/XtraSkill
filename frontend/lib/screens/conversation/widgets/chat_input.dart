@@ -2,6 +2,7 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 /// Text input bar for sending chat messages
 class ChatInput extends StatefulWidget {
@@ -23,7 +24,40 @@ class ChatInput extends StatefulWidget {
 
 class _ChatInputState extends State<ChatInput> {
   final TextEditingController _controller = TextEditingController();
-  final FocusNode _focusNode = FocusNode();
+  late final FocusNode _focusNode;
+
+  @override
+  void initState() {
+    super.initState();
+    _focusNode = FocusNode(onKeyEvent: _handleKeyEvent);
+  }
+
+  /// Handle keyboard events for Enter to send, Shift+Enter for newline.
+  KeyEventResult _handleKeyEvent(FocusNode node, KeyEvent event) {
+    // Only process key down events (avoid double-firing)
+    if (event is! KeyDownEvent) {
+      return KeyEventResult.ignored;
+    }
+
+    // Check for Enter key
+    if (event.logicalKey == LogicalKeyboardKey.enter) {
+      // Shift+Enter: insert newline (let TextField handle it)
+      if (HardwareKeyboard.instance.isShiftPressed) {
+        return KeyEventResult.ignored;
+      }
+
+      // Plain Enter on non-empty text: send message
+      if (_controller.text.trim().isNotEmpty && widget.enabled) {
+        _handleSend();
+        return KeyEventResult.handled;
+      }
+
+      // Plain Enter on empty text: consume event (do nothing)
+      return KeyEventResult.handled;
+    }
+
+    return KeyEventResult.ignored;
+  }
 
   void _handleSend() {
     final text = _controller.text.trim();
@@ -62,8 +96,10 @@ class _ChatInputState extends State<ChatInput> {
                 controller: _controller,
                 focusNode: _focusNode,
                 enabled: widget.enabled,
-                maxLines: 5,
+                maxLines: 10,
                 minLines: 1,
+                keyboardType: TextInputType.multiline,
+                textInputAction: TextInputAction.none,
                 textCapitalization: TextCapitalization.sentences,
                 decoration: InputDecoration(
                   hintText: widget.enabled
@@ -80,7 +116,6 @@ class _ChatInputState extends State<ChatInput> {
                     vertical: 10,
                   ),
                 ),
-                onSubmitted: (_) => _handleSend(),
               ),
             ),
             const SizedBox(width: 8),

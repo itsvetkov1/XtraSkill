@@ -1,5 +1,61 @@
 # Project Milestones: Business Analyst Assistant
 
+## v1.8 LLM Provider Switching (Shipped: 2026-01-31)
+
+**Delivered:** Multi-provider support enabling users to select Claude, Gemini, or DeepSeek for conversations with per-conversation model binding.
+
+**Phases completed:** 19-22 (8 plans total)
+
+**Key accomplishments:**
+
+- Provider-agnostic adapter pattern with StreamChunk normalization (backend treats all providers identically)
+- AnthropicAdapter extracted from existing code, GeminiAdapter (google-genai), DeepSeekAdapter (OpenAI SDK)
+- Thread database stores model_provider column with full API support
+- SSE heartbeat mechanism prevents timeout during extended thinking (5+ min)
+- Settings page provider dropdown with SharedPreferences persistence
+- Model indicator below chat with provider-specific colors (Claude=orange, Gemini=blue, DeepSeek=green)
+
+**Stats:**
+
+- ~14,000 lines of Dart/Python
+- 4 phases, 8 plans
+- 13/13 requirements satisfied
+- 1 day from start to ship (2026-01-31)
+
+**Git range:** `feat(19-01)` → `feat(22-02)`
+
+**What's next:** v1.9 — UX Improvements
+
+---
+
+## v1.7 URL & Deep Links (Shipped: 2026-01-31)
+
+**Delivered:** Full deep linking support with URL preservation on refresh and OAuth redirect handling.
+
+**Phases completed:** 15-18 (8 plans total)
+
+**Key accomplishments:**
+
+- Unique conversation URLs (`/projects/:projectId/threads/:threadId`)
+- URL preserved on page refresh (authenticated users stay on same page)
+- OAuth redirect stores return URL via sessionStorage
+- Custom 404 error page with navigation options
+- Graceful "not found" states for deleted projects/threads
+- GoRouter configuration with optionURLReflectsImperativeAPIs
+
+**Stats:**
+
+- ~13,000 lines of Dart/Python
+- 4 phases, 8 plans
+- 5/5 requirements satisfied
+- 1 day from start to ship (2026-01-31)
+
+**Git range:** `feat(15-01)` → `feat(18-02)`
+
+**What's next:** v1.8 — LLM Provider Switching ✅
+
+---
+
 ## v1.6 UX Quick Wins (Shipped: 2026-01-30)
 
 **Delivered:** Four friction-reduction features for the conversation workflow — copy responses, retry failures, auth provider display, and thread rename.
@@ -22,7 +78,7 @@
 
 **Git range:** `feat(11-01)` → `feat(14-02)`
 
-**What's next:** v2.0 — Search, Previews & Integrations
+**What's next:** v1.7 — URL & Deep Links ✅
 
 ---
 
@@ -51,7 +107,7 @@
 
 **Git range:** `feat(06-01)` → `feat(10-05)`
 
-**What's next:** v2.0 - search, thread preview, integrations
+**What's next:** v1.6 — UX Quick Wins ✅
 
 ---
 
@@ -84,4 +140,4 @@
 
 ---
 
-*Last updated: 2026-01-30 (v1.6 complete)*
+*Last updated: 2026-02-01 (v1.8 complete)*

@@ -2,20 +2,21 @@
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-01-31)
+See: .planning/PROJECT.md (updated 2026-02-01)
 
 **Core value:** Business analysts reduce time spent on requirement documentation while improving completeness through AI-assisted discovery conversations that systematically explore edge cases and generate production-ready artifacts.
 
-**Current focus:** v1.8 LLM Provider Switching - Multi-provider support for Claude, Gemini, DeepSeek
+**Current focus:** Between milestones — v1.8 complete, v1.9 planned
 
 ## Current Position
 
-Phase: 22 - frontend-provider-ui (COMPLETE)
-Plan: All complete
-Status: v1.8 LLM Provider Switching milestone complete
-Last activity: 2026-01-31 - Phase 22 complete
+Phase: None active
+Plan: None active
+Status: v1.8 LLM Provider Switching archived
+Last activity: 2026-02-01 - Milestone v1.8 archived
+Next action: Run `/gsd:new-milestone` to start v1.9 UX Improvements
 
-Progress: [████████████████████] Phase 22: 2/2 plans complete
+Progress: All milestones through v1.8 complete
 
 ## Performance Metrics
 
@@ -39,25 +40,11 @@ Progress: [████████████████████] Phase 2
 
 Decisions are logged in PROJECT.md Key Decisions table.
 Previous milestone decisions archived in:
-- .planning/milestones/v1.0-ROADMAP.md
+- .planning/milestones/v1.0-ROADMAP.md (phase folders)
 - .planning/milestones/v1.5-ROADMAP.md
 - .planning/milestones/v1.6-ROADMAP.md
 - .planning/milestones/v1.7-ROADMAP.md
-
-v1.8 decisions logged in ROADMAP.md.
-
-**Phase 21 decisions:**
-- Gemini default model: gemini-3-flash-preview
-- DeepSeek default model: deepseek-reasoner
-- Thinking/reasoning hidden from user (both providers)
-- Non-streaming fallback for Gemini tool use (limitation)
-- DeepSeek uses OpenAI SDK with base_url override
-- Simple retry: 2 retries, 1 second fixed delay (both providers)
-
-**Phase 22 decisions:**
-- Default provider: anthropic (Claude remains default)
-- SharedPreferences key: defaultLlmProvider
-- Provider list: ['anthropic', 'google', 'deepseek']
+- .planning/milestones/v1.8-ROADMAP.md
 
 ### Pending Todos
 
@@ -76,11 +63,11 @@ Research identified potential concerns:
 
 ## Session Continuity
 
-Last session: 2026-01-31
-Stopped at: v1.8 milestone complete
+Last session: 2026-02-01
+Stopped at: v1.8 milestone archived
 Resume file: None
-Next action: Run `/gsd:new-milestone` to start v1.9 Unit Test Coverage
+Next action: Run `/gsd:new-milestone` to start v1.9 UX Improvements
 
 ---
 
-*State updated: 2026-01-31 (v1.8 LLM Provider Switching complete)*
+*State updated: 2026-02-01 (v1.8 archived, ready for v1.9)*

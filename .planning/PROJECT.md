@@ -10,14 +10,22 @@ Business analysts reduce time spent on requirement documentation while improving
 
 ## Current State
 
-**Shipped:** v1.7 URL & Deep Links (2026-01-31)
+**Shipped:** v1.8 LLM Provider Switching (2026-01-31)
 
-The application now supports full deep linking and URL preservation:
+The application now supports multiple AI providers with per-conversation binding:
+- Settings page LLM provider selector (Claude / Gemini / DeepSeek)
+- Per-conversation model binding (conversations remember their model)
+- Model indicator below chat window with provider-specific colors
+- Backend adapter pattern normalizing all providers to StreamChunk format
+- SSE heartbeat mechanism for extended thinking (5+ min)
+- Support for Gemini 3 Flash Preview (`gemini-3-flash-preview`)
+- Support for DeepSeek Reasoner (`deepseek-reasoner`)
+
+Previous features (v1.7):
 - Unique conversation URLs (`/projects/:projectId/threads/:threadId`)
 - URL preserved on page refresh (authenticated users stay on same page)
 - OAuth redirect preserves intended destination via sessionStorage
 - Custom 404 error page with navigation options
-- Graceful "not found" states for deleted projects/threads
 
 Previous features (v1.6):
 - One-tap copy for AI responses with cross-platform clipboard support
@@ -31,26 +39,14 @@ Previous features (v1.5):
 - Settings page with profile, token usage, logout
 - Deletion with 10-second undo for all resources
 - Professional empty states across all list screens
-- Mode selector chips for AI conversations
-- Consistent date formatting and visual polish
 
-**Codebase:** ~13,000 lines of Dart/Python across Flutter frontend and FastAPI backend.
+**Codebase:** ~14,000 lines of Dart/Python across Flutter frontend and FastAPI backend.
 
-## Current Milestone: v1.8 LLM Provider Switching
+## Next Milestone Goals
 
-**Goal:** Enable cost optimization and model testing by allowing users to switch between AI providers.
+See user stories in `/user_stories/` for detailed requirements.
 
-**Target features:**
-- Settings page LLM provider selector (Claude / Gemini / DeepSeek)
-- Per-conversation model binding (conversations remember their model)
-- Model indicator below chat window showing current provider
-- Backend adapter pattern for multiple LLM APIs
-- Support for Gemini 3 Flash Preview (`gemini-3-flash-preview`)
-- Support for DeepSeek V3.2 thinking mode (`deepseek-reasoner`)
-
-**Previous:** v1.7 URL & Deep Links (complete)
-
-## Future Milestone Goals
+## Future Vision
 
 **v2.0 — Search, Previews & Integrations** (planned)
 
@@ -102,14 +98,15 @@ Previous features (v1.5):
 - ✓ Auth redirect stores return URL and completes to intended destination — v1.7
 - ✓ Invalid routes handled gracefully (404 error states with navigation options) — v1.7
 - ✓ Deleted project/thread URLs show "not found" state instead of crash — v1.7
+- ✓ User can select default LLM provider in Settings (Claude, Gemini, DeepSeek) — v1.8
+- ✓ New conversations use the currently selected default provider — v1.8
+- ✓ Existing conversations continue with their original model regardless of default — v1.8
+- ✓ Model indicator displays below chat window showing current provider name — v1.8
+- ✓ Backend supports multiple LLM provider APIs via adapter pattern — v1.8
 
 ### Active
 
-- [ ] User can select default LLM provider in Settings (Claude, Gemini, DeepSeek)
-- [ ] New conversations use the currently selected default provider
-- [ ] Existing conversations continue with their original model regardless of default
-- [ ] Model indicator displays below chat window showing current provider name
-- [ ] Backend supports multiple LLM provider APIs via adapter pattern
+None — between milestones. See `/user_stories/` for next milestone scope.
 
 ### Deferred
 
@@ -184,4 +181,4 @@ BAs prepare for meetings by uploading existing requirements or stakeholder notes
 | ResourceNotFoundState widget | Reusable widget for deleted project/thread states; consistent UX | ✓ Implemented (Phase 17) |
 
 ---
-*Last updated: 2026-01-31 after v1.8 milestone start*
+*Last updated: 2026-02-01 after v1.8 milestone complete*

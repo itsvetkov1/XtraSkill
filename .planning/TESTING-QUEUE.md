@@ -314,16 +314,16 @@ Full test matrix available in `.planning/phases/18-validation/18-VALIDATION.md`
 
 | Test Case | Status | Notes |
 |-----------|--------|-------|
-| TC-22-01 | Pending | |
-| TC-22-02 | Pending | |
-| TC-22-03 | Pending | |
+| TC-22-01 | Pass | Provider dropdown visible in Settings |
+| TC-22-02 | Pass | Persistence works |
+| TC-22-03 | Pass | New conversations use selected provider (bug fixed: 317298e) |
 | TC-22-04 | Pending | |
 | TC-22-05 | Pending | |
 | TC-22-06 | Pending | |
 
-**Tested by:**
-**Date:**
-**Issues found:**
+**Tested by:** User
+**Date:** 2026-01-31
+**Issues found:** Bug fixed - provider not passed to createThread (317298e)
 
 ---
 

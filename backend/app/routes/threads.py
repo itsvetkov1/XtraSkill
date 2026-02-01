@@ -45,8 +45,9 @@ class GlobalThreadCreate(BaseModel):
 
 
 class ThreadUpdate(BaseModel):
-    """Request model for updating a thread."""
+    """Request model for updating a thread (title and/or project association)."""
     title: Optional[str] = Field(None, max_length=255)
+    project_id: Optional[str] = None  # For associating project-less chats with projects
 
 
 class MessageResponse(BaseModel):
@@ -474,26 +475,27 @@ async def get_thread(
     "/threads/{thread_id}",
     response_model=ThreadResponse,
 )
-async def rename_thread(
+async def update_thread(
     thread_id: str,
     update_data: ThreadUpdate,
     current_user: dict = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
     """
-    Rename a thread (update its title).
+    Update thread title and/or associate with project.
 
     Args:
-        thread_id: ID of the thread to rename
-        update_data: Thread update data (title)
+        thread_id: ID of the thread to update
+        update_data: Thread update data (title and/or project_id)
         current_user: Authenticated user from JWT
         db: Database session
 
     Returns:
-        Updated thread with new title and timestamps
+        Updated thread with new title/project_id and timestamps
 
     Raises:
         404: Thread not found or doesn't belong to user
+        400: Thread already associated with a project (re-association not allowed)
         400: Title exceeds 255 characters (handled by Pydantic)
     """
     user_id = current_user["user_id"]
@@ -527,8 +529,37 @@ async def rename_thread(
                 detail="Thread not found"
             )
 
-    # Update thread title
-    thread.title = update_data.title
+    # Handle project association
+    if update_data.project_id is not None:
+        # Prevent re-association (permanent, one-way)
+        if thread.project_id is not None:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Thread already associated with a project"
+            )
+
+        # Validate project ownership
+        stmt = select(Project).where(
+            Project.id == update_data.project_id,
+            Project.user_id == user_id
+        )
+        result = await db.execute(stmt)
+        project = result.scalar_one_or_none()
+
+        if not project:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Project not found"
+            )
+
+        # Transition ownership model
+        thread.project_id = update_data.project_id
+        thread.user_id = None  # Clear direct ownership
+
+    # Handle title update (existing logic)
+    if update_data.title is not None:
+        thread.title = update_data.title
+
     await db.commit()
     await db.refresh(thread)
 

@@ -92,8 +92,8 @@ Plans:
 **Plans:** 2 plans
 
 Plans:
-- [ ] 25-01-PLAN.md - Backend model changes and global thread API endpoints
-- [ ] 25-02-PLAN.md - Frontend Chats navigation and New Chat functionality
+- [x] 25-01-PLAN.md - Backend model changes and global thread API endpoints
+- [x] 25-02-PLAN.md - Frontend Chats navigation and New Chat functionality
 
 ---
 
@@ -149,7 +149,7 @@ Plans:
 |-------|------|--------------|--------|
 | 23 | chat-input-ux | INPUT-01 to INPUT-05 | Complete |
 | 24 | project-layout-redesign | LAYOUT-01 to LAYOUT-06 | Complete |
-| 25 | global-chats-backend | CHATS-01 to CHATS-07 | Planned |
+| 25 | global-chats-backend | CHATS-01 to CHATS-07 | Complete |
 | 26 | chat-project-association | CHATS-08 to CHATS-13 | Pending |
 | 27 | thread-search-filter | SEARCH-01 to SEARCH-04 | Pending |
 

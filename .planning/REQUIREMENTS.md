@@ -26,13 +26,13 @@ Requirements for UX improvements. Each maps to roadmap phases.
 
 ### Global Chats (UX-003)
 
-- [ ] **CHATS-01**: "Chats" section appears in left navigation menu
-- [ ] **CHATS-02**: Chats section shows all user's chats (with and without projects)
-- [ ] **CHATS-03**: Each chat shows title with project name in brackets (or "[No Project]")
-- [ ] **CHATS-04**: Chats sorted by most recent activity
-- [ ] **CHATS-05**: "New Chat" button in Chats section creates project-less chat
-- [ ] **CHATS-06**: "New Chat" button on Home page creates project-less chat
-- [ ] **CHATS-07**: New chat takes user directly to conversation view
+- [x] **CHATS-01**: "Chats" section appears in left navigation menu
+- [x] **CHATS-02**: Chats section shows all user's chats (with and without projects)
+- [x] **CHATS-03**: Each chat shows title with project name in brackets (or "[No Project]")
+- [x] **CHATS-04**: Chats sorted by most recent activity
+- [x] **CHATS-05**: "New Chat" button in Chats section creates project-less chat
+- [x] **CHATS-06**: "New Chat" button on Home page creates project-less chat
+- [x] **CHATS-07**: New chat takes user directly to conversation view
 - [ ] **CHATS-08**: Chat detail shows project name (clickable) or "No Project" with add button
 - [ ] **CHATS-09**: "Add to Project" button in chat header for project-less chats
 - [ ] **CHATS-10**: "Add to Project" option in chat options menu for project-less chats
@@ -91,13 +91,13 @@ Which phases cover which requirements. Updated during roadmap creation.
 | LAYOUT-04 | Phase 24 | Complete |
 | LAYOUT-05 | Phase 24 | Complete |
 | LAYOUT-06 | Phase 24 | Complete |
-| CHATS-01 | Phase 25 | Pending |
-| CHATS-02 | Phase 25 | Pending |
-| CHATS-03 | Phase 25 | Pending |
-| CHATS-04 | Phase 25 | Pending |
-| CHATS-05 | Phase 25 | Pending |
-| CHATS-06 | Phase 25 | Pending |
-| CHATS-07 | Phase 25 | Pending |
+| CHATS-01 | Phase 25 | Complete |
+| CHATS-02 | Phase 25 | Complete |
+| CHATS-03 | Phase 25 | Complete |
+| CHATS-04 | Phase 25 | Complete |
+| CHATS-05 | Phase 25 | Complete |
+| CHATS-06 | Phase 25 | Complete |
+| CHATS-07 | Phase 25 | Complete |
 | CHATS-08 | Phase 26 | Pending |
 | CHATS-09 | Phase 26 | Pending |
 | CHATS-10 | Phase 26 | Pending |

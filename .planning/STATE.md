@@ -10,12 +10,12 @@ See: .planning/PROJECT.md (updated 2026-02-01)
 
 ## Current Position
 
-Phase: 25 - global-chats-backend (In Progress)
-Plan: 1/2 complete
-Status: Plan 25-01 complete, ready for 25-02
-Last activity: 2026-02-01 - Completed 25-01-PLAN.md
+Phase: 25 - global-chats-backend (Complete)
+Plan: 2/2 complete
+Status: Phase 25 complete
+Last activity: 2026-02-01 - Completed 25-02-PLAN.md
 
-Progress: [██████████░░░░░░░░░░] Phase 25: 1/2 plans complete
+Progress: [████████████████████] Phase 25: 2/2 plans complete
 
 ## Performance Metrics
 
@@ -32,7 +32,7 @@ Progress: [██████████░░░░░░░░░░] Phase 2
 | UX v1.6 | 11-14 | 5/5 | Complete (2026-01-30) |
 | URL v1.7 | 15-18 | 8/8 | Complete (2026-01-31) |
 | LLM v1.8 | 19-22 | 8/8 | Complete (2026-01-31) |
-| UX v1.9 | 23-27 | 5/? | In Progress |
+| UX v1.9 | 23-27 | 6/? | In Progress |
 
 ## Accumulated Context
 
@@ -62,6 +62,8 @@ v1.9 decisions logged in ROADMAP.md.
 - THREAD-OWNERSHIP: Dual ownership model (user_id for project-less, project.user_id for project threads)
 - LAST-ACTIVITY: last_activity_at column for activity-based sorting
 - PROJECT-ONDELETE: SET NULL on project_id FK (threads become project-less on project delete)
+- SERVICE-PATTERN: Add methods to existing ThreadService instead of new ApiService
+- NAV-INDEX: Chats at index 1 (after Home, before Projects)
 
 ### Pending Todos
 
@@ -72,6 +74,7 @@ v1.9 decisions logged in ROADMAP.md.
 - Manual testing of Enter/Shift+Enter behavior (Phase 23-01)
 - Manual testing of project layout redesign (Phase 24-02 - COMPLETED)
 - Manual testing of global threads API (Phase 25-01)
+- Manual testing of Chats navigation and New Chat (Phase 25-02)
 
 ### Blockers/Concerns
 
@@ -80,17 +83,17 @@ v1.9 decisions logged in ROADMAP.md.
 v1.9 scope is well-defined via user stories in /user_stories/:
 - UX-001: Enter to send - **IMPLEMENTATION COMPLETE (23-01)**
 - UX-002: Threads primary, documents column - **IMPLEMENTATION COMPLETE (24-01, 24-02)**
-- UX-003: Project-less chats with global Chats menu - **BACKEND COMPLETE (25-01)**
+- UX-003: Project-less chats with global Chats menu - **COMPLETE (25-01, 25-02)**
 - THREAD-006: Search/filter threads
 - THREAD-010: Expanded chat input - **IMPLEMENTATION COMPLETE (23-01)**
 
 ## Session Continuity
 
 Last session: 2026-02-01
-Stopped at: Completed 25-01-PLAN.md
+Stopped at: Completed 25-02-PLAN.md (Phase 25 complete)
 Resume file: None
-Next action: Execute 25-02-PLAN.md (Frontend global chats integration)
+Next action: Phase 26 or next v1.9 feature
 
 ---
 
-*State updated: 2026-02-01 (Phase 25-01 complete)*
+*State updated: 2026-02-01 (Phase 25 complete)*

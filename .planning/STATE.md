@@ -10,18 +10,17 @@ See: .planning/PROJECT.md (updated 2026-02-01)
 
 ## Current Position
 
-Phase: 24 - project-layout-redesign (VERIFIED)
-Plan: 2/2 complete
-Status: Phase 24 verified, ready for Phase 25
-Last activity: 2026-02-01 - Phase 24 verified and complete
-Next action: Run `/gsd:discuss-phase 25` to plan global chats backend
+Phase: 25 - global-chats-backend (In Progress)
+Plan: 1/2 complete
+Status: Plan 25-01 complete, ready for 25-02
+Last activity: 2026-02-01 - Completed 25-01-PLAN.md
 
-Progress: [████████████████████] Phase 24: 2/2 plans complete ✓
+Progress: [██████████░░░░░░░░░░] Phase 25: 1/2 plans complete
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 60 (20 in MVP v1.0, 15 in Beta v1.5, 5 in UX v1.6, 8 in URL v1.7, 8 in LLM v1.8, 4 in UX v1.9)
+- Total plans completed: 61 (20 in MVP v1.0, 15 in Beta v1.5, 5 in UX v1.6, 8 in URL v1.7, 8 in LLM v1.8, 5 in UX v1.9)
 - Average duration: ~18 minutes (MVP v1.0), ~7 minutes (Beta v1.5), ~5 minutes (UX v1.6), ~4 minutes (URL v1.7), ~5 minutes (LLM v1.8), ~3 minutes (UX v1.9)
 
 **By Milestone:**
@@ -33,7 +32,7 @@ Progress: [████████████████████] Phase 2
 | UX v1.6 | 11-14 | 5/5 | Complete (2026-01-30) |
 | URL v1.7 | 15-18 | 8/8 | Complete (2026-01-31) |
 | LLM v1.8 | 19-22 | 8/8 | Complete (2026-01-31) |
-| UX v1.9 | 23-27 | 4/? | In Progress |
+| UX v1.9 | 23-27 | 5/? | In Progress |
 
 ## Accumulated Context
 
@@ -59,6 +58,11 @@ v1.9 decisions logged in ROADMAP.md.
 - TABS-REMOVAL: Complete removal of TabController/TabBar/TabBarView - threads-first layout
 - LAYOUT-STRUCTURE: Column(header, Expanded(Row(docs, divider, threads))) - clean separation
 
+**Phase 25 decisions:**
+- THREAD-OWNERSHIP: Dual ownership model (user_id for project-less, project.user_id for project threads)
+- LAST-ACTIVITY: last_activity_at column for activity-based sorting
+- PROJECT-ONDELETE: SET NULL on project_id FK (threads become project-less on project delete)
+
 ### Pending Todos
 
 - Manual validation tests for v1.7 deep linking (18 test cases in TESTING-QUEUE.md Phase 18 section)
@@ -67,6 +71,7 @@ v1.9 decisions logged in ROADMAP.md.
 - Manual testing of Phase 22 provider UI (6 test cases in TESTING-QUEUE.md Phase 22 section)
 - Manual testing of Enter/Shift+Enter behavior (Phase 23-01)
 - Manual testing of project layout redesign (Phase 24-02 - COMPLETED)
+- Manual testing of global threads API (Phase 25-01)
 
 ### Blockers/Concerns
 
@@ -75,17 +80,17 @@ v1.9 decisions logged in ROADMAP.md.
 v1.9 scope is well-defined via user stories in /user_stories/:
 - UX-001: Enter to send - **IMPLEMENTATION COMPLETE (23-01)**
 - UX-002: Threads primary, documents column - **IMPLEMENTATION COMPLETE (24-01, 24-02)**
-- UX-003: Project-less chats with global Chats menu
+- UX-003: Project-less chats with global Chats menu - **BACKEND COMPLETE (25-01)**
 - THREAD-006: Search/filter threads
 - THREAD-010: Expanded chat input - **IMPLEMENTATION COMPLETE (23-01)**
 
 ## Session Continuity
 
 Last session: 2026-02-01
-Stopped at: Completed 24-02-PLAN.md
+Stopped at: Completed 25-01-PLAN.md
 Resume file: None
-Next action: Begin Phase 25 (project-less chats) or continue with v1.9 scope
+Next action: Execute 25-02-PLAN.md (Frontend global chats integration)
 
 ---
 
-*State updated: 2026-02-01 (Phase 24-02 complete)*
+*State updated: 2026-02-01 (Phase 25-01 complete)*

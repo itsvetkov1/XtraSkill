@@ -18,15 +18,15 @@ import 'widgets/streaming_message.dart';
 
 /// Main conversation screen with message list and input
 class ConversationScreen extends StatefulWidget {
-  /// Project ID this thread belongs to
-  final String projectId;
+  /// Project ID this thread belongs to (null for project-less threads)
+  final String? projectId;
 
   /// Thread ID to display
   final String threadId;
 
   const ConversationScreen({
     super.key,
-    required this.projectId,
+    this.projectId,
     required this.threadId,
   });
 
@@ -154,8 +154,14 @@ class _ConversationScreenState extends State<ConversationScreen> {
               title: 'Thread not found',
               message:
                   'This conversation may have been deleted or you may not have access to it.',
-              buttonLabel: 'Back to Project',
-              onPressed: () => context.go('/projects/${widget.projectId}'),
+              buttonLabel: widget.projectId != null ? 'Back to Project' : 'Back to Chats',
+              onPressed: () {
+                if (widget.projectId != null) {
+                  context.go('/projects/${widget.projectId}');
+                } else {
+                  context.go('/chats');
+                }
+              },
             ),
           );
         }

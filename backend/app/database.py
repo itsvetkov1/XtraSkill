@@ -110,6 +110,25 @@ async def _run_migrations():
                 text("ALTER TABLE users ADD COLUMN display_name VARCHAR(255)")
             )
 
+        # Check and add user_id and last_activity_at columns to threads
+        result = await conn.execute(text("PRAGMA table_info(threads)"))
+        thread_columns = [row[1] for row in result]
+
+        if "user_id" not in thread_columns:
+            await conn.execute(
+                text("ALTER TABLE threads ADD COLUMN user_id VARCHAR(36) REFERENCES users(id)")
+            )
+
+        if "last_activity_at" not in thread_columns:
+            # Add with default of updated_at for existing rows
+            await conn.execute(
+                text("ALTER TABLE threads ADD COLUMN last_activity_at DATETIME DEFAULT CURRENT_TIMESTAMP")
+            )
+            # Backfill existing rows from updated_at
+            await conn.execute(
+                text("UPDATE threads SET last_activity_at = updated_at WHERE last_activity_at IS NULL")
+            )
+
 
 async def close_db():
     """

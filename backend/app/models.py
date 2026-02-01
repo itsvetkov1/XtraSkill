@@ -62,6 +62,14 @@ class User(Base):
         nullable=False
     )
 
+    # Relationship for directly-owned threads (project-less)
+    threads: Mapped[List["Thread"]] = relationship(
+        back_populates="user",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+        foreign_keys="[Thread.user_id]"
+    )
+
     def __repr__(self) -> str:
         return f"<User(id={self.id}, email={self.email}, provider={self.oauth_provider})>"
 
@@ -170,9 +178,11 @@ class Project(Base):
         cascade="all, delete-orphan",
         passive_deletes=True
     )
+    # Threads relationship - "all" cascade without "delete-orphan" since
+    # project-less threads are intentional (orphans when project_id is NULL)
     threads: Mapped[List["Thread"]] = relationship(
         back_populates="project",
-        cascade="all, delete-orphan",
+        cascade="all",
         passive_deletes=True
     )
 
@@ -227,10 +237,14 @@ class Document(Base):
 
 class Thread(Base):
     """
-    Conversation thread within a project.
+    Conversation thread, optionally within a project.
 
     Contains messages exchanged between user and AI assistant.
     Title is optional; will be AI-generated in Phase 3.
+
+    Ownership model:
+    - Project-based: project_id set, user_id null -> owned via project
+    - Project-less: project_id null, user_id set -> owned directly by user
     """
 
     __tablename__ = "threads"
@@ -242,11 +256,19 @@ class Thread(Base):
         default=lambda: str(uuid.uuid4())
     )
 
-    # Foreign key to project with cascade delete
-    project_id: Mapped[str] = mapped_column(
+    # Foreign key to project with SET NULL on delete (nullable for project-less threads)
+    project_id: Mapped[Optional[str]] = mapped_column(
         String(36),
-        ForeignKey("projects.id", ondelete="CASCADE"),
-        nullable=False,
+        ForeignKey("projects.id", ondelete="SET NULL"),
+        nullable=True,  # Nullable for project-less threads
+        index=True
+    )
+
+    # Foreign key to user for direct ownership of project-less threads
+    user_id: Mapped[Optional[str]] = mapped_column(
+        String(36),
+        ForeignKey("users.id", ondelete="CASCADE"),
+        nullable=True,  # Only set when project_id is None
         index=True
     )
 
@@ -274,8 +296,20 @@ class Thread(Base):
         nullable=False
     )
 
+    # Last activity timestamp for global thread sorting
+    last_activity_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        default=datetime.utcnow,
+        nullable=False,
+        index=True  # Index for efficient sorting
+    )
+
     # Relationships
-    project: Mapped["Project"] = relationship(back_populates="threads")
+    project: Mapped[Optional["Project"]] = relationship(back_populates="threads")
+    user: Mapped[Optional["User"]] = relationship(
+        back_populates="threads",
+        foreign_keys=[user_id]
+    )
     messages: Mapped[List["Message"]] = relationship(
         back_populates="thread",
         cascade="all, delete-orphan",

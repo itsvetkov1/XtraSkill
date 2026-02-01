@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-02-01)
 
 ## Current Position
 
-Phase: 24 - project-layout-redesign (IN PROGRESS)
-Plan: 1/? complete
-Status: Plan 24-01 complete, document column foundation ready
-Last activity: 2026-02-01 - Completed 24-01-PLAN.md
-Next action: Execute 24-02-PLAN.md to integrate column into project detail screen
+Phase: 24 - project-layout-redesign (COMPLETE)
+Plan: 2/2 complete
+Status: Phase 24 complete, threads-first layout with documents column implemented
+Last activity: 2026-02-01 - Completed 24-02-PLAN.md
+Next action: Begin Phase 25 (project-less chats) or continue with v1.9 scope
 
-Progress: [████████████████████] Phase 24: 1/? plans complete
+Progress: [████████████████████] Phase 24: 2/2 plans complete
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 58 (20 in MVP v1.0, 15 in Beta v1.5, 5 in UX v1.6, 8 in URL v1.7, 8 in LLM v1.8, 2 in UX v1.9)
+- Total plans completed: 60 (20 in MVP v1.0, 15 in Beta v1.5, 5 in UX v1.6, 8 in URL v1.7, 8 in LLM v1.8, 4 in UX v1.9)
 - Average duration: ~18 minutes (MVP v1.0), ~7 minutes (Beta v1.5), ~5 minutes (UX v1.6), ~4 minutes (URL v1.7), ~5 minutes (LLM v1.8), ~3 minutes (UX v1.9)
 
 **By Milestone:**
@@ -33,7 +33,7 @@ Progress: [████████████████████] Phase 2
 | UX v1.6 | 11-14 | 5/5 | Complete (2026-01-30) |
 | URL v1.7 | 15-18 | 8/8 | Complete (2026-01-31) |
 | LLM v1.8 | 19-22 | 8/8 | Complete (2026-01-31) |
-| UX v1.9 | 23-27 | 2/? | In Progress |
+| UX v1.9 | 23-27 | 4/? | In Progress |
 
 ## Accumulated Context
 
@@ -56,6 +56,8 @@ v1.9 decisions logged in ROADMAP.md.
 - COLUMN-STATE: Session-scoped only (no SharedPreferences) - requirement says "within session"
 - COLUMN-WIDTH: 48px collapsed, 280px expanded - icon-friendly strip, sidebar-consistent panel
 - ANIMATION: AnimatedSize with 200ms easeInOut - smooth, non-jarring transitions
+- TABS-REMOVAL: Complete removal of TabController/TabBar/TabBarView - threads-first layout
+- LAYOUT-STRUCTURE: Column(header, Expanded(Row(docs, divider, threads))) - clean separation
 
 ### Pending Todos
 
@@ -64,6 +66,7 @@ v1.9 decisions logged in ROADMAP.md.
 - Manual testing of DeepSeek adapter with real API key (21-02)
 - Manual testing of Phase 22 provider UI (6 test cases in TESTING-QUEUE.md Phase 22 section)
 - Manual testing of Enter/Shift+Enter behavior (Phase 23-01)
+- Manual testing of project layout redesign (Phase 24-02 - COMPLETED)
 
 ### Blockers/Concerns
 
@@ -71,7 +74,7 @@ v1.9 decisions logged in ROADMAP.md.
 
 v1.9 scope is well-defined via user stories in /user_stories/:
 - UX-001: Enter to send - **IMPLEMENTATION COMPLETE (23-01)**
-- UX-002: Threads primary, documents column
+- UX-002: Threads primary, documents column - **IMPLEMENTATION COMPLETE (24-01, 24-02)**
 - UX-003: Project-less chats with global Chats menu
 - THREAD-006: Search/filter threads
 - THREAD-010: Expanded chat input - **IMPLEMENTATION COMPLETE (23-01)**
@@ -79,10 +82,10 @@ v1.9 scope is well-defined via user stories in /user_stories/:
 ## Session Continuity
 
 Last session: 2026-02-01
-Stopped at: Completed 24-01-PLAN.md
+Stopped at: Completed 24-02-PLAN.md
 Resume file: None
-Next action: Execute 24-02-PLAN.md to integrate column into project detail screen
+Next action: Begin Phase 25 (project-less chats) or continue with v1.9 scope
 
 ---
 
-*State updated: 2026-02-01 (Phase 24-01 complete)*
+*State updated: 2026-02-01 (Phase 24-02 complete)*

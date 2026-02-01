@@ -5,7 +5,6 @@ import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import '../models/thread.dart';
-import '../models/message.dart';
 
 /// Thread service handling API calls for conversation threads
 class ThreadService {
@@ -174,6 +173,69 @@ class ThreadService {
         throw Exception('Thread not found');
       }
       throw Exception('Failed to rename thread: ${e.message}');
+    }
+  }
+
+  /// Get all threads for current user (global listing)
+  ///
+  /// Returns paginated list of all user threads across all projects.
+  /// Sorted by last_activity_at DESC (most recently active first).
+  ///
+  /// [page] - Page number (1-indexed)
+  /// [pageSize] - Number of threads per page
+  Future<PaginatedThreads> getGlobalThreads({
+    int page = 1,
+    int pageSize = 25,
+  }) async {
+    try {
+      final headers = await _getAuthHeaders();
+      final response = await _dio.get(
+        '$_baseUrl/api/threads?page=$page&page_size=$pageSize',
+        options: Options(headers: headers),
+      );
+
+      return PaginatedThreads.fromJson(response.data as Map<String, dynamic>);
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 401 || e.response?.statusCode == 403) {
+        throw Exception('Authentication required');
+      }
+      throw Exception('Failed to load threads: ${e.message}');
+    }
+  }
+
+  /// Create a thread (optionally without project)
+  ///
+  /// [title] - Optional title for the thread
+  /// [projectId] - Optional project ID (null for project-less thread)
+  /// [modelProvider] - Optional LLM provider
+  ///
+  /// Returns created Thread object
+  Future<Thread> createGlobalThread({
+    String? title,
+    String? projectId,
+    String? modelProvider,
+  }) async {
+    try {
+      final headers = await _getAuthHeaders();
+      final data = <String, dynamic>{};
+      if (title != null) data['title'] = title;
+      if (projectId != null) data['project_id'] = projectId;
+      if (modelProvider != null) data['model_provider'] = modelProvider;
+
+      final response = await _dio.post(
+        '$_baseUrl/api/threads',
+        options: Options(headers: headers),
+        data: data,
+      );
+
+      return Thread.fromJson(response.data as Map<String, dynamic>);
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 401 || e.response?.statusCode == 403) {
+        throw Exception('Authentication required');
+      } else if (e.response?.statusCode == 400) {
+        throw Exception('Invalid thread data');
+      }
+      throw Exception('Failed to create thread: ${e.message}');
     }
   }
 }

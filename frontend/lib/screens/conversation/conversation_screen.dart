@@ -6,11 +6,14 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../../models/message.dart';
+import '../../models/project.dart';
 import '../../providers/conversation_provider.dart';
 import '../../widgets/delete_confirmation_dialog.dart';
 import '../../widgets/mode_selector.dart';
+import '../../widgets/project_picker_dialog.dart';
 import '../../widgets/resource_not_found_state.dart';
 import '../threads/thread_rename_dialog.dart';
+import 'widgets/add_to_project_button.dart';
 import 'widgets/chat_input.dart';
 import 'widgets/message_bubble.dart';
 import 'widgets/provider_indicator.dart';
@@ -127,6 +130,33 @@ class _ConversationScreenState extends State<ConversationScreen> {
     });
   }
 
+  /// Show project picker and handle association
+  Future<void> _showAddToProjectDialog() async {
+    final selectedProject = await showDialog<Project>(
+      context: context,
+      builder: (dialogContext) => const ProjectPickerDialog(),
+    );
+
+    if (selectedProject != null && mounted) {
+      final provider = context.read<ConversationProvider>();
+      final success = await provider.associateWithProject(selectedProject.id);
+
+      if (!success && mounted) {
+        // Show error snackbar with retry
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(provider.error ?? 'Failed to add to project'),
+            action: SnackBarAction(
+              label: 'Retry',
+              onPressed: _showAddToProjectDialog,
+            ),
+          ),
+        );
+      }
+      // Success: header updates in-place via loadThread() (no snackbar per CONTEXT.md)
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Consumer<ConversationProvider>(
@@ -175,6 +205,30 @@ class _ConversationScreenState extends State<ConversationScreen> {
                 tooltip: 'Rename conversation',
                 onPressed: provider.thread != null ? _showRenameDialog : null,
               ),
+              // Options menu with "Add to Project" for project-less threads
+              PopupMenuButton<String>(
+                icon: const Icon(Icons.more_vert),
+                tooltip: 'More options',
+                onSelected: (value) {
+                  if (value == 'add_to_project') {
+                    _showAddToProjectDialog();
+                  }
+                },
+                itemBuilder: (context) => [
+                  // Only show for project-less threads
+                  if (provider.thread != null && !provider.thread!.hasProject)
+                    const PopupMenuItem<String>(
+                      value: 'add_to_project',
+                      child: Row(
+                        children: [
+                          Icon(Icons.folder_open_outlined, size: 20),
+                          SizedBox(width: 12),
+                          Text('Add to Project'),
+                        ],
+                      ),
+                    ),
+                ],
+              ),
             ],
           ),
           body: Column(
@@ -202,9 +256,20 @@ class _ConversationScreenState extends State<ConversationScreen> {
                 child: _buildMessageList(provider),
               ),
 
-              // Provider indicator
-              ProviderIndicator(
-                provider: provider.thread?.modelProvider,
+              // Toolbar row: Provider indicator + Add to Project button
+              Row(
+                children: [
+                  // Provider indicator
+                  ProviderIndicator(
+                    provider: provider.thread?.modelProvider,
+                  ),
+                  const Spacer(),
+                  // Add to Project button (only for project-less threads)
+                  if (provider.thread != null && !provider.thread!.hasProject)
+                    AddToProjectButton(
+                      onPressed: _showAddToProjectDialog,
+                    ),
+                ],
               ),
 
               // Chat input

@@ -302,6 +302,26 @@ class ConversationProvider extends ChangeNotifier {
     }
   }
 
+  /// Associate current thread with a project
+  ///
+  /// Returns true on success, false on failure.
+  /// On success, reloads thread to update UI state.
+  /// On failure, sets error message.
+  Future<bool> associateWithProject(String projectId) async {
+    if (_thread == null) return false;
+
+    try {
+      await _threadService.associateWithProject(_thread!.id, projectId);
+      // Reload thread to get updated project info
+      await loadThread(_thread!.id);
+      return true;
+    } catch (e) {
+      _error = e.toString();
+      notifyListeners();
+      return false;
+    }
+  }
+
   @override
   void dispose() {
     _deleteTimer?.cancel();

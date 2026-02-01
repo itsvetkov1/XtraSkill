@@ -238,4 +238,33 @@ class ThreadService {
       throw Exception('Failed to create thread: ${e.message}');
     }
   }
+
+  /// Associate a project-less thread with a project
+  ///
+  /// [threadId] - ID of the thread to associate
+  /// [projectId] - ID of the project to associate with
+  ///
+  /// Returns updated Thread object
+  /// Throws exception if thread already has project (400) or project not found (404)
+  Future<Thread> associateWithProject(String threadId, String projectId) async {
+    try {
+      final headers = await _getAuthHeaders();
+      final response = await _dio.patch(
+        '$_baseUrl/api/threads/$threadId',
+        options: Options(headers: headers),
+        data: {'project_id': projectId},
+      );
+
+      return Thread.fromJson(response.data as Map<String, dynamic>);
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 401 || e.response?.statusCode == 403) {
+        throw Exception('Authentication required');
+      } else if (e.response?.statusCode == 400) {
+        throw Exception('Thread already associated with a project');
+      } else if (e.response?.statusCode == 404) {
+        throw Exception('Thread or project not found');
+      }
+      throw Exception('Failed to associate thread: ${e.message}');
+    }
+  }
 }

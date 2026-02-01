@@ -18,13 +18,13 @@
 
 ## Summary
 
-| Priority | Total | Open | In Progress | Done |
-|----------|-------|------|-------------|------|
-| Critical | 6 | 0 | 4 | 2 |
-| High | 13 | 12 | 0 | 1 |
-| Medium | 9 | 9 | 0 | 0 |
-| Low | 4 | 4 | 0 | 0 |
-| **Total** | **32** | **29** | **0** | **3** |
+| Priority | Total | Open | In Progress | Done | Wont Do |
+|----------|-------|------|-------------|------|---------|
+| Critical | 6 | 0 | 4 | 2 | 0 |
+| High | 13 | 12 | 0 | 1 | 0 |
+| Medium | 9 | 7 | 0 | 0 | 2 |
+| Low | 4 | 4 | 0 | 0 | 0 |
+| **Total** | **32** | **27** | **0** | **3** | **2** |
 
 ---
 
@@ -54,10 +54,10 @@ Work items ranked by impact, dependencies, and user value.
 | 18 | [THREAD-006](THREAD-006_search-filter-threads.md) | Search/filter threads | High | Scalability for large projects |
 | 19 | [THREAD-007](THREAD-007_artifact-generation-ui.md) | Artifact generation UI | High | Feature discoverability |
 | 20 | [THREAD-008](THREAD-008_document-sources.md) | Show AI document sources | Medium | Transparency; trust building |
-| 21 | [HOME-001](HOME-001_button-differentiation.md) | Differentiate home buttons | Medium | Reduces confusion |
+| ~21~ | ~~[HOME-001](HOME-001_button-differentiation.md)~~ | ~~Differentiate home buttons~~ | ~~Medium~~ | **Wont Do** - Obsolete after UX-003 |
 | 22 | [SETTINGS-001](SETTINGS-001_auth-provider-display.md) | Show auth provider | Medium | Minor UX improvement |
 | 23 | [DOC-002](DOC-002_download-document.md) | Download document option | Medium | Convenience feature |
-| 24 | [PROJECT-001](PROJECT-001_tab-persistence.md) | Tab state persistence | Medium | Navigation polish |
+| ~24~ | ~~[PROJECT-001](PROJECT-001_tab-persistence.md)~~ | ~~Tab state persistence~~ | ~~Medium~~ | **Wont Do** - Obsolete after UX-002 |
 | 25 | [DOC-004](DOC-004_conversation-export.md) | Conversation export docs | Medium | Feature clarity |
 | 26 | [DOC-003](DOC-003_token-refresh-docs.md) | Token refresh docs | Medium | Documentation |
 | 27 | [DOC-005](DOC-005_file-size-error.md) | File size error UX | Medium | Error handling |
@@ -113,10 +113,10 @@ Polish and documentation improvements.
 | Rank | ID | Title | Status | Component |
 |------|-----|-------|--------|-----------|
 | 20 | [THREAD-008](THREAD-008_document-sources.md) | Show AI document sources | Open | Conversation |
-| 21 | [HOME-001](HOME-001_button-differentiation.md) | Differentiate home buttons | Open | Home |
+| ~21~ | ~~[HOME-001](HOME-001_button-differentiation.md)~~ | ~~Differentiate home buttons~~ | **Wont Do** | ~~Home~~ |
 | 22 | [SETTINGS-001](SETTINGS-001_auth-provider-display.md) | Show auth provider | Open | Settings |
 | 23 | [DOC-002](DOC-002_download-document.md) | Download document option | Open | Documents |
-| 24 | [PROJECT-001](PROJECT-001_tab-persistence.md) | Tab state persistence | Open | Projects |
+| ~24~ | ~~[PROJECT-001](PROJECT-001_tab-persistence.md)~~ | ~~Tab state persistence~~ | **Wont Do** | ~~Projects~~ |
 | 25 | [DOC-004](DOC-004_conversation-export.md) | Conversation export docs | Open | Documentation |
 | 26 | [DOC-003](DOC-003_token-refresh-docs.md) | Token refresh docs | Open | Documentation |
 | 27 | [DOC-005](DOC-005_file-size-error.md) | File size error UX | Open | Documents |

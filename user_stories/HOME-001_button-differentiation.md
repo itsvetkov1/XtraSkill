@@ -1,8 +1,10 @@
 # HOME-001: Differentiate Home Screen Action Buttons
 
 **Priority:** Medium
-**Status:** Open
+**Status:** Wont Do
 **Component:** Home Screen
+**Closed:** 2026-01-31
+**Reason:** Obsolete — UX-003 redesigns Home screen with clear "New Chat" button and global Chats menu, eliminating the confusion this story addressed.
 
 ---
 

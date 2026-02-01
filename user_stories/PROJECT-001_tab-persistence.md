@@ -1,8 +1,10 @@
 # PROJECT-001: Document Tab State Persistence
 
 **Priority:** Medium
-**Status:** Open
+**Status:** Wont Do
 **Component:** Project Detail Screen
+**Closed:** 2026-01-31
+**Reason:** Obsolete — UX-002 removes the tab structure entirely. Documents become a collapsible column, Threads are always the primary view.
 
 ---
 

@@ -63,8 +63,8 @@ Plans:
 **Plans:** 2 plans
 
 Plans:
-- [ ] 24-01-PLAN.md - DocumentColumnProvider and DocumentsColumn widget foundation
-- [ ] 24-02-PLAN.md - Refactor ProjectDetailScreen to Row layout
+- [x] 24-01-PLAN.md - DocumentColumnProvider and DocumentsColumn widget foundation
+- [x] 24-02-PLAN.md - Refactor ProjectDetailScreen to Row layout
 
 ---
 
@@ -144,7 +144,7 @@ Plans:
 | Phase | Name | Requirements | Status |
 |-------|------|--------------|--------|
 | 23 | chat-input-ux | INPUT-01 to INPUT-05 | Complete |
-| 24 | project-layout-redesign | LAYOUT-01 to LAYOUT-06 | Planned |
+| 24 | project-layout-redesign | LAYOUT-01 to LAYOUT-06 | Complete |
 | 25 | global-chats-backend | CHATS-01 to CHATS-07 | Pending |
 | 26 | chat-project-association | CHATS-08 to CHATS-13 | Pending |
 | 27 | thread-search-filter | SEARCH-01 to SEARCH-04 | Pending |

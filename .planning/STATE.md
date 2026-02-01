@@ -10,13 +10,13 @@ See: .planning/PROJECT.md (updated 2026-02-01)
 
 ## Current Position
 
-Phase: 24 - project-layout-redesign (COMPLETE)
+Phase: 24 - project-layout-redesign (VERIFIED)
 Plan: 2/2 complete
-Status: Phase 24 complete, threads-first layout with documents column implemented
-Last activity: 2026-02-01 - Completed 24-02-PLAN.md
-Next action: Begin Phase 25 (project-less chats) or continue with v1.9 scope
+Status: Phase 24 verified, ready for Phase 25
+Last activity: 2026-02-01 - Phase 24 verified and complete
+Next action: Run `/gsd:discuss-phase 25` to plan global chats backend
 
-Progress: [████████████████████] Phase 24: 2/2 plans complete
+Progress: [████████████████████] Phase 24: 2/2 plans complete ✓
 
 ## Performance Metrics
 

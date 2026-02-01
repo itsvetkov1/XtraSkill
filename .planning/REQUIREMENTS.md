@@ -17,12 +17,12 @@ Requirements for UX improvements. Each maps to roadmap phases.
 
 ### Project Layout (UX-002)
 
-- [ ] **LAYOUT-01**: Threads view is default when opening a project (not Documents tab)
-- [ ] **LAYOUT-02**: Documents appear in collapsible column between menu and thread list
-- [ ] **LAYOUT-03**: Documents column is minimized by default (thin strip with icon)
-- [ ] **LAYOUT-04**: Clicking minimized column expands to show document list
-- [ ] **LAYOUT-05**: Expanded column can be collapsed back to minimized state
-- [ ] **LAYOUT-06**: Document operations (upload, view, delete) accessible from column
+- [x] **LAYOUT-01**: Threads view is default when opening a project (not Documents tab)
+- [x] **LAYOUT-02**: Documents appear in collapsible column between menu and thread list
+- [x] **LAYOUT-03**: Documents column is minimized by default (thin strip with icon)
+- [x] **LAYOUT-04**: Clicking minimized column expands to show document list
+- [x] **LAYOUT-05**: Expanded column can be collapsed back to minimized state
+- [x] **LAYOUT-06**: Document operations (upload, view, delete) accessible from column
 
 ### Global Chats (UX-003)
 
@@ -85,12 +85,12 @@ Which phases cover which requirements. Updated during roadmap creation.
 | INPUT-03 | Phase 23 | Complete |
 | INPUT-04 | Phase 23 | Complete |
 | INPUT-05 | Phase 23 | Complete |
-| LAYOUT-01 | Phase 24 | Pending |
-| LAYOUT-02 | Phase 24 | Pending |
-| LAYOUT-03 | Phase 24 | Pending |
-| LAYOUT-04 | Phase 24 | Pending |
-| LAYOUT-05 | Phase 24 | Pending |
-| LAYOUT-06 | Phase 24 | Pending |
+| LAYOUT-01 | Phase 24 | Complete |
+| LAYOUT-02 | Phase 24 | Complete |
+| LAYOUT-03 | Phase 24 | Complete |
+| LAYOUT-04 | Phase 24 | Complete |
+| LAYOUT-05 | Phase 24 | Complete |
+| LAYOUT-06 | Phase 24 | Complete |
 | CHATS-01 | Phase 25 | Pending |
 | CHATS-02 | Phase 25 | Pending |
 | CHATS-03 | Phase 25 | Pending |

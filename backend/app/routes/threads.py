@@ -125,11 +125,18 @@ async def create_thread(
             detail=f"Invalid provider. Valid options: {', '.join(VALID_PROVIDERS)}"
         )
 
+    # Debug: Log received provider
+    import logging
+    logger = logging.getLogger(__name__)
+    logger.info(f"CREATE THREAD - Received model_provider: {thread_data.model_provider}")
+
     # Create thread
+    final_provider = thread_data.model_provider or "anthropic"
+    logger.info(f"CREATE THREAD - Using provider: {final_provider}")
     thread = Thread(
         project_id=project_id,
         title=thread_data.title,
-        model_provider=thread_data.model_provider or "anthropic"
+        model_provider=final_provider
     )
 
     db.add(thread)

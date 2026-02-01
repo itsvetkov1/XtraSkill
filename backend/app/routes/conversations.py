@@ -118,6 +118,12 @@ async def stream_chat(
     # Use thread's bound provider (set at creation time)
     # This ensures consistency - conversations stay with their original provider
     provider = thread.model_provider or "anthropic"
+
+    # Debug: Log provider being used for chat
+    import logging
+    logger = logging.getLogger(__name__)
+    logger.info(f"CHAT - Thread {thread_id} using provider: {provider} (stored: {thread.model_provider})")
+
     ai_service = AIService(provider=provider)
 
     async def event_generator():

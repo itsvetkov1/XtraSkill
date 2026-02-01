@@ -42,9 +42,16 @@ Previous features (v1.5):
 
 **Codebase:** ~14,000 lines of Dart/Python across Flutter frontend and FastAPI backend.
 
-## Next Milestone Goals
+## Current Milestone: v1.9 UX Improvements
 
-See user stories in `/user_stories/` for detailed requirements.
+**Goal:** Reduce friction in daily chat workflow with standard chat UX, improved layout, and flexible chat organization.
+
+**Target features:**
+- Enter to send message (Shift+Enter for newline) — standard chat behavior
+- Threads as primary view with collapsible documents column — conversations-first layout
+- Project-less chats with global Chats menu — quick conversations without project overhead
+- Search and filter threads — find conversations in large projects
+- Expanded chat input (optional) — more room for long messages
 
 ## Future Vision
 
@@ -106,7 +113,14 @@ See user stories in `/user_stories/` for detailed requirements.
 
 ### Active
 
-None — between milestones. See `/user_stories/` for next milestone scope.
+- [ ] Enter key sends message, Shift+Enter for newline (UX-001)
+- [ ] Threads are primary view when opening project (UX-002)
+- [ ] Documents appear in collapsible side column (UX-002)
+- [ ] Global Chats menu shows all conversations across projects (UX-003)
+- [ ] User can create chat without selecting project first (UX-003)
+- [ ] User can add project-less chat to a project (one-way association) (UX-003)
+- [ ] User can search/filter threads by title (THREAD-006)
+- [ ] Chat input supports more visible lines (THREAD-010)
 
 ### Deferred
 
@@ -181,4 +195,4 @@ BAs prepare for meetings by uploading existing requirements or stakeholder notes
 | ResourceNotFoundState widget | Reusable widget for deleted project/thread states; consistent UX | ✓ Implemented (Phase 17) |
 
 ---
-*Last updated: 2026-02-01 after v1.8 milestone complete*
+*Last updated: 2026-02-01 after v1.9 milestone start*

@@ -6,17 +6,17 @@ See: .planning/PROJECT.md (updated 2026-02-01)
 
 **Core value:** Business analysts reduce time spent on requirement documentation while improving completeness through AI-assisted discovery conversations that systematically explore edge cases and generate production-ready artifacts.
 
-**Current focus:** Between milestones — v1.8 complete, v1.9 planned
+**Current focus:** v1.9 UX Improvements — Enter to send, threads primary, project-less chats, thread search
 
 ## Current Position
 
-Phase: None active
-Plan: None active
-Status: v1.8 LLM Provider Switching archived
-Last activity: 2026-02-01 - Milestone v1.8 archived
-Next action: Run `/gsd:new-milestone` to start v1.9 UX Improvements
+Phase: 23 - chat-input-ux (PENDING)
+Plan: None yet
+Status: v1.9 milestone initialized
+Last activity: 2026-02-01 - Milestone v1.9 created
+Next action: Run `/gsd:plan-phase 23` to plan first phase
 
-Progress: All milestones through v1.8 complete
+Progress: [░░░░░░░░░░░░░░░░░░░░] Phase 23: 0/? plans
 
 ## Performance Metrics
 
@@ -33,6 +33,7 @@ Progress: All milestones through v1.8 complete
 | UX v1.6 | 11-14 | 5/5 | Complete (2026-01-30) |
 | URL v1.7 | 15-18 | 8/8 | Complete (2026-01-31) |
 | LLM v1.8 | 19-22 | 8/8 | Complete (2026-01-31) |
+| UX v1.9 | 23-27 | 0/? | In Progress |
 
 ## Accumulated Context
 
@@ -40,11 +41,12 @@ Progress: All milestones through v1.8 complete
 
 Decisions are logged in PROJECT.md Key Decisions table.
 Previous milestone decisions archived in:
-- .planning/milestones/v1.0-ROADMAP.md (phase folders)
 - .planning/milestones/v1.5-ROADMAP.md
 - .planning/milestones/v1.6-ROADMAP.md
 - .planning/milestones/v1.7-ROADMAP.md
 - .planning/milestones/v1.8-ROADMAP.md
+
+v1.9 decisions logged in ROADMAP.md.
 
 ### Pending Todos
 
@@ -57,17 +59,20 @@ Previous milestone decisions archived in:
 
 **No current blockers**
 
-Research identified potential concerns:
-- DeepSeek server capacity (frequent 503 errors) - retry logic implemented
-- DeepSeek tool calling may be unstable per documentation
+v1.9 scope is well-defined via user stories in /user_stories/:
+- UX-001: Enter to send
+- UX-002: Threads primary, documents column
+- UX-003: Project-less chats with global Chats menu
+- THREAD-006: Search/filter threads
+- THREAD-010: Expanded chat input
 
 ## Session Continuity
 
 Last session: 2026-02-01
-Stopped at: v1.8 milestone archived
+Stopped at: v1.9 milestone initialized
 Resume file: None
-Next action: Run `/gsd:new-milestone` to start v1.9 UX Improvements
+Next action: Run `/gsd:plan-phase 23` to start planning
 
 ---
 
-*State updated: 2026-02-01 (v1.8 archived, ready for v1.9)*
+*State updated: 2026-02-01 (v1.9 milestone initialized)*

@@ -132,6 +132,49 @@ async def _run_migrations():
             text("UPDATE threads SET last_activity_at = updated_at WHERE last_activity_at IS NULL")
         )
 
+        # Check if project_id column is NOT NULL (needs to be nullable for project-less threads)
+        # PRAGMA table_info returns: cid, name, type, notnull, dflt_value, pk
+        result = await conn.execute(text("PRAGMA table_info(threads)"))
+        columns_info = {row[1]: row[3] for row in result}  # name -> notnull
+
+        if columns_info.get("project_id") == 1:  # 1 = NOT NULL, 0 = nullable
+            # SQLite doesn't support ALTER COLUMN, must recreate table
+            # Disable foreign keys temporarily for table recreation
+            await conn.execute(text("PRAGMA foreign_keys=OFF"))
+
+            # Create new table with nullable project_id
+            await conn.execute(text("""
+                CREATE TABLE threads_new (
+                    id VARCHAR(36) PRIMARY KEY,
+                    project_id VARCHAR(36) REFERENCES projects(id) ON DELETE SET NULL,
+                    user_id VARCHAR(36) REFERENCES users(id) ON DELETE CASCADE,
+                    title VARCHAR(255),
+                    model_provider VARCHAR(20) DEFAULT 'anthropic',
+                    created_at DATETIME NOT NULL,
+                    updated_at DATETIME NOT NULL,
+                    last_activity_at DATETIME
+                )
+            """))
+
+            # Copy data
+            await conn.execute(text("""
+                INSERT INTO threads_new (id, project_id, user_id, title, model_provider, created_at, updated_at, last_activity_at)
+                SELECT id, project_id, user_id, title, model_provider, created_at, updated_at, last_activity_at
+                FROM threads
+            """))
+
+            # Drop old table and rename new one
+            await conn.execute(text("DROP TABLE threads"))
+            await conn.execute(text("ALTER TABLE threads_new RENAME TO threads"))
+
+            # Recreate indexes
+            await conn.execute(text("CREATE INDEX IF NOT EXISTS ix_threads_project_id ON threads(project_id)"))
+            await conn.execute(text("CREATE INDEX IF NOT EXISTS ix_threads_user_id ON threads(user_id)"))
+            await conn.execute(text("CREATE INDEX IF NOT EXISTS ix_threads_created_at ON threads(created_at)"))
+
+            # Re-enable foreign keys
+            await conn.execute(text("PRAGMA foreign_keys=ON"))
+
 
 async def close_db():
     """

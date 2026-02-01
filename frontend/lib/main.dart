@@ -240,11 +240,9 @@ class _MyAppState extends State<MyApp> {
             return ResponsiveScaffold(
               currentIndex: selectedIndex,
               onDestinationSelected: (index) {
-                navigationShell.goBranch(
-                  index,
-                  // If tapping current branch, go to initial location of that branch
-                  initialLocation: index == navigationShell.currentIndex,
-                );
+                // Always go to initial location of the branch
+                // This ensures Chats shows the list, not the last visited chat
+                navigationShell.goBranch(index, initialLocation: true);
               },
               child: navigationShell,
             );

@@ -9,6 +9,7 @@ import '../models/project.dart';
 import '../providers/auth_provider.dart';
 import '../providers/chats_provider.dart';
 import '../providers/project_provider.dart';
+import '../providers/provider_provider.dart';
 import '../widgets/responsive_layout.dart';
 
 /// Home screen content shown in the navigation shell after authentication
@@ -97,7 +98,10 @@ class _HomeScreenState extends State<HomeScreen> {
         FilledButton.icon(
           onPressed: () async {
             final chatsProvider = context.read<ChatsProvider>();
-            final thread = await chatsProvider.createNewChat();
+            final providerProvider = context.read<ProviderProvider>();
+            final thread = await chatsProvider.createNewChat(
+              modelProvider: providerProvider.selectedProvider,
+            );
             if (thread != null && context.mounted) {
               context.go('/chats/${thread.id}');
             }

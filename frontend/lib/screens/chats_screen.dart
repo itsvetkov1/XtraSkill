@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 
 import '../models/thread.dart';
 import '../providers/chats_provider.dart';
+import '../providers/provider_provider.dart';
 
 /// Screen displaying all user's chats across projects.
 class ChatsScreen extends StatefulWidget {
@@ -27,8 +28,11 @@ class _ChatsScreenState extends State<ChatsScreen> {
   }
 
   Future<void> _createNewChat() async {
-    final provider = context.read<ChatsProvider>();
-    final thread = await provider.createNewChat();
+    final chatsProvider = context.read<ChatsProvider>();
+    final providerProvider = context.read<ProviderProvider>();
+    final thread = await chatsProvider.createNewChat(
+      modelProvider: providerProvider.selectedProvider,
+    );
     if (thread != null && mounted) {
       // Navigate to conversation view
       context.go('/chats/${thread.id}');

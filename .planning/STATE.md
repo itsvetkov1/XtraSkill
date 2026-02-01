@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-02-01)
 
 ## Current Position
 
-Phase: 23 - chat-input-ux (COMPLETE)
-Plan: 1/1 complete
-Status: Phase 23 verified, ready for Phase 24
-Last activity: 2026-02-01 - Phase 23 verified and complete
-Next action: Run `/gsd:plan-phase 24` to plan project layout redesign
+Phase: 24 - project-layout-redesign (IN PROGRESS)
+Plan: 1/? complete
+Status: Plan 24-01 complete, document column foundation ready
+Last activity: 2026-02-01 - Completed 24-01-PLAN.md
+Next action: Execute 24-02-PLAN.md to integrate column into project detail screen
 
-Progress: [████████████████████] Phase 23: 1/1 plans complete ✓
+Progress: [████████████████████] Phase 24: 1/? plans complete
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 57 (20 in MVP v1.0, 15 in Beta v1.5, 5 in UX v1.6, 8 in URL v1.7, 8 in LLM v1.8, 1 in UX v1.9)
+- Total plans completed: 58 (20 in MVP v1.0, 15 in Beta v1.5, 5 in UX v1.6, 8 in URL v1.7, 8 in LLM v1.8, 2 in UX v1.9)
 - Average duration: ~18 minutes (MVP v1.0), ~7 minutes (Beta v1.5), ~5 minutes (UX v1.6), ~4 minutes (URL v1.7), ~5 minutes (LLM v1.8), ~3 minutes (UX v1.9)
 
 **By Milestone:**
@@ -33,7 +33,7 @@ Progress: [████████████████████] Phase 2
 | UX v1.6 | 11-14 | 5/5 | Complete (2026-01-30) |
 | URL v1.7 | 15-18 | 8/8 | Complete (2026-01-31) |
 | LLM v1.8 | 19-22 | 8/8 | Complete (2026-01-31) |
-| UX v1.9 | 23-27 | 1/? | In Progress |
+| UX v1.9 | 23-27 | 2/? | In Progress |
 
 ## Accumulated Context
 
@@ -51,6 +51,11 @@ v1.9 decisions logged in ROADMAP.md.
 **Phase 23 decisions:**
 - KEYBOARD-HANDLING: FocusNode.onKeyEvent (not RawKeyboardListener) - modern Flutter API
 - TEXT-INPUT-ACTION: TextInputAction.none - critical for custom Enter key handling
+
+**Phase 24 decisions:**
+- COLUMN-STATE: Session-scoped only (no SharedPreferences) - requirement says "within session"
+- COLUMN-WIDTH: 48px collapsed, 280px expanded - icon-friendly strip, sidebar-consistent panel
+- ANIMATION: AnimatedSize with 200ms easeInOut - smooth, non-jarring transitions
 
 ### Pending Todos
 
@@ -74,10 +79,10 @@ v1.9 scope is well-defined via user stories in /user_stories/:
 ## Session Continuity
 
 Last session: 2026-02-01
-Stopped at: Completed 23-01-PLAN.md
+Stopped at: Completed 24-01-PLAN.md
 Resume file: None
-Next action: Run `/gsd:plan-phase 24` or continue v1.9 work
+Next action: Execute 24-02-PLAN.md to integrate column into project detail screen
 
 ---
 
-*State updated: 2026-02-01 (Phase 23-01 complete)*
+*State updated: 2026-02-01 (Phase 24-01 complete)*

@@ -12,6 +12,7 @@ import 'core/theme.dart';
 import 'utils/date_formatter.dart';
 import 'providers/auth_provider.dart';
 import 'providers/conversation_provider.dart';
+import 'providers/document_column_provider.dart';
 import 'providers/document_provider.dart';
 import 'providers/project_provider.dart';
 import 'providers/navigation_provider.dart';
@@ -114,6 +115,7 @@ class _MyAppState extends State<MyApp> {
         ChangeNotifierProvider.value(value: widget.themeProvider),
         ChangeNotifierProvider.value(value: widget.navigationProvider),
         ChangeNotifierProvider.value(value: widget.providerProvider),
+        ChangeNotifierProvider(create: (_) => DocumentColumnProvider()),
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => ConversationProvider()),
         ChangeNotifierProvider(create: (_) => ProjectProvider()),

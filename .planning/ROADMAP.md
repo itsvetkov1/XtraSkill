@@ -33,7 +33,10 @@ Reduce friction in daily chat workflow with standard chat UX patterns, improved 
 3. Long messages display in expanded input area (scrollable)
 4. Empty Enter does not trigger error or send
 
-**Plans:** TBD
+**Plans:** 1 plan
+
+Plans:
+- [ ] 23-01-PLAN.md - Enter/Shift+Enter keyboard handling and expanded input
 
 ---
 
@@ -136,7 +139,7 @@ Reduce friction in daily chat workflow with standard chat UX patterns, improved 
 
 | Phase | Name | Requirements | Status |
 |-------|------|--------------|--------|
-| 23 | chat-input-ux | INPUT-01 to INPUT-05 | Pending |
+| 23 | chat-input-ux | INPUT-01 to INPUT-05 | Planned |
 | 24 | project-layout-redesign | LAYOUT-01 to LAYOUT-06 | Pending |
 | 25 | global-chats-backend | CHATS-01 to CHATS-07 | Pending |
 | 26 | chat-project-association | CHATS-08 to CHATS-13 | Pending |

@@ -36,7 +36,7 @@ Reduce friction in daily chat workflow with standard chat UX patterns, improved 
 **Plans:** 1 plan
 
 Plans:
-- [ ] 23-01-PLAN.md - Enter/Shift+Enter keyboard handling and expanded input
+- [x] 23-01-PLAN.md - Enter/Shift+Enter keyboard handling and expanded input
 
 ---
 
@@ -139,7 +139,7 @@ Plans:
 
 | Phase | Name | Requirements | Status |
 |-------|------|--------------|--------|
-| 23 | chat-input-ux | INPUT-01 to INPUT-05 | Planned |
+| 23 | chat-input-ux | INPUT-01 to INPUT-05 | Complete |
 | 24 | project-layout-redesign | LAYOUT-01 to LAYOUT-06 | Pending |
 | 25 | global-chats-backend | CHATS-01 to CHATS-07 | Pending |
 | 26 | chat-project-association | CHATS-08 to CHATS-13 | Pending |

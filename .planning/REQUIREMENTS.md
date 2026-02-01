@@ -9,11 +9,11 @@ Requirements for UX improvements. Each maps to roadmap phases.
 
 ### Chat Input (UX-001, THREAD-010)
 
-- [ ] **INPUT-01**: Enter key sends message when input is not empty
-- [ ] **INPUT-02**: Enter key does nothing when input is empty (no error, no empty send)
-- [ ] **INPUT-03**: Shift+Enter inserts new line in message
-- [ ] **INPUT-04**: Send button remains functional as alternative to Enter
-- [ ] **INPUT-05**: Chat input expands to 8-10 visible lines (scrollable beyond)
+- [x] **INPUT-01**: Enter key sends message when input is not empty
+- [x] **INPUT-02**: Enter key does nothing when input is empty (no error, no empty send)
+- [x] **INPUT-03**: Shift+Enter inserts new line in message
+- [x] **INPUT-04**: Send button remains functional as alternative to Enter
+- [x] **INPUT-05**: Chat input expands to 8-10 visible lines (scrollable beyond)
 
 ### Project Layout (UX-002)
 
@@ -80,11 +80,11 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| INPUT-01 | Phase 23 | Pending |
-| INPUT-02 | Phase 23 | Pending |
-| INPUT-03 | Phase 23 | Pending |
-| INPUT-04 | Phase 23 | Pending |
-| INPUT-05 | Phase 23 | Pending |
+| INPUT-01 | Phase 23 | Complete |
+| INPUT-02 | Phase 23 | Complete |
+| INPUT-03 | Phase 23 | Complete |
+| INPUT-04 | Phase 23 | Complete |
+| INPUT-05 | Phase 23 | Complete |
 | LAYOUT-01 | Phase 24 | Pending |
 | LAYOUT-02 | Phase 24 | Pending |
 | LAYOUT-03 | Phase 24 | Pending |

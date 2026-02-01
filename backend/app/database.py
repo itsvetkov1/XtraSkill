@@ -120,11 +120,11 @@ async def _run_migrations():
             )
 
         if "last_activity_at" not in thread_columns:
-            # Add with default of updated_at for existing rows
+            # SQLite doesn't allow non-constant defaults in ALTER TABLE
+            # Add column without default, then backfill from updated_at
             await conn.execute(
-                text("ALTER TABLE threads ADD COLUMN last_activity_at DATETIME DEFAULT CURRENT_TIMESTAMP")
+                text("ALTER TABLE threads ADD COLUMN last_activity_at DATETIME")
             )
-            # Backfill existing rows from updated_at
             await conn.execute(
                 text("UPDATE threads SET last_activity_at = updated_at WHERE last_activity_at IS NULL")
             )

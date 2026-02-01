@@ -18,6 +18,8 @@ class ChatsScreen extends StatefulWidget {
 }
 
 class _ChatsScreenState extends State<ChatsScreen> {
+  final ScrollController _scrollController = ScrollController();
+
   @override
   void initState() {
     super.initState();
@@ -25,6 +27,23 @@ class _ChatsScreenState extends State<ChatsScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<ChatsProvider>().loadThreads();
     });
+    // Listen for scroll to load more
+    _scrollController.addListener(_onScroll);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.removeListener(_onScroll);
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    if (_scrollController.position.pixels >=
+        _scrollController.position.maxScrollExtent - 200) {
+      // Near bottom, load more
+      context.read<ChatsProvider>().loadMoreThreads();
+    }
   }
 
   Future<void> _createNewChat() async {
@@ -137,11 +156,11 @@ class _ChatsScreenState extends State<ChatsScreen> {
     return RefreshIndicator(
       onRefresh: () => provider.loadThreads(),
       child: ListView.builder(
+        controller: _scrollController,
         itemCount: provider.threads.length + (provider.hasMore ? 1 : 0),
         itemBuilder: (context, index) {
           if (index >= provider.threads.length) {
-            // Load more trigger
-            provider.loadMoreThreads();
+            // Show loading indicator at bottom when more pages exist
             return const Center(
               child: Padding(
                 padding: EdgeInsets.all(16.0),

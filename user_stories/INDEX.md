@@ -1,7 +1,7 @@
 # User Stories Index
 
 **Project:** Business Analyst Assistant
-**Last Updated:** 2026-01-31
+**Last Updated:** 2026-02-01
 
 ---
 
@@ -20,11 +20,11 @@
 
 | Priority | Total | Open | In Progress | Done | Wont Do |
 |----------|-------|------|-------------|------|---------|
-| Critical | 9 | 3 | 4 | 2 | 0 |
+| Critical | 9 | 0 | 4 | 5 | 0 |
 | High | 13 | 12 | 0 | 1 | 0 |
 | Medium | 9 | 7 | 0 | 0 | 2 |
 | Low | 4 | 4 | 0 | 0 | 0 |
-| **Total** | **35** | **30** | **0** | **3** | **2** |
+| **Total** | **35** | **27** | **4** | **6** | **2** |
 
 ---
 
@@ -81,9 +81,9 @@ Blocking issues and core workflow problems. Address first.
 | 4 | [US-003](US-003_auth-redirect-with-return-url.md) | Auth redirect with return URL | **v1.7** | Auth |
 | 5 | [THREAD-001](THREAD-001_retry-failed-messages.md) | Retry failed AI messages | **Done** | Conversation |
 | 6 | [THREAD-002](THREAD-002_copy-ai-responses.md) | Copy AI responses | **Done** | Message Bubble |
-| 7 | [BUG-010](BUG-010_fts5-empty-query.md) | FTS5 empty query crash | **Open** | Document Search |
-| 8 | [BUG-011](BUG-011_chats-missing-projectless.md) | Chats missing project-less threads | **Open** | ChatsScreen |
-| 9 | [BUG-012](BUG-012_chats-loading-state.md) | Chats stuck loading state | **Open** | ChatsScreen |
+| 7 | [BUG-010](BUG-010_fts5-empty-query.md) | FTS5 empty query crash | **Done** | Document Search |
+| 8 | [BUG-011](BUG-011_chats-missing-projectless.md) | Chats missing project-less threads | **Done** | ChatsScreen |
+| 9 | [BUG-012](BUG-012_chats-loading-state.md) | Chats stuck loading state | **Done** | ChatsScreen |
 
 ---
 

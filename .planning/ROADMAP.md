@@ -117,7 +117,11 @@ Plans:
 3. Selecting project associates chat permanently
 4. Associated chat appears in both Chats menu and project's thread list
 
-**Plans:** TBD
+**Plans:** 2 plans
+
+Plans:
+- [ ] 26-01-PLAN.md - Backend API extension for project_id in PATCH /threads
+- [ ] 26-02-PLAN.md - Frontend UI (toolbar button, menu, picker, confirmation)
 
 ---
 
@@ -150,7 +154,7 @@ Plans:
 | 23 | chat-input-ux | INPUT-01 to INPUT-05 | Complete |
 | 24 | project-layout-redesign | LAYOUT-01 to LAYOUT-06 | Complete |
 | 25 | global-chats-backend | CHATS-01 to CHATS-07 | Complete |
-| 26 | chat-project-association | CHATS-08 to CHATS-13 | Pending |
+| 26 | chat-project-association | CHATS-08 to CHATS-13 | Planned |
 | 27 | thread-search-filter | SEARCH-01 to SEARCH-04 | Pending |
 
 **Coverage:** 27/27 requirements mapped

@@ -1,16 +1,22 @@
 """
 Thread management endpoints for conversation organization.
 
-Provides CRUD operations for threads within projects. Threads serve as containers
-for AI conversations. In MVP, threads have optional titles and empty message lists.
-AI will generate summaries and populate messages in Phase 3.
+Provides CRUD operations for threads within projects and global thread management.
+Threads serve as containers for AI conversations. In MVP, threads have optional
+titles and empty message lists. AI will generate summaries and populate messages
+in Phase 3.
+
+Supports two ownership models:
+- Project-based: thread belongs to a project (legacy and current)
+- Project-less: thread directly owned by user (global chats)
 """
 
+from datetime import datetime
 from typing import List, Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Response, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
 from pydantic import BaseModel, Field
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -26,8 +32,15 @@ VALID_PROVIDERS = ["anthropic", "google", "deepseek"]
 
 # Request/Response models
 class ThreadCreate(BaseModel):
-    """Request model for creating a thread."""
+    """Request model for creating a thread within a project."""
     title: Optional[str] = Field(None, max_length=255)
+    model_provider: Optional[str] = Field(None, max_length=20)
+
+
+class GlobalThreadCreate(BaseModel):
+    """Request model for creating a thread (project optional)."""
+    title: Optional[str] = Field(None, max_length=255)
+    project_id: Optional[str] = None  # Null = project-less thread
     model_provider: Optional[str] = Field(None, max_length=20)
 
 
@@ -50,7 +63,7 @@ class MessageResponse(BaseModel):
 class ThreadResponse(BaseModel):
     """Response model for a thread."""
     id: str
-    project_id: str
+    project_id: Optional[str]  # Nullable for project-less threads
     title: Optional[str]
     model_provider: Optional[str] = "anthropic"  # Default for backward compatibility
     created_at: str
@@ -69,6 +82,177 @@ class ThreadDetailResponse(ThreadResponse):
     """Response model for thread details with full message history."""
     messages: List[MessageResponse]
 
+
+class GlobalThreadListResponse(BaseModel):
+    """Response model for thread in global list."""
+    id: str
+    title: Optional[str]
+    updated_at: str
+    last_activity_at: str
+    project_id: Optional[str]
+    project_name: Optional[str]
+    message_count: int
+    model_provider: str
+
+    class Config:
+        from_attributes = True
+
+
+class PaginatedThreadsResponse(BaseModel):
+    """Paginated threads response."""
+    threads: List[GlobalThreadListResponse]
+    total: int
+    page: int
+    page_size: int
+    has_more: bool
+
+
+# ============================================================================
+# Global Thread Endpoints (all user threads across projects)
+# ============================================================================
+
+@router.get("/threads", response_model=PaginatedThreadsResponse)
+async def list_all_threads(
+    page: int = Query(1, ge=1),
+    page_size: int = Query(25, ge=1, le=50),
+    current_user: dict = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    List all threads for current user across all projects.
+
+    Includes project-less threads. Sorted by last_activity_at DESC.
+
+    Args:
+        page: Page number (1-indexed)
+        page_size: Number of threads per page (max 50)
+        current_user: Authenticated user from JWT
+        db: Database session
+
+    Returns:
+        Paginated list of threads with project info
+    """
+    user_id = current_user["user_id"]
+
+    # Query: threads owned directly (user_id) OR via project (project.user_id)
+    base_query = (
+        select(Thread)
+        .outerjoin(Project, Thread.project_id == Project.id)
+        .where(
+            (Thread.user_id == user_id) |
+            (Project.user_id == user_id)
+        )
+        .options(selectinload(Thread.project), selectinload(Thread.messages))
+        .order_by(Thread.last_activity_at.desc())
+    )
+
+    # Count total matching threads
+    count_subquery = (
+        select(Thread.id)
+        .outerjoin(Project, Thread.project_id == Project.id)
+        .where((Thread.user_id == user_id) | (Project.user_id == user_id))
+    ).subquery()
+    count_stmt = select(func.count()).select_from(count_subquery)
+    total_result = await db.execute(count_stmt)
+    total = total_result.scalar()
+
+    # Paginate
+    offset = (page - 1) * page_size
+    paginated = base_query.offset(offset).limit(page_size)
+    result = await db.execute(paginated)
+    threads = result.scalars().unique().all()
+
+    return PaginatedThreadsResponse(
+        threads=[
+            GlobalThreadListResponse(
+                id=t.id,
+                title=t.title,
+                updated_at=t.updated_at.isoformat(),
+                last_activity_at=t.last_activity_at.isoformat() if t.last_activity_at else t.updated_at.isoformat(),
+                project_id=t.project_id,
+                project_name=t.project.name if t.project else None,
+                message_count=len(t.messages),
+                model_provider=t.model_provider or "anthropic",
+            )
+            for t in threads
+        ],
+        total=total,
+        page=page,
+        page_size=page_size,
+        has_more=(offset + len(threads)) < total,
+    )
+
+
+@router.post("/threads", response_model=ThreadResponse, status_code=status.HTTP_201_CREATED)
+async def create_global_thread(
+    thread_data: GlobalThreadCreate,
+    current_user: dict = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    Create thread, optionally within a project.
+
+    If project_id is null, creates a project-less thread owned directly by user.
+
+    Args:
+        thread_data: Thread creation data (optional title, optional project_id)
+        current_user: Authenticated user from JWT
+        db: Database session
+
+    Returns:
+        Created thread with ID, project_id (or None), title, timestamps
+
+    Raises:
+        404: Project not found or doesn't belong to user
+        400: Invalid provider
+    """
+    user_id = current_user["user_id"]
+
+    # Validate project if provided
+    if thread_data.project_id:
+        stmt = select(Project).where(
+            Project.id == thread_data.project_id,
+            Project.user_id == user_id
+        )
+        result = await db.execute(stmt)
+        if not result.scalar_one_or_none():
+            raise HTTPException(status_code=404, detail="Project not found")
+
+    # Validate provider
+    if thread_data.model_provider and thread_data.model_provider not in VALID_PROVIDERS:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Invalid provider. Valid options: {', '.join(VALID_PROVIDERS)}"
+        )
+
+    # Create thread
+    # If project_id is None, set user_id for direct ownership
+    # If project_id is set, user_id stays None (owned via project)
+    thread = Thread(
+        project_id=thread_data.project_id,
+        user_id=user_id if thread_data.project_id is None else None,
+        title=thread_data.title or "New Chat",
+        model_provider=thread_data.model_provider or "anthropic",
+        last_activity_at=datetime.utcnow()
+    )
+
+    db.add(thread)
+    await db.commit()
+    await db.refresh(thread)
+
+    return ThreadResponse(
+        id=thread.id,
+        project_id=thread.project_id,
+        title=thread.title,
+        model_provider=thread.model_provider or "anthropic",
+        created_at=thread.created_at.isoformat(),
+        updated_at=thread.updated_at.isoformat(),
+    )
+
+
+# ============================================================================
+# Project-scoped Thread Endpoints (legacy, within specific project)
+# ============================================================================
 
 @router.post(
     "/projects/{project_id}/threads",
@@ -228,8 +412,10 @@ async def get_thread(
         Thread with messages ordered chronologically (oldest first)
 
     Raises:
-        404: Thread not found or doesn't belong to user's project
+        404: Thread not found or doesn't belong to user
     """
+    user_id = current_user["user_id"]
+
     # Get thread with project and messages loaded
     stmt = (
         select(Thread)
@@ -248,12 +434,19 @@ async def get_thread(
             detail="Thread not found"
         )
 
-    # Validate thread belongs to user's project
-    if thread.project.user_id != current_user["user_id"]:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Thread not found"
-        )
+    # Validate ownership: project-less threads check user_id, project threads check project.user_id
+    if thread.project_id is None:
+        if thread.user_id != user_id:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Thread not found"
+            )
+    else:
+        if thread.project.user_id != user_id:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Thread not found"
+            )
 
     # Sort messages chronologically (oldest first)
     sorted_messages = sorted(thread.messages, key=lambda m: m.created_at)
@@ -300,9 +493,11 @@ async def rename_thread(
         Updated thread with new title and timestamps
 
     Raises:
-        404: Thread not found or doesn't belong to user's project
+        404: Thread not found or doesn't belong to user
         400: Title exceeds 255 characters (handled by Pydantic)
     """
+    user_id = current_user["user_id"]
+
     # Get thread with project loaded for ownership check
     stmt = (
         select(Thread)
@@ -318,12 +513,19 @@ async def rename_thread(
             detail="Thread not found"
         )
 
-    # Validate thread belongs to user's project
-    if thread.project.user_id != current_user["user_id"]:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Thread not found"
-        )
+    # Validate ownership: project-less threads check user_id, project threads check project.user_id
+    if thread.project_id is None:
+        if thread.user_id != user_id:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Thread not found"
+            )
+    else:
+        if thread.project.user_id != user_id:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Thread not found"
+            )
 
     # Update thread title
     thread.title = update_data.title
@@ -364,8 +566,10 @@ async def delete_thread(
         204 No Content on success
 
     Raises:
-        404: Thread not found or doesn't belong to user's project
+        404: Thread not found or doesn't belong to user
     """
+    user_id = current_user["user_id"]
+
     # Get thread with project loaded for ownership check
     stmt = (
         select(Thread)
@@ -381,12 +585,19 @@ async def delete_thread(
             detail="Thread not found"
         )
 
-    # Validate thread belongs to user's project
-    if thread.project.user_id != current_user["user_id"]:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Thread not found"
-        )
+    # Validate ownership: project-less threads check user_id, project threads check project.user_id
+    if thread.project_id is None:
+        if thread.user_id != user_id:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Thread not found"
+            )
+    else:
+        if thread.project.user_id != user_id:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Thread not found"
+            )
 
     # Delete thread (cascades to messages, artifacts)
     await db.delete(thread)

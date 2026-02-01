@@ -42,7 +42,11 @@ async def validate_thread_access(
     user_id: str
 ) -> Thread:
     """
-    Validate thread exists and belongs to user's project.
+    Validate thread exists and belongs to user (directly or via project).
+
+    Supports two ownership models:
+    - Project-less threads: thread.user_id matches current user
+    - Project threads: thread.project.user_id matches current user
 
     Returns Thread with project loaded, or raises 404.
     """
@@ -60,11 +64,20 @@ async def validate_thread_access(
             detail="Thread not found"
         )
 
-    if thread.project.user_id != user_id:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Thread not found"
-        )
+    # Project-less thread: check direct ownership
+    if thread.project_id is None:
+        if thread.user_id != user_id:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Thread not found"
+            )
+    # Project thread: check project ownership
+    else:
+        if thread.project.user_id != user_id:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Thread not found"
+            )
 
     return thread
 
@@ -111,6 +124,11 @@ async def stream_chat(
 
     # Save user message to database
     await save_message(db, thread_id, "user", body.content)
+
+    # Update thread activity timestamp
+    from datetime import datetime
+    thread.last_activity_at = datetime.utcnow()
+    await db.commit()
 
     # Build conversation context from thread history
     conversation = await build_conversation_context(db, thread_id)

@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 
 import '../models/project.dart';
 import '../providers/auth_provider.dart';
+import '../providers/chats_provider.dart';
 import '../providers/project_provider.dart';
 import '../widgets/responsive_layout.dart';
 
@@ -92,11 +93,17 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildActionButtons(BuildContext context, ThemeData theme) {
     return Column(
       children: [
-        // Primary action: Start Conversation
+        // Primary action: New Chat (project-less)
         FilledButton.icon(
-          onPressed: () => context.go('/projects'),
-          icon: const Icon(Icons.chat),
-          label: const Text('Start Conversation'),
+          onPressed: () async {
+            final chatsProvider = context.read<ChatsProvider>();
+            final thread = await chatsProvider.createNewChat();
+            if (thread != null && context.mounted) {
+              context.go('/chats/${thread.id}');
+            }
+          },
+          icon: const Icon(Icons.chat_bubble),
+          label: const Text('New Chat'),
           style: FilledButton.styleFrom(
             padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
             textStyle: theme.textTheme.titleMedium,

@@ -125,9 +125,12 @@ async def _run_migrations():
             await conn.execute(
                 text("ALTER TABLE threads ADD COLUMN last_activity_at DATETIME")
             )
-            await conn.execute(
-                text("UPDATE threads SET last_activity_at = updated_at WHERE last_activity_at IS NULL")
-            )
+
+        # Always backfill last_activity_at for any threads missing it
+        # (handles case where column existed but backfill didn't run)
+        await conn.execute(
+            text("UPDATE threads SET last_activity_at = updated_at WHERE last_activity_at IS NULL")
+        )
 
 
 async def close_db():

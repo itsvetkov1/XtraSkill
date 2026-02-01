@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-02-01)
 
 ## Current Position
 
-Phase: 25 - global-chats-backend (VERIFIED)
-Plan: 2/2 complete
-Status: Phase 25 verified, ready for Phase 26
-Last activity: 2026-02-01 - Phase 25 verified and complete
-Next action: Run `/gsd:discuss-phase 26` to plan chat-project-association
+Phase: 26 - chat-project-association (IN PROGRESS)
+Plan: 1/2 complete
+Status: Completed 26-01 (backend API), ready for 26-02 (frontend UI)
+Last activity: 2026-02-01 - Completed 26-01-PLAN.md
+Next action: Execute 26-02-PLAN.md for frontend association UI
 
-Progress: [████████████████████] Phase 25: 2/2 plans complete ✓
+Progress: [██████████░░░░░░░░░░] Phase 26: 1/2 plans complete
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 61 (20 in MVP v1.0, 15 in Beta v1.5, 5 in UX v1.6, 8 in URL v1.7, 8 in LLM v1.8, 5 in UX v1.9)
+- Total plans completed: 62 (20 in MVP v1.0, 15 in Beta v1.5, 5 in UX v1.6, 8 in URL v1.7, 8 in LLM v1.8, 6 in UX v1.9)
 - Average duration: ~18 minutes (MVP v1.0), ~7 minutes (Beta v1.5), ~5 minutes (UX v1.6), ~4 minutes (URL v1.7), ~5 minutes (LLM v1.8), ~3 minutes (UX v1.9)
 
 **By Milestone:**
@@ -33,7 +33,7 @@ Progress: [████████████████████] Phase 2
 | UX v1.6 | 11-14 | 5/5 | Complete (2026-01-30) |
 | URL v1.7 | 15-18 | 8/8 | Complete (2026-01-31) |
 | LLM v1.8 | 19-22 | 8/8 | Complete (2026-01-31) |
-| UX v1.9 | 23-27 | 6/10 | In Progress |
+| UX v1.9 | 23-27 | 7/10 | In Progress |
 
 ## Accumulated Context
 
@@ -66,6 +66,10 @@ v1.9 decisions logged in ROADMAP.md.
 - SERVICE-PATTERN: Add methods to existing ThreadService instead of new ApiService
 - NAV-INDEX: Chats at index 1 (after Home, before Projects)
 
+**Phase 26 decisions:**
+- PERMANENT-ASSOCIATION: Thread association with project is permanent and one-way
+- OWNERSHIP-TRANSITION: Clear user_id when setting project_id (ownership moves to project)
+
 ### Pending Todos
 
 - Manual validation tests for v1.7 deep linking (18 test cases in TESTING-QUEUE.md Phase 18 section)
@@ -91,10 +95,10 @@ v1.9 scope is well-defined via user stories in /user_stories/:
 ## Session Continuity
 
 Last session: 2026-02-01
-Stopped at: Phase 25 verified and complete
+Stopped at: Completed 26-01-PLAN.md
 Resume file: None
-Next action: Run `/gsd:discuss-phase 26` or `/gsd:plan-phase 26`
+Next action: Execute 26-02-PLAN.md for frontend association UI
 
 ---
 
-*State updated: 2026-02-01 (Phase 25 complete)*
+*State updated: 2026-02-01 (26-01 complete)*

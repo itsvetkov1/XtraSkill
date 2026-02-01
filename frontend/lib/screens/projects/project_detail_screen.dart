@@ -1,4 +1,4 @@
-/// Project detail screen content showing project info and tabs for documents/threads.
+/// Project detail screen with threads-first layout and collapsible documents column.
 library;
 
 import 'package:flutter/material.dart';
@@ -9,19 +9,19 @@ import '../../providers/project_provider.dart';
 import '../../providers/thread_provider.dart';
 import '../../utils/date_formatter.dart';
 import '../../widgets/delete_confirmation_dialog.dart';
-import '../../widgets/empty_state.dart';
+import '../../widgets/documents_column.dart';
 import '../../widgets/resource_not_found_state.dart';
-import '../documents/document_upload_screen.dart';
 import '../threads/thread_list_screen.dart';
 
-/// Project detail screen content with tabs for documents and threads
+/// Project detail screen with threads-first layout.
 ///
-/// This widget keeps its own Scaffold for TabController and FAB management,
-/// but removes the AppBar (shell provides navigation via breadcrumbs).
+/// Displays project info header at top, with a Row below containing:
+/// - DocumentsColumn: Collapsible side column for documents (48px collapsed, 280px expanded)
+/// - ThreadListScreen: Primary content area showing conversation threads
 ///
-/// Note: Nested Scaffold is acceptable here because the shell Scaffold
-/// provides the outer structure and this inner Scaffold only manages
-/// the TabBar and FAB without an AppBar.
+/// This replaces the previous tab-based navigation (Documents/Threads tabs)
+/// to provide immediate access to threads while keeping documents accessible
+/// via the collapsible column.
 class ProjectDetailScreen extends StatefulWidget {
   const ProjectDetailScreen({
     super.key,
@@ -34,33 +34,16 @@ class ProjectDetailScreen extends StatefulWidget {
   State<ProjectDetailScreen> createState() => _ProjectDetailScreenState();
 }
 
-class _ProjectDetailScreenState extends State<ProjectDetailScreen>
-    with SingleTickerProviderStateMixin {
-  late TabController _tabController;
-
+class _ProjectDetailScreenState extends State<ProjectDetailScreen> {
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
 
-    // Listen to tab changes to refresh threads when switching to Threads tab
-    _tabController.addListener(() {
-      if (_tabController.index == 1 && !_tabController.indexIsChanging) {
-        // Threads tab selected, refresh threads
-        context.read<ThreadProvider>().loadThreads(widget.projectId);
-      }
-    });
-
-    // Load project details
+    // Load project details and threads immediately (threads is primary view now)
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<ProjectProvider>().selectProject(widget.projectId);
+      context.read<ThreadProvider>().loadThreads(widget.projectId);
     });
-  }
-
-  @override
-  void dispose() {
-    _tabController.dispose();
-    super.dispose();
   }
 
   @override
@@ -169,26 +152,20 @@ class _ProjectDetailScreenState extends State<ProjectDetailScreen>
                 ],
               ),
             ),
-            // Tab bar
-            Material(
-              color: Theme.of(context).colorScheme.surface,
-              child: TabBar(
-                controller: _tabController,
-                tabs: const [
-                  Tab(text: 'Documents', icon: Icon(Icons.description)),
-                  Tab(text: 'Threads', icon: Icon(Icons.chat)),
-                ],
-              ),
-            ),
-            // Tabs content
+            // Main content area: Documents column + Threads list
             Expanded(
-              child: TabBarView(
-                controller: _tabController,
+              child: Row(
                 children: [
-                  // Documents tab
-                  _DocumentsTab(projectId: widget.projectId),
-                  // Threads tab
-                  ThreadListScreen(projectId: widget.projectId),
+                  // Collapsible documents column (LAYOUT-02, 03, 04, 05, 06)
+                  DocumentsColumn(projectId: widget.projectId),
+
+                  // Vertical divider between column and threads
+                  const VerticalDivider(width: 1, thickness: 1),
+
+                  // Threads list - always visible, primary content (LAYOUT-01)
+                  Expanded(
+                    child: ThreadListScreen(projectId: widget.projectId),
+                  ),
                 ],
               ),
             ),
@@ -300,54 +277,5 @@ class _ProjectDetailScreenState extends State<ProjectDetailScreen>
       // Navigate back to projects list
       context.go('/projects');
     }
-  }
-}
-
-/// Documents tab showing list of documents in project
-class _DocumentsTab extends StatelessWidget {
-  const _DocumentsTab({required this.projectId});
-
-  final String projectId;
-
-  @override
-  Widget build(BuildContext context) {
-    return Consumer<ProjectProvider>(
-      builder: (context, provider, child) {
-        final project = provider.selectedProject;
-        if (project == null) return const SizedBox();
-
-        // Empty state
-        if (project.documents == null || project.documents!.isEmpty) {
-          return EmptyState(
-            icon: Icons.description_outlined,
-            title: 'No documents yet',
-            message: 'Upload documents to provide context for AI conversations.',
-            buttonLabel: 'Upload Document',
-            buttonIcon: Icons.upload_file,
-            onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => DocumentUploadScreen(projectId: projectId),
-                ),
-              );
-            },
-          );
-        }
-
-        // Document list (placeholder - full implementation in Plan 03)
-        return ListView.builder(
-          padding: const EdgeInsets.all(16),
-          itemCount: project.documents!.length,
-          itemBuilder: (context, index) {
-            final doc = project.documents![index];
-            return ListTile(
-              leading: const Icon(Icons.description),
-              title: Text(doc['filename'] ?? 'Unknown'),
-              subtitle: Text('Uploaded: ${doc['created_at'] ?? ''}'),
-            );
-          },
-        );
-      },
-    );
   }
 }

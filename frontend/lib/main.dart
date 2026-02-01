@@ -19,9 +19,11 @@ import 'providers/navigation_provider.dart';
 import 'providers/theme_provider.dart';
 import 'providers/provider_provider.dart';
 import 'providers/thread_provider.dart';
+import 'providers/chats_provider.dart';
 import 'screens/auth/callback_screen.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/home_screen.dart';
+import 'screens/chats_screen.dart';
 import 'screens/settings_screen.dart';
 import 'screens/splash_screen.dart';
 import 'screens/not_found_screen.dart';
@@ -121,6 +123,7 @@ class _MyAppState extends State<MyApp> {
         ChangeNotifierProvider(create: (_) => ProjectProvider()),
         ChangeNotifierProvider(create: (_) => DocumentProvider()),
         ChangeNotifierProvider(create: (_) => ThreadProvider()),
+        ChangeNotifierProvider(create: (_) => ChatsProvider()),
       ],
       child: Builder(
         builder: (context) {
@@ -152,8 +155,9 @@ class _MyAppState extends State<MyApp> {
   /// This handles nested routes (e.g., /projects/:id highlights Projects)
   int _getSelectedIndex(String path) {
     if (path.startsWith('/home')) return 0;
-    if (path.startsWith('/projects')) return 1;
-    if (path.startsWith('/settings')) return 2;
+    if (path.startsWith('/chats')) return 1;
+    if (path.startsWith('/projects')) return 2;
+    if (path.startsWith('/settings')) return 3;
     return 0; // Default to home
   }
 
@@ -255,7 +259,29 @@ class _MyAppState extends State<MyApp> {
                 ),
               ],
             ),
-            // Branch 1: Projects (includes nested project detail route)
+            // Branch 1: Chats (global threads)
+            StatefulShellBranch(
+              routes: [
+                GoRoute(
+                  path: '/chats',
+                  builder: (context, state) => const ChatsScreen(),
+                  routes: [
+                    // Nested route for project-less thread conversation
+                    GoRoute(
+                      path: ':threadId',
+                      builder: (context, state) {
+                        final threadId = state.pathParameters['threadId']!;
+                        return ConversationScreen(
+                          projectId: null, // Project-less thread
+                          threadId: threadId,
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            // Branch 2: Projects (includes nested project detail route)
             StatefulShellBranch(
               routes: [
                 GoRoute(
@@ -286,7 +312,7 @@ class _MyAppState extends State<MyApp> {
                 ),
               ],
             ),
-            // Branch 2: Settings
+            // Branch 3: Settings
             StatefulShellBranch(
               routes: [
                 GoRoute(

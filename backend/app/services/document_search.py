@@ -50,6 +50,10 @@ async def search_documents(
         List of tuples: (document_id, filename, snippet, score)
         Results ordered by BM25 relevance score (higher is better)
     """
+    # Skip search for project-less chats or empty queries
+    if not project_id or not query or not query.strip():
+        return []
+
     result = await db.execute(
         text("""
             SELECT d.id, d.filename,

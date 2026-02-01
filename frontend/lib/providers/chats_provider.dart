@@ -13,10 +13,11 @@ class ChatsProvider extends ChangeNotifier {
 
   List<Thread> _threads = [];
   bool _isLoading = false;
+  bool _isInitialized = false;
   String? _error;
   int _total = 0;
   int _currentPage = 1;
-  bool _hasMore = true;
+  bool _hasMore = false; // Start false until first load confirms more pages
 
   ChatsProvider({ThreadService? threadService})
       : _threadService = threadService ?? ThreadService();
@@ -24,12 +25,16 @@ class ChatsProvider extends ChangeNotifier {
   // Getters
   List<Thread> get threads => _threads;
   bool get isLoading => _isLoading;
+  bool get isInitialized => _isInitialized;
   String? get error => _error;
   int get total => _total;
   bool get hasMore => _hasMore;
 
   /// Load threads (first page or refresh)
   Future<void> loadThreads() async {
+    // Prevent duplicate loads
+    if (_isLoading) return;
+
     _isLoading = true;
     _error = null;
     notifyListeners();
@@ -40,8 +45,10 @@ class ChatsProvider extends ChangeNotifier {
       _total = result.total;
       _currentPage = 1;
       _hasMore = result.hasMore;
+      _isInitialized = true;
     } catch (e) {
       _error = e.toString();
+      _hasMore = false; // Don't show load more on error
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -50,7 +57,8 @@ class ChatsProvider extends ChangeNotifier {
 
   /// Load more threads (pagination)
   Future<void> loadMoreThreads() async {
-    if (_isLoading || !_hasMore) return;
+    // Only load more if initialized, not already loading, and has more pages
+    if (!_isInitialized || _isLoading || !_hasMore) return;
 
     _isLoading = true;
     notifyListeners();
@@ -63,6 +71,7 @@ class ChatsProvider extends ChangeNotifier {
       _hasMore = result.hasMore;
     } catch (e) {
       _error = e.toString();
+      _hasMore = false; // Stop trying to load more on error
     } finally {
       _isLoading = false;
       notifyListeners();

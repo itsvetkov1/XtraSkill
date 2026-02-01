@@ -23,9 +23,12 @@ class _ChatsScreenState extends State<ChatsScreen> {
   @override
   void initState() {
     super.initState();
-    // Load threads on mount
+    // Load threads on mount if not already loaded
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<ChatsProvider>().loadThreads();
+      final provider = context.read<ChatsProvider>();
+      if (!provider.isInitialized) {
+        provider.loadThreads();
+      }
     });
     // Listen for scroll to load more
     _scrollController.addListener(_onScroll);
@@ -63,10 +66,12 @@ class _ChatsScreenState extends State<ChatsScreen> {
     return Scaffold(
       body: Consumer<ChatsProvider>(
         builder: (context, provider, child) {
-          if (provider.isLoading && provider.threads.isEmpty) {
+          // Show spinner during initial load (before initialization)
+          if (!provider.isInitialized && provider.isLoading) {
             return const Center(child: CircularProgressIndicator());
           }
 
+          // Show error state only if we have an error and no data
           if (provider.error != null && provider.threads.isEmpty) {
             return Center(
               child: Column(
@@ -153,11 +158,14 @@ class _ChatsScreenState extends State<ChatsScreen> {
   }
 
   Widget _buildThreadList(ChatsProvider provider) {
+    // Only show load more indicator if initialized, has more, and not currently loading
+    final showLoadMore = provider.isInitialized && provider.hasMore;
+
     return RefreshIndicator(
       onRefresh: () => provider.loadThreads(),
       child: ListView.builder(
         controller: _scrollController,
-        itemCount: provider.threads.length + (provider.hasMore ? 1 : 0),
+        itemCount: provider.threads.length + (showLoadMore ? 1 : 0),
         itemBuilder: (context, index) {
           if (index >= provider.threads.length) {
             // Show loading indicator at bottom when more pages exist

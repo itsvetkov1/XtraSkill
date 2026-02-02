@@ -19,6 +19,13 @@ This milestone establishes comprehensive unit test coverage across backend servi
 
 **Dependencies:** None (foundation phase)
 
+**Plans:** 3 plans
+
+Plans:
+- [ ] 28-01-PLAN.md — Backend pytest-cov and dependencies
+- [ ] 28-02-PLAN.md — Flutter lcov coverage setup
+- [ ] 28-03-PLAN.md — Fixtures module, MockLLMAdapter, Factory-boy
+
 **Requirements:**
 - INFRA-01: pytest-cov installed and configured for coverage reporting
 - INFRA-02: Shared fixtures module created (`tests/fixtures/`)
@@ -160,14 +167,14 @@ This milestone establishes comprehensive unit test coverage across backend servi
 
 ## Progress
 
-| Phase | Name | Requirements | Status |
-|-------|------|--------------|--------|
-| 28 | Test Infrastructure | 5 | Pending |
-| 29 | Backend Service Tests | 6 | Pending |
-| 30 | Backend LLM & API Tests | 12 | Pending |
-| 31 | Frontend Provider & Service Tests | 10 | Pending |
-| 32 | Frontend Widget & Model Tests | 6 | Pending |
-| 33 | CI Integration | 4 | Pending |
+| Phase | Name | Requirements | Plans | Status |
+|-------|------|--------------|-------|--------|
+| 28 | Test Infrastructure | 5 | 3 | Planned |
+| 29 | Backend Service Tests | 6 | - | Pending |
+| 30 | Backend LLM & API Tests | 12 | - | Pending |
+| 31 | Frontend Provider & Service Tests | 10 | - | Pending |
+| 32 | Frontend Widget & Model Tests | 6 | - | Pending |
+| 33 | CI Integration | 4 | - | Pending |
 
 **Total Requirements:** 43
 **Mapped:** 43/43
@@ -194,3 +201,4 @@ Phase 28 (Infrastructure)
 
 *Roadmap created: 2026-02-02*
 *Depth: Quick (6 phases for 43 requirements)*
+*Phase 28 planned: 2026-02-02 (3 plans in 2 waves)*

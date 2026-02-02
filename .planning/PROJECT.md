@@ -130,7 +130,23 @@ Previous features (v1.5):
 
 ### Active
 
-(No active requirements — planning next milestone)
+**v1.9.2 — Resilience & AI Transparency**
+
+Error Handling & Resilience:
+- [ ] On network loss during streaming, partial AI content is preserved with "Connection lost" banner
+- [ ] Retry option available for interrupted responses
+- [ ] Warning banners at 80%/95% token budget usage
+- [ ] Clear "Budget exhausted" state at 100% (can view history, cannot send)
+- [ ] File size validation with clear error before upload attempt
+
+AI Transparency & Discoverability:
+- [ ] Current conversation mode shown as persistent badge in AppBar
+- [ ] Mode badge tappable to change mode with context warning
+- [ ] "Generate Artifact" button in ConversationScreen
+- [ ] Artifact type picker (User Stories, Acceptance Criteria, BRD, Custom)
+- [ ] Generated artifacts visually distinct with inline export buttons
+- [ ] AI responses show source document chips when documents were referenced
+- [ ] Source chips clickable to open Document Viewer
 
 ### Deferred
 
@@ -212,4 +228,4 @@ BAs prepare for meetings by uploading existing requirements or stakeholder notes
 | Client-side thread filtering | Computed filteredThreads getter with in-memory filter/sort | ✓ Implemented (Phase 27) |
 
 ---
-*Last updated: 2026-02-02 after v1.9.1 milestone complete*
+*Last updated: 2026-02-02 after v1.9.2 milestone planning started*

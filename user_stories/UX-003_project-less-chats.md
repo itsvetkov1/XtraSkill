@@ -1,7 +1,7 @@
 # UX-003: Project-less Chats with Global Chats Menu
 
 **Priority:** High
-**Status:** Open
+**Status:** Done (v1.9)
 **Component:** Chat Organization, Navigation
 **Created:** 2026-01-31
 

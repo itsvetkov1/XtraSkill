@@ -1,7 +1,7 @@
 # THREAD-006: Add Search and Filter for Thread List
 
 **Priority:** High
-**Status:** Open
+**Status:** Done (v1.9)
 **Component:** Thread List Screen
 
 ---

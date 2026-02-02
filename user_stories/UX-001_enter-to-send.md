@@ -1,7 +1,7 @@
 # UX-001: Enter Key Sends Message
 
 **Priority:** High
-**Status:** Open
+**Status:** Done (v1.9)
 **Component:** Chat Input
 **Created:** 2026-01-31
 

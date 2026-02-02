@@ -18,128 +18,99 @@
 
 ## Summary
 
-| Priority | Total | Open | In Progress | Done | Wont Do |
-|----------|-------|------|-------------|------|---------|
-| Critical | 12 | 0 | 4 | 8 | 0 |
-| High | 13 | 12 | 0 | 1 | 0 |
-| Medium | 9 | 7 | 0 | 0 | 2 |
-| Low | 4 | 4 | 0 | 0 | 0 |
-| **Total** | **38** | **27** | **4** | **9** | **2** |
+| Priority | Total | Open | Done | Wont Do |
+|----------|-------|------|------|---------|
+| Critical | 12 | 0 | 12 | 0 |
+| High | 13 | 6 | 6 | 1 |
+| Medium | 9 | 6 | 1 | 2 |
+| Low | 4 | 3 | 1 | 0 |
+| **Total** | **38** | **15** | **20** | **3** |
 
 ---
 
-## Priority Ranking (Recommended Order)
+## Open Items Only
 
-Work items ranked by impact, dependencies, and user value.
+### High Priority (Open)
 
-| Rank | ID | Title | Priority | Rationale |
-|------|-----|-------|----------|-----------|
-| 1 | [BUG-001](BUG-001_page-refresh-loses-url.md) | Page refresh loses URL | Critical | Blocks basic navigation; root cause of URL issues |
-| 2 | [US-004](US-004_unique-conversation-urls.md) | Unique conversation URLs | Critical | **Prerequisite** for US-001, US-002, NAV-001 |
-| 3 | [US-001](US-001_url-preservation-on-refresh.md) | URL preservation on refresh | Critical | Core navigation fix; depends on US-004 |
-| 4 | [US-003](US-003_auth-redirect-with-return-url.md) | Auth redirect with return URL | Critical | Login UX; prevents user frustration |
-| 5 | [THREAD-001](THREAD-001_retry-failed-messages.md) | Retry failed AI messages | Critical | ~~Error recovery; prevents lost work~~ **DONE** |
-| 6 | [THREAD-002](THREAD-002_copy-ai-responses.md) | Copy AI responses | Critical | ~~Core workflow; daily pain point~~ **DONE** |
-| 7 | [THREAD-003](THREAD-003_rename-thread.md) | Rename thread after creation | High | ~~Usability; many "Untitled" threads~~ **DONE** |
-| 8 | [UX-001](UX-001_enter-to-send.md) | Enter key sends message | High | Standard chat UX; daily friction point |
-| 9 | [UX-002](UX-002_threads-primary-documents-column.md) | Threads primary, documents column | High | Layout improvement; conversations are primary workflow |
-| 10 | [UX-003](UX-003_project-less-chats.md) | Project-less chats with global menu | High | Reduces friction; enables quick conversations |
-| 11 | [THREAD-004](THREAD-004_network-interruption-streaming.md) | Handle network interruption | High | Data loss prevention |
-| 12 | [US-002](US-002_deep-link-support.md) | Deep link support | High | Sharing/bookmarking; depends on US-004 |
-| 13 | [DELETE-001](DELETE-001_undo-behavior.md) | Consistent undo behavior | High | UX consistency across resources |
-| 14 | [BUDGET-001](BUDGET-001_token-budget-ux.md) | Token budget exhaustion UX | High | Prevents cryptic errors at limit |
-| 15 | [THREAD-005](THREAD-005_mode-persistence.md) | Show conversation mode | High | User clarity on AI behavior |
-| 16 | [NAV-001](NAV-001_breadcrumb-thread-context.md) | Breadcrumb for threads | High | Navigation; depends on US-004 |
-| 17 | [DOC-001](DOC-001_document-preview-upload.md) | Document preview before upload | High | Error prevention |
-| 18 | [THREAD-006](THREAD-006_search-filter-threads.md) | Search/filter threads | High | Scalability for large projects |
-| 19 | [THREAD-007](THREAD-007_artifact-generation-ui.md) | Artifact generation UI | High | Feature discoverability |
-| 20 | [THREAD-008](THREAD-008_document-sources.md) | Show AI document sources | Medium | Transparency; trust building |
-| ~21~ | ~~[HOME-001](HOME-001_button-differentiation.md)~~ | ~~Differentiate home buttons~~ | ~~Medium~~ | **Wont Do** - Obsolete after UX-003 |
-| 22 | [SETTINGS-001](SETTINGS-001_auth-provider-display.md) | Show auth provider | Medium | Minor UX improvement |
-| 23 | [DOC-002](DOC-002_download-document.md) | Download document option | Medium | Convenience feature |
-| ~24~ | ~~[PROJECT-001](PROJECT-001_tab-persistence.md)~~ | ~~Tab state persistence~~ | ~~Medium~~ | **Wont Do** - Obsolete after UX-002 |
-| 25 | [DOC-004](DOC-004_conversation-export.md) | Conversation export docs | Medium | Feature clarity |
-| 26 | [DOC-003](DOC-003_token-refresh-docs.md) | Token refresh docs | Medium | Documentation |
-| 27 | [DOC-005](DOC-005_file-size-error.md) | File size error UX | Medium | Error handling |
-| 28 | [THREAD-009](THREAD-009_message-count-definition.md) | Message count definition | Medium | Documentation |
-| 29 | [THREAD-010](THREAD-010_chat-input-lines.md) | Increase chat input lines | Low | Minor UX |
-| 30 | [RESPONSIVE-001](RESPONSIVE-001_tablet-breakpoint.md) | Tablet breakpoint review | Low | Layout polish |
-| 31 | [AUTH-001](AUTH-001_session-duration.md) | Session duration docs | Low | Documentation |
-| 32 | [STATE-001](STATE-001_usage-provider.md) | UsageProvider docs | Low | Documentation |
+| ID | Title | Component | Notes |
+|----|-------|-----------|-------|
+| [THREAD-004](THREAD-004_network-interruption-streaming.md) | Handle network interruption | Streaming | Data loss prevention |
+| [DELETE-001](DELETE-001_undo-behavior.md) | Consistent undo behavior | Deletion | UX consistency |
+| [BUDGET-001](BUDGET-001_token-budget-ux.md) | Token budget exhaustion UX | Settings | Prevents cryptic errors |
+| [THREAD-005](THREAD-005_mode-persistence.md) | Show conversation mode | Conversation | User clarity on AI behavior |
+| [NAV-001](NAV-001_breadcrumb-thread-context.md) | Breadcrumb for threads | Navigation | Thread-level breadcrumbs |
+| [DOC-001](DOC-001_document-preview-upload.md) | Document preview before upload | Documents | Error prevention |
+
+### Medium Priority (Open)
+
+| ID | Title | Component | Notes |
+|----|-------|-----------|-------|
+| [THREAD-007](THREAD-007_artifact-generation-ui.md) | Artifact generation UI | Conversation | Feature discoverability |
+| [THREAD-008](THREAD-008_document-sources.md) | Show AI document sources | Conversation | Transparency |
+| [DOC-002](DOC-002_download-document.md) | Download document option | Documents | Convenience |
+| [DOC-004](DOC-004_conversation-export.md) | Conversation export docs | Documentation | Feature clarity |
+| [DOC-003](DOC-003_token-refresh-docs.md) | Token refresh docs | Documentation | Documentation |
+| [DOC-005](DOC-005_file-size-error.md) | File size error UX | Documents | Error handling |
+
+### Low Priority (Open)
+
+| ID | Title | Component | Notes |
+|----|-------|-----------|-------|
+| [RESPONSIVE-001](RESPONSIVE-001_tablet-breakpoint.md) | Tablet breakpoint review | Layout | Polish |
+| [AUTH-001](AUTH-001_session-duration.md) | Session duration docs | Documentation | Documentation |
+| [STATE-001](STATE-001_usage-provider.md) | UsageProvider docs | Documentation | Documentation |
 
 ---
 
-## Critical Priority (Rank 1-9)
+## Completed Items
 
-Blocking issues and core workflow problems. Address first.
+### Critical (All Done)
 
-| Rank | ID | Title | Status | Component |
-|------|-----|-------|--------|-----------|
-| 1 | [BUG-001](BUG-001_page-refresh-loses-url.md) | Page refresh loses URL | **v1.7** | Router |
-| 2 | [US-004](US-004_unique-conversation-urls.md) | Unique conversation URLs | **v1.7** | Router |
-| 3 | [US-001](US-001_url-preservation-on-refresh.md) | URL preservation on refresh | **v1.7** | Router |
-| 4 | [US-003](US-003_auth-redirect-with-return-url.md) | Auth redirect with return URL | **v1.7** | Auth |
-| 5 | [THREAD-001](THREAD-001_retry-failed-messages.md) | Retry failed AI messages | **Done** | Conversation |
-| 6 | [THREAD-002](THREAD-002_copy-ai-responses.md) | Copy AI responses | **Done** | Message Bubble |
-| 7 | [BUG-010](BUG-010_fts5-empty-query.md) | FTS5 empty query crash | **Done** | Document Search |
-| 8 | [BUG-011](BUG-011_chats-missing-projectless.md) | Chats missing project-less threads | **Done** | ChatsScreen |
-| 9 | [BUG-012](BUG-012_chats-loading-state.md) | Chats stuck loading state | **Done** | ChatsScreen |
-| 10 | [BUG-013](BUG-013_global-threads-missing-created-at.md) | Global threads missing created_at | **Done** | Threads API |
-| 11 | [BUG-014](BUG-014_project-threads-missing-last-activity.md) | Project threads missing last_activity | **Done** | Threads API |
-| 12 | [BUG-015](BUG-015_shift-enter-newline.md) | Shift+Enter not creating new line | **Done** | ChatInput |
+| ID | Title | Version |
+|----|-------|---------|
+| [BUG-001](BUG-001_page-refresh-loses-url.md) | Page refresh loses URL | v1.7 |
+| [US-004](US-004_unique-conversation-urls.md) | Unique conversation URLs | v1.7 |
+| [US-001](US-001_url-preservation-on-refresh.md) | URL preservation on refresh | v1.7 |
+| [US-003](US-003_auth-redirect-with-return-url.md) | Auth redirect with return URL | v1.7 |
+| [THREAD-001](THREAD-001_retry-failed-messages.md) | Retry failed AI messages | v1.6 |
+| [THREAD-002](THREAD-002_copy-ai-responses.md) | Copy AI responses | v1.6 |
+| [BUG-010](BUG-010_fts5-empty-query.md) | FTS5 empty query crash | v1.9 |
+| [BUG-011](BUG-011_chats-missing-projectless.md) | Chats missing project-less threads | v1.9 |
+| [BUG-012](BUG-012_chats-loading-state.md) | Chats stuck loading state | v1.9 |
+| [BUG-013](BUG-013_global-threads-missing-created-at.md) | Global threads missing created_at | v1.9 |
+| [BUG-014](BUG-014_project-threads-missing-last-activity.md) | Project threads missing last_activity | v1.9 |
+| [BUG-015](BUG-015_shift-enter-newline.md) | Shift+Enter not creating new line | v1.9 |
 
----
+### High (Done)
 
-## High Priority (Rank 7-19)
+| ID | Title | Version |
+|----|-------|---------|
+| [THREAD-003](THREAD-003_rename-thread.md) | Rename thread after creation | v1.6 |
+| [UX-001](UX-001_enter-to-send.md) | Enter key sends message | v1.9 |
+| [UX-002](UX-002_threads-primary-documents-column.md) | Threads primary, documents column | v1.9 |
+| [UX-003](UX-003_project-less-chats.md) | Project-less chats with global menu | v1.9 |
+| [US-002](US-002_deep-link-support.md) | Deep link support | v1.7 |
+| [THREAD-006](THREAD-006_search-filter-threads.md) | Search/filter threads | v1.9 |
 
-High-value features and UX improvements.
+### Medium (Done)
 
-| Rank | ID | Title | Status | Component |
-|------|-----|-------|--------|-----------|
-| 7 | [THREAD-003](THREAD-003_rename-thread.md) | Rename thread after creation | **Done** | Thread List |
-| 8 | [UX-001](UX-001_enter-to-send.md) | Enter key sends message | Open | Chat Input |
-| 9 | [UX-002](UX-002_threads-primary-documents-column.md) | Threads primary, documents column | Open | Project Layout |
-| 10 | [UX-003](UX-003_project-less-chats.md) | Project-less chats with global menu | Open | Navigation |
-| 11 | [THREAD-004](THREAD-004_network-interruption-streaming.md) | Handle network interruption | Open | Streaming |
-| 12 | [US-002](US-002_deep-link-support.md) | Deep link support | Open | Router |
-| 13 | [DELETE-001](DELETE-001_undo-behavior.md) | Consistent undo behavior | Open | Deletion |
-| 14 | [BUDGET-001](BUDGET-001_token-budget-ux.md) | Token budget exhaustion UX | Open | Settings |
-| 15 | [THREAD-005](THREAD-005_mode-persistence.md) | Show conversation mode | Open | Conversation |
-| 16 | [NAV-001](NAV-001_breadcrumb-thread-context.md) | Breadcrumb for threads | Open | Navigation |
-| 17 | [DOC-001](DOC-001_document-preview-upload.md) | Document preview before upload | Open | Documents |
-| 18 | [THREAD-006](THREAD-006_search-filter-threads.md) | Search/filter threads | Open | Thread List |
-| 19 | [THREAD-007](THREAD-007_artifact-generation-ui.md) | Artifact generation UI | Open | Conversation |
+| ID | Title | Version |
+|----|-------|---------|
+| [SETTINGS-001](SETTINGS-001_auth-provider-display.md) | Show auth provider | v1.6 |
 
----
+### Low (Done)
 
-## Medium Priority (Rank 20-28)
+| ID | Title | Version |
+|----|-------|---------|
+| [THREAD-010](THREAD-010_chat-input-lines.md) | Increase chat input lines | v1.9 |
 
-Polish and documentation improvements.
+### Wont Do
 
-| Rank | ID | Title | Status | Component |
-|------|-----|-------|--------|-----------|
-| 20 | [THREAD-008](THREAD-008_document-sources.md) | Show AI document sources | Open | Conversation |
-| ~21~ | ~~[HOME-001](HOME-001_button-differentiation.md)~~ | ~~Differentiate home buttons~~ | **Wont Do** | ~~Home~~ |
-| 22 | [SETTINGS-001](SETTINGS-001_auth-provider-display.md) | Show auth provider | Open | Settings |
-| 23 | [DOC-002](DOC-002_download-document.md) | Download document option | Open | Documents |
-| ~24~ | ~~[PROJECT-001](PROJECT-001_tab-persistence.md)~~ | ~~Tab state persistence~~ | **Wont Do** | ~~Projects~~ |
-| 25 | [DOC-004](DOC-004_conversation-export.md) | Conversation export docs | Open | Documentation |
-| 26 | [DOC-003](DOC-003_token-refresh-docs.md) | Token refresh docs | Open | Documentation |
-| 27 | [DOC-005](DOC-005_file-size-error.md) | File size error UX | Open | Documents |
-| 28 | [THREAD-009](THREAD-009_message-count-definition.md) | Message count definition | Open | Thread List |
-
----
-
-## Low Priority (Rank 29-32)
-
-Minor improvements and polish.
-
-| Rank | ID | Title | Status | Component |
-|------|-----|-------|--------|-----------|
-| 29 | [THREAD-010](THREAD-010_chat-input-lines.md) | Increase chat input lines | Open | Conversation |
-| 30 | [RESPONSIVE-001](RESPONSIVE-001_tablet-breakpoint.md) | Tablet breakpoint review | Open | Layout |
-| 31 | [AUTH-001](AUTH-001_session-duration.md) | Session duration docs | Open | Documentation |
-| 32 | [STATE-001](STATE-001_usage-provider.md) | UsageProvider docs | Open | Documentation |
+| ID | Title | Reason |
+|----|-------|--------|
+| [HOME-001](HOME-001_button-differentiation.md) | Differentiate home buttons | Obsolete after UX-003 |
+| [PROJECT-001](PROJECT-001_tab-persistence.md) | Tab state persistence | Obsolete after UX-002 |
+| [THREAD-009](THREAD-009_message-count-definition.md) | Message count definition | Low value |
 
 ---
 
@@ -184,4 +155,4 @@ Ideas beyond current scope. See [BACKLOG.md](BACKLOG.md) for details.
 
 ---
 
-*Generated from backlog analysis*
+*Last updated: 2026-02-02 after v1.9.1 milestone*

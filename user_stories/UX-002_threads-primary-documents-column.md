@@ -1,7 +1,7 @@
 # UX-002: Threads as Primary View with Collapsible Documents Column
 
 **Priority:** High
-**Status:** Open
+**Status:** Done (v1.9)
 **Component:** Project Layout
 **Created:** 2026-01-31
 

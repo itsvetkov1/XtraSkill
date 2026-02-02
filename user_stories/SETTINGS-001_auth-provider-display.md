@@ -1,7 +1,7 @@
 # SETTINGS-001: Show Authentication Provider
 
 **Priority:** Medium
-**Status:** Open
+**Status:** Done (v1.6)
 **Component:** Settings Screen
 
 ---

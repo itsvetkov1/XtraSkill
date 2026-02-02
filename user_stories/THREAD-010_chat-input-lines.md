@@ -1,7 +1,7 @@
 # THREAD-010: Increase Chat Input Max Lines
 
 **Priority:** Low
-**Status:** Open
+**Status:** Done (v1.9)
 **Component:** Chat Input Widget
 
 ---

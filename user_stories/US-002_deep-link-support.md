@@ -1,7 +1,7 @@
 # US-002: Deep Link Support
 
-**Priority:** Medium
-**Status:** Ready for Development
+**Priority:** High
+**Status:** Done (v1.7)
 **Related Bug:** BUG-001
 
 ---

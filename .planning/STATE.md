@@ -102,6 +102,8 @@ Previous milestone decisions archived in:
 
 | Decision | Rationale |
 |----------|-----------|
+| Skip deleteProject timer testing (31-01) | 10s timer impractical; requires BuildContext for SnackBar |
+| Future.delayed for microtask completion (31-01) | AuthProvider uses Future.microtask() for Flutter Web compatibility |
 | Capture onSendProgress callback for testing (31-02) | Allows simulating progress updates and asserting mid-upload state |
 | Test filteredThreads getter with all sort options (31-02) | Getter encapsulates complex filtering/sorting logic |
 | Skip timer-based delete testing (31-02) | Requires BuildContext and Timer - difficult to mock in unit tests |
@@ -121,4 +123,4 @@ Next action: Execute 31-05
 
 ---
 
-*State updated: 2026-02-02 (31-04 complete - 62 tests: 15 Theme, 13 Navigation, 19 Provider, 15 DocumentColumn)*
+*State updated: 2026-02-02 (31-01 through 31-04 complete - 131 tests: 28 Auth, 41 Project, 62 others)*

@@ -4,8 +4,9 @@
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'dart:async' as _i4;
-import 'dart:ui' as _i5;
+import 'dart:ui' as _i6;
 
+import 'package:flutter/material.dart' as _i5;
 import 'package:frontend/models/project.dart' as _i3;
 import 'package:frontend/providers/project_provider.dart' as _i2;
 import 'package:mockito/mockito.dart' as _i1;
@@ -51,6 +52,15 @@ class MockProjectProvider extends _i1.Mock implements _i2.ProjectProvider {
   bool get isLoading =>
       (super.noSuchMethod(
             Invocation.getter(#isLoading),
+            returnValue: false,
+            returnValueForMissingStub: false,
+          )
+          as bool);
+
+  @override
+  bool get isNotFound =>
+      (super.noSuchMethod(
+            Invocation.getter(#isNotFound),
             returnValue: false,
             returnValueForMissingStub: false,
           )
@@ -118,20 +128,32 @@ class MockProjectProvider extends _i1.Mock implements _i2.ProjectProvider {
   );
 
   @override
-  void addListener(_i5.VoidCallback? listener) => super.noSuchMethod(
+  _i4.Future<void> deleteProject(
+    _i5.BuildContext? context,
+    String? projectId,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#deleteProject, [context, projectId]),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
+          )
+          as _i4.Future<void>);
+
+  @override
+  void dispose() => super.noSuchMethod(
+    Invocation.method(#dispose, []),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  void addListener(_i6.VoidCallback? listener) => super.noSuchMethod(
     Invocation.method(#addListener, [listener]),
     returnValueForMissingStub: null,
   );
 
   @override
-  void removeListener(_i5.VoidCallback? listener) => super.noSuchMethod(
+  void removeListener(_i6.VoidCallback? listener) => super.noSuchMethod(
     Invocation.method(#removeListener, [listener]),
-    returnValueForMissingStub: null,
-  );
-
-  @override
-  void dispose() => super.noSuchMethod(
-    Invocation.method(#dispose, []),
     returnValueForMissingStub: null,
   );
 

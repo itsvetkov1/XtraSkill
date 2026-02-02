@@ -4,8 +4,9 @@
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'dart:async' as _i5;
-import 'dart:ui' as _i6;
+import 'dart:ui' as _i7;
 
+import 'package:flutter/material.dart' as _i6;
 import 'package:frontend/models/message.dart' as _i3;
 import 'package:frontend/providers/conversation_provider.dart' as _i2;
 import 'package:mockito/mockito.dart' as _i1;
@@ -74,6 +75,24 @@ class MockConversationProvider extends _i1.Mock
           as bool);
 
   @override
+  bool get isNotFound =>
+      (super.noSuchMethod(
+            Invocation.getter(#isNotFound),
+            returnValue: false,
+            returnValueForMissingStub: false,
+          )
+          as bool);
+
+  @override
+  bool get canRetry =>
+      (super.noSuchMethod(
+            Invocation.getter(#canRetry),
+            returnValue: false,
+            returnValueForMissingStub: false,
+          )
+          as bool);
+
+  @override
   bool get hasListeners =>
       (super.noSuchMethod(
             Invocation.getter(#hasListeners),
@@ -113,20 +132,48 @@ class MockConversationProvider extends _i1.Mock
   );
 
   @override
-  void addListener(_i6.VoidCallback? listener) => super.noSuchMethod(
+  void retryLastMessage() => super.noSuchMethod(
+    Invocation.method(#retryLastMessage, []),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  _i5.Future<void> deleteMessage(
+    _i6.BuildContext? context,
+    String? threadId,
+    String? messageId,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#deleteMessage, [context, threadId, messageId]),
+            returnValue: _i5.Future<void>.value(),
+            returnValueForMissingStub: _i5.Future<void>.value(),
+          )
+          as _i5.Future<void>);
+
+  @override
+  _i5.Future<bool> associateWithProject(String? projectId) =>
+      (super.noSuchMethod(
+            Invocation.method(#associateWithProject, [projectId]),
+            returnValue: _i5.Future<bool>.value(false),
+            returnValueForMissingStub: _i5.Future<bool>.value(false),
+          )
+          as _i5.Future<bool>);
+
+  @override
+  void dispose() => super.noSuchMethod(
+    Invocation.method(#dispose, []),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  void addListener(_i7.VoidCallback? listener) => super.noSuchMethod(
     Invocation.method(#addListener, [listener]),
     returnValueForMissingStub: null,
   );
 
   @override
-  void removeListener(_i6.VoidCallback? listener) => super.noSuchMethod(
+  void removeListener(_i7.VoidCallback? listener) => super.noSuchMethod(
     Invocation.method(#removeListener, [listener]),
-    returnValueForMissingStub: null,
-  );
-
-  @override
-  void dispose() => super.noSuchMethod(
-    Invocation.method(#dispose, []),
     returnValueForMissingStub: null,
   );
 

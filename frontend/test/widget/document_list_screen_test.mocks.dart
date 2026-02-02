@@ -4,8 +4,9 @@
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'dart:async' as _i4;
-import 'dart:ui' as _i6;
+import 'dart:ui' as _i7;
 
+import 'package:flutter/material.dart' as _i6;
 import 'package:frontend/models/document.dart' as _i3;
 import 'package:frontend/providers/document_provider.dart' as _i2;
 import 'package:frontend/services/document_service.dart' as _i5;
@@ -126,6 +127,12 @@ class MockDocumentProvider extends _i1.Mock implements _i2.DocumentProvider {
   );
 
   @override
+  void clearError() => super.noSuchMethod(
+    Invocation.method(#clearError, []),
+    returnValueForMissingStub: null,
+  );
+
+  @override
   _i4.Future<List<_i5.DocumentSearchResult>> searchDocuments(
     String? projectId,
     String? query,
@@ -143,20 +150,32 @@ class MockDocumentProvider extends _i1.Mock implements _i2.DocumentProvider {
           as _i4.Future<List<_i5.DocumentSearchResult>>);
 
   @override
-  void addListener(_i6.VoidCallback? listener) => super.noSuchMethod(
+  _i4.Future<void> deleteDocument(
+    _i6.BuildContext? context,
+    String? documentId,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#deleteDocument, [context, documentId]),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
+          )
+          as _i4.Future<void>);
+
+  @override
+  void dispose() => super.noSuchMethod(
+    Invocation.method(#dispose, []),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  void addListener(_i7.VoidCallback? listener) => super.noSuchMethod(
     Invocation.method(#addListener, [listener]),
     returnValueForMissingStub: null,
   );
 
   @override
-  void removeListener(_i6.VoidCallback? listener) => super.noSuchMethod(
+  void removeListener(_i7.VoidCallback? listener) => super.noSuchMethod(
     Invocation.method(#removeListener, [listener]),
-    returnValueForMissingStub: null,
-  );
-
-  @override
-  void dispose() => super.noSuchMethod(
-    Invocation.method(#dispose, []),
     returnValueForMissingStub: null,
   );
 

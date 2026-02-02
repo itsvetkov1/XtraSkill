@@ -12,17 +12,17 @@ See: .planning/PROJECT.md (updated 2026-02-02)
 
 Milestone: v1.9.1 Unit Test Coverage
 Phase: 31 of 33 (Frontend Provider & Service Tests) - COMPLETE
-Plan: 5 of 5 complete
+Plan: 6 of 6 complete
 Status: Phase 31 complete, ready for Phase 32
-Last activity: 2026-02-02 - Completed 31-05 (Service tests)
+Last activity: 2026-02-02 - Completed 31-06 (DocumentService, ThreadService, AIService tests)
 Next action: Execute Phase 32 (Frontend Widget Tests)
 
-Progress: [=======================-------] 4/6 phases complete - 17/? plans total in v1.9.1
+Progress: [=======================-------] 4/6 phases complete - 18/? plans total in v1.9.1
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 77 (20 in MVP v1.0, 15 in Beta v1.5, 5 in UX v1.6, 8 in URL v1.7, 8 in LLM v1.8, 9 in UX v1.9, 12 in Unit Tests v1.9.1)
+- Total plans completed: 78 (20 in MVP v1.0, 15 in Beta v1.5, 5 in UX v1.6, 8 in URL v1.7, 8 in LLM v1.8, 9 in UX v1.9, 13 in Unit Tests v1.9.1)
 - Average duration: ~18 minutes (MVP v1.0), ~7 minutes (Beta v1.5), ~5 minutes (UX v1.6), ~4 minutes (URL v1.7), ~5 minutes (LLM v1.8), ~4 minutes (UX v1.9), ~4 minutes (Unit Tests v1.9.1)
 
 **By Milestone:**
@@ -35,7 +35,7 @@ Progress: [=======================-------] 4/6 phases complete - 17/? plans tota
 | URL v1.7 | 15-18 | 8/8 | SHIPPED 2026-01-31 |
 | LLM v1.8 | 19-22 | 8/8 | SHIPPED 2026-01-31 |
 | UX v1.9 | 23-27 | 9/9 | SHIPPED 2026-02-02 |
-| Unit Tests v1.9.1 | 28-33 | 12/? | In Progress |
+| Unit Tests v1.9.1 | 28-33 | 13/? | In Progress |
 
 ## Accumulated Context
 
@@ -116,14 +116,16 @@ Previous milestone decisions archived in:
 | Test JWT validation with actual base64 encoding (31-05) | Verify real token parsing logic, not just mock returns |
 | Skip launchUrl testing in OAuth methods (31-05) | url_launcher not available in test environment; test initiate endpoint only |
 | Use createTestJwt helper for JWT tests (31-05) | Consistent test token generation with real base64 encoding |
+| SSE streaming limitation documented (31-06) | flutter_client_sse cannot be mocked; test ChatEvent types separately |
+| Options capture pattern for auth (31-06) | Verify auth headers in mocked Dio calls |
 
 ## Session Continuity
 
 Last session: 2026-02-02
-Stopped at: Phase 31 complete
+Stopped at: Phase 31 complete (all 6 plans)
 Resume file: None
 Next action: Execute Phase 32 (Frontend Widget Tests)
 
 ---
 
-*State updated: 2026-02-02 (Phase 31 complete - 199 tests: 28 Auth, 41 Project, 35 Conversation, 27 Simple, 68 Services)*
+*State updated: 2026-02-02 (Phase 31 complete - 429 unit tests: 28 Auth, 41 Project, 35 Conversation, 27 Simple, 151 Services, 97 Others)*

@@ -17,6 +17,12 @@ This milestone delivers error resilience, transparency indicators, and UX improv
 
 **Dependencies:** None (frontend-only)
 
+**Plans:** 2 plans
+
+Plans:
+- [ ] 34-01-PLAN.md - Network resilience: preserve partial content on stream error
+- [ ] 34-02-PLAN.md - File validation: client-side size check before upload
+
 **Requirements:**
 - NET-01: On network loss during SSE streaming, partial AI content is preserved (not cleared)
 - NET-02: Error banner displays "Connection lost - response incomplete" when stream interrupted
@@ -90,7 +96,7 @@ This milestone delivers error resilience, transparency indicators, and UX improv
 
 | Phase | Name | Status | Requirements |
 |-------|------|--------|--------------|
-| 34 | Client-Side Resilience | Not Started | 7 |
+| 34 | Client-Side Resilience | Planned | 7 |
 | 35 | Transparency Indicators | Not Started | 9 |
 | 36 | AI Interaction Enhancement | Not Started | 8 |
 

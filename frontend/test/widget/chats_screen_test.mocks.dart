@@ -3,14 +3,15 @@
 // Do not manually edit this file.
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
-import 'dart:async' as _i4;
-import 'dart:ui' as _i5;
+import 'dart:async' as _i6;
+import 'dart:ui' as _i7;
 
 import 'package:frontend/models/thread.dart' as _i3;
+import 'package:frontend/models/thread_sort.dart' as _i5;
 import 'package:frontend/providers/chats_provider.dart' as _i2;
-import 'package:frontend/providers/provider_provider.dart' as _i6;
+import 'package:frontend/providers/provider_provider.dart' as _i8;
 import 'package:mockito/mockito.dart' as _i1;
-import 'package:mockito/src/dummies.dart' as _i7;
+import 'package:mockito/src/dummies.dart' as _i4;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -77,6 +78,39 @@ class MockChatsProvider extends _i1.Mock implements _i2.ChatsProvider {
           as bool);
 
   @override
+  String get searchQuery =>
+      (super.noSuchMethod(
+            Invocation.getter(#searchQuery),
+            returnValue: _i4.dummyValue<String>(
+              this,
+              Invocation.getter(#searchQuery),
+            ),
+            returnValueForMissingStub: _i4.dummyValue<String>(
+              this,
+              Invocation.getter(#searchQuery),
+            ),
+          )
+          as String);
+
+  @override
+  _i5.ThreadSortOption get sortOption =>
+      (super.noSuchMethod(
+            Invocation.getter(#sortOption),
+            returnValue: _i5.ThreadSortOption.newest,
+            returnValueForMissingStub: _i5.ThreadSortOption.newest,
+          )
+          as _i5.ThreadSortOption);
+
+  @override
+  List<_i3.Thread> get filteredThreads =>
+      (super.noSuchMethod(
+            Invocation.getter(#filteredThreads),
+            returnValue: <_i3.Thread>[],
+            returnValueForMissingStub: <_i3.Thread>[],
+          )
+          as List<_i3.Thread>);
+
+  @override
   bool get hasListeners =>
       (super.noSuchMethod(
             Invocation.getter(#hasListeners),
@@ -86,33 +120,51 @@ class MockChatsProvider extends _i1.Mock implements _i2.ChatsProvider {
           as bool);
 
   @override
-  _i4.Future<void> loadThreads() =>
+  void setSearchQuery(String? query) => super.noSuchMethod(
+    Invocation.method(#setSearchQuery, [query]),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  void setSortOption(_i5.ThreadSortOption? option) => super.noSuchMethod(
+    Invocation.method(#setSortOption, [option]),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  void clearSearch() => super.noSuchMethod(
+    Invocation.method(#clearSearch, []),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  _i6.Future<void> loadThreads() =>
       (super.noSuchMethod(
             Invocation.method(#loadThreads, []),
-            returnValue: _i4.Future<void>.value(),
-            returnValueForMissingStub: _i4.Future<void>.value(),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
           )
-          as _i4.Future<void>);
+          as _i6.Future<void>);
 
   @override
-  _i4.Future<void> loadMoreThreads() =>
+  _i6.Future<void> loadMoreThreads() =>
       (super.noSuchMethod(
             Invocation.method(#loadMoreThreads, []),
-            returnValue: _i4.Future<void>.value(),
-            returnValueForMissingStub: _i4.Future<void>.value(),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
           )
-          as _i4.Future<void>);
+          as _i6.Future<void>);
 
   @override
-  _i4.Future<_i3.Thread?> createNewChat({String? modelProvider}) =>
+  _i6.Future<_i3.Thread?> createNewChat({String? modelProvider}) =>
       (super.noSuchMethod(
             Invocation.method(#createNewChat, [], {
               #modelProvider: modelProvider,
             }),
-            returnValue: _i4.Future<_i3.Thread?>.value(),
-            returnValueForMissingStub: _i4.Future<_i3.Thread?>.value(),
+            returnValue: _i6.Future<_i3.Thread?>.value(),
+            returnValueForMissingStub: _i6.Future<_i3.Thread?>.value(),
           )
-          as _i4.Future<_i3.Thread?>);
+          as _i6.Future<_i3.Thread?>);
 
   @override
   void clearError() => super.noSuchMethod(
@@ -121,13 +173,13 @@ class MockChatsProvider extends _i1.Mock implements _i2.ChatsProvider {
   );
 
   @override
-  void addListener(_i5.VoidCallback? listener) => super.noSuchMethod(
+  void addListener(_i7.VoidCallback? listener) => super.noSuchMethod(
     Invocation.method(#addListener, [listener]),
     returnValueForMissingStub: null,
   );
 
   @override
-  void removeListener(_i5.VoidCallback? listener) => super.noSuchMethod(
+  void removeListener(_i7.VoidCallback? listener) => super.noSuchMethod(
     Invocation.method(#removeListener, [listener]),
     returnValueForMissingStub: null,
   );
@@ -148,16 +200,16 @@ class MockChatsProvider extends _i1.Mock implements _i2.ChatsProvider {
 /// A class which mocks [ProviderProvider].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockProviderProvider extends _i1.Mock implements _i6.ProviderProvider {
+class MockProviderProvider extends _i1.Mock implements _i8.ProviderProvider {
   @override
   String get selectedProvider =>
       (super.noSuchMethod(
             Invocation.getter(#selectedProvider),
-            returnValue: _i7.dummyValue<String>(
+            returnValue: _i4.dummyValue<String>(
               this,
               Invocation.getter(#selectedProvider),
             ),
-            returnValueForMissingStub: _i7.dummyValue<String>(
+            returnValueForMissingStub: _i4.dummyValue<String>(
               this,
               Invocation.getter(#selectedProvider),
             ),
@@ -183,22 +235,22 @@ class MockProviderProvider extends _i1.Mock implements _i6.ProviderProvider {
           as bool);
 
   @override
-  _i4.Future<void> setProvider(String? provider) =>
+  _i6.Future<void> setProvider(String? provider) =>
       (super.noSuchMethod(
             Invocation.method(#setProvider, [provider]),
-            returnValue: _i4.Future<void>.value(),
-            returnValueForMissingStub: _i4.Future<void>.value(),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
           )
-          as _i4.Future<void>);
+          as _i6.Future<void>);
 
   @override
-  void addListener(_i5.VoidCallback? listener) => super.noSuchMethod(
+  void addListener(_i7.VoidCallback? listener) => super.noSuchMethod(
     Invocation.method(#addListener, [listener]),
     returnValueForMissingStub: null,
   );
 
   @override
-  void removeListener(_i5.VoidCallback? listener) => super.noSuchMethod(
+  void removeListener(_i7.VoidCallback? listener) => super.noSuchMethod(
     Invocation.method(#removeListener, [listener]),
     returnValueForMissingStub: null,
   );

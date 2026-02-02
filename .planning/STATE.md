@@ -102,9 +102,12 @@ Previous milestone decisions archived in:
 
 | Decision | Rationale |
 |----------|-----------|
-| Stream event mocking with async* generators | Mock AIService.streamChat to return Stream.fromIterable with event sequence |
-| Listener notification testing via addListener | Count notifyListeners calls with callback counter |
-| FPROV-06 test groups separate from original | Clear distinction between original and expanded tests |
+| Capture onSendProgress callback for testing (31-02) | Allows simulating progress updates and asserting mid-upload state |
+| Test filteredThreads getter with all sort options (31-02) | Getter encapsulates complex filtering/sorting logic |
+| Skip timer-based delete testing (31-02) | Requires BuildContext and Timer - difficult to mock in unit tests |
+| Stream event mocking with async* generators (31-03) | Mock AIService.streamChat to return Stream.fromIterable with event sequence |
+| Listener notification testing via addListener (31-03) | Count notifyListeners calls with callback counter |
+| FPROV-06 test groups separate from original (31-03) | Clear distinction between original and expanded tests |
 
 ## Session Continuity
 

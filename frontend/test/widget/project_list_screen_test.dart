@@ -45,7 +45,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('No projects yet'), findsOneWidget);
-      expect(find.text('Create your first project to get started'),
+      expect(find.text('Create your first project to get started!'),
           findsOneWidget);
       expect(find.byIcon(Icons.folder_outlined), findsOneWidget);
     });
@@ -213,8 +213,8 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Project No Description'), findsOneWidget);
-      // Description should not be shown
-      expect(find.textContaining('Updated'), findsOneWidget);
+      // Description should not be shown - verify schedule icon (date) is present
+      expect(find.byIcon(Icons.schedule), findsOneWidget);
     });
   });
 }

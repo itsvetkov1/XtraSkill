@@ -11,19 +11,19 @@ See: .planning/PROJECT.md (updated 2026-02-02)
 ## Current Position
 
 Milestone: v1.9.1 Unit Test Coverage
-Phase: 29 of 33 (Backend Service Tests) - VERIFIED COMPLETE
-Plan: All 4 plans complete, verified
-Status: Phase 29 goal verified, ready for Phase 30
-Last activity: 2026-02-02 - Phase 29 execution and verification complete
-Next action: /gsd:plan-phase 30 (Backend LLM & API Tests)
+Phase: 30 of 33 (Backend LLM & API Tests) - In Progress
+Plan: 03 of 6 complete
+Status: Plans 30-01 (LLM Integration), 30-02 (LLM Adapter), 30-03 (Auth & Projects API) complete
+Last activity: 2026-02-02 - Completed 30-03 Auth & Projects API Tests
+Next action: /gsd:execute-plan 30-04 (Documents & Threads API Tests)
 
-Progress: [========------------] 2/6 phases complete - 7/? plans total in v1.9.1
+Progress: [=========-----------] 3/6 phases complete - 10/? plans total in v1.9.1
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 72 (20 in MVP v1.0, 15 in Beta v1.5, 5 in UX v1.6, 8 in URL v1.7, 8 in LLM v1.8, 9 in UX v1.9, 7 in Unit Tests v1.9.1)
-- Average duration: ~18 minutes (MVP v1.0), ~7 minutes (Beta v1.5), ~5 minutes (UX v1.6), ~4 minutes (URL v1.7), ~5 minutes (LLM v1.8), ~4 minutes (UX v1.9), ~5 minutes (Unit Tests v1.9.1)
+- Total plans completed: 75 (20 in MVP v1.0, 15 in Beta v1.5, 5 in UX v1.6, 8 in URL v1.7, 8 in LLM v1.8, 9 in UX v1.9, 10 in Unit Tests v1.9.1)
+- Average duration: ~18 minutes (MVP v1.0), ~7 minutes (Beta v1.5), ~5 minutes (UX v1.6), ~4 minutes (URL v1.7), ~5 minutes (LLM v1.8), ~4 minutes (UX v1.9), ~4 minutes (Unit Tests v1.9.1)
 
 **By Milestone:**
 
@@ -35,7 +35,7 @@ Progress: [========------------] 2/6 phases complete - 7/? plans total in v1.9.1
 | URL v1.7 | 15-18 | 8/8 | SHIPPED 2026-01-31 |
 | LLM v1.8 | 19-22 | 8/8 | SHIPPED 2026-01-31 |
 | UX v1.9 | 23-27 | 9/9 | SHIPPED 2026-02-02 |
-| Unit Tests v1.9.1 | 28-33 | 7/? | In Progress |
+| Unit Tests v1.9.1 | 28-33 | 10/? | In Progress |
 
 ## Accumulated Context
 
@@ -77,6 +77,14 @@ Previous milestone decisions archived in:
 | Skip heartbeat timing tests | 1s asyncio.sleep makes sub-second testing impossible |
 | AIService.__new__ for mock injection | Clean dependency injection for adapter |
 
+### Phase 30 Decisions
+
+| Decision | Rationale |
+|----------|-----------|
+| Separate authenticated_client fixture | Pre-configures JWT auth and attaches test_user |
+| Mock OAuth2Service at route level | Test HTTP contract without real OAuth calls |
+| Return 404 for non-owned resources | Security best practice (don't leak existence) |
+
 ### Pending Todos
 
 - Manual testing of remaining v1.7-v1.9 features (see TESTING-QUEUE.md)
@@ -85,15 +93,15 @@ Previous milestone decisions archived in:
 
 **No current blockers**
 
-**Note:** Pre-existing test failure in test_cascade_delete_project (thread cascade) - not related to Phase 28/29 work.
+**Note:** Pre-existing test failure in test_cascade_delete_project (thread cascade) - not related to Phase 28-30 work.
 
 ## Session Continuity
 
 Last session: 2026-02-02
-Stopped at: Phase 29 verified complete
+Stopped at: Completed 30-03 Auth & Projects API Tests
 Resume file: None
-Next action: /gsd:plan-phase 30
+Next action: /gsd:execute-plan 30-04
 
 ---
 
-*State updated: 2026-02-02 (Phase 29 verified complete, 97 backend service tests)*
+*State updated: 2026-02-02 (30-03 complete, 134 backend tests total)*

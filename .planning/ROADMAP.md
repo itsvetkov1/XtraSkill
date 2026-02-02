@@ -120,8 +120,8 @@ Plans:
 **Plans:** 2 plans
 
 Plans:
-- [ ] 26-01-PLAN.md - Backend API extension for project_id in PATCH /threads
-- [ ] 26-02-PLAN.md - Frontend UI (toolbar button, menu, picker, confirmation)
+- [x] 26-01-PLAN.md - Backend API extension for project_id in PATCH /threads
+- [x] 26-02-PLAN.md - Frontend UI (toolbar button, menu, picker, confirmation)
 
 ---
 
@@ -154,7 +154,7 @@ Plans:
 | 23 | chat-input-ux | INPUT-01 to INPUT-05 | Complete |
 | 24 | project-layout-redesign | LAYOUT-01 to LAYOUT-06 | Complete |
 | 25 | global-chats-backend | CHATS-01 to CHATS-07 | Complete |
-| 26 | chat-project-association | CHATS-08 to CHATS-13 | Planned |
+| 26 | chat-project-association | CHATS-08 to CHATS-13 | Complete |
 | 27 | thread-search-filter | SEARCH-01 to SEARCH-04 | Pending |
 
 **Coverage:** 27/27 requirements mapped

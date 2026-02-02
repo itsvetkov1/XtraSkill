@@ -6,18 +6,24 @@ See: .planning/PROJECT.md (updated 2026-02-02)
 
 **Core value:** Business analysts reduce time spent on requirement documentation while improving completeness through AI-assisted discovery conversations that systematically explore edge cases and generate production-ready artifacts.
 
-**Current focus:** Planning next milestone (v2.0)
+**Current focus:** v1.9.2 - Resilience & AI Transparency (Phase 34 ready for planning)
 
 ## Current Position
 
-Milestone: v1.9.1 SHIPPED
-Phase: Milestone complete
-Plan: N/A
-Status: Ready to plan next milestone
-Last activity: 2026-02-02 - Completed v1.9.1 milestone (Unit Test Coverage)
-Next action: /gsd:new-milestone for v2.0
+Milestone: v1.9.2 - Resilience & AI Transparency
+Phase: 34 - Client-Side Resilience (Not Started)
+Plan: None yet
+Status: Awaiting plan creation
+Last activity: 2026-02-03 - Roadmap created with 3 phases (34-36)
+Next action: /gsd:plan-phase 34
 
-Progress: [==============================] v1.9.1 complete - 43/43 requirements, 1,098 tests
+Progress:
+```
+Phase 34: [..........] 0/7 requirements
+Phase 35: [..........] 0/9 requirements
+Phase 36: [..........] 0/8 requirements
+Overall:  [..........] 0/24 requirements
+```
 
 ## Performance Metrics
 
@@ -36,12 +42,18 @@ Progress: [==============================] v1.9.1 complete - 43/43 requirements,
 | LLM v1.8 | 19-22 | 8/8 | SHIPPED 2026-01-31 |
 | UX v1.9 | 23-27 | 9/9 | SHIPPED 2026-02-02 |
 | Unit Tests v1.9.1 | 28-33 | 24/24 | SHIPPED 2026-02-02 |
+| v1.9.2 | 34-36 | 0/? | In Progress |
 
 ## Accumulated Context
 
 ### Decisions
 
-Decisions are logged in PROJECT.md Key Decisions table.
+| Decision | Rationale | Date |
+|----------|-----------|------|
+| 3-phase structure | Research recommendation: frontend-first, then transparency, then backend-dependent | 2026-02-03 |
+| Quick depth | Config setting, 3-5 phases appropriate for 24 requirements | 2026-02-03 |
+| Phase 34 first | Frontend-only, no deployment coordination needed | 2026-02-03 |
+
 Previous milestone decisions archived in:
 - .planning/milestones/v1.5-ROADMAP.md
 - .planning/milestones/v1.6-ROADMAP.md
@@ -50,11 +62,37 @@ Previous milestone decisions archived in:
 - .planning/milestones/v1.9-ROADMAP.md
 - .planning/milestones/v1.9.1-ROADMAP.md
 
+### Research Flags
+
+| Phase | Research Needed | Status |
+|-------|-----------------|--------|
+| 34 | NO | eventflux, connectivity_plus well-documented |
+| 35 | NO | Extends existing token_usage, provider_indicator patterns |
+| 36 | YES | Source attribution accuracy testing recommended |
+
+### Pitfalls to Prevent
+
+From research/PITFALLS-v1.9.2.md:
+
+**Phase 34:**
+- PITFALL-01: Do NOT clear _streamingText on error; preserve partial content
+- PITFALL-09: Validate file immediately after picker returns (before upload)
+- PITFALL-10: Use exponential backoff (1s, 2s, 4s, max 8s)
+
+**Phase 35:**
+- PITFALL-04: Use API-provided token counts, not estimates
+- PITFALL-06: Pessimistic budget warnings (estimate response tokens)
+- PITFALL-07: Mode is thread property, not global preference
+
+**Phase 36:**
+- PITFALL-05: Verify citations match actual documents (no hallucination)
+- PITFALL-08: Collapsed artifact cards, lazy render
+
 ### Pending Todos
 
-- Configure CODECOV_TOKEN secret in GitHub repository
-- Link repository to Codecov dashboard
-- Manual testing of remaining v1.7-v1.9 features (see TESTING-QUEUE.md)
+- [ ] Configure CODECOV_TOKEN secret in GitHub repository
+- [ ] Link repository to Codecov dashboard
+- [ ] Manual testing of remaining v1.7-v1.9 features (see TESTING-QUEUE.md)
 
 ### Blockers/Concerns
 
@@ -62,11 +100,17 @@ Previous milestone decisions archived in:
 
 ## Session Continuity
 
-Last session: 2026-02-02
-Stopped at: Completed v1.9.1 milestone archival
+Last session: 2026-02-03
+Stopped at: Roadmap created for v1.9.2
 Resume file: None
-Next action: /gsd:new-milestone for v2.0
+Next action: /gsd:plan-phase 34
+
+**Context for Next Session:**
+- Phase 34 focuses on network resilience (NET-01 to NET-04) and file validation (FILE-01 to FILE-03)
+- Frontend-only changes, no backend coordination needed
+- Research recommends: replace flutter_client_sse with eventflux, add connectivity_plus
+- Key pitfall: preserve partial streaming content on error (do NOT clear _streamingText)
 
 ---
 
-*State updated: 2026-02-02 (v1.9.1 milestone complete and archived)*
+*State updated: 2026-02-03 (v1.9.2 roadmap created)*

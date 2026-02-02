@@ -11,13 +11,13 @@ See: .planning/PROJECT.md (updated 2026-02-02)
 ## Current Position
 
 Milestone: v1.9.1 Unit Test Coverage
-Phase: 30 of 33 (Backend LLM & API Tests) - VERIFIED COMPLETE
-Plan: All 5 plans complete, verified
-Status: Phase 30 goal verified, ready for Phase 31
-Last activity: 2026-02-02 - Phase 30 execution and verification complete
-Next action: /gsd:plan-phase 31 (Frontend Provider & Service Tests)
+Phase: 31 of 33 (Frontend Provider & Service Tests) - IN PROGRESS
+Plan: 3 of 5 complete
+Status: 31-03 complete, ready for 31-04
+Last activity: 2026-02-02 - Completed 31-03 (ConversationProvider + ChatsProvider tests)
+Next action: Execute 31-04 (Additional provider tests)
 
-Progress: [==========----------] 3/6 phases complete - 12/? plans total in v1.9.1
+Progress: [=====================---------] 4/6 phases partially complete - 15/? plans total in v1.9.1
 
 ## Performance Metrics
 
@@ -98,13 +98,21 @@ Previous milestone decisions archived in:
 
 **Note:** Pre-existing test failure in test_cascade_delete_project (thread cascade) - not related to Phase 28-30 work.
 
+### Phase 31 Decisions
+
+| Decision | Rationale |
+|----------|-----------|
+| Stream event mocking with async* generators | Mock AIService.streamChat to return Stream.fromIterable with event sequence |
+| Listener notification testing via addListener | Count notifyListeners calls with callback counter |
+| FPROV-06 test groups separate from original | Clear distinction between original and expanded tests |
+
 ## Session Continuity
 
 Last session: 2026-02-02
-Stopped at: Phase 30 verified complete
+Stopped at: 31-03 complete
 Resume file: None
-Next action: /gsd:plan-phase 31
+Next action: Execute 31-04
 
 ---
 
-*State updated: 2026-02-02 (Phase 30 complete - 240 tests: 53 LLM adapter, 45 SSE/FTS5, 142 API contract)*
+*State updated: 2026-02-02 (31-03 complete - 75 tests: 40 ConversationProvider, 35 ChatsProvider)*

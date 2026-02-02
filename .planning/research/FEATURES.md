@@ -1,386 +1,297 @@
-# Feature Landscape: Multi-LLM Provider Switching
+# Feature Landscape: Unit Testing Coverage Patterns
 
-**Domain:** AI Chat Application with LLM Provider Switching
-**Researched:** 2026-01-31
-**Confidence:** HIGH (verified with multiple sources and competitor analysis)
+**Domain:** Comprehensive unit testing for FastAPI + Flutter application
+**Researched:** 2026-02-02
+**Confidence:** HIGH (verified with official docs and established patterns)
 
 ---
 
 ## Executive Summary
 
-Multi-LLM provider switching is a well-established pattern in AI chat applications. The user's requirements align with industry best practices:
-- Global default model in settings
-- Per-conversation model binding
-- Visual model indicator
-- Conversation model persistence
-
-This document categorizes features into table stakes (must have), differentiators (competitive advantage), and anti-features (deliberately NOT building in v1.8).
+Unit testing for a FastAPI + Flutter application follows well-established patterns. This research identifies what MUST be tested (table stakes), what DIFFERENTIATES high-quality test suites, and common ANTI-PATTERNS to avoid. The BA Assistant project has a foundation of ~22 test files but gaps in service layer unit tests and LLM adapter coverage.
 
 ---
 
-## Table Stakes
+## Table Stakes (Must Test)
 
-Features users expect from any multi-model AI chat application. Missing = product feels incomplete.
+Features users (developers, CI/CD) expect. Missing = code quality feels incomplete.
 
-### TS-01: Global Default Model Setting
+### Backend (FastAPI/Python)
 
-| Aspect | Details |
-|--------|---------|
-| **Feature** | User can set their preferred default model in Settings |
-| **Why Expected** | [Open WebUI](https://docs.openwebui.com/features/chat-features/chat-params/), [TypingMind](https://docs.typingmind.com/feature-list), and all major multi-model interfaces provide this |
-| **Complexity** | Low |
-| **Notes** | Default model auto-selected when starting new conversations |
+| Feature | Why Expected | Complexity | Notes |
+|---------|--------------|------------|-------|
+| Service layer business logic | Core application behavior validation | Medium | auth_service, project_service, thread_service, message_service, document_service |
+| API endpoint request/response | Contract validation with clients | Low | Input validation, status codes, response shapes |
+| Authentication/authorization | Security-critical functionality | Medium | Token validation, user isolation, permission checks |
+| Error handling paths | Graceful degradation assurance | Low | Exception handling, error responses, edge cases |
+| Database operations (via service layer) | Data integrity | Medium | CRUD operations, cascade deletes, constraints |
+| Model validation | Data contract enforcement | Low | Pydantic model serialization/deserialization |
+| LLM adapter interface compliance | Multi-provider contract | Medium | StreamChunk generation, error handling, format conversion |
 
-**Implementation pattern:**
-- Settings page dropdown showing available providers/models
-- Persisted to user preferences (SharedPreferences or backend)
-- Applied automatically to new conversations
+### Frontend (Flutter/Dart)
 
-### TS-02: Per-Conversation Model Binding
+| Feature | Why Expected | Complexity | Notes |
+|---------|--------------|------------|-------|
+| Provider state management | Business logic correctness | Medium | All *Provider classes - state transitions, error handling |
+| Widget rendering states | UI correctness across states | Low | Loading, error, empty, populated states |
+| Form validation | User input handling | Low | Login, project creation, message input |
+| Error display/recovery | UX completeness | Low | Error banners, retry buttons, snackbars |
+| Navigation behavior | App flow correctness | Medium | Route guards, deep links, back navigation |
+| Model serialization | API contract compliance | Low | fromJson/toJson round-trips |
 
-| Aspect | Details |
-|--------|---------|
-| **Feature** | Each conversation remembers which model it uses |
-| **Why Expected** | Core UX pattern in [Open WebUI](https://deepwiki.com/daw/open-webui/3.3-model-selection), [LibreChat](https://github.com/danny-avila/LibreChat/discussions/3999), TypingMind |
-| **Complexity** | Medium |
-| **Notes** | Stored in conversation/thread metadata in database |
+### Coverage Targets
 
-**Why this matters:**
-- Users may use different models for different tasks
-- Switching models mid-conversation preserves context but may cause quality inconsistencies
-- Existing conversations should "remember" their model when reopened
-
-### TS-03: Model Selector at Conversation Start
-
-| Aspect | Details |
-|--------|---------|
-| **Feature** | User can select model when starting a new conversation |
-| **Why Expected** | Standard pattern in ChatGPT, Claude.ai, TypingMind, Open WebUI |
-| **Complexity** | Low |
-| **Notes** | Dropdown/selector above or beside chat input for new conversations |
-
-**Implementation options:**
-- Dropdown in chat header (Open WebUI style)
-- Model picker in chat input area (ChatGPT style)
-- Pre-defaults to global setting, can override per-conversation
-
-### TS-04: Visual Model Indicator
-
-| Aspect | Details |
-|--------|---------|
-| **Feature** | Display which model is active for current conversation |
-| **Why Expected** | Users need to know which AI they're talking to for context and cost awareness |
-| **Complexity** | Low |
-| **Notes** | Badge, label, or icon showing current model |
-
-**Common placements:**
-- Below chat input (user's stated preference)
-- In chat header beside conversation title
-- As subtle badge on each AI response bubble
-
-**Reference implementations:**
-- [JetBrains AI Assistant](https://www.jetbrains.com/help/ai-assistant/ai-chat.html) shows model picker with current selection
-- [ChatGPT](https://help.openai.com/en/articles/7864572-what-is-the-chatgpt-model-selector) shows model name in conversation header
-- [Aethera](https://help.aethera.ai/chat-interface/model-selection) shows dropdown with current model visible
-
-### TS-05: Model Persistence on Conversation Return
-
-| Aspect | Details |
-|--------|---------|
-| **Feature** | Returning to existing conversation uses its bound model, not current default |
-| **Why Expected** | Prevents confusion when users switch between conversations |
-| **Complexity** | Low (once TS-02 implemented) |
-| **Notes** | Critical for user's stated requirement |
-
-**User's explicit requirement:** "Existing conversations keep their original model when returning to them"
-
-### TS-06: API Key Management (BYOK)
-
-| Aspect | Details |
-|--------|---------|
-| **Feature** | User provides their own API keys for each provider |
-| **Why Expected** | Standard for cost-optimized multi-provider apps; see [Warp](https://docs.warp.dev/support-and-billing/plans-and-pricing/bring-your-own-api-key), [OpenRouter](https://openrouter.ai/announcements/bring-your-own-api-keys), [GitHub Copilot BYOK](https://github.blog/changelog/2025-11-20-enterprise-bring-your-own-key-byok-for-github-copilot-is-now-in-public-preview/) |
-| **Complexity** | Medium |
-| **Notes** | Keys stored securely (encrypted), never synced to cloud without user consent |
-
-**Security requirements:**
-- Keys stored locally on device OR encrypted at rest in backend
-- Keys never logged or exposed in error messages
-- Clear indication of which keys are configured
-
-### TS-07: Provider Availability Indication
-
-| Aspect | Details |
-|--------|---------|
-| **Feature** | Show which providers are available (have valid API keys) |
-| **Why Expected** | Users need to know what's available before selecting |
-| **Complexity** | Low |
-| **Notes** | Visual indicator (checkmark, green dot) for configured providers |
+| Layer | Recommended Coverage | Rationale |
+|-------|---------------------|-----------|
+| Backend Services | 80-90% | Core business logic, most critical |
+| Backend API Routes | 70-80% | Integration testing covers much |
+| Frontend Providers | 80-90% | Business logic separation |
+| Frontend Widgets | 60-70% | Widget tests are comprehensive |
+| Frontend Services | 70-80% | API communication layer |
+| Frontend Models | 90%+ | Simple, high-value tests |
 
 ---
 
-## Differentiators
+## Differentiators (Good to Test)
 
-Features that set product apart. Not expected, but valued. Consider for v1.8 or later versions.
+Features that set testing quality apart. Not expected but valued.
 
-### DIF-01: Cost Indicator per Model
+### Backend Differentiators
 
-| Aspect | Details |
-|--------|---------|
-| **Feature** | Show relative cost ($/1M tokens or simple low/medium/high) per model |
-| **Value Proposition** | User's stated goal is cost optimization; helps informed decisions |
-| **Complexity** | Low |
-| **Notes** | Can be static metadata, doesn't need real-time pricing |
+| Feature | Value Proposition | Complexity | Notes |
+|---------|-------------------|------------|-------|
+| LLM streaming mock tests | Deterministic AI behavior testing | High | Mock streaming responses for predictable tests |
+| Tool execution flow | Validate agent behavior | High | document_search, artifact tools |
+| Concurrent request handling | Race condition prevention | Medium | Parallel thread creation, message sending |
+| Token tracking accuracy | Budget enforcement reliability | Medium | Input/output token counting |
+| Document encryption/decryption | Security verification | Medium | Round-trip encryption tests |
+| System prompt generation | Skill-based behavior | Medium | Context assembly, document injection |
 
-**Why valuable:** User explicitly mentioned wanting to switch providers for cost optimization. Showing relative cost helps them make informed decisions.
+### Frontend Differentiators
 
-### DIF-02: Model Capability Tags
+| Feature | Value Proposition | Complexity | Notes |
+|---------|-------------------|------------|-------|
+| Streaming message display | Real-time UX correctness | High | Text accumulation, cursor position |
+| Optimistic UI updates | Responsive UX testing | Medium | Pre-emptive state changes |
+| Pagination behavior | Large data handling | Medium | Load more, infinite scroll |
+| Theme switching persistence | Settings reliability | Low | Immediate apply, persist across sessions |
+| Responsive layout breakpoints | Multi-device support | Medium | Mobile, tablet, desktop layouts |
+| Copy/export functionality | User utility features | Low | Clipboard operations, formatting |
 
-| Aspect | Details |
-|--------|---------|
-| **Feature** | Tags showing model strengths (e.g., "Best for code", "Fast", "Creative writing") |
-| **Value Proposition** | Helps users choose right model for their task |
-| **Complexity** | Low |
-| **Notes** | Static metadata per model |
+### Advanced Patterns
 
-### DIF-03: Quick Model Switcher in Active Conversation
-
-| Aspect | Details |
-|--------|---------|
-| **Feature** | Allow switching model mid-conversation without losing context |
-| **Value Proposition** | Flexibility when starting with cheap model, escalating for complex questions |
-| **Complexity** | Medium |
-| **Notes** | Requires clear UX for context warning |
-
-**Pattern from [TypingMind](https://blog.typingmind.com/optimize-token-costs-for-chatgpt-and-llm-api/):** "When you finish all the tough questions, switch to a more budget-friendly model for easier tasks"
-
-**Warning needed:** "Switching models mid-conversation: New model will receive full conversation history but may respond differently."
-
-### DIF-04: Multi-Model Response Comparison
-
-| Aspect | Details |
-|--------|---------|
-| **Feature** | Send same prompt to multiple models, compare responses side-by-side |
-| **Value Proposition** | Helps evaluate model quality for specific use cases |
-| **Complexity** | High |
-| **Notes** | [TypingMind multi-model feature](https://docs.typingmind.com/manage-and-connect-ai-models/activate-multi-model-responses), [Open WebUI dual-model](https://docs.openwebui.com/features/chat-features/) |
-
-**Defer to post-v1.8:** High complexity, nice-to-have rather than core need.
-
-### DIF-05: Automatic Model Selection Based on Task
-
-| Aspect | Details |
-|--------|---------|
-| **Feature** | "Smart Mode" that routes to appropriate model based on query complexity |
-| **Value Proposition** | Cost optimization without manual selection |
-| **Complexity** | High |
-| **Notes** | Requires query classification, complex to implement well |
-
-**Pattern from [MultipleChat](https://multiple.chat/):** "Smart Mode" uses collaborative AI processing to route to best model.
-
-**Defer:** High complexity, needs sophisticated routing logic.
-
-### DIF-06: Token/Cost Tracking per Model
-
-| Aspect | Details |
-|--------|---------|
-| **Feature** | Show token usage and estimated cost breakdown by model |
-| **Value Proposition** | Direct support for user's cost optimization goal |
-| **Complexity** | Medium |
-| **Notes** | Requires tracking usage per provider |
+| Pattern | Value | When to Implement |
+|---------|-------|-------------------|
+| Snapshot testing | UI regression detection | After visual design stabilizes |
+| Golden file tests | Rendering consistency | For complex widgets |
+| Contract testing | API version compatibility | Before major releases |
+| Mutation testing | Test quality verification | For critical paths |
 
 ---
 
-## Anti-Features
+## Anti-Features (Things NOT to Unit Test)
 
-Features to explicitly NOT build for v1.8. Common mistakes in this domain.
+Features to explicitly NOT unit test. Common mistakes in this domain.
 
-### AF-01: Mid-Conversation Model Switching Without Warning
-
-| Anti-Feature | Why Avoid | What to Do Instead |
-|--------------|-----------|-------------------|
-| Silent model switching | Confuses users; context may be interpreted differently | Always show clear indicator when model changes; warn about potential consistency issues |
-
-**Source:** [How to fix AI chatbot that switches models mid-conversation](https://www.arsturn.com/blog/how-to-fix-an-ai-chatbot-that-switches-models-mid-conversation) - "The new model often doesn't have the context of the previous conversation. It's like a new person jumping into a conversation without being caught up."
-
-### AF-02: Automatic Model Downgrade Without User Consent
+### Do NOT Unit Test
 
 | Anti-Feature | Why Avoid | What to Do Instead |
 |--------------|-----------|-------------------|
-| Auto-switching to cheaper model when budget exhausted | Unexpected behavior change; quality degradation | Show clear budget warning; let user explicitly choose to switch or stop |
+| **Private methods directly** | Implementation detail coupling, tests break on refactoring | Test through public interfaces |
+| **Framework code** | Already tested by Flutter/FastAPI maintainers | Trust framework, test your usage |
+| **Simple getters/setters** | No logic = no value, inflates coverage artificially | Only test if they have side effects |
+| **Constructor-only classes** | No behavior to verify | Test classes that use them |
+| **Database connection setup** | Infrastructure concern, not unit behavior | Integration tests or manual verification |
+| **External API responses** | Real APIs are flaky, slow, costly | Mock external services |
+| **Exact error message text** | Brittle, changes frequently | Test error type/category instead |
+| **UI pixel positions** | Fragile, varies by platform | Test presence and interaction, not position |
+| **Configuration files** | Static data, no logic | Validate schema, not content |
+| **Third-party library internals** | Out of your control | Test wrapper functions you create |
 
-### AF-03: Provider-Specific Feature Parity Assumptions
+### Patterns That Indicate Over-Testing
 
-| Anti-Feature | Why Avoid | What to Do Instead |
-|--------------|-----------|-------------------|
-| Assuming all providers support same features | OpenAI has JSON mode, Claude has tool use differences, Gemini has different context windows | Abstract common interface; disable unsupported features per provider |
+| Anti-Pattern Name | Description | Fix |
+|-------------------|-------------|-----|
+| **Mockery** | So many mocks that you're testing mock behavior, not real code | Reduce mock count, use fakes for complex deps |
+| **Inspector** | Test knows too much about implementation, breaks on any refactor | Test behavior, not implementation |
+| **Test-per-Method** | One test per production method regardless of behavior | Test behaviors, some methods need multiple tests |
+| **100% Coverage Theater** | Adding tests just to hit coverage numbers | Focus on behavior coverage, not line coverage |
+| **Nitpicker** | Comparing full output when only parts matter | Assert specific fields that matter |
 
-**Note for BA Assistant:** The current Business Analyst skill uses Claude-specific tool calling. Other providers may need adapted prompts or reduced functionality.
+### Testing Pyramid Violations
 
-### AF-04: Complex Model Hierarchies/Routing in Settings
-
-| Anti-Feature | Why Avoid | What to Do Instead |
-|--------------|-----------|-------------------|
-| Complex rules for model selection (if X then use Y) | Overwhelming for users; hard to debug | Keep it simple: one default, per-conversation override |
-
-### AF-05: Real-Time Pricing API Integration
-
-| Anti-Feature | Why Avoid | What to Do Instead |
-|--------------|-----------|-------------------|
-| Fetching live pricing from provider APIs | Adds complexity, failure points; pricing rarely changes | Use static cost tier metadata; update with app releases |
-
-### AF-06: Cross-Provider Conversation Migration
-
-| Anti-Feature | Why Avoid | What to Do Instead |
-|--------------|-----------|-------------------|
-| Ability to "migrate" conversation history between providers | Complex; formats differ; expectations mismatch | Per-conversation binding is simpler; user can start new conversation with different model |
-
-### AF-07: Provider Account Linking (OAuth)
-
-| Anti-Feature | Why Avoid | What to Do Instead |
-|--------------|-----------|-------------------|
-| Full OAuth integration with provider accounts | Overly complex; most users just want to paste API keys | Simple API key entry with validation |
+| Violation | Symptom | Correction |
+|-----------|---------|------------|
+| Ice Cream Cone | Most tests are E2E/integration | Add unit tests for business logic |
+| Hourglass | Middle layer under-tested | Add service layer unit tests |
+| Inverted Pyramid | Too few integration tests | Keep unit tests but add integration tests |
 
 ---
 
 ## Feature Dependencies
 
 ```
-Global Default Setting (TS-01)
-    |
-    v
-Per-Conversation Model Binding (TS-02)
-    |
-    +---> Model Selector at Start (TS-03)
-    |
-    +---> Model Persistence on Return (TS-05)
-    |
-    v
-Visual Model Indicator (TS-04)
-    |
-    v
-[Optional] Quick Model Switcher (DIF-03)
+Backend Testing Dependencies:
+  conftest.py (fixtures)
+    -> test_*.py (individual tests)
+    -> Mocked services
+    -> Test database session
 
-API Key Management (TS-06)
-    |
-    v
-Provider Availability Indication (TS-07)
-    |
-    +---> Cost Indicator (DIF-01)
-    |
-    +---> Capability Tags (DIF-02)
+Frontend Testing Dependencies:
+  mock_*.dart (generated mocks)
+    -> *_test.dart (test files)
+    -> Widget test utilities (pumpWidget, pumpAndSettle)
+    -> Provider mocks (Mockito)
 ```
 
----
+### Test Isolation Requirements
 
-## MVP Recommendation for v1.8
-
-### Must Include (Table Stakes)
-
-1. **TS-01: Global Default Model Setting** - User's explicit requirement
-2. **TS-02: Per-Conversation Model Binding** - User's explicit requirement
-3. **TS-03: Model Selector at Conversation Start** - Natural extension of TS-02
-4. **TS-04: Visual Model Indicator** - User's explicit requirement ("below chat window")
-5. **TS-05: Model Persistence on Return** - User's explicit requirement
-6. **TS-06: API Key Management** - Required for multi-provider to function
-7. **TS-07: Provider Availability Indication** - Necessary UX for key management
-
-### Consider Including (High-Value Differentiators)
-
-1. **DIF-01: Cost Indicator** - Directly supports user's cost optimization goal
-2. **DIF-02: Capability Tags** - Low effort, helps model selection
-
-### Defer to Post-v1.8
-
-- **DIF-03: Quick Model Switcher** - Nice to have, adds complexity
-- **DIF-04: Multi-Model Comparison** - High complexity
-- **DIF-05: Automatic Model Selection** - Very high complexity
-- **DIF-06: Token/Cost Tracking per Model** - Medium complexity, post-MVP
+| Component | Isolation Method | Reason |
+|-----------|-----------------|--------|
+| Backend Services | Mock database session | Speed, determinism |
+| Backend API Routes | TestClient + mock services | HTTP layer testing |
+| LLM Adapters | Mock SDK clients | No API calls, deterministic |
+| Frontend Providers | Mock services | State logic isolation |
+| Frontend Widgets | Mock providers | UI logic isolation |
+| Frontend Services | Mock HTTP client | No network calls |
 
 ---
 
-## Provider-Specific Considerations
+## MVP Test Recommendation
 
-### Claude (Anthropic) - Currently Implemented
+For initial comprehensive coverage, prioritize:
 
-- Tool use (function calling) fully supported
-- Current BA skill is Claude-optimized
-- Context window: 200K tokens (Claude 3+)
-- Streaming supported
+### Phase 1: Foundation (HIGH priority)
+1. **Backend service layer** - auth_service, project_service, thread_service
+2. **Frontend providers** - AuthProvider, ProjectProvider, ConversationProvider
+3. **Model serialization** - All JSON round-trips
 
-### Gemini (Google)
+### Phase 2: Core Features (MEDIUM priority)
+4. **API endpoint tests** - All CRUD endpoints
+5. **Widget tests** - Key screens (Login, ProjectList, Conversation)
+6. **Error handling** - All error paths in services
 
-- Tool use supported but different API shape
-- Context window: Up to 1M tokens (Gemini 1.5)
-- May need adapted system prompts
-- Streaming supported
+### Phase 3: Advanced (LOWER priority)
+7. **LLM adapter mocking** - Streaming behavior
+8. **Edge cases** - Pagination, concurrent access
+9. **Differentiators** - Token tracking, encryption
 
-### DeepSeek
+### Defer to Integration Tests
 
-- OpenAI-compatible API format
-- Very cost-effective for simpler tasks
-- Limited tool use capabilities
-- May not support all BA skill features
-
-### Abstraction Requirement
-
-The backend needs an abstraction layer that:
-1. Normalizes request/response formats across providers
-2. Handles tool calling differences gracefully
-3. Degrades gracefully when provider doesn't support a feature
-4. Maintains conversation history format compatibility
+- Full OAuth flow (requires external services)
+- Real LLM responses (costly, non-deterministic)
+- Full database migrations (E2E concern)
+- Cross-screen navigation (integration concern)
 
 ---
 
-## UX Patterns from Competitors
+## Existing Test Analysis
 
-### Open WebUI Pattern
-- Model dropdown in conversation header
-- Per-chat and per-model settings hierarchy
-- "Set as default" one-click action
-- Model hiding for deprecated options
+Current test files in project:
 
-### TypingMind Pattern
-- Model selector prominently placed
-- Multi-model responses (premium feature)
-- Clear cost optimization guidance in docs
-- AI character/persona system
+### Backend (11 test files in backend/tests/)
+- `test_projects.py` - Project CRUD, cascade delete (GOOD pattern)
+- `test_threads.py` - Thread CRUD, isolation (GOOD pattern)
+- `test_documents.py` - Document operations
+- `test_auth_integration.py` - Auth flow (integration level)
+- `test_backend_integration.py` - Full integration tests
+- Others: skill, document_search, global_threads
 
-### ChatGPT Pattern
-- Minimal model selector (hidden in dropdown)
-- Model capabilities explained on hover
-- Conversation locked to model after first message (by design)
+### Frontend (11 test files)
+- `unit/chats_provider_test.dart` - Provider state testing (EXCELLENT pattern)
+- `widget/login_screen_test.dart` - Widget state rendering
+- `widget/project_list_screen_test.dart` - List rendering, states
+- `widget/conversation_screen_test.dart` - Message display, streaming
+- Integration tests for auth_flow, project_flow
+
+### Gaps Identified
+
+| Missing Test | Priority | Rationale |
+|--------------|----------|-----------|
+| Service unit tests (isolated from API) | HIGH | Services have no direct unit tests |
+| LLM adapter unit tests | HIGH | Critical path, no coverage |
+| Encryption service tests | MEDIUM | Security-sensitive |
+| Token tracking tests | MEDIUM | Budget enforcement |
+| More provider unit tests | HIGH | Only ChatsProvider tested |
+| API service (frontend) tests | MEDIUM | Network layer |
+
+---
+
+## BA Assistant Component Coverage Map
+
+### Backend Components Requiring Tests
+
+| Component | File(s) | Test Priority | Coverage Goal |
+|-----------|---------|---------------|---------------|
+| **AuthService** | `auth_service.py` | HIGH | 85% |
+| **ProjectService** | (part of API routes) | HIGH | 80% |
+| **ThreadService** | (part of API routes) | HIGH | 80% |
+| **DocumentService** | (part of API routes) | HIGH | 80% |
+| **MessageService** | (part of API routes) | HIGH | 80% |
+| **AIService** | `ai_service.py` | HIGH | 75% (mock LLM) |
+| **AnthropicAdapter** | `anthropic_adapter.py` | HIGH | 80% |
+| **GeminiAdapter** | `gemini_adapter.py` | MEDIUM | 75% |
+| **DeepSeekAdapter** | `deepseek_adapter.py` | MEDIUM | 75% |
+| **EncryptionService** | `encryption.py` | MEDIUM | 90% |
+| **TokenTracking** | `token_tracking.py` | MEDIUM | 80% |
+| **DocumentSearch** | `document_search.py` | MEDIUM | 75% |
+| **SkillLoader** | `skill_loader.py` | LOW | 70% |
+| **BRDGenerator** | `brd_generator.py` | LOW | 70% |
+
+### Frontend Components Requiring Tests
+
+| Component | File(s) | Test Priority | Coverage Goal |
+|-----------|---------|---------------|---------------|
+| **AuthProvider** | `auth_provider.dart` | HIGH | 85% |
+| **ProjectProvider** | `project_provider.dart` | HIGH | 85% |
+| **ConversationProvider** | `conversation_provider.dart` | HIGH | 85% |
+| **ChatsProvider** | `chats_provider.dart` | HIGH | 85% (has tests) |
+| **ThreadProvider** | `thread_provider.dart` | HIGH | 80% |
+| **DocumentProvider** | `document_provider.dart` | HIGH | 80% |
+| **ThemeProvider** | `theme_provider.dart` | MEDIUM | 75% |
+| **SettingsProvider** | (if exists) | MEDIUM | 75% |
+| **ApiService** | `api_service.dart` | HIGH | 80% |
+| **AuthService** | `auth_service.dart` | HIGH | 80% |
+| **Models (all)** | `models/*.dart` | HIGH | 90% |
 
 ---
 
 ## Sources
 
-### Primary Sources
-- [Open WebUI Documentation - Chat Parameters](https://docs.openwebui.com/features/chat-features/chat-params/)
-- [Open WebUI - Model Selection](https://deepwiki.com/daw/open-webui/3.3-model-selection)
-- [TypingMind Feature List](https://docs.typingmind.com/feature-list)
-- [TypingMind Multi-Model Responses](https://docs.typingmind.com/manage-and-connect-ai-models/activate-multi-model-responses)
-- [ChatGPT Model Selector Help](https://help.openai.com/en/articles/7864572-what-is-the-chatgpt-model-selector)
+### Official Documentation
+- [FastAPI Testing Documentation](https://fastapi.tiangolo.com/tutorial/testing/)
+- [Flutter Testing Overview](https://docs.flutter.dev/testing/overview)
+- [Python unittest.mock](https://docs.python.org/3/library/unittest.mock-examples.html)
 
-### BYOK/API Key Management
-- [Warp BYOK Documentation](https://docs.warp.dev/support-and-billing/plans-and-pricing/bring-your-own-api-key)
-- [GitHub Copilot BYOK](https://github.blog/changelog/2025-11-20-enterprise-bring-your-own-key-byok-for-github-copilot-is-now-in-public-preview/)
-- [OpenRouter BYOK](https://openrouter.ai/announcements/bring-your-own-api-keys)
+### Testing Patterns and Anti-Patterns
+- [Unit Testing Anti-Patterns Full List](https://dzone.com/articles/unit-testing-anti-patterns-full-list)
+- [Software Testing Anti-Patterns](https://blog.codepipes.com/testing/software-testing-antipatterns.html)
+- [Unit Testing Best Practices - .NET (applicable concepts)](https://learn.microsoft.com/en-us/dotnet/core/testing/unit-testing-best-practices)
+- [Structural Inspection Anti-Pattern](https://enterprisecraftsmanship.com/posts/structural-inspection)
 
-### Cost Optimization Strategies
-- [TypingMind - Optimize Token Costs](https://blog.typingmind.com/optimize-token-costs-for-chatgpt-and-llm-api/)
-- [Eden AI - Control Token Usage](https://www.edenai.co/post/how-to-control-token-usage-and-cut-costs-on-ai-apis)
+### Python/FastAPI Testing
+- [Python Testing with PyTest 2025](https://www.johal.in/python-testing-frameworks-pytest-advanced-features-and-mocking-strategies-for-unit-tests-2025/)
+- [Advanced Integration Testing Python 2025](https://moldstud.com/articles/p-advanced-integration-testing-techniques-for-python-developers-expert-guide-2025)
+- [Service Layer and Repository Pattern Testing](https://www.oreilly.com/library/view/architecture-patterns-with/9781492052197/ch04.html)
 
-### Multi-Model Architecture
-- [Stream - Multi-Model AI Chat](https://getstream.io/blog/multi-model-ai-chat/)
-- [Medium - Multi-Provider Chat App](https://medium.com/@richardhightower/multi-provider-chat-app-litellm-streamlit-ollama-gemini-claude-perplexity-and-modern-llm-afd5218c7eab)
-- [Building Multi-AI Chat Platform](https://medium.com/@reactjsbd/building-a-complete-multi-ai-chat-platform-chatgpt-claude-gemini-grok-in-one-interface-4295d10e3174)
+### LLM Testing
+- [Mock LLM API Calls for Unit Testing](https://markaicode.com/mock-llm-api-calls-unit-testing/)
+- [LiteLLM Mock Requests](https://docs.litellm.ai/docs/completion/mock_requests)
+- [Importance of Mocking in LLM Streaming](https://medium.com/@zazaneryawan/importance-of-mocking-in-llm-streaming-through-fastapi-python-5092984915d3)
+- [MockLLM - Simulated LLM API](https://github.com/StacklokLabs/mockllm)
+- [llm-mocks PyPI Package](https://pypi.org/project/llm-mocks/)
 
-### Context/Model Switching Pitfalls
-- [Fix AI Chatbot Model Switching Issues](https://www.arsturn.com/blog/how-to-fix-an-ai-chatbot-that-switches-models-mid-conversation)
-- [LibreChat Model Switching Discussion](https://github.com/danny-avila/LibreChat/discussions/3999)
-- [Cursor Forum - Model Context](https://forum.cursor.com/t/if-i-change-a-model-will-the-new-model-know-the-previous-context/43939)
+### Flutter Testing
+- [Flutter Test Coverage](https://testsigma.com/blog/flutter-test-coverage/)
+- [Best Practices for Testing Flutter Applications](https://www.walturn.com/insights/best-practices-for-testing-flutter-applications)
+- [Flutter Unit Testing 2025](https://www.bacancytechnology.com/blog/flutter-unit-testing)
+- [Strategies to Improve Flutter Test Coverage](https://www.dhiwise.com/post/the-ultimate-guide-to-improving-flutter-test-coverage)
+
+### Coverage Best Practices
+- [Code Coverage vs Test Coverage](https://blog.codacy.com/code-coverage-vs-test-coverage)
+- [Achieving High Code Coverage with Unit Tests](https://www.sonarsource.com/resources/library/code-coverage-unit-tests/)
+- [How to Decide on Unit Test Coverage](https://softteco.com/blog/unit-test-coverage)
 
 ---
 
-*Research completed 2026-01-31. Ready for requirements definition.*
+*Research completed 2026-02-02. Ready for requirements definition.*

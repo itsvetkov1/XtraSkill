@@ -121,12 +121,12 @@ Plans:
 **Plans:** 6 plans
 
 Plans:
-- [ ] 31-01-PLAN.md — AuthProvider and ProjectProvider tests
-- [ ] 31-02-PLAN.md — DocumentProvider and ThreadProvider tests
-- [ ] 31-03-PLAN.md — ConversationProvider tests and ChatsProvider expansion
-- [ ] 31-04-PLAN.md — ThemeProvider, NavigationProvider, ProviderProvider, DocumentColumnProvider tests
-- [ ] 31-05-PLAN.md — AuthService and ProjectService tests
-- [ ] 31-06-PLAN.md — DocumentService, ThreadService, and AIService tests
+- [x] 31-01-PLAN.md — AuthProvider and ProjectProvider tests
+- [x] 31-02-PLAN.md — DocumentProvider and ThreadProvider tests
+- [x] 31-03-PLAN.md — ConversationProvider tests and ChatsProvider expansion
+- [x] 31-04-PLAN.md — ThemeProvider, NavigationProvider, ProviderProvider, DocumentColumnProvider tests
+- [x] 31-05-PLAN.md — AuthService and ProjectService tests
+- [x] 31-06-PLAN.md — DocumentService, ThreadService, and AIService tests
 
 **Requirements:**
 - FPROV-01: AuthProvider has unit test coverage
@@ -199,7 +199,7 @@ Plans:
 | 28 | Test Infrastructure | 5 | 3 | Complete |
 | 29 | Backend Service Tests | 6 | 4 | Complete |
 | 30 | Backend LLM & API Tests | 12 | 5 | Complete |
-| 31 | Frontend Provider & Service Tests | 10 | 6 | Planned |
+| 31 | Frontend Provider & Service Tests | 10 | 6 | Complete |
 | 32 | Frontend Widget & Model Tests | 6 | - | Pending |
 | 33 | CI Integration | 4 | - | Pending |
 
@@ -234,3 +234,4 @@ Phase 28 (Infrastructure)
 *Phase 30 planned: 2026-02-02 (5 plans in 2 waves)*
 *Phase 30 executed: 2026-02-02 (5 plans, 240 tests)*
 *Phase 31 planned: 2026-02-02 (6 plans in 2 waves)*
+*Phase 31 executed: 2026-02-02 (6 plans, 429 tests)*

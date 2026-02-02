@@ -15,7 +15,7 @@ Phase: 28 of 33 (Test Infrastructure) - COMPLETE
 Plan: 03 of 03 in phase complete
 Status: Phase 28 complete, ready for Phase 29
 Last activity: 2026-02-02 - Completed 28-03-PLAN.md (shared fixtures module)
-Next action: Plan Phase 29 (Frontend Unit Tests)
+Next action: /gsd:plan-phase 29 (Backend Service Tests)
 
 Progress: [====-----------------] Phase 28: 3/3 plans complete - 1/6 phases complete
 
@@ -79,9 +79,9 @@ Previous milestone decisions archived in:
 ## Session Continuity
 
 Last session: 2026-02-02
-Stopped at: Completed 28-03-PLAN.md (shared fixtures module)
+Stopped at: Phase 28 verified and complete
 Resume file: None
-Next action: Plan Phase 29 (Frontend Unit Tests)
+Next action: /gsd:plan-phase 29
 
 ---
 

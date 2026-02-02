@@ -22,9 +22,9 @@ This milestone establishes comprehensive unit test coverage across backend servi
 **Plans:** 3 plans
 
 Plans:
-- [ ] 28-01-PLAN.md — Backend pytest-cov and dependencies
-- [ ] 28-02-PLAN.md — Flutter lcov coverage setup
-- [ ] 28-03-PLAN.md — Fixtures module, MockLLMAdapter, Factory-boy
+- [x] 28-01-PLAN.md — Backend pytest-cov and dependencies
+- [x] 28-02-PLAN.md — Flutter lcov coverage setup
+- [x] 28-03-PLAN.md — Fixtures module, MockLLMAdapter, Factory-boy
 
 **Requirements:**
 - INFRA-01: pytest-cov installed and configured for coverage reporting
@@ -169,7 +169,7 @@ Plans:
 
 | Phase | Name | Requirements | Plans | Status |
 |-------|------|--------------|-------|--------|
-| 28 | Test Infrastructure | 5 | 3 | Planned |
+| 28 | Test Infrastructure | 5 | 3 | Complete |
 | 29 | Backend Service Tests | 6 | - | Pending |
 | 30 | Backend LLM & API Tests | 12 | - | Pending |
 | 31 | Frontend Provider & Service Tests | 10 | - | Pending |

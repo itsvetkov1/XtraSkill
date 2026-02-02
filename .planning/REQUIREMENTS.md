@@ -9,11 +9,11 @@ Requirements for unit test coverage milestone. Each maps to roadmap phases.
 
 ### Test Infrastructure
 
-- [ ] **INFRA-01**: pytest-cov installed and configured for coverage reporting
-- [ ] **INFRA-02**: Shared fixtures module created (`tests/fixtures/`)
-- [ ] **INFRA-03**: MockLLMAdapter implemented for adapter-layer testing
-- [ ] **INFRA-04**: Factory-boy test data factories for User, Project, Document, Thread, Message
-- [ ] **INFRA-05**: Flutter lcov configured for HTML coverage reports
+- [x] **INFRA-01**: pytest-cov installed and configured for coverage reporting
+- [x] **INFRA-02**: Shared fixtures module created (`tests/fixtures/`)
+- [x] **INFRA-03**: MockLLMAdapter implemented for adapter-layer testing
+- [x] **INFRA-04**: Factory-boy test data factories for User, Project, Document, Thread, Message
+- [x] **INFRA-05**: Flutter lcov configured for HTML coverage reports
 
 ### Backend Service Tests
 
@@ -95,11 +95,11 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| INFRA-01 | Phase 28 | Pending |
-| INFRA-02 | Phase 28 | Pending |
-| INFRA-03 | Phase 28 | Pending |
-| INFRA-04 | Phase 28 | Pending |
-| INFRA-05 | Phase 28 | Pending |
+| INFRA-01 | Phase 28 | Complete |
+| INFRA-02 | Phase 28 | Complete |
+| INFRA-03 | Phase 28 | Complete |
+| INFRA-04 | Phase 28 | Complete |
+| INFRA-05 | Phase 28 | Complete |
 | BSVC-01 | Phase 29 | Pending |
 | BSVC-02 | Phase 29 | Pending |
 | BSVC-03 | Phase 29 | Pending |

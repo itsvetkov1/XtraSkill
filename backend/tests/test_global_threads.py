@@ -83,6 +83,44 @@ class TestGlobalThreadsAPI:
         assert data["threads"][0]["project_name"] == "Test Project"
 
     @pytest.mark.asyncio
+    async def test_list_threads_includes_created_at(self, client, db_session):
+        """Test that global list includes created_at field (BUG-013 fix)."""
+        user = User(
+            id=str(uuid4()),
+            email="test@example.com",
+            oauth_provider=OAuthProvider.GOOGLE,
+            oauth_id="google_123",
+        )
+        db_session.add(user)
+        await db_session.commit()
+
+        thread = Thread(
+            id=str(uuid4()),
+            project_id=None,
+            user_id=user.id,
+            title="Test Thread",
+            last_activity_at=datetime.utcnow(),
+        )
+        db_session.add(thread)
+        await db_session.commit()
+
+        token = create_access_token(user.id, user.email)
+        response = await client.get(
+            "/api/threads",
+            headers={"Authorization": f"Bearer {token}"},
+        )
+
+        assert response.status_code == 200
+        data = response.json()
+        assert len(data["threads"]) == 1
+        # Verify created_at is present and valid ISO format
+        assert "created_at" in data["threads"][0]
+        created_at = data["threads"][0]["created_at"]
+        assert created_at is not None
+        # Should be parseable as datetime
+        datetime.fromisoformat(created_at.replace("Z", "+00:00"))
+
+    @pytest.mark.asyncio
     async def test_list_threads_includes_projectless(self, client, db_session):
         """Test that global list includes project-less threads."""
         user = User(
@@ -525,3 +563,90 @@ class TestThreadProjectAssociation:
 
         assert response.status_code == 404
         assert "project not found" in response.json()["detail"].lower()
+
+
+class TestProjectScopedThreadCreation:
+    """Tests for POST /api/projects/{project_id}/threads and global list visibility."""
+
+    @pytest.mark.asyncio
+    async def test_project_thread_appears_in_global_list(self, client, db_session):
+        """Test that thread created via project endpoint appears in global list (BUG-014)."""
+        user = User(
+            id=str(uuid4()),
+            email="test@example.com",
+            oauth_provider=OAuthProvider.GOOGLE,
+            oauth_id="google_123",
+        )
+        db_session.add(user)
+        await db_session.commit()
+
+        project = Project(
+            id=str(uuid4()),
+            user_id=user.id,
+            name="Test Project",
+        )
+        db_session.add(project)
+        await db_session.commit()
+
+        token = create_access_token(user.id, user.email)
+
+        # Create thread via project-scoped endpoint
+        create_response = await client.post(
+            f"/api/projects/{project.id}/threads",
+            headers={"Authorization": f"Bearer {token}"},
+            json={"title": "Project Thread via API"},
+        )
+        assert create_response.status_code == 201
+        thread_id = create_response.json()["id"]
+
+        # Verify thread appears in global list
+        list_response = await client.get(
+            "/api/threads",
+            headers={"Authorization": f"Bearer {token}"},
+        )
+        assert list_response.status_code == 200
+        data = list_response.json()
+        assert len(data["threads"]) == 1
+        assert data["threads"][0]["id"] == thread_id
+        assert data["threads"][0]["title"] == "Project Thread via API"
+        assert data["threads"][0]["project_name"] == "Test Project"
+        # Verify last_activity_at is set (was missing before BUG-014 fix)
+        assert data["threads"][0]["last_activity_at"] is not None
+
+    @pytest.mark.asyncio
+    async def test_project_thread_has_last_activity_at(self, client, db_session):
+        """Test that project-scoped thread creation sets last_activity_at (BUG-014 fix)."""
+        user = User(
+            id=str(uuid4()),
+            email="test@example.com",
+            oauth_provider=OAuthProvider.GOOGLE,
+            oauth_id="google_123",
+        )
+        db_session.add(user)
+        await db_session.commit()
+
+        project = Project(
+            id=str(uuid4()),
+            user_id=user.id,
+            name="Test Project",
+        )
+        db_session.add(project)
+        await db_session.commit()
+
+        token = create_access_token(user.id, user.email)
+
+        # Create thread via project-scoped endpoint
+        response = await client.post(
+            f"/api/projects/{project.id}/threads",
+            headers={"Authorization": f"Bearer {token}"},
+            json={"title": "New Thread"},
+        )
+        assert response.status_code == 201
+        thread_id = response.json()["id"]
+
+        # Verify in database that last_activity_at is set
+        result = await db_session.execute(
+            select(Thread).where(Thread.id == thread_id)
+        )
+        thread = result.scalar_one()
+        assert thread.last_activity_at is not None

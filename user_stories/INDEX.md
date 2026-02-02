@@ -1,7 +1,7 @@
 # User Stories Index
 
 **Project:** Business Analyst Assistant
-**Last Updated:** 2026-02-01
+**Last Updated:** 2026-02-02
 
 ---
 
@@ -20,11 +20,11 @@
 
 | Priority | Total | Open | In Progress | Done | Wont Do |
 |----------|-------|------|-------------|------|---------|
-| Critical | 9 | 0 | 4 | 5 | 0 |
+| Critical | 12 | 0 | 4 | 8 | 0 |
 | High | 13 | 12 | 0 | 1 | 0 |
 | Medium | 9 | 7 | 0 | 0 | 2 |
 | Low | 4 | 4 | 0 | 0 | 0 |
-| **Total** | **35** | **27** | **4** | **6** | **2** |
+| **Total** | **38** | **27** | **4** | **9** | **2** |
 
 ---
 
@@ -84,6 +84,9 @@ Blocking issues and core workflow problems. Address first.
 | 7 | [BUG-010](BUG-010_fts5-empty-query.md) | FTS5 empty query crash | **Done** | Document Search |
 | 8 | [BUG-011](BUG-011_chats-missing-projectless.md) | Chats missing project-less threads | **Done** | ChatsScreen |
 | 9 | [BUG-012](BUG-012_chats-loading-state.md) | Chats stuck loading state | **Done** | ChatsScreen |
+| 10 | [BUG-013](BUG-013_global-threads-missing-created-at.md) | Global threads missing created_at | **Done** | Threads API |
+| 11 | [BUG-014](BUG-014_project-threads-missing-last-activity.md) | Project threads missing last_activity | **Done** | Threads API |
+| 12 | [BUG-015](BUG-015_shift-enter-newline.md) | Shift+Enter not creating new line | **Done** | ChatInput |
 
 ---
 

@@ -41,9 +41,10 @@ class _ChatInputState extends State<ChatInput> {
 
     // Check for Enter key
     if (event.logicalKey == LogicalKeyboardKey.enter) {
-      // Shift+Enter: insert newline (let TextField handle it)
+      // Shift+Enter: manually insert newline (web doesn't handle this automatically)
       if (HardwareKeyboard.instance.isShiftPressed) {
-        return KeyEventResult.ignored;
+        _insertNewline();
+        return KeyEventResult.handled;
       }
 
       // Plain Enter on non-empty text: send message
@@ -57,6 +58,21 @@ class _ChatInputState extends State<ChatInput> {
     }
 
     return KeyEventResult.ignored;
+  }
+
+  /// Insert a newline at the current cursor position.
+  void _insertNewline() {
+    final text = _controller.text;
+    final selection = _controller.selection;
+
+    // Insert newline at cursor position
+    final newText = text.replaceRange(selection.start, selection.end, '\n');
+    _controller.text = newText;
+
+    // Move cursor after the newline
+    _controller.selection = TextSelection.collapsed(
+      offset: selection.start + 1,
+    );
   }
 
   void _handleSend() {

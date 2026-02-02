@@ -88,6 +88,7 @@ class GlobalThreadListResponse(BaseModel):
     """Response model for thread in global list."""
     id: str
     title: Optional[str]
+    created_at: str
     updated_at: str
     last_activity_at: str
     project_id: Optional[str]
@@ -168,6 +169,7 @@ async def list_all_threads(
             GlobalThreadListResponse(
                 id=t.id,
                 title=t.title,
+                created_at=t.created_at.isoformat(),
                 updated_at=t.updated_at.isoformat(),
                 last_activity_at=t.last_activity_at.isoformat() if t.last_activity_at else t.updated_at.isoformat(),
                 project_id=t.project_id,
@@ -314,7 +316,8 @@ async def create_thread(
     thread = Thread(
         project_id=project_id,
         title=thread_data.title,
-        model_provider=thread_data.model_provider or "anthropic"
+        model_provider=thread_data.model_provider or "anthropic",
+        last_activity_at=datetime.utcnow()
     )
 
     db.add(thread)

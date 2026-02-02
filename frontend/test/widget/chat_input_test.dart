@@ -154,5 +154,44 @@ void main() {
     // integration tests or careful simulation of hardware keyboard events.
     // The FocusNode.onKeyEvent handler is verified through the configuration
     // tests above (textInputAction: none enables custom key handling).
+
+    testWidgets('TextField supports multiline content', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: ChatInput(onSend: (_) {}),
+          ),
+        ),
+      );
+
+      // Enter multiline text directly to verify TextField handles newlines
+      const multilineText = 'Line 1\nLine 2\nLine 3';
+      await tester.enterText(find.byType(TextField), multilineText);
+      await tester.pump();
+
+      final textField = tester.widget<TextField>(find.byType(TextField));
+      expect(textField.controller?.text, multilineText);
+      expect(textField.controller?.text.contains('\n'), isTrue);
+    });
+
+    testWidgets('multiline message sends with newlines preserved', (tester) async {
+      String? sentMessage;
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: ChatInput(onSend: (msg) => sentMessage = msg),
+          ),
+        ),
+      );
+
+      // Enter multiline text
+      const multilineText = 'Line 1\nLine 2';
+      await tester.enterText(find.byType(TextField), multilineText);
+      await tester.tap(find.byIcon(Icons.send));
+      await tester.pump();
+
+      expect(sentMessage, 'Line 1\nLine 2');
+    });
   });
 }

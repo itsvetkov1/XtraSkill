@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-02-01)
 
 ## Current Position
 
-Phase: 27 - thread-search-filter (PENDING)
-Plan: 0/? plans
-Status: Phase 26 complete, ready for Phase 27
-Last activity: 2026-02-02 - Completed 26-02-PLAN.md and bug fixes (BUG-013/014/015)
-Next action: Plan Phase 27 (thread search and filter)
+Phase: 27 - thread-search-filter (IN PROGRESS)
+Plan: 2/3 plans complete
+Status: 27-02 complete, 27-03 remaining
+Last activity: 2026-02-02 - Completed 27-02-PLAN.md (ThreadListScreen search/sort)
+Next action: Execute 27-03-PLAN.md (ChatsScreen search/sort)
 
-Progress: [████████████████████] Phase 26: 2/2 plans complete
+Progress: [██████████████████░░] Phase 27: 2/3 plans complete
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 62 (20 in MVP v1.0, 15 in Beta v1.5, 5 in UX v1.6, 8 in URL v1.7, 8 in LLM v1.8, 6 in UX v1.9)
+- Total plans completed: 64 (20 in MVP v1.0, 15 in Beta v1.5, 5 in UX v1.6, 8 in URL v1.7, 8 in LLM v1.8, 8 in UX v1.9)
 - Average duration: ~18 minutes (MVP v1.0), ~7 minutes (Beta v1.5), ~5 minutes (UX v1.6), ~4 minutes (URL v1.7), ~5 minutes (LLM v1.8), ~3 minutes (UX v1.9)
 
 **By Milestone:**
@@ -33,7 +33,7 @@ Progress: [████████████████████] Phase 2
 | UX v1.6 | 11-14 | 5/5 | Complete (2026-01-30) |
 | URL v1.7 | 15-18 | 8/8 | Complete (2026-01-31) |
 | LLM v1.8 | 19-22 | 8/8 | Complete (2026-01-31) |
-| UX v1.9 | 23-27 | 8/10 | In Progress |
+| UX v1.9 | 23-27 | 9/10 | In Progress |
 
 ## Accumulated Context
 
@@ -70,6 +70,12 @@ v1.9 decisions logged in ROADMAP.md.
 - PERMANENT-ASSOCIATION: Thread association with project is permanent and one-way
 - OWNERSHIP-TRANSITION: Clear user_id when setting project_id (ownership moves to project)
 
+**Phase 27 decisions:**
+- FILTER-PATTERN: Computed getter filteredThreads with in-memory filter/sort
+- SEARCH-SCOPE: Title-only search (case-insensitive)
+- SORT-OPTIONS: Newest (lastActivityAt), Oldest, Alphabetical (title)
+- STATE-RESET: clearThreads() resets search/sort to defaults
+
 ### Pending Todos
 
 - Manual validation tests for v1.7 deep linking (18 test cases in TESTING-QUEUE.md Phase 18 section)
@@ -89,16 +95,16 @@ v1.9 scope is well-defined via user stories in /user_stories/:
 - UX-001: Enter to send - **IMPLEMENTATION COMPLETE (23-01)**
 - UX-002: Threads primary, documents column - **IMPLEMENTATION COMPLETE (24-01, 24-02)**
 - UX-003: Project-less chats with global Chats menu - **COMPLETE (25-01, 25-02)**
-- THREAD-006: Search/filter threads
+- THREAD-006: Search/filter threads - **PARTIALLY COMPLETE (27-01, 27-02)**
 - THREAD-010: Expanded chat input - **IMPLEMENTATION COMPLETE (23-01)**
 
 ## Session Continuity
 
 Last session: 2026-02-02
-Stopped at: Completed Phase 26 (26-02-PLAN.md) and bug fixes
+Stopped at: Completed 27-02-PLAN.md (ThreadListScreen search/sort)
 Resume file: None
-Next action: Plan Phase 27 (thread search and filter)
+Next action: Execute 27-03-PLAN.md (ChatsScreen search/sort)
 
 ---
 
-*State updated: 2026-02-02 (Phase 26 complete)*
+*State updated: 2026-02-02 (27-02 complete)*

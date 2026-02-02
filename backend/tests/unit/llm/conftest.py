@@ -156,8 +156,16 @@ def mock_deepseek_stream():
                 yield chunk
 
             # Final chunk with usage
+            # Note: In real OpenAI streaming, usage comes on the last chunk
+            # which may have empty choices or a finish_reason.
+            # We need a chunk that passes the `if not chunk.choices: continue` check
+            # but also has usage data. Setting choices to have one item with no content.
             final = MagicMock()
-            final.choices = []
+            final.choices = [MagicMock()]
+            final.choices[0].delta = MagicMock()
+            final.choices[0].delta.content = None
+            final.choices[0].delta.reasoning_content = None
+            final.choices[0].delta.tool_calls = None
             final.usage = MagicMock()
             final.usage.prompt_tokens = (usage or {}).get("input_tokens", 10)
             final.usage.completion_tokens = (usage or {}).get("output_tokens", 5)

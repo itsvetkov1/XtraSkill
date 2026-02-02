@@ -10,25 +10,21 @@ Business analysts reduce time spent on requirement documentation while improving
 
 ## Current State
 
-**Shipped:** v1.9 UX Improvements (2026-02-02)
+**Shipped:** v1.9.1 Unit Test Coverage (2026-02-02)
 
-The application now provides standard chat UX patterns and flexible chat organization:
+The application now has comprehensive test coverage:
+- 1,098 total tests (471 backend + 627 frontend)
+- Backend: service tests, LLM adapter tests, API contract tests
+- Frontend: provider tests, service tests, widget tests, model tests
+- CI pipeline with Codecov integration and README coverage badge
+- Test infrastructure: MockLLMAdapter, Factory-boy, pytest-cov, Flutter lcov
+
+Previous milestone (v1.9):
 - Enter to send messages, Shift+Enter for newline (industry standard)
 - Threads-first project layout with collapsible documents column
 - Project-less chats with global Chats navigation section
 - One-way chat-to-project association via "Add to Project"
 - Real-time search and sort in thread lists (Newest/Oldest/A-Z)
-
-## Current Milestone: v1.9.1 Unit Test Coverage
-
-**Goal:** Comprehensive unit test coverage across all business logic with CI-ready test suite.
-
-**Target:**
-- Analyze existing test coverage (11 backend, 11 frontend test files)
-- Identify gaps in service/provider/endpoint coverage
-- Write unit tests for all business logic
-- All tests pass (green suite)
-- Ready to integrate with CI pipeline
 
 Previous features (v1.8):
 - Settings page LLM provider selector (Claude / Gemini / DeepSeek)
@@ -56,7 +52,7 @@ Previous features (v1.5):
 - Deletion with 10-second undo for all resources
 - Professional empty states across all list screens
 
-**Codebase:** ~15,000 lines of Dart/Python across Flutter frontend and FastAPI backend.
+**Codebase:** ~83,500 lines of Python/Dart across FastAPI backend and Flutter frontend.
 
 ## Future Vision
 
@@ -124,15 +120,17 @@ Previous features (v1.5):
 - ✓ User can search/filter threads by title — v1.9
 - ✓ Chat input supports more visible lines (up to 10) — v1.9
 
+- ✓ Backend services have unit test coverage — v1.9.1
+- ✓ Backend API endpoints have unit test coverage — v1.9.1
+- ✓ LLM adapters (Claude/Gemini/DeepSeek) have unit test coverage — v1.9.1
+- ✓ Frontend providers have unit test coverage — v1.9.1
+- ✓ Frontend widgets have unit test coverage — v1.9.1
+- ✓ All tests pass without failures — v1.9.1
+- ✓ Test suite is CI-ready (can run in automated pipeline) — v1.9.1
+
 ### Active
 
-- [ ] Backend services have unit test coverage — v1.9.1
-- [ ] Backend API endpoints have unit test coverage — v1.9.1
-- [ ] LLM adapters (Claude/Gemini/DeepSeek) have unit test coverage — v1.9.1
-- [ ] Frontend providers have unit test coverage — v1.9.1
-- [ ] Frontend widgets have unit test coverage — v1.9.1
-- [ ] All tests pass without failures — v1.9.1
-- [ ] Test suite is CI-ready (can run in automated pipeline) — v1.9.1
+(No active requirements — planning next milestone)
 
 ### Deferred
 
@@ -214,4 +212,4 @@ BAs prepare for meetings by uploading existing requirements or stakeholder notes
 | Client-side thread filtering | Computed filteredThreads getter with in-memory filter/sort | ✓ Implemented (Phase 27) |
 
 ---
-*Last updated: 2026-02-02 after v1.9.1 milestone start*
+*Last updated: 2026-02-02 after v1.9.1 milestone complete*

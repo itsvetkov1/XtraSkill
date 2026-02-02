@@ -1,5 +1,35 @@
 # Project Milestones: Business Analyst Assistant
 
+## v1.9.1 Unit Test Coverage (Shipped: 2026-02-02)
+
+**Delivered:** Comprehensive unit test coverage across backend services, LLM adapters, API routes, frontend providers, widgets, and models with CI-ready test suite and Codecov integration.
+
+**Phases completed:** 28-33 (24 plans total)
+
+**Key accomplishments:**
+
+- Test infrastructure with MockLLMAdapter, Factory-boy factories, pytest-cov, and Flutter lcov
+- Backend service tests (97 tests) covering auth, AI service, token tracking, document search
+- Backend LLM adapter tests (53 tests) for Anthropic, Gemini, and DeepSeek with mocked HTTP
+- Backend API contract tests (142 tests) for all routes with error consistency verification
+- Frontend provider and service tests (429 tests) with Mockito mocks
+- Frontend widget and model tests (198 tests) with conditional imports for dart:html
+- GitHub Actions CI with coverage generation, Codecov upload, and README badge
+
+**Stats:**
+
+- 1,098 total tests (471 backend + 627 frontend)
+- ~83,500 lines of code (74,431 Python + 9,132 Dart)
+- 6 phases, 24 plans
+- 43/43 requirements satisfied
+- 1 day from start to ship (2026-02-02)
+
+**Git range:** `feat(28-01)` → `docs(33-01)`
+
+**What's next:** v2.0 — Search, Previews & Integrations
+
+---
+
 ## v1.9 UX Improvements (Shipped: 2026-02-02)
 
 **Delivered:** Standard chat UX patterns with Enter to send, threads-first project layout, project-less chats with global Chats menu, and search/sort for thread lists.
@@ -168,4 +198,4 @@
 
 ---
 
-*Last updated: 2026-02-02 (v1.9 complete)*
+*Last updated: 2026-02-02 (v1.9.1 complete)*

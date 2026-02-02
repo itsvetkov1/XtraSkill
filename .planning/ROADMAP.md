@@ -187,6 +187,11 @@ Plans:
 
 **Dependencies:** Phases 29-32 (tests must exist before CI can run them)
 
+**Plans:** 1 plan
+
+Plans:
+- [ ] 33-01-PLAN.md — CI workflow with Codecov integration, thresholds, and README badge
+
 **Requirements:**
 - CI-01: Coverage reporting enabled in CI pipeline
 - CI-02: All tests pass gate enforced
@@ -210,7 +215,7 @@ Plans:
 | 30 | Backend LLM & API Tests | 12 | 5 | Complete |
 | 31 | Frontend Provider & Service Tests | 10 | 6 | Complete |
 | 32 | Frontend Widget & Model Tests | 6 | 5 | Complete |
-| 33 | CI Integration | 4 | - | Pending |
+| 33 | CI Integration | 4 | 1 | Planned |
 
 **Total Requirements:** 43
 **Mapped:** 43/43
@@ -247,3 +252,4 @@ Phase 28 (Infrastructure)
 *Phase 32 planned: 2026-02-02 (4 plans in 1 wave)*
 *Phase 32 gap closure: 2026-02-02 (1 plan added for verification gaps)*
 *Phase 32 executed: 2026-02-02 (5 plans, 627 Flutter tests total)*
+*Phase 33 planned: 2026-02-02 (1 plan in 1 wave)*

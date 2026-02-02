@@ -368,6 +368,84 @@ After every code/doc change: COMMIT + PUSH immediately
 
 ---
 
-*Last updated: 2026-01-30*
+## Regression Testing
+
+### Rule: Create Test Plans for New Features
+
+**CRITICAL:** When a new feature is created, add essential test cases to `REGRESSION_TESTS.md`.
+
+**Why:** Maintain a living test suite that covers essential user flows. Tests serve as both verification and documentation of expected behavior.
+
+**Test Case Format:**
+```markdown
+### TC-[AREA]-[NUMBER]: [Title]
+
+**Pre-conditions:**
+- [Required state before testing]
+
+**Steps:**
+1. [Action]
+2. [Action]
+3. [Action]
+
+**Expected Result:**
+- [What should happen]
+```
+
+**Principles:**
+- **Essential flows only** — Test the happy path and critical edge cases, not every permutation
+- **User-centric** — Write steps as user actions, not technical operations
+- **Observable results** — Expected results must be visually verifiable
+- **Minimal pre-conditions** — Tests should be independent when possible
+
+**When to Add Tests:**
+- After completing a feature (before marking phase complete)
+- After fixing a bug (regression test for the fix)
+- When user reports an issue (capture the flow that should work)
+
+**Test Areas (Prefixes):**
+| Prefix | Area |
+|--------|------|
+| AUTH | Authentication and login |
+| PROJ | Projects (create, list, delete) |
+| DOC | Documents (upload, view, delete) |
+| CHAT | Chats and conversations |
+| MSG | Messages (send, copy, retry) |
+| NAV | Navigation and routing |
+| SET | Settings |
+
+**Maintenance:**
+- Update tests when feature behavior changes
+- Remove tests for removed features
+- Mark tests as `[DEPRECATED]` before removal
+
+**Location:** `/REGRESSION_TESTS.md`
+
+---
+
+## Summary
+
+**The Golden Rule:**
+```
+After every code/doc change: COMMIT + PUSH immediately
+```
+
+**Why this matters:**
+1. User tests on multiple machines
+2. Bugs need immediate fixes visible on all machines
+3. Documentation must stay in sync with code
+4. Other developers/testers need latest changes
+
+**Quick checklist after any change:**
+- [ ] Code committed with clear message
+- [ ] Code pushed to remote
+- [ ] Documentation updated if needed
+- [ ] Documentation pushed to remote
+- [ ] `git status --porcelain` shows only excluded files
+
+---
+
+*Last updated: 2026-02-02*
 *Established during Phase 6 execution*
 *User story management added during QA session*
+*Regression testing added during v1.9 QA*

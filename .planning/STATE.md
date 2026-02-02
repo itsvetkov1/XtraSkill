@@ -12,12 +12,12 @@ See: .planning/PROJECT.md (updated 2026-02-02)
 
 Milestone: v1.9.1 Unit Test Coverage
 Phase: 32 of 33 (Frontend Widget & Model Tests)
-Plan: 01, 02, 03 of 4 complete (32-04 remaining)
-Status: In progress - 32-02 complete
-Last activity: 2026-02-02 - Completed 32-02-PLAN.md (Thread/TokenUsage model tests)
-Next action: Execute 32-04-PLAN.md (ConversationScreen widget tests)
+Plan: All 4 plans complete
+Status: Phase 32 complete, ready for 32 verification
+Last activity: 2026-02-02 - Completed 32-04-PLAN.md (HomeScreen/SettingsScreen widget tests)
+Next action: Verify Phase 32, then execute Phase 33
 
-Progress: [========================------] 4/6 phases complete - 21/24 plans total in v1.9.1
+Progress: [=========================-----] 5/6 phases complete - 22/24 plans total in v1.9.1
 
 ## Performance Metrics
 
@@ -129,14 +129,18 @@ Previous milestone decisions archived in:
 | Test Thread.hasProject edge cases (32-02) | Computed property has empty string check beyond null |
 | Test TokenUsage costPercentage clamping (32-02) | Verify 0.0-1.0 range enforcement per model implementation |
 | Comprehensive PaginatedThreads tests (32-02) | Nested Thread array with pagination fields needs validation |
+| findsWidgets for Consumer rebuild duplicates (32-04) | SettingsScreen Consumer widgets may render multiple times during test |
+| pump-with-duration for async dialogs (32-04) | SettingsScreen has async usage loading that never settles |
+| Skip confirm logout test (32-04) | Logout triggers GoRouter redirect requiring full router setup |
+| scrollUntilVisible for off-screen buttons (32-04) | Logout button may be off-screen in Actions section |
 
 ## Session Continuity
 
 Last session: 2026-02-02
-Stopped at: Completed 32-02-PLAN.md
+Stopped at: Completed 32-04-PLAN.md
 Resume file: None
-Next action: Execute 32-04-PLAN.md
+Next action: Verify Phase 32, then execute Phase 33
 
 ---
 
-*State updated: 2026-02-02 (32-02 complete - 87 model tests total for all models)*
+*State updated: 2026-02-02 (32-04 complete - 30 HomeScreen/SettingsScreen tests, 619 Flutter tests total)*

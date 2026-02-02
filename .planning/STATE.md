@@ -12,12 +12,12 @@ See: .planning/PROJECT.md (updated 2026-02-02)
 
 Milestone: v1.9.1 Unit Test Coverage
 Phase: 32 of 33 (Frontend Widget & Model Tests)
-Plan: 03 of 5 complete
-Status: In progress - 32-03 complete
-Last activity: 2026-02-02 - Completed 32-03-PLAN.md (MessageBubble tests + project_list_screen fixes)
-Next action: Execute 32-04-PLAN.md (Settings screen tests)
+Plan: 01, 03 of 4 complete (32-02, 32-04 remaining)
+Status: In progress - 32-01 complete
+Last activity: 2026-02-02 - Completed 32-01-PLAN.md (Message/Project/Document model tests)
+Next action: Execute 32-02-PLAN.md (Thread/TokenUsage model tests)
 
-Progress: [========================------] 4/6 phases complete - 21/? plans total in v1.9.1
+Progress: [========================------] 4/6 phases complete - 20/24 plans total in v1.9.1
 
 ## Performance Metrics
 
@@ -119,13 +119,21 @@ Previous milestone decisions archived in:
 | SSE streaming limitation documented (31-06) | flutter_client_sse cannot be mocked; test ChatEvent types separately |
 | Options capture pattern for auth (31-06) | Verify auth headers in mocked Dio calls |
 
+### Phase 32 Decisions
+
+| Decision | Rationale |
+|----------|-----------|
+| Test ISO 8601 datetime parsing variants (32-01) | DateTime parsing handles both with/without timezone suffix |
+| Test empty string vs null for content (32-01) | Document content can be empty string (valid) vs null (not loaded) |
+| Test empty arrays vs null for collections (32-01) | Project documents/threads can be [] (loaded, none) vs null (not loaded) |
+
 ## Session Continuity
 
 Last session: 2026-02-02
-Stopped at: Completed 32-03-PLAN.md
+Stopped at: Completed 32-01-PLAN.md
 Resume file: None
-Next action: Execute 32-04-PLAN.md
+Next action: Execute 32-02-PLAN.md
 
 ---
 
-*State updated: 2026-02-02 (32-03 complete - MessageBubble tests + project_list_screen fixes)*
+*State updated: 2026-02-02 (32-01 complete - 49 model tests for Message/Project/Document)*

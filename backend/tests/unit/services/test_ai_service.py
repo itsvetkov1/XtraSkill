@@ -355,6 +355,185 @@ class TestStreamWithHeartbeat:
         assert parsed == test_data
 
 
+class TestAIServiceStreamChatEdgeCases:
+    """Tests for AIService.stream_chat edge cases."""
+
+    @pytest.mark.asyncio
+    async def test_unexpected_exception_yields_error(self, db_session, user):
+        """Unexpected exception in stream_chat yields error event."""
+        db_session.add(user)
+        await db_session.commit()
+
+        thread = Thread(user_id=user.id, title="Test")
+        db_session.add(thread)
+        await db_session.commit()
+
+        # Create adapter that raises exception
+        class ExceptionAdapter(MockLLMAdapter):
+            async def stream_chat(self, messages, system_prompt, tools=None, max_tokens=4096):
+                raise ValueError("Unexpected database error")
+                yield  # Make this a generator
+
+        adapter = ExceptionAdapter()
+        service = AIService.__new__(AIService)
+        service.adapter = adapter
+        service.tools = []
+
+        events = []
+        async for event in service.stream_chat(
+            messages=[{"role": "user", "content": "Test"}],
+            project_id=None,
+            thread_id=thread.id,
+            db=db_session
+        ):
+            events.append(event)
+
+        # Should have error event
+        error_events = [e for e in events if e.get("event") == "error"]
+        assert len(error_events) == 1
+        data = json.loads(error_events[0]["data"])
+        assert "Unexpected error" in data["message"]
+
+    @pytest.mark.asyncio
+    async def test_search_documents_tool_status_event(self, db_session, user):
+        """search_documents tool emits correct status event."""
+        db_session.add(user)
+        await db_session.commit()
+
+        project = Project(user_id=user.id, name="Test")
+        db_session.add(project)
+        await db_session.commit()
+
+        thread = Thread(user_id=user.id, title="Test", project_id=project.id)
+        db_session.add(thread)
+        await db_session.commit()
+
+        call_count = 0
+
+        class SearchToolAdapter(MockLLMAdapter):
+            async def stream_chat(self, messages, system_prompt, tools=None, max_tokens=4096):
+                nonlocal call_count
+                self.call_history.append({"messages": messages})
+                call_count += 1
+
+                if call_count == 1:
+                    yield StreamChunk(chunk_type="tool_use", tool_call={
+                        "id": "tool_search",
+                        "name": "search_documents",
+                        "input": {"query": "requirements"}
+                    })
+                    yield StreamChunk(chunk_type="complete", usage={"input_tokens": 10, "output_tokens": 5})
+                else:
+                    yield StreamChunk(chunk_type="text", content="No documents found.")
+                    yield StreamChunk(chunk_type="complete", usage={"input_tokens": 15, "output_tokens": 10})
+
+        adapter = SearchToolAdapter()
+        service = AIService.__new__(AIService)
+        service.adapter = adapter
+        service.tools = []
+
+        events = []
+        async for event in service.stream_chat(
+            messages=[{"role": "user", "content": "Search docs"}],
+            project_id=project.id,
+            thread_id=thread.id,
+            db=db_session
+        ):
+            events.append(event)
+
+        # Should have tool_executing status for search
+        tool_events = [e for e in events if e.get("event") == "tool_executing"]
+        assert len(tool_events) >= 1
+        data = json.loads(tool_events[0]["data"])
+        assert "Searching" in data["status"]
+
+    @pytest.mark.asyncio
+    async def test_multiple_text_chunks_accumulated(self, db_session, user, mock_llm_adapter):
+        """Multiple text chunks are accumulated in final message."""
+        db_session.add(user)
+        await db_session.commit()
+
+        thread = Thread(user_id=user.id, title="Test")
+        db_session.add(thread)
+        await db_session.commit()
+
+        adapter = mock_llm_adapter(responses=["Hello", ", ", "world", "!"])
+        service = AIService.__new__(AIService)
+        service.adapter = adapter
+        service.tools = []
+
+        events = []
+        async for event in service.stream_chat(
+            messages=[{"role": "user", "content": "Test"}],
+            project_id=None,
+            thread_id=thread.id,
+            db=db_session
+        ):
+            events.append(event)
+
+        # Check message_complete has full content
+        complete_event = [e for e in events if e.get("event") == "message_complete"][0]
+        data = json.loads(complete_event["data"])
+        assert data["content"] == "Hello, world!"
+
+    @pytest.mark.asyncio
+    async def test_text_before_tool_call(self, db_session, user):
+        """Text before tool call is accumulated and separator is added."""
+        db_session.add(user)
+        await db_session.commit()
+
+        thread = Thread(user_id=user.id, title="Test")
+        db_session.add(thread)
+        await db_session.commit()
+
+        call_count = 0
+
+        class TextThenToolAdapter(MockLLMAdapter):
+            async def stream_chat(self, messages, system_prompt, tools=None, max_tokens=4096):
+                nonlocal call_count
+                self.call_history.append({"messages": messages})
+                call_count += 1
+
+                if call_count == 1:
+                    # First: text, then tool call
+                    yield StreamChunk(chunk_type="text", content="Let me create an artifact for you.")
+                    yield StreamChunk(chunk_type="tool_use", tool_call={
+                        "id": "tool_1",
+                        "name": "save_artifact",
+                        "input": {
+                            "artifact_type": "user_stories",
+                            "title": "User Stories",
+                            "content_markdown": "# Stories"
+                        }
+                    })
+                    yield StreamChunk(chunk_type="complete", usage={"input_tokens": 10, "output_tokens": 20})
+                else:
+                    yield StreamChunk(chunk_type="text", content="Done!")
+                    yield StreamChunk(chunk_type="complete", usage={"input_tokens": 15, "output_tokens": 10})
+
+        adapter = TextThenToolAdapter()
+        service = AIService.__new__(AIService)
+        service.adapter = adapter
+        service.tools = []
+
+        events = []
+        async for event in service.stream_chat(
+            messages=[{"role": "user", "content": "Create stories"}],
+            project_id=None,
+            thread_id=thread.id,
+            db=db_session
+        ):
+            events.append(event)
+
+        # Should have initial text delta
+        text_deltas = [e for e in events if e.get("event") == "text_delta"]
+        assert len(text_deltas) >= 2  # At least initial text + separator + final text
+
+        # First text should be the introductory text
+        first_text = json.loads(text_deltas[0]["data"])["text"]
+        assert "create an artifact" in first_text
+
+
 class TestAIServiceInit:
     """Tests for AIService initialization."""
 

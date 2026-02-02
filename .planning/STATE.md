@@ -12,17 +12,17 @@ See: .planning/PROJECT.md (updated 2026-02-02)
 
 Milestone: v1.9.1 Unit Test Coverage
 Phase: 30 of 33 (Backend LLM & API Tests) - In Progress
-Plan: 03 of 6 complete
-Status: Plans 30-01 (LLM Integration), 30-02 (LLM Adapter), 30-03 (Auth & Projects API) complete
-Last activity: 2026-02-02 - Completed 30-03 Auth & Projects API Tests
-Next action: /gsd:execute-plan 30-04 (Documents & Threads API Tests)
+Plan: 04 of 6 complete
+Status: Plans 30-01 through 30-04 complete
+Last activity: 2026-02-02 - Completed 30-04 Documents & Threads API Tests
+Next action: /gsd:execute-plan 30-05 (Conversations API Tests)
 
-Progress: [=========-----------] 3/6 phases complete - 10/? plans total in v1.9.1
+Progress: [=========-----------] 3/6 phases complete - 11/? plans total in v1.9.1
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 75 (20 in MVP v1.0, 15 in Beta v1.5, 5 in UX v1.6, 8 in URL v1.7, 8 in LLM v1.8, 9 in UX v1.9, 10 in Unit Tests v1.9.1)
+- Total plans completed: 76 (20 in MVP v1.0, 15 in Beta v1.5, 5 in UX v1.6, 8 in URL v1.7, 8 in LLM v1.8, 9 in UX v1.9, 11 in Unit Tests v1.9.1)
 - Average duration: ~18 minutes (MVP v1.0), ~7 minutes (Beta v1.5), ~5 minutes (UX v1.6), ~4 minutes (URL v1.7), ~5 minutes (LLM v1.8), ~4 minutes (UX v1.9), ~4 minutes (Unit Tests v1.9.1)
 
 **By Milestone:**
@@ -35,7 +35,7 @@ Progress: [=========-----------] 3/6 phases complete - 10/? plans total in v1.9.
 | URL v1.7 | 15-18 | 8/8 | SHIPPED 2026-01-31 |
 | LLM v1.8 | 19-22 | 8/8 | SHIPPED 2026-01-31 |
 | UX v1.9 | 23-27 | 9/9 | SHIPPED 2026-02-02 |
-| Unit Tests v1.9.1 | 28-33 | 10/? | In Progress |
+| Unit Tests v1.9.1 | 28-33 | 11/? | In Progress |
 
 ## Accumulated Context
 
@@ -84,6 +84,8 @@ Previous milestone decisions archived in:
 | Separate authenticated_client fixture | Pre-configures JWT auth and attaches test_user |
 | Mock OAuth2Service at route level | Test HTTP contract without real OAuth calls |
 | Return 404 for non-owned resources | Security best practice (don't leak existence) |
+| Create api/ subdirectory for route tests | Separates route contract tests from integration tests |
+| Group tests by endpoint class | Clear mapping (TestUploadDocument, TestGetThread, etc.) |
 
 ### Pending Todos
 
@@ -98,10 +100,10 @@ Previous milestone decisions archived in:
 ## Session Continuity
 
 Last session: 2026-02-02
-Stopped at: Completed 30-03 Auth & Projects API Tests
+Stopped at: Completed 30-04 Documents & Threads API Tests
 Resume file: None
-Next action: /gsd:execute-plan 30-04
+Next action: /gsd:execute-plan 30-05
 
 ---
 
-*State updated: 2026-02-02 (30-03 complete, 134 backend tests total)*
+*State updated: 2026-02-02 (30-04 complete, 192 backend tests total - 58 new API contract tests)*

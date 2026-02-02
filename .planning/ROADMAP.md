@@ -143,7 +143,11 @@ Plans:
 3. Search term remains visible and active until cleared
 4. "No threads matching 'X'" shown when no results
 
-**Plans:** TBD
+**Plans:** 2 plans
+
+Plans:
+- [ ] 27-01-PLAN.md - Core model + ChatsScreen search/sort UI
+- [ ] 27-02-PLAN.md - ThreadListScreen search/sort UI (mirror pattern)
 
 ---
 
@@ -155,7 +159,7 @@ Plans:
 | 24 | project-layout-redesign | LAYOUT-01 to LAYOUT-06 | Complete |
 | 25 | global-chats-backend | CHATS-01 to CHATS-07 | Complete |
 | 26 | chat-project-association | CHATS-08 to CHATS-13 | Complete |
-| 27 | thread-search-filter | SEARCH-01 to SEARCH-04 | Pending |
+| 27 | thread-search-filter | SEARCH-01 to SEARCH-04 | Planned |
 
 **Coverage:** 27/27 requirements mapped
 

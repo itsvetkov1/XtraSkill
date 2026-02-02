@@ -95,55 +95,55 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| INFRA-01 | TBD | Pending |
-| INFRA-02 | TBD | Pending |
-| INFRA-03 | TBD | Pending |
-| INFRA-04 | TBD | Pending |
-| INFRA-05 | TBD | Pending |
-| BSVC-01 | TBD | Pending |
-| BSVC-02 | TBD | Pending |
-| BSVC-03 | TBD | Pending |
-| BSVC-04 | TBD | Pending |
-| BSVC-05 | TBD | Pending |
-| BSVC-06 | TBD | Pending |
-| BLLM-01 | TBD | Pending |
-| BLLM-02 | TBD | Pending |
-| BLLM-03 | TBD | Pending |
-| BLLM-04 | TBD | Pending |
-| BLLM-05 | TBD | Pending |
-| BAPI-01 | TBD | Pending |
-| BAPI-02 | TBD | Pending |
-| BAPI-03 | TBD | Pending |
-| BAPI-04 | TBD | Pending |
-| BAPI-05 | TBD | Pending |
-| BAPI-06 | TBD | Pending |
-| BAPI-07 | TBD | Pending |
-| FPROV-01 | TBD | Pending |
-| FPROV-02 | TBD | Pending |
-| FPROV-03 | TBD | Pending |
-| FPROV-04 | TBD | Pending |
-| FPROV-05 | TBD | Pending |
-| FPROV-06 | TBD | Pending |
-| FPROV-07 | TBD | Pending |
-| FPROV-08 | TBD | Pending |
-| FSVC-01 | TBD | Pending |
-| FSVC-02 | TBD | Pending |
-| FWID-01 | TBD | Pending |
-| FWID-02 | TBD | Pending |
-| FWID-03 | TBD | Pending |
-| FWID-04 | TBD | Pending |
-| FWID-05 | TBD | Pending |
-| FMOD-01 | TBD | Pending |
-| CI-01 | TBD | Pending |
-| CI-02 | TBD | Pending |
-| CI-03 | TBD | Pending |
-| CI-04 | TBD | Pending |
+| INFRA-01 | Phase 28 | Pending |
+| INFRA-02 | Phase 28 | Pending |
+| INFRA-03 | Phase 28 | Pending |
+| INFRA-04 | Phase 28 | Pending |
+| INFRA-05 | Phase 28 | Pending |
+| BSVC-01 | Phase 29 | Pending |
+| BSVC-02 | Phase 29 | Pending |
+| BSVC-03 | Phase 29 | Pending |
+| BSVC-04 | Phase 29 | Pending |
+| BSVC-05 | Phase 29 | Pending |
+| BSVC-06 | Phase 29 | Pending |
+| BLLM-01 | Phase 30 | Pending |
+| BLLM-02 | Phase 30 | Pending |
+| BLLM-03 | Phase 30 | Pending |
+| BLLM-04 | Phase 30 | Pending |
+| BLLM-05 | Phase 30 | Pending |
+| BAPI-01 | Phase 30 | Pending |
+| BAPI-02 | Phase 30 | Pending |
+| BAPI-03 | Phase 30 | Pending |
+| BAPI-04 | Phase 30 | Pending |
+| BAPI-05 | Phase 30 | Pending |
+| BAPI-06 | Phase 30 | Pending |
+| BAPI-07 | Phase 30 | Pending |
+| FPROV-01 | Phase 31 | Pending |
+| FPROV-02 | Phase 31 | Pending |
+| FPROV-03 | Phase 31 | Pending |
+| FPROV-04 | Phase 31 | Pending |
+| FPROV-05 | Phase 31 | Pending |
+| FPROV-06 | Phase 31 | Pending |
+| FPROV-07 | Phase 31 | Pending |
+| FPROV-08 | Phase 31 | Pending |
+| FSVC-01 | Phase 31 | Pending |
+| FSVC-02 | Phase 31 | Pending |
+| FWID-01 | Phase 32 | Pending |
+| FWID-02 | Phase 32 | Pending |
+| FWID-03 | Phase 32 | Pending |
+| FWID-04 | Phase 32 | Pending |
+| FWID-05 | Phase 32 | Pending |
+| FMOD-01 | Phase 32 | Pending |
+| CI-01 | Phase 33 | Pending |
+| CI-02 | Phase 33 | Pending |
+| CI-03 | Phase 33 | Pending |
+| CI-04 | Phase 33 | Pending |
 
 **Coverage:**
-- v1.9.1 requirements: 40 total
-- Mapped to phases: 0
-- Unmapped: 40
+- v1.9.1 requirements: 43 total
+- Mapped to phases: 43
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-02-02*
-*Last updated: 2026-02-02 after initial definition*
+*Last updated: 2026-02-02 after roadmap creation (traceability complete)*

@@ -6,16 +6,16 @@ See: .planning/PROJECT.md (updated 2026-02-02)
 
 **Core value:** Business analysts reduce time spent on requirement documentation while improving completeness through AI-assisted discovery conversations that systematically explore edge cases and generate production-ready artifacts.
 
-**Current focus:** Planning next milestone (v2.0)
+**Current focus:** v1.9.1 Unit Test Coverage milestone
 
 ## Current Position
 
-Milestone: v1.9 UX Improvements — SHIPPED
-Status: Milestone complete, archived
-Last activity: 2026-02-02 - Milestone v1.9 completed and archived
-Next action: Run /gsd:new-milestone to start v2.0
+Milestone: v1.9.1 Unit Test Coverage
+Status: Roadmap created, ready for phase planning
+Last activity: 2026-02-02 - Roadmap created with 6 phases (28-33)
+Next action: Run /gsd:plan-phase 28 to plan Test Infrastructure
 
-Progress: [████████████████████] v1.9 complete - 5 phases, 9 plans shipped
+Progress: [--------------------] Phase 28 pending - 0/6 phases complete
 
 ## Performance Metrics
 
@@ -33,6 +33,7 @@ Progress: [████████████████████] v1.9 co
 | URL v1.7 | 15-18 | 8/8 | SHIPPED 2026-01-31 |
 | LLM v1.8 | 19-22 | 8/8 | SHIPPED 2026-01-31 |
 | UX v1.9 | 23-27 | 9/9 | SHIPPED 2026-02-02 |
+| Unit Tests v1.9.1 | 28-33 | 0/? | In Progress |
 
 ## Accumulated Context
 
@@ -46,6 +47,14 @@ Previous milestone decisions archived in:
 - .planning/milestones/v1.8-ROADMAP.md
 - .planning/milestones/v1.9-ROADMAP.md
 
+### v1.9.1 Milestone Notes
+
+- 43 requirements across 6 phases
+- Quick depth: phases combine related requirements
+- Phase 30 is largest (12 requirements: BLLM + BAPI combined)
+- Infrastructure-first approach (Phase 28 unblocks all others)
+- Research identified MockLLMAdapter and SSE streaming as key patterns
+
 ### Pending Todos
 
 - Manual testing of remaining v1.7-v1.9 features (see TESTING-QUEUE.md)
@@ -57,10 +66,10 @@ Previous milestone decisions archived in:
 ## Session Continuity
 
 Last session: 2026-02-02
-Stopped at: Milestone v1.9 completed and archived
+Stopped at: Roadmap created for v1.9.1
 Resume file: None
-Next action: /gsd:new-milestone for v2.0
+Next action: /gsd:plan-phase 28
 
 ---
 
-*State updated: 2026-02-02 (v1.9 milestone complete and archived)*
+*State updated: 2026-02-02 (v1.9.1 roadmap created)*

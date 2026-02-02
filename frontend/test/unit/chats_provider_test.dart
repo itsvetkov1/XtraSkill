@@ -435,5 +435,428 @@ void main() {
         expect(provider.error, isNull);
       });
     });
+
+    // ==================== FPROV-06 Additional Tests ====================
+
+    group('loadThreads edge cases (FPROV-06)', () {
+      test('isLoading is false after successful load', () async {
+        when(mockThreadService.getGlobalThreads(page: 1)).thenAnswer(
+          (_) async => PaginatedThreads(
+            threads: [],
+            total: 0,
+            page: 1,
+            pageSize: 25,
+            hasMore: false,
+          ),
+        );
+
+        await provider.loadThreads();
+
+        expect(provider.isLoading, isFalse);
+      });
+
+      test('isLoading is false after failed load', () async {
+        when(mockThreadService.getGlobalThreads(page: 1))
+            .thenThrow(Exception('Network error'));
+
+        await provider.loadThreads();
+
+        expect(provider.isLoading, isFalse);
+      });
+
+      test('threads list is replaced (not appended) on reload', () async {
+        // First load
+        when(mockThreadService.getGlobalThreads(page: 1)).thenAnswer(
+          (_) async => PaginatedThreads(
+            threads: [
+              Thread(
+                id: '1',
+                title: 'Thread 1',
+                createdAt: DateTime.now(),
+                updatedAt: DateTime.now(),
+              ),
+            ],
+            total: 1,
+            page: 1,
+            pageSize: 25,
+            hasMore: false,
+          ),
+        );
+        await provider.loadThreads();
+        expect(provider.threads.length, equals(1));
+        expect(provider.threads.first.id, equals('1'));
+
+        // Reload with different data
+        when(mockThreadService.getGlobalThreads(page: 1)).thenAnswer(
+          (_) async => PaginatedThreads(
+            threads: [
+              Thread(
+                id: '2',
+                title: 'Thread 2',
+                createdAt: DateTime.now(),
+                updatedAt: DateTime.now(),
+              ),
+              Thread(
+                id: '3',
+                title: 'Thread 3',
+                createdAt: DateTime.now(),
+                updatedAt: DateTime.now(),
+              ),
+            ],
+            total: 2,
+            page: 1,
+            pageSize: 25,
+            hasMore: false,
+          ),
+        );
+        await provider.loadThreads();
+
+        // Should be replaced, not appended (total 2, not 3)
+        expect(provider.threads.length, equals(2));
+        expect(provider.threads.first.id, equals('2'));
+      });
+    });
+
+    group('loadMoreThreads edge cases (FPROV-06)', () {
+      test('does not load while already loading', () async {
+        var callCount = 0;
+
+        // Initialize first
+        when(mockThreadService.getGlobalThreads(page: 1)).thenAnswer(
+          (_) async => PaginatedThreads(
+            threads: [
+              Thread(
+                id: '1',
+                title: 'Thread 1',
+                createdAt: DateTime.now(),
+                updatedAt: DateTime.now(),
+              ),
+            ],
+            total: 50,
+            page: 1,
+            pageSize: 25,
+            hasMore: true,
+          ),
+        );
+        await provider.loadThreads();
+
+        // Slow loadMore
+        when(mockThreadService.getGlobalThreads(page: 2)).thenAnswer(
+          (_) async {
+            callCount++;
+            await Future.delayed(const Duration(milliseconds: 100));
+            return PaginatedThreads(
+              threads: [
+                Thread(
+                  id: '2',
+                  title: 'Thread 2',
+                  createdAt: DateTime.now(),
+                  updatedAt: DateTime.now(),
+                ),
+              ],
+              total: 50,
+              page: 2,
+              pageSize: 25,
+              hasMore: true,
+            );
+          },
+        );
+
+        // Start two loadMore simultaneously
+        provider.loadMoreThreads();
+        provider.loadMoreThreads();
+
+        await Future.delayed(const Duration(milliseconds: 200));
+
+        expect(callCount, equals(1));
+      });
+
+      test('page number increments correctly on successive loads', () async {
+        // Initialize
+        when(mockThreadService.getGlobalThreads(page: 1)).thenAnswer(
+          (_) async => PaginatedThreads(
+            threads: [
+              Thread(
+                id: '1',
+                title: 'Thread 1',
+                createdAt: DateTime.now(),
+                updatedAt: DateTime.now(),
+              ),
+            ],
+            total: 100,
+            page: 1,
+            pageSize: 25,
+            hasMore: true,
+          ),
+        );
+        await provider.loadThreads();
+
+        // Page 2
+        when(mockThreadService.getGlobalThreads(page: 2)).thenAnswer(
+          (_) async => PaginatedThreads(
+            threads: [
+              Thread(
+                id: '2',
+                title: 'Thread 2',
+                createdAt: DateTime.now(),
+                updatedAt: DateTime.now(),
+              ),
+            ],
+            total: 100,
+            page: 2,
+            pageSize: 25,
+            hasMore: true,
+          ),
+        );
+        await provider.loadMoreThreads();
+
+        // Page 3
+        when(mockThreadService.getGlobalThreads(page: 3)).thenAnswer(
+          (_) async => PaginatedThreads(
+            threads: [
+              Thread(
+                id: '3',
+                title: 'Thread 3',
+                createdAt: DateTime.now(),
+                updatedAt: DateTime.now(),
+              ),
+            ],
+            total: 100,
+            page: 3,
+            pageSize: 25,
+            hasMore: false,
+          ),
+        );
+        await provider.loadMoreThreads();
+
+        verify(mockThreadService.getGlobalThreads(page: 1)).called(1);
+        verify(mockThreadService.getGlobalThreads(page: 2)).called(1);
+        verify(mockThreadService.getGlobalThreads(page: 3)).called(1);
+        expect(provider.threads.length, equals(3));
+      });
+    });
+
+    group('createNewChat edge cases (FPROV-06)', () {
+      test('works even when not initialized (no threads loaded yet)', () async {
+        expect(provider.isInitialized, isFalse);
+
+        final newThread = Thread(
+          id: 'new-1',
+          title: 'New Chat',
+          createdAt: DateTime.now(),
+          updatedAt: DateTime.now(),
+        );
+
+        when(mockThreadService.createGlobalThread(
+          title: anyNamed('title'),
+          projectId: anyNamed('projectId'),
+          modelProvider: anyNamed('modelProvider'),
+        )).thenAnswer((_) async => newThread);
+
+        final result = await provider.createNewChat();
+
+        expect(result, equals(newThread));
+        expect(provider.threads.length, equals(1));
+        expect(provider.threads.first.id, equals('new-1'));
+      });
+
+      test('increments total even before first load', () async {
+        expect(provider.total, equals(0));
+
+        final newThread = Thread(
+          id: 'new-1',
+          title: 'New Chat',
+          createdAt: DateTime.now(),
+          updatedAt: DateTime.now(),
+        );
+
+        when(mockThreadService.createGlobalThread(
+          title: anyNamed('title'),
+          projectId: anyNamed('projectId'),
+          modelProvider: anyNamed('modelProvider'),
+        )).thenAnswer((_) async => newThread);
+
+        await provider.createNewChat();
+
+        expect(provider.total, equals(1));
+      });
+    });
+
+    group('Listener notifications (FPROV-06)', () {
+      test('notifies listeners on loadThreads start and complete', () async {
+        var notifyCount = 0;
+        provider.addListener(() => notifyCount++);
+
+        when(mockThreadService.getGlobalThreads(page: 1)).thenAnswer(
+          (_) async => PaginatedThreads(
+            threads: [],
+            total: 0,
+            page: 1,
+            pageSize: 25,
+            hasMore: false,
+          ),
+        );
+
+        await provider.loadThreads();
+
+        // Should notify at least twice: loading start, loading complete
+        expect(notifyCount, greaterThanOrEqualTo(2));
+      });
+
+      test('notifies listeners on loadMoreThreads', () async {
+        // Initialize first
+        when(mockThreadService.getGlobalThreads(page: 1)).thenAnswer(
+          (_) async => PaginatedThreads(
+            threads: [
+              Thread(
+                id: '1',
+                title: 'Thread 1',
+                createdAt: DateTime.now(),
+                updatedAt: DateTime.now(),
+              ),
+            ],
+            total: 50,
+            page: 1,
+            pageSize: 25,
+            hasMore: true,
+          ),
+        );
+        await provider.loadThreads();
+
+        var notifyCount = 0;
+        provider.addListener(() => notifyCount++);
+
+        when(mockThreadService.getGlobalThreads(page: 2)).thenAnswer(
+          (_) async => PaginatedThreads(
+            threads: [
+              Thread(
+                id: '2',
+                title: 'Thread 2',
+                createdAt: DateTime.now(),
+                updatedAt: DateTime.now(),
+              ),
+            ],
+            total: 50,
+            page: 2,
+            pageSize: 25,
+            hasMore: false,
+          ),
+        );
+
+        await provider.loadMoreThreads();
+
+        // Should notify at least twice: loading start, loading complete
+        expect(notifyCount, greaterThanOrEqualTo(2));
+      });
+
+      test('notifies listeners on createNewChat success', () async {
+        var notifyCount = 0;
+        provider.addListener(() => notifyCount++);
+
+        final newThread = Thread(
+          id: 'new-1',
+          title: 'New Chat',
+          createdAt: DateTime.now(),
+          updatedAt: DateTime.now(),
+        );
+
+        when(mockThreadService.createGlobalThread(
+          title: anyNamed('title'),
+          projectId: anyNamed('projectId'),
+          modelProvider: anyNamed('modelProvider'),
+        )).thenAnswer((_) async => newThread);
+
+        await provider.createNewChat();
+
+        // Should notify on success
+        expect(notifyCount, greaterThanOrEqualTo(1));
+      });
+
+      test('notifies listeners on createNewChat failure', () async {
+        var notifyCount = 0;
+        provider.addListener(() => notifyCount++);
+
+        when(mockThreadService.createGlobalThread(
+          title: anyNamed('title'),
+          projectId: anyNamed('projectId'),
+          modelProvider: anyNamed('modelProvider'),
+        )).thenThrow(Exception('Creation failed'));
+
+        await provider.createNewChat();
+
+        // Should notify on error
+        expect(notifyCount, greaterThanOrEqualTo(1));
+      });
+
+      test('notifies listeners on clearError', () async {
+        // Set error first
+        when(mockThreadService.getGlobalThreads(page: 1))
+            .thenThrow(Exception('Error'));
+        await provider.loadThreads();
+
+        var notifyCount = 0;
+        provider.addListener(() => notifyCount++);
+
+        provider.clearError();
+
+        expect(notifyCount, equals(1));
+      });
+    });
+
+    group('Thread with project association (FPROV-06)', () {
+      test('handles threads with projectId and projectName correctly',
+          () async {
+        final threadsWithProjects = [
+          Thread(
+            id: '1',
+            projectId: null,
+            projectName: null,
+            title: 'Standalone Chat',
+            createdAt: DateTime.now(),
+            updatedAt: DateTime.now(),
+          ),
+          Thread(
+            id: '2',
+            projectId: 'project-1',
+            projectName: 'My Project',
+            title: 'Project Chat',
+            createdAt: DateTime.now(),
+            updatedAt: DateTime.now(),
+          ),
+          Thread(
+            id: '3',
+            projectId: 'project-2',
+            projectName: 'Another Project',
+            title: 'Another Chat',
+            createdAt: DateTime.now(),
+            updatedAt: DateTime.now(),
+          ),
+        ];
+
+        when(mockThreadService.getGlobalThreads(page: 1)).thenAnswer(
+          (_) async => PaginatedThreads(
+            threads: threadsWithProjects,
+            total: 3,
+            page: 1,
+            pageSize: 25,
+            hasMore: false,
+          ),
+        );
+
+        await provider.loadThreads();
+
+        expect(provider.threads.length, equals(3));
+
+        // Standalone thread
+        expect(provider.threads[0].projectId, isNull);
+        expect(provider.threads[0].projectName, isNull);
+
+        // Project-associated threads
+        expect(provider.threads[1].projectId, equals('project-1'));
+        expect(provider.threads[1].projectName, equals('My Project'));
+        expect(provider.threads[2].projectId, equals('project-2'));
+        expect(provider.threads[2].projectName, equals('Another Project'));
+      });
+    });
   });
 }

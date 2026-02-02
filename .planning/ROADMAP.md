@@ -51,10 +51,10 @@ Plans:
 **Plans:** 4 plans
 
 Plans:
-- [ ] 29-01-PLAN.md — Pure function tests (conversation_service, token_tracking)
-- [ ] 29-02-PLAN.md — Database service tests (conversation, token, document_search, encryption)
-- [ ] 29-03-PLAN.md — Auth service tests (OAuth2Service with mocked clients)
-- [ ] 29-04-PLAN.md — AI service tests (AIService with MockLLMAdapter)
+- [x] 29-01-PLAN.md — Pure function tests (conversation_service, token_tracking)
+- [x] 29-02-PLAN.md — Database service tests (conversation, token, document_search, encryption)
+- [x] 29-03-PLAN.md — Auth service tests (OAuth2Service with mocked clients)
+- [x] 29-04-PLAN.md — AI service tests (AIService with MockLLMAdapter)
 
 **Requirements:**
 - BSVC-01: auth_service has unit test coverage
@@ -178,7 +178,7 @@ Plans:
 | Phase | Name | Requirements | Plans | Status |
 |-------|------|--------------|-------|--------|
 | 28 | Test Infrastructure | 5 | 3 | Complete |
-| 29 | Backend Service Tests | 6 | 4 | Planned |
+| 29 | Backend Service Tests | 6 | 4 | Complete |
 | 30 | Backend LLM & API Tests | 12 | - | Pending |
 | 31 | Frontend Provider & Service Tests | 10 | - | Pending |
 | 32 | Frontend Widget & Model Tests | 6 | - | Pending |
@@ -211,3 +211,4 @@ Phase 28 (Infrastructure)
 *Depth: Quick (6 phases for 43 requirements)*
 *Phase 28 planned: 2026-02-02 (3 plans in 2 waves)*
 *Phase 29 planned: 2026-02-02 (4 plans in 2 waves)*
+*Phase 29 executed: 2026-02-02 (4 plans, 97 tests)*

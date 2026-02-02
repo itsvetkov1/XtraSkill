@@ -162,7 +162,7 @@ Plans:
 - [x] 32-02-PLAN.md — Model tests (Thread, PaginatedThreads, TokenUsage)
 - [x] 32-03-PLAN.md — MessageBubble widget tests, fix project_list_screen tests
 - [x] 32-04-PLAN.md — HomeScreen and SettingsScreen widget tests
-- [ ] 32-05-PLAN.md — Gap closure: fix DocumentListScreen and LoginScreen tests
+- [x] 32-05-PLAN.md — Gap closure: fix DocumentListScreen and LoginScreen tests
 
 **Requirements:**
 - FWID-01: ChatInput widget has unit test coverage
@@ -209,7 +209,7 @@ Plans:
 | 29 | Backend Service Tests | 6 | 4 | Complete |
 | 30 | Backend LLM & API Tests | 12 | 5 | Complete |
 | 31 | Frontend Provider & Service Tests | 10 | 6 | Complete |
-| 32 | Frontend Widget & Model Tests | 6 | 5 | Gap Closure |
+| 32 | Frontend Widget & Model Tests | 6 | 5 | Complete |
 | 33 | CI Integration | 4 | - | Pending |
 
 **Total Requirements:** 43
@@ -246,3 +246,4 @@ Phase 28 (Infrastructure)
 *Phase 31 executed: 2026-02-02 (6 plans, 429 tests)*
 *Phase 32 planned: 2026-02-02 (4 plans in 1 wave)*
 *Phase 32 gap closure: 2026-02-02 (1 plan added for verification gaps)*
+*Phase 32 executed: 2026-02-02 (5 plans, 627 Flutter tests total)*

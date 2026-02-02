@@ -1,5 +1,33 @@
 # Project Milestones: Business Analyst Assistant
 
+## v1.9 UX Improvements (Shipped: 2026-02-02)
+
+**Delivered:** Standard chat UX patterns with Enter to send, threads-first project layout, project-less chats with global Chats menu, and search/sort for thread lists.
+
+**Phases completed:** 23-27 (9 plans total)
+
+**Key accomplishments:**
+
+- Enter to send messages, Shift+Enter for newline (FocusNode.onKeyEvent keyboard handling)
+- Threads-first project layout with collapsible documents column (48px collapsed, 280px expanded)
+- Project-less chats with global Chats navigation section and dual ownership model
+- One-way chat-to-project association via "Add to Project" button and confirmation flow
+- Real-time search and sort in thread lists (Newest/Oldest/Alphabetical, case-insensitive)
+- Three bug fixes during testing (GlobalThreadListResponse fields, last_activity_at, Shift+Enter web)
+
+**Stats:**
+
+- ~9,100 lines Dart, ~66,600 lines Python
+- 5 phases, 9 plans
+- 27/27 requirements satisfied
+- 15 days from start to ship (2026-01-18 → 2026-02-02)
+
+**Git range:** `feat(23-01)` → `docs(27)`
+
+**What's next:** v2.0 — Search, Previews & Integrations
+
+---
+
 ## v1.8 LLM Provider Switching (Shipped: 2026-01-31)
 
 **Delivered:** Multi-provider support enabling users to select Claude, Gemini, or DeepSeek for conversations with per-conversation model binding.
@@ -140,4 +168,4 @@
 
 ---
 
-*Last updated: 2026-02-01 (v1.8 complete)*
+*Last updated: 2026-02-02 (v1.9 complete)*

@@ -10,16 +10,21 @@ Business analysts reduce time spent on requirement documentation while improving
 
 ## Current State
 
-**Shipped:** v1.8 LLM Provider Switching (2026-01-31)
+**Shipped:** v1.9 UX Improvements (2026-02-02)
 
-The application now supports multiple AI providers with per-conversation binding:
+The application now provides standard chat UX patterns and flexible chat organization:
+- Enter to send messages, Shift+Enter for newline (industry standard)
+- Threads-first project layout with collapsible documents column
+- Project-less chats with global Chats navigation section
+- One-way chat-to-project association via "Add to Project"
+- Real-time search and sort in thread lists (Newest/Oldest/A-Z)
+
+Previous features (v1.8):
 - Settings page LLM provider selector (Claude / Gemini / DeepSeek)
 - Per-conversation model binding (conversations remember their model)
 - Model indicator below chat window with provider-specific colors
 - Backend adapter pattern normalizing all providers to StreamChunk format
 - SSE heartbeat mechanism for extended thinking (5+ min)
-- Support for Gemini 3 Flash Preview (`gemini-3-flash-preview`)
-- Support for DeepSeek Reasoner (`deepseek-reasoner`)
 
 Previous features (v1.7):
 - Unique conversation URLs (`/projects/:projectId/threads/:threadId`)
@@ -40,18 +45,7 @@ Previous features (v1.5):
 - Deletion with 10-second undo for all resources
 - Professional empty states across all list screens
 
-**Codebase:** ~14,000 lines of Dart/Python across Flutter frontend and FastAPI backend.
-
-## Current Milestone: v1.9 UX Improvements
-
-**Goal:** Reduce friction in daily chat workflow with standard chat UX, improved layout, and flexible chat organization.
-
-**Target features:**
-- Enter to send message (Shift+Enter for newline) — standard chat behavior
-- Threads as primary view with collapsible documents column — conversations-first layout
-- Project-less chats with global Chats menu — quick conversations without project overhead
-- Search and filter threads — find conversations in large projects
-- Expanded chat input (optional) — more room for long messages
+**Codebase:** ~15,000 lines of Dart/Python across Flutter frontend and FastAPI backend.
 
 ## Future Vision
 
@@ -110,17 +104,18 @@ Previous features (v1.5):
 - ✓ Existing conversations continue with their original model regardless of default — v1.8
 - ✓ Model indicator displays below chat window showing current provider name — v1.8
 - ✓ Backend supports multiple LLM provider APIs via adapter pattern — v1.8
+- ✓ Enter key sends message, Shift+Enter for newline — v1.9
+- ✓ Threads are primary view when opening project — v1.9
+- ✓ Documents appear in collapsible side column — v1.9
+- ✓ Global Chats menu shows all conversations across projects — v1.9
+- ✓ User can create chat without selecting project first — v1.9
+- ✓ User can add project-less chat to a project (one-way association) — v1.9
+- ✓ User can search/filter threads by title — v1.9
+- ✓ Chat input supports more visible lines (up to 10) — v1.9
 
 ### Active
 
-- [ ] Enter key sends message, Shift+Enter for newline (UX-001)
-- [ ] Threads are primary view when opening project (UX-002)
-- [ ] Documents appear in collapsible side column (UX-002)
-- [ ] Global Chats menu shows all conversations across projects (UX-003)
-- [ ] User can create chat without selecting project first (UX-003)
-- [ ] User can add project-less chat to a project (one-way association) (UX-003)
-- [ ] User can search/filter threads by title (THREAD-006)
-- [ ] Chat input supports more visible lines (THREAD-010)
+(None — ready for v2.0 planning)
 
 ### Deferred
 
@@ -193,6 +188,13 @@ BAs prepare for meetings by uploading existing requirements or stakeholder notes
 | dart:html for sessionStorage | Simpler API than package:web; migrate to package:web when Wasm becomes default | ✓ Implemented (Phase 16) |
 | GoRouter.optionURLReflectsImperativeAPIs | Enables browser back/forward to work correctly with imperative navigation | ✓ Implemented (Phase 17) |
 | ResourceNotFoundState widget | Reusable widget for deleted project/thread states; consistent UX | ✓ Implemented (Phase 17) |
+| FocusNode.onKeyEvent for keyboard | Modern Flutter API, cleaner TextField integration than RawKeyboardListener | ✓ Implemented (Phase 23) |
+| TextInputAction.none | Critical for custom Enter key handling (prevents system interception) | ✓ Implemented (Phase 23) |
+| Session-scoped column state | Requirement says "within session" — no SharedPreferences needed | ✓ Implemented (Phase 24) |
+| Dual thread ownership model | user_id for project-less, project.user_id for project threads | ✓ Implemented (Phase 25) |
+| SET NULL on project FK | Threads become project-less on project delete (not CASCADE) | ✓ Implemented (Phase 25) |
+| Permanent association | Thread-project association is one-way and permanent | ✓ Implemented (Phase 26) |
+| Client-side thread filtering | Computed filteredThreads getter with in-memory filter/sort | ✓ Implemented (Phase 27) |
 
 ---
-*Last updated: 2026-02-01 after v1.9 milestone start*
+*Last updated: 2026-02-02 after v1.9 milestone complete*

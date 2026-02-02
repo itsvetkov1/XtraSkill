@@ -19,6 +19,17 @@ The application now provides standard chat UX patterns and flexible chat organiz
 - One-way chat-to-project association via "Add to Project"
 - Real-time search and sort in thread lists (Newest/Oldest/A-Z)
 
+## Current Milestone: v1.9.1 Unit Test Coverage
+
+**Goal:** Comprehensive unit test coverage across all business logic with CI-ready test suite.
+
+**Target:**
+- Analyze existing test coverage (11 backend, 11 frontend test files)
+- Identify gaps in service/provider/endpoint coverage
+- Write unit tests for all business logic
+- All tests pass (green suite)
+- Ready to integrate with CI pipeline
+
 Previous features (v1.8):
 - Settings page LLM provider selector (Claude / Gemini / DeepSeek)
 - Per-conversation model binding (conversations remember their model)
@@ -115,7 +126,13 @@ Previous features (v1.5):
 
 ### Active
 
-(None — ready for v2.0 planning)
+- [ ] Backend services have unit test coverage — v1.9.1
+- [ ] Backend API endpoints have unit test coverage — v1.9.1
+- [ ] LLM adapters (Claude/Gemini/DeepSeek) have unit test coverage — v1.9.1
+- [ ] Frontend providers have unit test coverage — v1.9.1
+- [ ] Frontend widgets have unit test coverage — v1.9.1
+- [ ] All tests pass without failures — v1.9.1
+- [ ] Test suite is CI-ready (can run in automated pipeline) — v1.9.1
 
 ### Deferred
 
@@ -197,4 +214,4 @@ BAs prepare for meetings by uploading existing requirements or stakeholder notes
 | Client-side thread filtering | Computed filteredThreads getter with in-memory filter/sort | ✓ Implemented (Phase 27) |
 
 ---
-*Last updated: 2026-02-02 after v1.9 milestone complete*
+*Last updated: 2026-02-02 after v1.9.1 milestone start*

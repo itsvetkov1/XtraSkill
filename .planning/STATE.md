@@ -11,18 +11,18 @@ See: .planning/PROJECT.md (updated 2026-02-02)
 ## Current Position
 
 Milestone: v1.9.1 Unit Test Coverage
-Phase: 29 of 33 (Backend Service Tests) - In Progress
-Plan: 03 of 04 complete
-Status: Completed 29-03 (auth_service tests)
-Last activity: 2026-02-02 - Completed 29-03-PLAN.md (OAuth2Service tests)
-Next action: Execute 29-04-PLAN.md
+Phase: 29 of 33 (Backend Service Tests) - Complete
+Plan: 04 of 04 complete
+Status: Completed 29-04 (ai_service tests)
+Last activity: 2026-02-02 - Completed 29-04-PLAN.md (AIService tests)
+Next action: Execute Phase 30 (LLM/API tests)
 
-Progress: [========-------------] Phase 29: 3/4 plans complete - 6/? plans total in v1.9.1
+Progress: [===========---------] Phase 29: 4/4 plans complete - 7/? plans total in v1.9.1
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 71 (20 in MVP v1.0, 15 in Beta v1.5, 5 in UX v1.6, 8 in URL v1.7, 8 in LLM v1.8, 9 in UX v1.9, 6 in Unit Tests v1.9.1)
+- Total plans completed: 72 (20 in MVP v1.0, 15 in Beta v1.5, 5 in UX v1.6, 8 in URL v1.7, 8 in LLM v1.8, 9 in UX v1.9, 7 in Unit Tests v1.9.1)
 - Average duration: ~18 minutes (MVP v1.0), ~7 minutes (Beta v1.5), ~5 minutes (UX v1.6), ~4 minutes (URL v1.7), ~5 minutes (LLM v1.8), ~4 minutes (UX v1.9), ~5 minutes (Unit Tests v1.9.1)
 
 **By Milestone:**
@@ -35,7 +35,7 @@ Progress: [========-------------] Phase 29: 3/4 plans complete - 6/? plans total
 | URL v1.7 | 15-18 | 8/8 | SHIPPED 2026-01-31 |
 | LLM v1.8 | 19-22 | 8/8 | SHIPPED 2026-01-31 |
 | UX v1.9 | 23-27 | 9/9 | SHIPPED 2026-02-02 |
-| Unit Tests v1.9.1 | 28-33 | 6/? | In Progress |
+| Unit Tests v1.9.1 | 28-33 | 7/? | In Progress |
 
 ## Accumulated Context
 
@@ -74,6 +74,8 @@ Previous milestone decisions archived in:
 | Use db_session fixture for all DB tests | Consistent with Phase 28 infrastructure |
 | Test token_tracking with explicit cost assertions | Verify pricing calculations for Claude 4.5 Sonnet |
 | Mock at AsyncOAuth2Client level | Cleaner than HTTP-level mocking for OAuth tests |
+| Skip heartbeat timing tests | 1s asyncio.sleep makes sub-second testing impossible |
+| AIService.__new__ for mock injection | Clean dependency injection for adapter |
 
 ### Pending Todos
 
@@ -88,10 +90,10 @@ Previous milestone decisions archived in:
 ## Session Continuity
 
 Last session: 2026-02-02
-Stopped at: Completed 29-03-PLAN.md
+Stopped at: Completed 29-04-PLAN.md (Phase 29 complete)
 Resume file: None
-Next action: Execute 29-04-PLAN.md
+Next action: Execute Phase 30 (LLM/API tests)
 
 ---
 
-*State updated: 2026-02-02 (completed 29-03, auth_service OAuth2Service tests)*
+*State updated: 2026-02-02 (completed 29-04, AIService tests with MockLLMAdapter)*

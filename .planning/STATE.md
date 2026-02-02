@@ -12,12 +12,12 @@ See: .planning/PROJECT.md (updated 2026-02-02)
 
 Milestone: v1.9.1 Unit Test Coverage
 Phase: 32 of 33 (Frontend Widget & Model Tests)
-Plan: 01, 03 of 4 complete (32-02, 32-04 remaining)
-Status: In progress - 32-01 complete
-Last activity: 2026-02-02 - Completed 32-01-PLAN.md (Message/Project/Document model tests)
-Next action: Execute 32-02-PLAN.md (Thread/TokenUsage model tests)
+Plan: 01, 02, 03 of 4 complete (32-04 remaining)
+Status: In progress - 32-02 complete
+Last activity: 2026-02-02 - Completed 32-02-PLAN.md (Thread/TokenUsage model tests)
+Next action: Execute 32-04-PLAN.md (ConversationScreen widget tests)
 
-Progress: [========================------] 4/6 phases complete - 20/24 plans total in v1.9.1
+Progress: [========================------] 4/6 phases complete - 21/24 plans total in v1.9.1
 
 ## Performance Metrics
 
@@ -126,14 +126,17 @@ Previous milestone decisions archived in:
 | Test ISO 8601 datetime parsing variants (32-01) | DateTime parsing handles both with/without timezone suffix |
 | Test empty string vs null for content (32-01) | Document content can be empty string (valid) vs null (not loaded) |
 | Test empty arrays vs null for collections (32-01) | Project documents/threads can be [] (loaded, none) vs null (not loaded) |
+| Test Thread.hasProject edge cases (32-02) | Computed property has empty string check beyond null |
+| Test TokenUsage costPercentage clamping (32-02) | Verify 0.0-1.0 range enforcement per model implementation |
+| Comprehensive PaginatedThreads tests (32-02) | Nested Thread array with pagination fields needs validation |
 
 ## Session Continuity
 
 Last session: 2026-02-02
-Stopped at: Completed 32-01-PLAN.md
+Stopped at: Completed 32-02-PLAN.md
 Resume file: None
-Next action: Execute 32-02-PLAN.md
+Next action: Execute 32-04-PLAN.md
 
 ---
 
-*State updated: 2026-02-02 (32-01 complete - 49 model tests for Message/Project/Document)*
+*State updated: 2026-02-02 (32-02 complete - 87 model tests total for all models)*

@@ -4,6 +4,7 @@ library;
 import 'package:flutter/foundation.dart';
 
 import '../models/thread.dart';
+import '../models/thread_sort.dart';
 import '../services/thread_service.dart';
 
 /// Provider for global chats state management.
@@ -19,6 +20,10 @@ class ChatsProvider extends ChangeNotifier {
   int _currentPage = 1;
   bool _hasMore = false; // Start false until first load confirms more pages
 
+  // Search and sort state
+  String _searchQuery = '';
+  ThreadSortOption _sortOption = ThreadSortOption.newest;
+
   ChatsProvider({ThreadService? threadService})
       : _threadService = threadService ?? ThreadService();
 
@@ -29,6 +34,55 @@ class ChatsProvider extends ChangeNotifier {
   String? get error => _error;
   int get total => _total;
   bool get hasMore => _hasMore;
+  String get searchQuery => _searchQuery;
+  ThreadSortOption get sortOption => _sortOption;
+
+  /// Filtered and sorted threads based on current search/sort state.
+  List<Thread> get filteredThreads {
+    var result = _threads.where((thread) {
+      if (_searchQuery.isEmpty) return true;
+      final title = (thread.title ?? '').toLowerCase();
+      return title.contains(_searchQuery.toLowerCase());
+    }).toList();
+
+    switch (_sortOption) {
+      case ThreadSortOption.newest:
+        result.sort((a, b) {
+          final aDate = a.lastActivityAt ?? a.updatedAt;
+          final bDate = b.lastActivityAt ?? b.updatedAt;
+          return bDate.compareTo(aDate);
+        });
+      case ThreadSortOption.oldest:
+        result.sort((a, b) {
+          final aDate = a.lastActivityAt ?? a.updatedAt;
+          final bDate = b.lastActivityAt ?? b.updatedAt;
+          return aDate.compareTo(bDate);
+        });
+      case ThreadSortOption.alphabetical:
+        result.sort((a, b) => (a.title ?? '')
+            .toLowerCase()
+            .compareTo((b.title ?? '').toLowerCase()));
+    }
+    return result;
+  }
+
+  /// Set search query and notify listeners.
+  void setSearchQuery(String query) {
+    _searchQuery = query;
+    notifyListeners();
+  }
+
+  /// Set sort option and notify listeners.
+  void setSortOption(ThreadSortOption option) {
+    _sortOption = option;
+    notifyListeners();
+  }
+
+  /// Clear search query and notify listeners.
+  void clearSearch() {
+    _searchQuery = '';
+    notifyListeners();
+  }
 
   /// Load threads (first page or refresh)
   Future<void> loadThreads() async {

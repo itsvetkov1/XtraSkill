@@ -103,7 +103,7 @@ v1.9 scope is well-defined via user stories in /user_stories/:
 Last session: 2026-02-02
 Stopped at: Completed 27-01-PLAN.md (ChatsScreen search/sort)
 Resume file: None
-Next action: v1.9 milestone complete - ready for testing or next milestone
+Next action: Audit milestone v1.9
 
 ---
 

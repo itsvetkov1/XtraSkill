@@ -2,7 +2,8 @@
 
 **Milestone:** v1.9
 **Created:** 2026-02-01
-**Status:** In Progress
+**Completed:** 2026-02-02
+**Status:** Complete
 
 ---
 
@@ -146,8 +147,8 @@ Plans:
 **Plans:** 2 plans
 
 Plans:
-- [ ] 27-01-PLAN.md - Core model + ChatsScreen search/sort UI
-- [ ] 27-02-PLAN.md - ThreadListScreen search/sort UI (mirror pattern)
+- [x] 27-01-PLAN.md - Core model + ChatsScreen search/sort UI
+- [x] 27-02-PLAN.md - ThreadListScreen search/sort UI (mirror pattern)
 
 ---
 
@@ -159,7 +160,7 @@ Plans:
 | 24 | project-layout-redesign | LAYOUT-01 to LAYOUT-06 | Complete |
 | 25 | global-chats-backend | CHATS-01 to CHATS-07 | Complete |
 | 26 | chat-project-association | CHATS-08 to CHATS-13 | Complete |
-| 27 | thread-search-filter | SEARCH-01 to SEARCH-04 | Planned |
+| 27 | thread-search-filter | SEARCH-01 to SEARCH-04 | Complete |
 
 **Coverage:** 27/27 requirements mapped
 

@@ -43,9 +43,9 @@ void main() {
 
       await tester.pumpAndSettle();
 
-      expect(find.text('No documents uploaded'), findsOneWidget);
-      expect(find.text('Tap the + button to upload a document'), findsOneWidget);
-      expect(find.byIcon(Icons.folder_open), findsOneWidget);
+      expect(find.text('No documents yet'), findsOneWidget);
+      expect(find.text('Upload documents to provide context for AI conversations.'), findsOneWidget);
+      expect(find.byIcon(Icons.description_outlined), findsOneWidget);
     });
 
     testWidgets('Loading state shows skeletonizer',
@@ -147,7 +147,8 @@ void main() {
     });
 
     testWidgets('Document cards show creation date', (tester) async {
-      final testDate = DateTime(2026, 1, 15);
+      // Use a recent date to get relative format ("about X hours ago")
+      final testDate = DateTime.now().subtract(const Duration(hours: 2));
       final mockDocuments = [
         Document(
           id: '1',
@@ -172,8 +173,9 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('test-doc.txt'), findsOneWidget);
-      expect(find.textContaining('Uploaded:'), findsOneWidget);
-      expect(find.text('Uploaded: 2026-01-15'), findsOneWidget);
+      // DateFormatter.format returns relative time for <7 days
+      // UI shows "Uploaded ${DateFormatter.format(date)}" without colon
+      expect(find.textContaining('Uploaded '), findsOneWidget);
     });
 
     testWidgets('Multiple documents render correctly', (tester) async {

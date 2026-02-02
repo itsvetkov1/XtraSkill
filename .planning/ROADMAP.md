@@ -155,6 +155,14 @@ Plans:
 
 **Dependencies:** Phase 31 (provider tests validate underlying state management)
 
+**Plans:** 4 plans
+
+Plans:
+- [ ] 32-01-PLAN.md — Model tests (Message, Project, Document)
+- [ ] 32-02-PLAN.md — Model tests (Thread, PaginatedThreads, TokenUsage)
+- [ ] 32-03-PLAN.md — MessageBubble widget tests, fix project_list_screen tests
+- [ ] 32-04-PLAN.md — HomeScreen and SettingsScreen widget tests
+
 **Requirements:**
 - FWID-01: ChatInput widget has unit test coverage
 - FWID-02: MessageBubble widget has unit test coverage
@@ -200,7 +208,7 @@ Plans:
 | 29 | Backend Service Tests | 6 | 4 | Complete |
 | 30 | Backend LLM & API Tests | 12 | 5 | Complete |
 | 31 | Frontend Provider & Service Tests | 10 | 6 | Complete |
-| 32 | Frontend Widget & Model Tests | 6 | - | Pending |
+| 32 | Frontend Widget & Model Tests | 6 | 4 | Planned |
 | 33 | CI Integration | 4 | - | Pending |
 
 **Total Requirements:** 43
@@ -235,3 +243,4 @@ Phase 28 (Infrastructure)
 *Phase 30 executed: 2026-02-02 (5 plans, 240 tests)*
 *Phase 31 planned: 2026-02-02 (6 plans in 2 waves)*
 *Phase 31 executed: 2026-02-02 (6 plans, 429 tests)*
+*Phase 32 planned: 2026-02-02 (4 plans in 1 wave)*

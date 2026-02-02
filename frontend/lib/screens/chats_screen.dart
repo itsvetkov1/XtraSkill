@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../models/thread.dart';
+import '../models/thread_sort.dart';
 import '../providers/chats_provider.dart';
 import '../providers/provider_provider.dart';
 
@@ -19,6 +20,7 @@ class ChatsScreen extends StatefulWidget {
 
 class _ChatsScreenState extends State<ChatsScreen> {
   final ScrollController _scrollController = ScrollController();
+  final TextEditingController _searchController = TextEditingController();
 
   @override
   void initState() {
@@ -29,6 +31,10 @@ class _ChatsScreenState extends State<ChatsScreen> {
       if (!provider.isInitialized) {
         provider.loadThreads();
       }
+      // Restore search query from provider (if any)
+      if (provider.searchQuery.isNotEmpty) {
+        _searchController.text = provider.searchQuery;
+      }
     });
     // Listen for scroll to load more
     _scrollController.addListener(_onScroll);
@@ -38,6 +44,7 @@ class _ChatsScreenState extends State<ChatsScreen> {
   void dispose() {
     _scrollController.removeListener(_onScroll);
     _scrollController.dispose();
+    _searchController.dispose();
     super.dispose();
   }
 
@@ -59,6 +66,11 @@ class _ChatsScreenState extends State<ChatsScreen> {
       // Navigate to conversation view
       context.go('/chats/${thread.id}');
     }
+  }
+
+  void _clearSearch() {
+    _searchController.clear();
+    context.read<ChatsProvider>().clearSearch();
   }
 
   @override
@@ -90,20 +102,62 @@ class _ChatsScreenState extends State<ChatsScreen> {
 
           return Column(
             children: [
-              // Header with New Chat button
+              // Header with New Chat button and search
               Padding(
                 padding: const EdgeInsets.all(16.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                child: Column(
                   children: [
-                    Text(
-                      'Chats',
-                      style: Theme.of(context).textTheme.headlineMedium,
+                    // Title row with New Chat button
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Chats',
+                          style: Theme.of(context).textTheme.headlineMedium,
+                        ),
+                        FilledButton.icon(
+                          onPressed: _createNewChat,
+                          icon: const Icon(Icons.add),
+                          label: const Text('New Chat'),
+                        ),
+                      ],
                     ),
-                    FilledButton.icon(
-                      onPressed: _createNewChat,
-                      icon: const Icon(Icons.add),
-                      label: const Text('New Chat'),
+                    const SizedBox(height: 12),
+                    // Search bar
+                    SearchBar(
+                      hintText: 'Search chats...',
+                      controller: _searchController,
+                      leading: const Icon(Icons.search),
+                      trailing: _searchController.text.isNotEmpty
+                          ? [
+                              IconButton(
+                                icon: const Icon(Icons.clear),
+                                onPressed: _clearSearch,
+                              ),
+                            ]
+                          : null,
+                      onChanged: (value) {
+                        context.read<ChatsProvider>().setSearchQuery(value);
+                        // Trigger rebuild to show/hide clear button
+                        setState(() {});
+                      },
+                    ),
+                    const SizedBox(height: 8),
+                    // Sort selector
+                    SegmentedButton<ThreadSortOption>(
+                      segments: ThreadSortOption.values
+                          .map((option) => ButtonSegment(
+                                value: option,
+                                label: Text(option.label),
+                              ))
+                          .toList(),
+                      selected: {provider.sortOption},
+                      onSelectionChanged: (selected) {
+                        context
+                            .read<ChatsProvider>()
+                            .setSortOption(selected.first);
+                      },
+                      showSelectedIcon: false,
                     ),
                   ],
                 ),
@@ -112,7 +166,7 @@ class _ChatsScreenState extends State<ChatsScreen> {
               // Thread list
               Expanded(
                 child: provider.threads.isEmpty
-                    ? _buildEmptyState()
+                    ? _buildEmptyState(provider)
                     : _buildThreadList(provider),
               ),
             ],
@@ -122,7 +176,37 @@ class _ChatsScreenState extends State<ChatsScreen> {
     );
   }
 
-  Widget _buildEmptyState() {
+  Widget _buildEmptyState(ChatsProvider provider) {
+    // Differentiate: search has no results vs no threads at all
+    if (provider.searchQuery.isNotEmpty && provider.filteredThreads.isEmpty) {
+      // Search returned no results
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.search_off,
+              size: 64,
+              color: Theme.of(context).colorScheme.outline,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              "No chats matching '${provider.searchQuery}'",
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    color: Theme.of(context).colorScheme.outline,
+                  ),
+            ),
+            const SizedBox(height: 16),
+            TextButton(
+              onPressed: _clearSearch,
+              child: const Text('Clear search'),
+            ),
+          ],
+        ),
+      );
+    }
+
+    // Truly no threads
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -158,16 +242,26 @@ class _ChatsScreenState extends State<ChatsScreen> {
   }
 
   Widget _buildThreadList(ChatsProvider provider) {
-    // Only show load more indicator if initialized, has more, and not currently loading
-    final showLoadMore = provider.isInitialized && provider.hasMore;
+    final filteredThreads = provider.filteredThreads;
+
+    // Check if filtered list is empty (search has no matches)
+    if (filteredThreads.isEmpty) {
+      return _buildEmptyState(provider);
+    }
+
+    // Only show load more indicator if initialized, has more, not searching, and not loading
+    // Don't show load more when actively filtering (user can scroll to load all, then filter)
+    final showLoadMore = provider.isInitialized &&
+        provider.hasMore &&
+        provider.searchQuery.isEmpty;
 
     return RefreshIndicator(
       onRefresh: () => provider.loadThreads(),
       child: ListView.builder(
         controller: _scrollController,
-        itemCount: provider.threads.length + (showLoadMore ? 1 : 0),
+        itemCount: filteredThreads.length + (showLoadMore ? 1 : 0),
         itemBuilder: (context, index) {
-          if (index >= provider.threads.length) {
+          if (index >= filteredThreads.length) {
             // Show loading indicator at bottom when more pages exist
             return const Center(
               child: Padding(
@@ -177,7 +271,7 @@ class _ChatsScreenState extends State<ChatsScreen> {
             );
           }
 
-          final thread = provider.threads[index];
+          final thread = filteredThreads[index];
           return _ChatListTile(
             thread: thread,
             onTap: () => _navigateToThread(thread),

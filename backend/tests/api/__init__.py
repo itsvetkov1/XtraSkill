@@ -1,1 +1,1 @@
-"""API contract tests for backend routes."""
+"""API contract tests."""

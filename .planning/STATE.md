@@ -11,13 +11,13 @@ See: .planning/PROJECT.md (updated 2026-02-02)
 ## Current Position
 
 Milestone: v1.9.1 Unit Test Coverage
-Phase: 31 of 33 (Frontend Provider & Service Tests) - IN PROGRESS
-Plan: 4 of 5 complete
-Status: 31-04 complete, ready for 31-05
-Last activity: 2026-02-02 - Completed 31-04 (Simple providers tests)
-Next action: Execute 31-05 (Service tests)
+Phase: 31 of 33 (Frontend Provider & Service Tests) - COMPLETE
+Plan: 5 of 5 complete
+Status: Phase 31 complete, ready for Phase 32
+Last activity: 2026-02-02 - Completed 31-05 (Service tests)
+Next action: Execute Phase 32 (Frontend Widget Tests)
 
-Progress: [=====================---------] 4/6 phases partially complete - 16/? plans total in v1.9.1
+Progress: [=======================-------] 4/6 phases complete - 17/? plans total in v1.9.1
 
 ## Performance Metrics
 
@@ -113,14 +113,17 @@ Previous milestone decisions archived in:
 | No mocks for DocumentColumnProvider (31-04) | Pure state management with no external dependencies |
 | Test graceful degradation explicitly (31-04) | Verify UI continues working when SharedPreferences fails |
 | Conditional notification testing (31-04) | expand()/collapse() skip notification when state unchanged |
+| Test JWT validation with actual base64 encoding (31-05) | Verify real token parsing logic, not just mock returns |
+| Skip launchUrl testing in OAuth methods (31-05) | url_launcher not available in test environment; test initiate endpoint only |
+| Use createTestJwt helper for JWT tests (31-05) | Consistent test token generation with real base64 encoding |
 
 ## Session Continuity
 
 Last session: 2026-02-02
-Stopped at: 31-04 complete
+Stopped at: Phase 31 complete
 Resume file: None
-Next action: Execute 31-05
+Next action: Execute Phase 32 (Frontend Widget Tests)
 
 ---
 
-*State updated: 2026-02-02 (31-01 through 31-04 complete - 131 tests: 28 Auth, 41 Project, 62 others)*
+*State updated: 2026-02-02 (Phase 31 complete - 199 tests: 28 Auth, 41 Project, 35 Conversation, 27 Simple, 68 Services)*

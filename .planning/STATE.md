@@ -12,12 +12,12 @@ See: .planning/PROJECT.md (updated 2026-02-02)
 
 Milestone: v1.9.1 Unit Test Coverage
 Phase: 31 of 33 (Frontend Provider & Service Tests) - IN PROGRESS
-Plan: 3 of 5 complete
-Status: 31-03 complete, ready for 31-04
-Last activity: 2026-02-02 - Completed 31-03 (ConversationProvider + ChatsProvider tests)
-Next action: Execute 31-04 (Additional provider tests)
+Plan: 4 of 5 complete
+Status: 31-04 complete, ready for 31-05
+Last activity: 2026-02-02 - Completed 31-04 (Simple providers tests)
+Next action: Execute 31-05 (Service tests)
 
-Progress: [=====================---------] 4/6 phases partially complete - 15/? plans total in v1.9.1
+Progress: [=====================---------] 4/6 phases partially complete - 16/? plans total in v1.9.1
 
 ## Performance Metrics
 
@@ -108,14 +108,17 @@ Previous milestone decisions archived in:
 | Stream event mocking with async* generators (31-03) | Mock AIService.streamChat to return Stream.fromIterable with event sequence |
 | Listener notification testing via addListener (31-03) | Count notifyListeners calls with callback counter |
 | FPROV-06 test groups separate from original (31-03) | Clear distinction between original and expanded tests |
+| No mocks for DocumentColumnProvider (31-04) | Pure state management with no external dependencies |
+| Test graceful degradation explicitly (31-04) | Verify UI continues working when SharedPreferences fails |
+| Conditional notification testing (31-04) | expand()/collapse() skip notification when state unchanged |
 
 ## Session Continuity
 
 Last session: 2026-02-02
-Stopped at: 31-03 complete
+Stopped at: 31-04 complete
 Resume file: None
-Next action: Execute 31-04
+Next action: Execute 31-05
 
 ---
 
-*State updated: 2026-02-02 (31-03 complete - 75 tests: 40 ConversationProvider, 35 ChatsProvider)*
+*State updated: 2026-02-02 (31-04 complete - 62 tests: 15 Theme, 13 Navigation, 19 Provider, 15 DocumentColumn)*

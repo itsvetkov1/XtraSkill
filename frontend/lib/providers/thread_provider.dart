@@ -5,6 +5,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import '../models/thread.dart';
+import '../models/thread_sort.dart';
 import '../services/thread_service.dart';
 
 /// Thread provider managing conversation thread state
@@ -33,6 +34,12 @@ class ThreadProvider extends ChangeNotifier {
   /// Timer for deferred deletion
   Timer? _deleteTimer;
 
+  /// Search query for filtering threads
+  String _searchQuery = '';
+
+  /// Sort option for thread list
+  ThreadSortOption _sortOption = ThreadSortOption.newest;
+
   ThreadProvider({ThreadService? threadService})
       : _threadService = threadService ?? ThreadService();
 
@@ -50,6 +57,34 @@ class ThreadProvider extends ChangeNotifier {
 
   /// Error message if operation failed
   String? get error => _error;
+
+  /// Current search query
+  String get searchQuery => _searchQuery;
+
+  /// Current sort option
+  ThreadSortOption get sortOption => _sortOption;
+
+  /// Filtered and sorted threads based on current search and sort state
+  List<Thread> get filteredThreads {
+    var result = _threads.where((thread) {
+      if (_searchQuery.isEmpty) return true;
+      final title = thread.title?.toLowerCase() ?? '';
+      return title.contains(_searchQuery.toLowerCase());
+    }).toList();
+
+    switch (_sortOption) {
+      case ThreadSortOption.newest:
+        result.sort((a, b) => (b.lastActivityAt ?? b.updatedAt)
+            .compareTo(a.lastActivityAt ?? a.updatedAt));
+      case ThreadSortOption.oldest:
+        result.sort((a, b) => (a.lastActivityAt ?? a.updatedAt)
+            .compareTo(b.lastActivityAt ?? b.updatedAt));
+      case ThreadSortOption.alphabetical:
+        result.sort((a, b) =>
+            (a.title ?? '').toLowerCase().compareTo((b.title ?? '').toLowerCase()));
+    }
+    return result;
+  }
 
   /// Load threads for a project
   ///
@@ -174,12 +209,32 @@ class ThreadProvider extends ChangeNotifier {
     _selectedThread = null;
     _error = null;
     _loading = false;
+    _searchQuery = '';
+    _sortOption = ThreadSortOption.newest;
     notifyListeners();
   }
 
   /// Clear error message
   void clearError() {
     _error = null;
+    notifyListeners();
+  }
+
+  /// Set search query for filtering threads
+  void setSearchQuery(String query) {
+    _searchQuery = query;
+    notifyListeners();
+  }
+
+  /// Set sort option for thread ordering
+  void setSortOption(ThreadSortOption option) {
+    _sortOption = option;
+    notifyListeners();
+  }
+
+  /// Clear search query
+  void clearSearch() {
+    _searchQuery = '';
     notifyListeners();
   }
 

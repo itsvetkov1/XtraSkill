@@ -1,0 +1,44 @@
+# Codecov configuration
+# Docs: https://docs.codecov.com/docs/codecovyml-reference
+
+codecov:
+  require_ci_to_pass: yes
+
+coverage:
+  precision: 2
+  round: down
+  status:
+    project:
+      default:
+        target: auto
+        threshold: 5%
+        informational: true  # Warn only, don't fail PR
+      backend:
+        flags:
+          - backend
+        target: 60%
+        informational: true
+      frontend:
+        flags:
+          - frontend
+        target: 50%
+        informational: true
+    patch:
+      default:
+        target: 50%
+        informational: true
+
+flags:
+  backend:
+    paths:
+      - app/
+    carryforward: true
+  frontend:
+    paths:
+      - lib/
+    carryforward: true
+
+comment:
+  layout: "reach,diff,flags,files"
+  behavior: default
+  require_changes: true

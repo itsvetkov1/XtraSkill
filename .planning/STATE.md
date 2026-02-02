@@ -6,23 +6,23 @@ See: .planning/PROJECT.md (updated 2026-02-02)
 
 **Core value:** Business analysts reduce time spent on requirement documentation while improving completeness through AI-assisted discovery conversations that systematically explore edge cases and generate production-ready artifacts.
 
-**Current focus:** v1.9.1 Unit Test Coverage milestone
+**Current focus:** v1.9.1 Unit Test Coverage milestone - COMPLETE
 
 ## Current Position
 
 Milestone: v1.9.1 Unit Test Coverage
-Phase: 32 of 33 (Frontend Widget & Model Tests)
-Plan: All 5 plans complete (including gap closure)
-Status: Phase 32 verified complete, ready for Phase 33
-Last activity: 2026-02-02 - Completed 32-05-PLAN.md (gap closure: DocumentListScreen/LoginScreen fixes)
-Next action: Execute Phase 33
+Phase: 33 of 33 (CI Integration)
+Plan: 1/1 complete
+Status: v1.9.1 COMPLETE - ready to ship
+Last activity: 2026-02-02 - Completed 33-01-PLAN.md (CI coverage integration)
+Next action: Ship v1.9.1, plan next milestone
 
-Progress: [==========================----] 5/6 phases complete - 23/24 plans total in v1.9.1
+Progress: [==============================] 6/6 phases complete - 24/24 plans total in v1.9.1
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 84 (20 in MVP v1.0, 15 in Beta v1.5, 5 in UX v1.6, 8 in URL v1.7, 8 in LLM v1.8, 9 in UX v1.9, 19 in Unit Tests v1.9.1)
+- Total plans completed: 85 (20 in MVP v1.0, 15 in Beta v1.5, 5 in UX v1.6, 8 in URL v1.7, 8 in LLM v1.8, 9 in UX v1.9, 20 in Unit Tests v1.9.1)
 - Average duration: ~18 minutes (MVP v1.0), ~7 minutes (Beta v1.5), ~5 minutes (UX v1.6), ~4 minutes (URL v1.7), ~5 minutes (LLM v1.8), ~4 minutes (UX v1.9), ~4 minutes (Unit Tests v1.9.1)
 
 **By Milestone:**
@@ -35,7 +35,7 @@ Progress: [==========================----] 5/6 phases complete - 23/24 plans tot
 | URL v1.7 | 15-18 | 8/8 | SHIPPED 2026-01-31 |
 | LLM v1.8 | 19-22 | 8/8 | SHIPPED 2026-01-31 |
 | UX v1.9 | 23-27 | 9/9 | SHIPPED 2026-02-02 |
-| Unit Tests v1.9.1 | 28-33 | 23/24 | In Progress |
+| Unit Tests v1.9.1 | 28-33 | 24/24 | COMPLETE |
 
 ## Accumulated Context
 
@@ -91,12 +91,14 @@ Previous milestone decisions archived in:
 ### Pending Todos
 
 - Manual testing of remaining v1.7-v1.9 features (see TESTING-QUEUE.md)
+- Configure CODECOV_TOKEN secret in GitHub repository
+- Link repository to Codecov dashboard
 
 ### Blockers/Concerns
 
 **No current blockers**
 
-**Note:** Pre-existing test failure in test_cascade_delete_project (thread cascade) - not related to Phase 28-30 work.
+**Note:** Pre-existing test failure in test_cascade_delete_project (thread cascade) - not related to Phase 28-33 work.
 
 ### Phase 31 Decisions
 
@@ -137,13 +139,22 @@ Previous milestone decisions archived in:
 | Stub implementation pattern (32-05) | No-op stub provides test-compatible API for web-only services |
 | textContaining for date assertions (32-05) | DateFormatter.format() returns variable relative text |
 
+### Phase 33 Decisions
+
+| Decision | Rationale |
+|----------|-----------|
+| Replace push/PR triggers with manual/scheduled/dispatch | User wants control over when CI runs |
+| informational: true for all coverage thresholds | Coverage drops should warn but not block PRs |
+| Backend 60%, frontend 50% targets | Backend ~67% baseline; frontend conservative start |
+| No slash-command-dispatch workflow | Requires PAT - defer complexity to user request |
+
 ## Session Continuity
 
 Last session: 2026-02-02
-Stopped at: Completed 32-05-PLAN.md (gap closure)
+Stopped at: Completed 33-01-PLAN.md (CI integration)
 Resume file: None
-Next action: Execute Phase 33
+Next action: Ship v1.9.1 milestone
 
 ---
 
-*State updated: 2026-02-02 (32-05 complete - gap closure, 103 widget tests passing)*
+*State updated: 2026-02-02 (33-01 complete - v1.9.1 milestone complete, 24/24 plans)*

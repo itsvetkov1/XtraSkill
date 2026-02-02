@@ -11,19 +11,19 @@ See: .planning/PROJECT.md (updated 2026-02-02)
 ## Current Position
 
 Milestone: v1.9.1 Unit Test Coverage
-Phase: 28 of 33 (Test Infrastructure)
-Plan: 03 of 03 in phase pending
-Status: In progress
-Last activity: 2026-02-02 - Completed 28-01-PLAN.md (coverage dependencies)
-Next action: Execute 28-03-PLAN.md (MockLLMAdapter)
+Phase: 28 of 33 (Test Infrastructure) - COMPLETE
+Plan: 03 of 03 in phase complete
+Status: Phase 28 complete, ready for Phase 29
+Last activity: 2026-02-02 - Completed 28-03-PLAN.md (shared fixtures module)
+Next action: Plan Phase 29 (Frontend Unit Tests)
 
-Progress: [==------------------] Phase 28: 2/3 plans complete - 0/6 phases complete
+Progress: [====-----------------] Phase 28: 3/3 plans complete - 1/6 phases complete
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 65 (20 in MVP v1.0, 15 in Beta v1.5, 5 in UX v1.6, 8 in URL v1.7, 8 in LLM v1.8, 9 in UX v1.9)
-- Average duration: ~18 minutes (MVP v1.0), ~7 minutes (Beta v1.5), ~5 minutes (UX v1.6), ~4 minutes (URL v1.7), ~5 minutes (LLM v1.8), ~4 minutes (UX v1.9)
+- Total plans completed: 68 (20 in MVP v1.0, 15 in Beta v1.5, 5 in UX v1.6, 8 in URL v1.7, 8 in LLM v1.8, 9 in UX v1.9, 3 in Unit Tests v1.9.1)
+- Average duration: ~18 minutes (MVP v1.0), ~7 minutes (Beta v1.5), ~5 minutes (UX v1.6), ~4 minutes (URL v1.7), ~5 minutes (LLM v1.8), ~4 minutes (UX v1.9), ~6 minutes (Unit Tests v1.9.1)
 
 **By Milestone:**
 
@@ -35,7 +35,7 @@ Progress: [==------------------] Phase 28: 2/3 plans complete - 0/6 phases compl
 | URL v1.7 | 15-18 | 8/8 | SHIPPED 2026-01-31 |
 | LLM v1.8 | 19-22 | 8/8 | SHIPPED 2026-01-31 |
 | UX v1.9 | 23-27 | 9/9 | SHIPPED 2026-02-02 |
-| Unit Tests v1.9.1 | 28-33 | 2/? | In Progress |
+| Unit Tests v1.9.1 | 28-33 | 3/? | In Progress |
 
 ## Accumulated Context
 
@@ -57,6 +57,15 @@ Previous milestone decisions archived in:
 - Infrastructure-first approach (Phase 28 unblocks all others)
 - Research identified MockLLMAdapter and SSE streaming as key patterns
 
+### Phase 28 Decisions
+
+| Decision | Rationale |
+|----------|-----------|
+| pytest_plugins for fixture discovery | Proper pytest handling of fixture registration |
+| MockLLMAdapter with call_history | Enable assertions on LLM inputs, not just outputs |
+| Keep skill fixtures in conftest | Low-use fixtures stay in legacy location |
+| Factory-boy with @register decorator | Auto-creates pytest fixtures for all models |
+
 ### Pending Todos
 
 - Manual testing of remaining v1.7-v1.9 features (see TESTING-QUEUE.md)
@@ -65,13 +74,15 @@ Previous milestone decisions archived in:
 
 **No current blockers**
 
+**Note:** Pre-existing test failure in test_cascade_delete_project (thread cascade) - not related to Phase 28 work.
+
 ## Session Continuity
 
 Last session: 2026-02-02
-Stopped at: Completed 28-01-PLAN.md (coverage dependencies)
+Stopped at: Completed 28-03-PLAN.md (shared fixtures module)
 Resume file: None
-Next action: Execute 28-03-PLAN.md (MockLLMAdapter)
+Next action: Plan Phase 29 (Frontend Unit Tests)
 
 ---
 
-*State updated: 2026-02-02 (completed 28-01)*
+*State updated: 2026-02-02 (completed 28-03, Phase 28 complete)*

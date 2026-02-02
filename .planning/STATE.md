@@ -11,19 +11,19 @@ See: .planning/PROJECT.md (updated 2026-02-02)
 ## Current Position
 
 Milestone: v1.9.1 Unit Test Coverage
-Phase: 28 of 33 (Test Infrastructure) - COMPLETE
-Plan: 03 of 03 in phase complete
-Status: Phase 28 complete, ready for Phase 29
-Last activity: 2026-02-02 - Completed 28-03-PLAN.md (shared fixtures module)
-Next action: /gsd:plan-phase 29 (Backend Service Tests)
+Phase: 29 of 33 (Backend Service Tests) - In Progress
+Plan: 01 of 04 complete
+Status: Completed 29-01 (pure function tests)
+Last activity: 2026-02-02 - Completed 29-01-PLAN.md (pure function tests)
+Next action: Execute 29-02-PLAN.md
 
-Progress: [====-----------------] Phase 28: 3/3 plans complete - 1/6 phases complete
+Progress: [=====----------------] Phase 29: 1/4 plans complete - 4/? plans total in v1.9.1
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 68 (20 in MVP v1.0, 15 in Beta v1.5, 5 in UX v1.6, 8 in URL v1.7, 8 in LLM v1.8, 9 in UX v1.9, 3 in Unit Tests v1.9.1)
-- Average duration: ~18 minutes (MVP v1.0), ~7 minutes (Beta v1.5), ~5 minutes (UX v1.6), ~4 minutes (URL v1.7), ~5 minutes (LLM v1.8), ~4 minutes (UX v1.9), ~6 minutes (Unit Tests v1.9.1)
+- Total plans completed: 69 (20 in MVP v1.0, 15 in Beta v1.5, 5 in UX v1.6, 8 in URL v1.7, 8 in LLM v1.8, 9 in UX v1.9, 4 in Unit Tests v1.9.1)
+- Average duration: ~18 minutes (MVP v1.0), ~7 minutes (Beta v1.5), ~5 minutes (UX v1.6), ~4 minutes (URL v1.7), ~5 minutes (LLM v1.8), ~4 minutes (UX v1.9), ~5 minutes (Unit Tests v1.9.1)
 
 **By Milestone:**
 
@@ -35,7 +35,7 @@ Progress: [====-----------------] Phase 28: 3/3 plans complete - 1/6 phases comp
 | URL v1.7 | 15-18 | 8/8 | SHIPPED 2026-01-31 |
 | LLM v1.8 | 19-22 | 8/8 | SHIPPED 2026-01-31 |
 | UX v1.9 | 23-27 | 9/9 | SHIPPED 2026-02-02 |
-| Unit Tests v1.9.1 | 28-33 | 3/? | In Progress |
+| Unit Tests v1.9.1 | 28-33 | 4/? | In Progress |
 
 ## Accumulated Context
 
@@ -66,6 +66,12 @@ Previous milestone decisions archived in:
 | Keep skill fixtures in conftest | Low-use fixtures stay in legacy location |
 | Factory-boy with @register decorator | Auto-creates pytest fixtures for all models |
 
+### Phase 29 Decisions
+
+| Decision | Rationale |
+|----------|-----------|
+| Class-based test organization | Groups related tests logically (TestXxx classes) |
+
 ### Pending Todos
 
 - Manual testing of remaining v1.7-v1.9 features (see TESTING-QUEUE.md)
@@ -74,15 +80,15 @@ Previous milestone decisions archived in:
 
 **No current blockers**
 
-**Note:** Pre-existing test failure in test_cascade_delete_project (thread cascade) - not related to Phase 28 work.
+**Note:** Pre-existing test failure in test_cascade_delete_project (thread cascade) - not related to Phase 28/29 work.
 
 ## Session Continuity
 
 Last session: 2026-02-02
-Stopped at: Phase 28 verified and complete
+Stopped at: Completed 29-01-PLAN.md
 Resume file: None
-Next action: /gsd:plan-phase 29
+Next action: Execute 29-02-PLAN.md
 
 ---
 
-*State updated: 2026-02-02 (completed 28-03, Phase 28 complete)*
+*State updated: 2026-02-02 (completed 29-01, pure function tests)*

@@ -12,17 +12,17 @@ See: .planning/PROJECT.md (updated 2026-02-02)
 
 Milestone: v1.9.1 Unit Test Coverage
 Phase: 29 of 33 (Backend Service Tests) - In Progress
-Plan: 01 of 04 complete
-Status: Completed 29-01 (pure function tests)
-Last activity: 2026-02-02 - Completed 29-01-PLAN.md (pure function tests)
-Next action: Execute 29-02-PLAN.md
+Plan: 02 of 04 complete
+Status: Completed 29-02 (service database tests)
+Last activity: 2026-02-02 - Completed 29-02-PLAN.md (database function tests)
+Next action: Execute 29-03-PLAN.md
 
-Progress: [=====----------------] Phase 29: 1/4 plans complete - 4/? plans total in v1.9.1
+Progress: [======---------------] Phase 29: 2/4 plans complete - 5/? plans total in v1.9.1
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 69 (20 in MVP v1.0, 15 in Beta v1.5, 5 in UX v1.6, 8 in URL v1.7, 8 in LLM v1.8, 9 in UX v1.9, 4 in Unit Tests v1.9.1)
+- Total plans completed: 70 (20 in MVP v1.0, 15 in Beta v1.5, 5 in UX v1.6, 8 in URL v1.7, 8 in LLM v1.8, 9 in UX v1.9, 5 in Unit Tests v1.9.1)
 - Average duration: ~18 minutes (MVP v1.0), ~7 minutes (Beta v1.5), ~5 minutes (UX v1.6), ~4 minutes (URL v1.7), ~5 minutes (LLM v1.8), ~4 minutes (UX v1.9), ~5 minutes (Unit Tests v1.9.1)
 
 **By Milestone:**
@@ -35,7 +35,7 @@ Progress: [=====----------------] Phase 29: 1/4 plans complete - 4/? plans total
 | URL v1.7 | 15-18 | 8/8 | SHIPPED 2026-01-31 |
 | LLM v1.8 | 19-22 | 8/8 | SHIPPED 2026-01-31 |
 | UX v1.9 | 23-27 | 9/9 | SHIPPED 2026-02-02 |
-| Unit Tests v1.9.1 | 28-33 | 4/? | In Progress |
+| Unit Tests v1.9.1 | 28-33 | 5/? | In Progress |
 
 ## Accumulated Context
 
@@ -71,6 +71,8 @@ Previous milestone decisions archived in:
 | Decision | Rationale |
 |----------|-----------|
 | Class-based test organization | Groups related tests logically (TestXxx classes) |
+| Use db_session fixture for all DB tests | Consistent with Phase 28 infrastructure |
+| Test token_tracking with explicit cost assertions | Verify pricing calculations for Claude 4.5 Sonnet |
 
 ### Pending Todos
 
@@ -85,10 +87,10 @@ Previous milestone decisions archived in:
 ## Session Continuity
 
 Last session: 2026-02-02
-Stopped at: Completed 29-01-PLAN.md
+Stopped at: Completed 29-02-PLAN.md
 Resume file: None
-Next action: Execute 29-02-PLAN.md
+Next action: Execute 29-03-PLAN.md
 
 ---
 
-*State updated: 2026-02-02 (completed 29-01, pure function tests)*
+*State updated: 2026-02-02 (completed 29-02, service database tests)*

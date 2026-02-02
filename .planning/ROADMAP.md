@@ -79,6 +79,15 @@ Plans:
 
 **Dependencies:** Phase 28 (requires MockLLMAdapter, SSE helper), Phase 29 (service tests validate underlying logic)
 
+**Plans:** 5 plans
+
+Plans:
+- [ ] 30-01-PLAN.md — LLM adapter tests (Anthropic, Gemini, DeepSeek)
+- [ ] 30-02-PLAN.md — SSE helper and FTS5 search tests
+- [ ] 30-03-PLAN.md — Auth and Projects API contract tests
+- [ ] 30-04-PLAN.md — Documents and Threads API contract tests
+- [ ] 30-05-PLAN.md — Conversations, Artifacts, and error consistency tests
+
 **Requirements:**
 - BLLM-01: AnthropicAdapter has unit test coverage
 - BLLM-02: GeminiAdapter has unit test coverage
@@ -179,7 +188,7 @@ Plans:
 |-------|------|--------------|-------|--------|
 | 28 | Test Infrastructure | 5 | 3 | Complete |
 | 29 | Backend Service Tests | 6 | 4 | Complete |
-| 30 | Backend LLM & API Tests | 12 | - | Pending |
+| 30 | Backend LLM & API Tests | 12 | 5 | Planned |
 | 31 | Frontend Provider & Service Tests | 10 | - | Pending |
 | 32 | Frontend Widget & Model Tests | 6 | - | Pending |
 | 33 | CI Integration | 4 | - | Pending |
@@ -212,3 +221,4 @@ Phase 28 (Infrastructure)
 *Phase 28 planned: 2026-02-02 (3 plans in 2 waves)*
 *Phase 29 planned: 2026-02-02 (4 plans in 2 waves)*
 *Phase 29 executed: 2026-02-02 (4 plans, 97 tests)*
+*Phase 30 planned: 2026-02-02 (5 plans in 2 waves)*

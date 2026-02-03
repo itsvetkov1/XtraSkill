@@ -6,30 +6,30 @@ See: .planning/PROJECT.md (updated 2026-02-02)
 
 **Core value:** Business analysts reduce time spent on requirement documentation while improving completeness through AI-assisted discovery conversations that systematically explore edge cases and generate production-ready artifacts.
 
-**Current focus:** v1.9.2 - Resilience & AI Transparency (Phase 35 in progress)
+**Current focus:** v1.9.2 - Resilience & AI Transparency (Phase 35 complete)
 
 ## Current Position
 
 Milestone: v1.9.2 - Resilience & AI Transparency
-Phase: 35 - Transparency Indicators (In Progress)
-Plan: 01/02 complete
-Status: In progress
-Last activity: 2026-02-03 - Completed 35-01-PLAN.md (Budget Warning Banners)
-Next action: Execute 35-02-PLAN.md
+Phase: 35 - Transparency Indicators (Complete)
+Plan: 02/02 complete
+Status: Phase complete
+Last activity: 2026-02-03 - Completed 35-02-PLAN.md (Mode Backend API)
+Next action: /gsd:plan-phase 36
 
 Progress:
 ```
 Phase 34: [##########] 7/7 requirements (COMPLETE)
-Phase 35: [#####.....] 5/9 requirements (BUD-01 to BUD-05 done)
+Phase 35: [##########] 9/9 requirements (COMPLETE)
 Phase 36: [..........] 0/8 requirements
-Overall:  [#####.....] 12/24 requirements (50%)
+Overall:  [########..] 16/24 requirements (67%)
 ```
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 89 (20 in MVP v1.0, 15 in Beta v1.5, 5 in UX v1.6, 8 in URL v1.7, 8 in LLM v1.8, 9 in UX v1.9, 24 in Unit Tests v1.9.1)
-- Average duration: ~18 minutes (MVP v1.0), ~7 minutes (Beta v1.5), ~5 minutes (UX v1.6), ~4 minutes (URL v1.7), ~5 minutes (LLM v1.8), ~4 minutes (UX v1.9), ~4 minutes (Unit Tests v1.9.1)
+- Total plans completed: 91 (20 in MVP v1.0, 15 in Beta v1.5, 5 in UX v1.6, 8 in URL v1.7, 8 in LLM v1.8, 9 in UX v1.9, 24 in Unit Tests v1.9.1, 2 in v1.9.2 Phase 34, 2 in v1.9.2 Phase 35)
+- Average duration: ~18 minutes (MVP v1.0), ~7 minutes (Beta v1.5), ~5 minutes (UX v1.6), ~4 minutes (URL v1.7), ~5 minutes (LLM v1.8), ~4 minutes (UX v1.9), ~4 minutes (Unit Tests v1.9.1), ~4 minutes (v1.9.2)
 
 **By Milestone:**
 
@@ -42,7 +42,7 @@ Overall:  [#####.....] 12/24 requirements (50%)
 | LLM v1.8 | 19-22 | 8/8 | SHIPPED 2026-01-31 |
 | UX v1.9 | 23-27 | 9/9 | SHIPPED 2026-02-02 |
 | Unit Tests v1.9.1 | 28-33 | 24/24 | SHIPPED 2026-02-02 |
-| v1.9.2 | 34-36 | 3/? | In Progress |
+| v1.9.2 | 34-36 | 4/? | In Progress |
 
 ## Accumulated Context
 
@@ -57,6 +57,8 @@ Overall:  [#####.....] 12/24 requirements (50%)
 | D-34-02-02: Use AlertDialog instead of SnackBar | Dialog allows "Select Different File" action button | 2026-02-03 |
 | D-35-01-01: Use API costPercentage, not local calculation | PITFALL-04 mandates API-provided counts | 2026-02-03 |
 | D-35-01-02: Exhausted banner cannot be dismissed | Critical state should remain visible | 2026-02-03 |
+| D-35-02-01: Mode validation at API level, not DB constraint | Allows flexible mode additions without migrations | 2026-02-03 |
+| D-35-02-02: conversation_mode nullable with default None | Existing threads continue to work; mode selected on first use | 2026-02-03 |
 
 Previous milestone decisions archived in:
 - .planning/milestones/v1.5-ROADMAP.md
@@ -78,12 +80,12 @@ Previous milestone decisions archived in:
 
 From research/PITFALLS-v1.9.2.md:
 
-**Phase 34:**
+**Phase 34:** (COMPLETE)
 - PITFALL-01: Do NOT clear _streamingText on error; preserve partial content
 - PITFALL-09: Validate file immediately after picker returns (before upload)
 - PITFALL-10: Use exponential backoff (1s, 2s, 4s, max 8s)
 
-**Phase 35:**
+**Phase 35:** (COMPLETE)
 - PITFALL-04: Use API-provided token counts, not estimates
 - PITFALL-06: Pessimistic budget warnings (estimate response tokens)
 - PITFALL-07: Mode is thread property, not global preference
@@ -105,15 +107,16 @@ From research/PITFALLS-v1.9.2.md:
 ## Session Continuity
 
 Last session: 2026-02-03
-Stopped at: Completed 35-01-PLAN.md
+Stopped at: Completed Phase 35 (both plans)
 Resume file: None
-Next action: Execute 35-02-PLAN.md
+Next action: /gsd:plan-phase 36
 
 **Context for Next Session:**
-- Plan 35-01 complete: Budget warning banners (BUD-01 to BUD-05)
-- Plan 35-02 pending: Mode indicator display (MODE-01 to MODE-04)
-- Key pitfall for 35-02: Mode is thread property, not global preference (PITFALL-07)
+- Phase 34 complete: Network resilience + file validation
+- Phase 35 complete: Budget warnings + mode backend API
+- Phase 36 pending: Source attribution transparency (SRC-01 to SRC-08)
+- Key pitfall for 36: Verify citations match actual documents (PITFALL-05)
 
 ---
 
-*State updated: 2026-02-03 (Completed 35-01-PLAN.md)*
+*State updated: 2026-02-03 (Phase 35 complete)*

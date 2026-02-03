@@ -25,7 +25,6 @@ from claude_agent_sdk.types import StreamEvent
 from app.config import settings
 from app.services.skill_loader import load_skill_prompt
 from app.services.document_search import search_documents
-from app.services.brd_generator import generate_brd_tool
 from app.models import Artifact, ArtifactType
 
 logger = logging.getLogger(__name__)
@@ -110,7 +109,11 @@ BEFORE USING:
 - Verify success metrics are specified
 - Consider using search_documents first to gather project context
 
-You may call this tool multiple times to create multiple artifacts.""",
+CRITICAL: Call this tool ONCE per user request. After saving the artifact:
+1. STOP generating - do not call this tool again
+2. Present the result to the user
+3. Wait for explicit user feedback before taking any further action
+4. Do NOT generate additional versions unless user explicitly asks""",
     {
         "artifact_type": str,
         "title": str,
@@ -157,8 +160,10 @@ async def save_artifact_tool(args: Dict[str, Any]) -> Dict[str, Any]:
     return {
         "content": [{
             "type": "text",
-            "text": f"ARTIFACT_CREATED:{json.dumps(event_data)}|Artifact saved successfully: '{artifact.title}' (ID: {artifact.id}). "
-                    "User can now export as PDF, Word, or Markdown from the artifacts list."
+            "text": f"ARTIFACT_CREATED:{json.dumps(event_data)}|"
+                    f"SUCCESS: Artifact '{artifact.title}' saved (ID: {artifact.id}). "
+                    "TASK COMPLETE - Present this result to the user and wait for their feedback. "
+                    "Do NOT generate additional artifacts unless explicitly requested by the user."
         }]
     }
 
@@ -173,10 +178,12 @@ class AgentService:
     def __init__(self):
         """Initialize agent service with SDK tools and skill prompt."""
         # Create MCP server with tools
+        # Note: Using save_artifact_tool for all artifact generation (including BRDs)
+        # to prevent duplicate tool confusion
         self.tools_server = create_sdk_mcp_server(
             name="ba-tools",
             version="1.0.0",
-            tools=[search_documents_tool, save_artifact_tool, generate_brd_tool]
+            tools=[search_documents_tool, save_artifact_tool]
         )
 
         # Load skill prompt (cached)
@@ -232,11 +239,6 @@ Be conversational but thorough. Help users think through their requirements comp
         _project_id_context.set(project_id)
         _thread_id_context.set(thread_id)
 
-        # Also set context for brd_generator module's generate_brd_tool
-        from app.services import brd_generator
-        brd_generator._db_context.set(db)
-        brd_generator._thread_id_context.set(thread_id)
-
         # Build the prompt from messages
         # Convert message history to single prompt for SDK
         prompt_parts = []
@@ -259,6 +261,7 @@ Be conversational but thorough. Help users think through their requirements comp
         full_prompt = "\n\n".join(prompt_parts)
 
         # Configure SDK options
+        # max_turns limits tool execution rounds to prevent infinite loops
         options = ClaudeAgentOptions(
             system_prompt={
                 "type": "preset",
@@ -269,11 +272,11 @@ Be conversational but thorough. Help users think through their requirements comp
             allowed_tools=[
                 "mcp__ba__search_documents",
                 "mcp__ba__save_artifact",
-                "mcp__ba__generate_brd"
             ],
             permission_mode="acceptEdits",
             include_partial_messages=True,
-            model="claude-sonnet-4-5-20250514"
+            model="claude-sonnet-4-5-20250514",
+            max_turns=10
         )
 
         accumulated_text = ""

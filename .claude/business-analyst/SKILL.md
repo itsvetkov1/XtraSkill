@@ -190,8 +190,17 @@ Then generate BRD with notation of any remaining assumptions
 
 Read [references/brd-template.md](references/brd-template.md) for complete structure and all sections.
 
+**CRITICAL POST-GENERATION BEHAVIOR:**
+After generating ONE BRD artifact:
+1. **STOP IMMEDIATELY** - Do NOT generate additional versions or artifacts
+2. **Do NOT call save_artifact again** unless user explicitly requests a new document
+3. Present the result to the user and WAIT for their explicit feedback
+4. Only modify or regenerate if user specifically asks for changes
+
 **After Generating BRD:**
 Present to user with: "Business Requirements Document complete. Review for accuracy and completeness. Would you like me to refine any section?"
+
+Then STOP and wait for the user's response before taking any action.
 
 **Post-Generation Quality Validation:**
 Run validation using scripts/validate_brd.py to check:

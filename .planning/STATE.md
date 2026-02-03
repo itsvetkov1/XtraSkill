@@ -6,23 +6,23 @@ See: .planning/PROJECT.md (updated 2026-02-02)
 
 **Core value:** Business analysts reduce time spent on requirement documentation while improving completeness through AI-assisted discovery conversations that systematically explore edge cases and generate production-ready artifacts.
 
-**Current focus:** v1.9.2 - Resilience & AI Transparency (Phase 34 ready for planning)
+**Current focus:** v1.9.2 - Resilience & AI Transparency (Phase 34 complete)
 
 ## Current Position
 
 Milestone: v1.9.2 - Resilience & AI Transparency
-Phase: 34 - Client-Side Resilience (Not Started)
-Plan: None yet
-Status: Awaiting plan creation
-Last activity: 2026-02-03 - Roadmap created with 3 phases (34-36)
-Next action: /gsd:plan-phase 34
+Phase: 34 - Client-Side Resilience (Complete)
+Plan: 02/02 complete
+Status: Phase complete
+Last activity: 2026-02-03 - Completed 34-02-PLAN.md (file size validation)
+Next action: Execute phase 35
 
 Progress:
 ```
-Phase 34: [..........] 0/7 requirements
+Phase 34: [##########] 7/7 requirements (COMPLETE)
 Phase 35: [..........] 0/9 requirements
 Phase 36: [..........] 0/8 requirements
-Overall:  [..........] 0/24 requirements
+Overall:  [###.......] 7/24 requirements (29%)
 ```
 
 ## Performance Metrics
@@ -42,7 +42,7 @@ Overall:  [..........] 0/24 requirements
 | LLM v1.8 | 19-22 | 8/8 | SHIPPED 2026-01-31 |
 | UX v1.9 | 23-27 | 9/9 | SHIPPED 2026-02-02 |
 | Unit Tests v1.9.1 | 28-33 | 24/24 | SHIPPED 2026-02-02 |
-| v1.9.2 | 34-36 | 0/? | In Progress |
+| v1.9.2 | 34-36 | 2/? | In Progress |
 
 ## Accumulated Context
 
@@ -53,6 +53,8 @@ Overall:  [..........] 0/24 requirements
 | 3-phase structure | Research recommendation: frontend-first, then transparency, then backend-dependent | 2026-02-03 |
 | Quick depth | Config setting, 3-5 phases appropriate for 24 requirements | 2026-02-03 |
 | Phase 34 first | Frontend-only, no deployment coordination needed | 2026-02-03 |
+| D-34-02-01: Validate file size BEFORE setState | PITFALL-09 - user should see error before any upload UI | 2026-02-03 |
+| D-34-02-02: Use AlertDialog instead of SnackBar | Dialog allows "Select Different File" action button | 2026-02-03 |
 
 Previous milestone decisions archived in:
 - .planning/milestones/v1.5-ROADMAP.md
@@ -101,16 +103,16 @@ From research/PITFALLS-v1.9.2.md:
 ## Session Continuity
 
 Last session: 2026-02-03
-Stopped at: Roadmap created for v1.9.2
+Stopped at: Completed 34-02-PLAN.md (file size validation)
 Resume file: None
-Next action: /gsd:plan-phase 34
+Next action: Execute phase 35
 
 **Context for Next Session:**
-- Phase 34 focuses on network resilience (NET-01 to NET-04) and file validation (FILE-01 to FILE-03)
-- Frontend-only changes, no backend coordination needed
-- Research recommends: replace flutter_client_sse with eventflux, add connectivity_plus
-- Key pitfall: preserve partial streaming content on error (do NOT clear _streamingText)
+- Phase 34 complete (network resilience + file validation)
+- Phase 35 focuses on AI transparency (token budget, mode indicator, provider display)
+- Key pitfall: Use API-provided token counts, not estimates (PITFALL-04)
+- Mode is thread property, not global preference (PITFALL-07)
 
 ---
 
-*State updated: 2026-02-03 (v1.9.2 roadmap created)*
+*State updated: 2026-02-03 (34-02 file size validation complete)*

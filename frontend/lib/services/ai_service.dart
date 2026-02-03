@@ -29,10 +29,12 @@ class MessageCompleteEvent extends ChatEvent {
   final String content;
   final int inputTokens;
   final int outputTokens;
+  final List<DocumentSource> documentsUsed;
   MessageCompleteEvent({
     required this.content,
     required this.inputTokens,
     required this.outputTokens,
+    this.documentsUsed = const [],
   });
 }
 
@@ -40,6 +42,32 @@ class MessageCompleteEvent extends ChatEvent {
 class ErrorEvent extends ChatEvent {
   final String message;
   ErrorEvent({required this.message});
+}
+
+/// Artifact created event - generated artifact saved
+class ArtifactCreatedEvent extends ChatEvent {
+  final String id;
+  final String artifactType;
+  final String title;
+  ArtifactCreatedEvent({
+    required this.id,
+    required this.artifactType,
+    required this.title,
+  });
+}
+
+/// Documents used data - attached to MessageCompleteEvent
+class DocumentSource {
+  final String id;
+  final String filename;
+  DocumentSource({required this.id, required this.filename});
+
+  factory DocumentSource.fromJson(Map<String, dynamic> json) {
+    return DocumentSource(
+      id: json['id'] as String,
+      filename: json['filename'] as String,
+    );
+  }
 }
 
 /// AI service for streaming chat conversations
@@ -118,10 +146,22 @@ class AIService {
               break;
             case 'message_complete':
               final usage = data['usage'] as Map<String, dynamic>?;
+              final docsUsedJson = data['documents_used'] as List<dynamic>?;
+              final docsUsed = docsUsedJson
+                  ?.map((d) => DocumentSource.fromJson(d as Map<String, dynamic>))
+                  .toList() ?? [];
               yield MessageCompleteEvent(
                 content: data['content'] as String? ?? '',
                 inputTokens: usage?['input_tokens'] as int? ?? 0,
                 outputTokens: usage?['output_tokens'] as int? ?? 0,
+                documentsUsed: docsUsed,
+              );
+              break;
+            case 'artifact_created':
+              yield ArtifactCreatedEvent(
+                id: data['id'] as String? ?? '',
+                artifactType: data['artifact_type'] as String? ?? 'requirements_doc',
+                title: data['title'] as String? ?? 'Untitled',
               );
               break;
             case 'error':

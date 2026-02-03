@@ -6,20 +6,29 @@ This document defines rules and conventions for Claude Code when working on this
 
 ## Git & Version Control
 
-### Rule: Auto-Push After Every Change
+### Rule: Commit & Push on Completed Phases/Milestones Only
 
-**CRITICAL:** Push all code changes to remote repository immediately after committing.
+**CRITICAL:** Only commit and push when completing a phase or milestone, NOT on every individual change.
 
-**Why:** User tests on multiple machines. All changes must be available on remote for cross-platform testing.
+**Why:**
+- Keeps git history clean with meaningful commits
+- Each commit represents a complete unit of work
+- User tests on multiple machines - all completed work must be available on remote
+
+**When to Commit:**
+- ✅ After completing a GSD phase (all tasks done, verification passed)
+- ✅ After completing a milestone (all phases done)
+- ✅ After completing a bug fix session (investigation + fix + testing)
+- ✅ After completing documentation for a session
+- ❌ NOT after every individual file change
+- ❌ NOT after each small task within a phase
 
 **Implementation:**
 ```bash
-# After every commit:
-git commit -m "your commit message"
+# After completing a phase or milestone:
+git add <all-related-files>
+git commit -m "feat(phase-XX): complete phase description"
 git push origin master
-
-# OR combine:
-git add <files> && git commit -m "message" && git push origin master
 ```
 
 **What to push:**
@@ -46,43 +55,50 @@ git log --oneline -5    # Verify commits pushed
 
 ## Phase Execution (GSD Workflow)
 
-### Rule: Complete Phase Execution Commits
+### Rule: Single Commit Per Phase Completion
 
-When executing GSD phases, ensure all commits are pushed:
+When executing GSD phases, create ONE commit when the phase is complete:
 
-1. **Per-task commits** (during execution)
-2. **Plan completion commits** (SUMMARY.md)
-3. **Phase completion commits** (ROADMAP.md, STATE.md, VERIFICATION.md)
+1. **During execution:** Make changes to files but do NOT commit
+2. **On phase completion:** Stage ALL phase-related files and commit together
+3. **Commit includes:** Code changes, SUMMARY.md, ROADMAP.md updates, VERIFICATION.md
 
-**Never leave uncommitted phase work** - user needs to see progress on other machines.
+**Commit format:**
+```bash
+git add .planning/phases/XX-*/ backend/ frontend/  # All related files
+git commit -m "feat(XX): complete phase - brief description"
+git push origin master
+```
+
+**Never leave completed phase work unpushed** - user needs to see finished work on other machines.
 
 ---
 
 ## Bug Fixes
 
-### Rule: Immediate Fix & Push
+### Rule: Complete Bug Fix Session, Then Commit
 
-When user reports a bug (like the `/settings` logout issue):
+When user reports a bug:
 
 1. **Acknowledge** the bug is real (don't assume user error first)
-2. **Investigate** the root cause
-3. **Fix** the issue with clear commit message
-4. **Push** immediately: `git push origin master`
-5. **Update documentation** if needed (testing guides, troubleshooting)
-6. **Push documentation** immediately
+2. **Investigate** the root cause thoroughly
+3. **Fix** all related issues (may involve multiple files)
+4. **Document** the session in `.planning/SESSION_*.md`
+5. **Update** testing guides if affected
+6. **Single commit** with all fix-related changes
+7. **Push** when complete
 
 **Example:**
 ```bash
-# Fix the bug
-git add frontend/lib/main.dart
-git commit -m "fix(06-02): prevent router recreation causing logout"
-git push origin master
-
-# Update docs
-git add THEME_TESTING_GUIDE.md
-git commit -m "docs: update guide with bug fix info"
+# After completing entire bug fix session:
+git add backend/app/services/agent_service.py \
+        .claude/business-analyst/SKILL.md \
+        .planning/SESSION_2026-02-03_BRD_FIX.md
+git commit -m "fix(agent): prevent infinite artifact generation loop"
 git push origin master
 ```
+
+**Note:** Don't make separate commits for code fix and documentation - combine them into one meaningful commit.
 
 ---
 
@@ -95,9 +111,9 @@ When code changes affect testing:
 1. Update relevant testing guides (TESTING_GUIDE.md, THEME_TESTING_GUIDE.md)
 2. Add notes about bug fixes with commit hashes
 3. Remove misleading troubleshooting sections after bugs are fixed
-4. Push immediately
+4. Include documentation updates in the same commit as the code change
 
-**Never leave documentation out of sync with code.**
+**Documentation should be bundled with its related code changes, not committed separately.**
 
 ---
 
@@ -307,7 +323,7 @@ When user reports a bug or requests a feature:
    ```
 
 3. **Update INDEX.md** - Add story to appropriate priority table
-4. **Commit and push** both files
+4. **Include in phase commit** - Story files are committed with related code changes
 
 ### Rule: Keep INDEX.md Current
 
@@ -315,7 +331,7 @@ After any story change:
 
 1. Update status in INDEX.md table
 2. Update summary counts at top
-3. Commit: `docs(stories): update INDEX with [story-id] status`
+3. Include INDEX.md update in the phase/milestone commit
 
 ### Story ID Prefixes
 
@@ -343,28 +359,6 @@ When starting work on a story:
 2. Reference story ID in commit messages: `feat(THREAD-001): add retry button`
 3. When complete, update status to "Done"
 4. Check off acceptance criteria in story file
-
----
-
-## Summary
-
-**The Golden Rule:**
-```
-After every code/doc change: COMMIT + PUSH immediately
-```
-
-**Why this matters:**
-1. User tests on multiple machines
-2. Bugs need immediate fixes visible on all machines
-3. Documentation must stay in sync with code
-4. Other developers/testers need latest changes
-
-**Quick checklist after any change:**
-- [ ] Code committed with clear message
-- [ ] Code pushed to remote
-- [ ] Documentation updated if needed
-- [ ] Documentation pushed to remote
-- [ ] `git status --porcelain` shows only excluded files
 
 ---
 
@@ -427,25 +421,31 @@ After every code/doc change: COMMIT + PUSH immediately
 
 **The Golden Rule:**
 ```
-After every code/doc change: COMMIT + PUSH immediately
+Commit & Push only when completing a phase, milestone, or bug fix session
 ```
 
 **Why this matters:**
-1. User tests on multiple machines
-2. Bugs need immediate fixes visible on all machines
-3. Documentation must stay in sync with code
-4. Other developers/testers need latest changes
+1. Clean git history with meaningful commits
+2. Each commit represents a complete unit of work
+3. User tests on multiple machines - completed work must be available
+4. Documentation stays bundled with related code changes
 
-**Quick checklist after any change:**
-- [ ] Code committed with clear message
-- [ ] Code pushed to remote
-- [ ] Documentation updated if needed
-- [ ] Documentation pushed to remote
-- [ ] `git status --porcelain` shows only excluded files
+**When to commit (checklist):**
+- [ ] Phase/milestone/bug fix session is COMPLETE
+- [ ] All related code changes are staged together
+- [ ] Documentation is included in same commit
+- [ ] Commit message describes the completed work
+- [ ] Push to remote after commit
+
+**What NOT to do:**
+- ❌ Commit after every individual file change
+- ❌ Separate commits for code and its documentation
+- ❌ Commit incomplete work-in-progress
 
 ---
 
-*Last updated: 2026-02-02*
+*Last updated: 2026-02-03*
 *Established during Phase 6 execution*
 *User story management added during QA session*
 *Regression testing added during v1.9 QA*
+*Commit policy updated: phases/milestones only (not every change)*

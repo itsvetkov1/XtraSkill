@@ -29,12 +29,17 @@ router = APIRouter()
 # Valid LLM providers for thread binding
 VALID_PROVIDERS = ["anthropic", "google", "deepseek"]
 
+# Valid conversation modes for threads
+# Per PITFALL-07: Mode is a thread property, not global preference
+VALID_MODES = ["meeting", "document_refinement"]
+
 
 # Request/Response models
 class ThreadCreate(BaseModel):
     """Request model for creating a thread within a project."""
     title: Optional[str] = Field(None, max_length=255)
     model_provider: Optional[str] = Field(None, max_length=20)
+    conversation_mode: Optional[str] = Field(None, max_length=50)
 
 
 class GlobalThreadCreate(BaseModel):
@@ -42,12 +47,14 @@ class GlobalThreadCreate(BaseModel):
     title: Optional[str] = Field(None, max_length=255)
     project_id: Optional[str] = None  # Null = project-less thread
     model_provider: Optional[str] = Field(None, max_length=20)
+    conversation_mode: Optional[str] = Field(None, max_length=50)
 
 
 class ThreadUpdate(BaseModel):
     """Request model for updating a thread (title and/or project association)."""
     title: Optional[str] = Field(None, max_length=255)
     project_id: Optional[str] = None  # For associating project-less chats with projects
+    conversation_mode: Optional[str] = Field(None, max_length=50)
 
 
 class MessageResponse(BaseModel):
@@ -67,6 +74,7 @@ class ThreadResponse(BaseModel):
     project_id: Optional[str]  # Nullable for project-less threads
     title: Optional[str]
     model_provider: Optional[str] = "anthropic"  # Default for backward compatibility
+    conversation_mode: Optional[str] = None
     created_at: str
     updated_at: str
 
@@ -95,6 +103,7 @@ class GlobalThreadListResponse(BaseModel):
     project_name: Optional[str]
     message_count: int
     model_provider: str
+    conversation_mode: Optional[str] = None
 
     class Config:
         from_attributes = True
@@ -176,6 +185,7 @@ async def list_all_threads(
                 project_name=t.project.name if t.project else None,
                 message_count=len(t.messages),
                 model_provider=t.model_provider or "anthropic",
+                conversation_mode=t.conversation_mode,
             )
             for t in threads
         ],
@@ -228,6 +238,13 @@ async def create_global_thread(
             detail=f"Invalid provider. Valid options: {', '.join(VALID_PROVIDERS)}"
         )
 
+    # Validate conversation mode if provided
+    if thread_data.conversation_mode and thread_data.conversation_mode not in VALID_MODES:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Invalid mode. Valid options: {', '.join(VALID_MODES)}"
+        )
+
     # Create thread
     # If project_id is None, set user_id for direct ownership
     # If project_id is set, user_id stays None (owned via project)
@@ -236,6 +253,7 @@ async def create_global_thread(
         user_id=user_id if thread_data.project_id is None else None,
         title=thread_data.title or "New Chat",
         model_provider=thread_data.model_provider or "anthropic",
+        conversation_mode=thread_data.conversation_mode,
         last_activity_at=datetime.utcnow()
     )
 
@@ -248,6 +266,7 @@ async def create_global_thread(
         project_id=thread.project_id,
         title=thread.title,
         model_provider=thread.model_provider or "anthropic",
+        conversation_mode=thread.conversation_mode,
         created_at=thread.created_at.isoformat(),
         updated_at=thread.updated_at.isoformat(),
     )
@@ -312,11 +331,19 @@ async def create_thread(
             detail=f"Invalid provider. Valid options: {', '.join(VALID_PROVIDERS)}"
         )
 
+    # Validate conversation mode if provided
+    if thread_data.conversation_mode and thread_data.conversation_mode not in VALID_MODES:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Invalid mode. Valid options: {', '.join(VALID_MODES)}"
+        )
+
     # Create thread
     thread = Thread(
         project_id=project_id,
         title=thread_data.title,
         model_provider=thread_data.model_provider or "anthropic",
+        conversation_mode=thread_data.conversation_mode,
         last_activity_at=datetime.utcnow()
     )
 
@@ -329,6 +356,7 @@ async def create_thread(
         project_id=thread.project_id,
         title=thread.title,
         model_provider=thread.model_provider or "anthropic",
+        conversation_mode=thread.conversation_mode,
         created_at=thread.created_at.isoformat(),
         updated_at=thread.updated_at.isoformat(),
     )
@@ -387,6 +415,7 @@ async def list_threads(
             project_id=thread.project_id,
             title=thread.title,
             model_provider=thread.model_provider or "anthropic",
+            conversation_mode=thread.conversation_mode,
             created_at=thread.created_at.isoformat(),
             updated_at=thread.updated_at.isoformat(),
             message_count=len(thread.messages),
@@ -460,6 +489,7 @@ async def get_thread(
         project_id=thread.project_id,
         title=thread.title,
         model_provider=thread.model_provider or "anthropic",
+        conversation_mode=thread.conversation_mode,
         created_at=thread.created_at.isoformat(),
         updated_at=thread.updated_at.isoformat(),
         messages=[
@@ -563,6 +593,15 @@ async def update_thread(
     if update_data.title is not None:
         thread.title = update_data.title
 
+    # Handle conversation mode update
+    if update_data.conversation_mode is not None:
+        if update_data.conversation_mode not in VALID_MODES:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Invalid mode. Valid options: {', '.join(VALID_MODES)}"
+            )
+        thread.conversation_mode = update_data.conversation_mode
+
     await db.commit()
     await db.refresh(thread)
 
@@ -571,6 +610,7 @@ async def update_thread(
         project_id=thread.project_id,
         title=thread.title,
         model_provider=thread.model_provider or "anthropic",
+        conversation_mode=thread.conversation_mode,
         created_at=thread.created_at.isoformat(),
         updated_at=thread.updated_at.isoformat(),
     )

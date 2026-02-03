@@ -33,6 +33,7 @@ logger = logging.getLogger(__name__)
 _db_context: ContextVar[Any] = ContextVar("db_context")
 _project_id_context: ContextVar[str] = ContextVar("project_id_context")
 _thread_id_context: ContextVar[str] = ContextVar("thread_id_context")
+_documents_used_context: ContextVar[list] = ContextVar("documents_used_context")
 
 
 # Tool definitions using @tool decorator
@@ -84,6 +85,16 @@ async def search_documents_tool(args: Dict[str, Any]) -> Dict[str, Any]:
         # Clean up snippet HTML markers for readability
         clean_snippet = snippet.replace("<mark>", "**").replace("</mark>", "**")
         formatted.append(f"**{filename}**:\n{clean_snippet}")
+
+    # Track documents used for source attribution (PITFALL-05)
+    try:
+        docs_used = _documents_used_context.get()
+        for doc_id, filename, snippet, score in results[:5]:
+            if not any(d['id'] == doc_id for d in docs_used):  # Avoid duplicates
+                docs_used.append({'id': doc_id, 'filename': filename})
+        _documents_used_context.set(docs_used)
+    except LookupError:
+        pass  # Context not available, skip tracking
 
     return {
         "content": [{
@@ -238,6 +249,7 @@ Be conversational but thorough. Help users think through their requirements comp
         _db_context.set(db)
         _project_id_context.set(project_id)
         _thread_id_context.set(thread_id)
+        _documents_used_context.set([])  # Initialize for source attribution tracking
 
         # Build the prompt from messages
         # Convert message history to single prompt for SDK

@@ -12,9 +12,9 @@ See: .planning/PROJECT.md (updated 2026-02-02)
 
 Milestone: v1.9.2 - Resilience & AI Transparency
 Phase: 35 - Transparency Indicators (Complete)
-Plan: 02/02 complete
+Plan: 03/03 complete
 Status: Phase complete
-Last activity: 2026-02-03 - Completed 35-02-PLAN.md (Mode Backend API)
+Last activity: 2026-02-03 - Completed 35-03-PLAN.md (Mode Indicator UI)
 Next action: /gsd:plan-phase 36
 
 Progress:
@@ -28,7 +28,7 @@ Overall:  [########..] 16/24 requirements (67%)
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 91 (20 in MVP v1.0, 15 in Beta v1.5, 5 in UX v1.6, 8 in URL v1.7, 8 in LLM v1.8, 9 in UX v1.9, 24 in Unit Tests v1.9.1, 2 in v1.9.2 Phase 34, 2 in v1.9.2 Phase 35)
+- Total plans completed: 92 (20 in MVP v1.0, 15 in Beta v1.5, 5 in UX v1.6, 8 in URL v1.7, 8 in LLM v1.8, 9 in UX v1.9, 24 in Unit Tests v1.9.1, 2 in v1.9.2 Phase 34, 3 in v1.9.2 Phase 35)
 - Average duration: ~18 minutes (MVP v1.0), ~7 minutes (Beta v1.5), ~5 minutes (UX v1.6), ~4 minutes (URL v1.7), ~5 minutes (LLM v1.8), ~4 minutes (UX v1.9), ~4 minutes (Unit Tests v1.9.1), ~4 minutes (v1.9.2)
 
 **By Milestone:**
@@ -42,7 +42,7 @@ Overall:  [########..] 16/24 requirements (67%)
 | LLM v1.8 | 19-22 | 8/8 | SHIPPED 2026-01-31 |
 | UX v1.9 | 23-27 | 9/9 | SHIPPED 2026-02-02 |
 | Unit Tests v1.9.1 | 28-33 | 24/24 | SHIPPED 2026-02-02 |
-| v1.9.2 | 34-36 | 4/? | In Progress |
+| v1.9.2 | 34-36 | 5/? | In Progress |
 
 ## Accumulated Context
 
@@ -59,6 +59,8 @@ Overall:  [########..] 16/24 requirements (67%)
 | D-35-01-02: Exhausted banner cannot be dismissed | Critical state should remain visible | 2026-02-03 |
 | D-35-02-01: Mode validation at API level, not DB constraint | Allows flexible mode additions without migrations | 2026-02-03 |
 | D-35-02-02: conversation_mode nullable with default None | Existing threads continue to work; mode selected on first use | 2026-02-03 |
+| D-35-03-01: Use ActionChip for mode badge (not IconButton) | Chip shows icon + label, distinct from other AppBar icons | 2026-02-03 |
+| D-35-03-02: Outline style for "Select Mode", filled for active | Visual distinction between unset and set states | 2026-02-03 |
 
 Previous milestone decisions archived in:
 - .planning/milestones/v1.5-ROADMAP.md
@@ -107,16 +109,16 @@ From research/PITFALLS-v1.9.2.md:
 ## Session Continuity
 
 Last session: 2026-02-03
-Stopped at: Completed Phase 35 (both plans)
+Stopped at: Completed Phase 35 (all 3 plans)
 Resume file: None
 Next action: /gsd:plan-phase 36
 
 **Context for Next Session:**
 - Phase 34 complete: Network resilience + file validation
-- Phase 35 complete: Budget warnings + mode backend API
+- Phase 35 complete: Budget warnings + mode backend API + mode indicator UI
 - Phase 36 pending: Source attribution transparency (SRC-01 to SRC-08)
 - Key pitfall for 36: Verify citations match actual documents (PITFALL-05)
 
 ---
 
-*State updated: 2026-02-03 (Phase 35 complete)*
+*State updated: 2026-02-03 (Phase 35-03 complete)*

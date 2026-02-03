@@ -372,21 +372,35 @@ Be conversational but thorough. Help users think through their requirements comp
                             if result and result != accumulated_text:
                                 accumulated_text = result
 
+                    # Get documents used for source attribution
+                    try:
+                        documents_used = _documents_used_context.get()
+                    except LookupError:
+                        documents_used = []
+
                     yield {
                         "event": "message_complete",
                         "data": json.dumps({
                             "content": accumulated_text,
-                            "usage": usage_data
+                            "usage": usage_data,
+                            "documents_used": documents_used  # SRC-04: empty array when no docs
                         })
                     }
                     return
 
             # If we didn't get a ResultMessage, yield completion anyway
+            # Get documents used for source attribution
+            try:
+                documents_used = _documents_used_context.get()
+            except LookupError:
+                documents_used = []
+
             yield {
                 "event": "message_complete",
                 "data": json.dumps({
                     "content": accumulated_text,
-                    "usage": usage_data
+                    "usage": usage_data,
+                    "documents_used": documents_used  # SRC-04: empty array when no docs
                 })
             }
 

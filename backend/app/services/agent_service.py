@@ -172,9 +172,10 @@ async def save_artifact_tool(args: Dict[str, Any]) -> Dict[str, Any]:
         "content": [{
             "type": "text",
             "text": f"ARTIFACT_CREATED:{json.dumps(event_data)}|"
-                    f"SUCCESS: Artifact '{artifact.title}' saved (ID: {artifact.id}). "
-                    "TASK COMPLETE - Present this result to the user and wait for their feedback. "
-                    "Do NOT generate additional artifacts unless explicitly requested by the user."
+                    f"Artifact '{artifact.title}' saved successfully. "
+                    "STOP HERE. Your task is complete. "
+                    "Say 'Done! I've created [title]. Let me know if you'd like changes.' "
+                    "Do NOT call save_artifact again. Do NOT generate more documents."
         }]
     }
 
@@ -273,7 +274,8 @@ Be conversational but thorough. Help users think through their requirements comp
         full_prompt = "\n\n".join(prompt_parts)
 
         # Configure SDK options
-        # max_turns limits tool execution rounds to prevent infinite loops
+        # max_turns=3 prevents infinite artifact generation loops
+        # Typical flow: 1) search docs, 2) generate artifact, 3) respond - done
         options = ClaudeAgentOptions(
             system_prompt={
                 "type": "preset",
@@ -288,7 +290,7 @@ Be conversational but thorough. Help users think through their requirements comp
             permission_mode="acceptEdits",
             include_partial_messages=True,
             model="claude-sonnet-4-5-20250514",
-            max_turns=10
+            max_turns=3
         )
 
         accumulated_text = ""

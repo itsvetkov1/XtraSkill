@@ -106,8 +106,11 @@ class ArtifactService {
       if (e.response?.statusCode == 404) {
         throw Exception('Artifact not found');
       } else if (e.response?.statusCode == 500) {
-        // PDF export may fail without GTK
-        throw Exception('Export failed - PDF may require additional setup');
+        // PDF export requires GTK3 on Windows - use MD or Word instead
+        if (format == 'pdf') {
+          throw Exception('PDF export not available. Use Markdown or Word instead.');
+        }
+        throw Exception('Export failed - server error');
       }
       throw Exception('Export failed: ${e.message}');
     }

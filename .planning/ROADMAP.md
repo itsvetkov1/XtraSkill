@@ -47,6 +47,13 @@ Plans:
 
 **Dependencies:** Phase 34 complete (establishes error handling patterns)
 
+**Plans:** 3 plans
+
+Plans:
+- [ ] 35-01-PLAN.md - Budget warning banners at 80%/95%/100% thresholds
+- [ ] 35-02-PLAN.md - Backend: add conversation_mode to Thread model
+- [ ] 35-03-PLAN.md - Mode badge in AppBar with tap-to-change
+
 **Requirements:**
 - BUD-01: Warning banner at 80% budget usage: "You've used 80% of your token budget"
 - BUD-02: Warning banner at 95% usage: "Almost at limit - limited messages remaining"
@@ -96,8 +103,8 @@ Plans:
 
 | Phase | Name | Status | Requirements |
 |-------|------|--------|--------------|
-| 34 | Client-Side Resilience | ✓ Complete | 7/7 |
-| 35 | Transparency Indicators | Not Started | 9 |
+| 34 | Client-Side Resilience | Complete | 7/7 |
+| 35 | Transparency Indicators | Planned | 0/9 |
 | 36 | AI Interaction Enhancement | Not Started | 8 |
 
 **Total:** 7/24 requirements complete
@@ -105,4 +112,4 @@ Plans:
 ---
 
 *Roadmap created: 2026-02-03*
-*Last updated: 2026-02-03 (Phase 34 complete)*
+*Last updated: 2026-02-03 (Phase 35 planned)*

@@ -4,6 +4,7 @@ library;
 import 'dart:async';
 import 'package:flutter/material.dart';
 
+import '../models/artifact.dart';
 import '../models/message.dart';
 import '../models/thread.dart';
 import '../services/ai_service.dart';
@@ -59,6 +60,9 @@ class ConversationProvider extends ChangeNotifier {
   /// Whether there is partial content from an interrupted stream
   bool _hasPartialContent = false;
 
+  /// Artifacts created in this conversation
+  List<Artifact> _artifacts = [];
+
   ConversationProvider({
     AIService? aiService,
     ThreadService? threadService,
@@ -94,6 +98,9 @@ class ConversationProvider extends ChangeNotifier {
 
   /// Whether there is partial content from an interrupted stream
   bool get hasPartialContent => _hasPartialContent;
+
+  /// Artifacts in conversation
+  List<Artifact> get artifacts => _artifacts;
 
   /// Load a thread with its message history
   Future<void> loadThread(String threadId) async {
@@ -155,12 +162,13 @@ class ConversationProvider extends ChangeNotifier {
           _statusMessage = event.status;
           notifyListeners();
         } else if (event is MessageCompleteEvent) {
-          // Add assistant message to list
+          // Add assistant message to list with source attribution (SRC-01)
           final assistantMessage = Message(
             id: 'temp-assistant-${DateTime.now().millisecondsSinceEpoch}',
             role: MessageRole.assistant,
             content: _streamingText.isNotEmpty ? _streamingText : event.content,
             createdAt: DateTime.now(),
+            documentsUsed: event.documentsUsed, // Capture sources from event
           );
           _messages.add(assistantMessage);
 
@@ -173,6 +181,15 @@ class ConversationProvider extends ChangeNotifier {
 
           // Optionally refresh thread to get server-confirmed messages
           // await loadThread(_thread!.id);
+        } else if (event is ArtifactCreatedEvent) {
+          // Add artifact to list
+          _artifacts.add(Artifact.fromEvent(
+            id: event.id,
+            artifactType: event.artifactType,
+            title: event.title,
+            threadId: _thread!.id,
+          ));
+          notifyListeners();
         } else if (event is ErrorEvent) {
           _error = event.message;
           _isStreaming = false;
@@ -196,6 +213,7 @@ class ConversationProvider extends ChangeNotifier {
   void clearConversation() {
     _thread = null;
     _messages = [];
+    _artifacts = [];
     _streamingText = '';
     _statusMessage = null;
     _isStreaming = false;

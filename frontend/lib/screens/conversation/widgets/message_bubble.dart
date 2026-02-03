@@ -3,15 +3,24 @@ library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../models/message.dart';
+import 'source_chips.dart';
 
 /// Message bubble displaying user or assistant message
 class MessageBubble extends StatelessWidget {
   /// The message to display
   final Message message;
 
-  const MessageBubble({super.key, required this.message});
+  /// Project ID for document navigation (optional)
+  final String? projectId;
+
+  const MessageBubble({
+    super.key,
+    required this.message,
+    this.projectId,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -55,9 +64,106 @@ class MessageBubble extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   textWidget,
+                  // Source chips for assistant messages (SRC-01, SRC-02)
+                  if (message.documentsUsed.isNotEmpty)
+                    SourceChips(
+                      sources: message.documentsUsed,
+                      onSourceTap: (documentId, filename) =>
+                          _openDocument(context, documentId, filename),
+                    ),
                   _buildCopyButton(context, theme),
                 ],
               ),
+      ),
+    );
+  }
+
+  /// Opens document in Document Viewer (SRC-03)
+  void _openDocument(BuildContext context, String documentId, String filename) {
+    if (projectId != null) {
+      // Navigate to document viewer within project context
+      context.push('/projects/$projectId/documents/$documentId');
+    } else {
+      // Show document in bottom sheet preview for project-less threads
+      _showDocumentPreview(context, documentId, filename);
+    }
+  }
+
+  /// Show document in bottom sheet for project-less threads
+  void _showDocumentPreview(
+      BuildContext context, String documentId, String filename) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (sheetContext) => DraggableScrollableSheet(
+        initialChildSize: 0.6,
+        minChildSize: 0.3,
+        maxChildSize: 0.9,
+        expand: false,
+        builder: (_, scrollController) => Column(
+          children: [
+            // Handle bar
+            Container(
+              margin: const EdgeInsets.only(top: 8),
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.5),
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            // Header
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Row(
+                children: [
+                  const Icon(Icons.description_outlined),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      filename,
+                      style: Theme.of(context).textTheme.titleMedium,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.close),
+                    onPressed: () => Navigator.pop(sheetContext),
+                  ),
+                ],
+              ),
+            ),
+            const Divider(height: 1),
+            // Content placeholder - would need document fetch
+            Expanded(
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.description_outlined,
+                      size: 48,
+                      color: Theme.of(context).colorScheme.outline,
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      'Document: $filename',
+                      style: Theme.of(context).textTheme.bodyLarge,
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'ID: $documentId',
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

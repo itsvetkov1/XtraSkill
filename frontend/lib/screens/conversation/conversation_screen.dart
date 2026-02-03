@@ -421,7 +421,10 @@ class _ConversationScreenState extends State<ConversationScreen> {
         final message = messages[index];
         return GestureDetector(
           onLongPress: () => _showMessageOptions(context, message),
-          child: MessageBubble(message: message),
+          child: MessageBubble(
+            message: message,
+            projectId: widget.projectId, // Pass for document navigation (SRC-03)
+          ),
         );
       },
     );

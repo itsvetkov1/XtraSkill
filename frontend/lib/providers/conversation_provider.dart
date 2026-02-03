@@ -56,6 +56,9 @@ class ConversationProvider extends ChangeNotifier {
   /// Content of the last message that failed to send
   String? _lastFailedMessage;
 
+  /// Whether there is partial content from an interrupted stream
+  bool _hasPartialContent = false;
+
   ConversationProvider({
     AIService? aiService,
     ThreadService? threadService,
@@ -88,6 +91,9 @@ class ConversationProvider extends ChangeNotifier {
 
   /// Whether retry is available
   bool get canRetry => _lastFailedMessage != null && _error != null;
+
+  /// Whether there is partial content from an interrupted stream
+  bool get hasPartialContent => _hasPartialContent;
 
   /// Load a thread with its message history
   Future<void> loadThread(String threadId) async {
@@ -170,7 +176,8 @@ class ConversationProvider extends ChangeNotifier {
         } else if (event is ErrorEvent) {
           _error = event.message;
           _isStreaming = false;
-          _streamingText = '';
+          _hasPartialContent = _streamingText.isNotEmpty;
+          // DO NOT clear _streamingText - preserve partial content per PITFALL-01
           _statusMessage = null;
           notifyListeners();
         }
@@ -178,7 +185,8 @@ class ConversationProvider extends ChangeNotifier {
     } catch (e) {
       _error = e.toString();
       _isStreaming = false;
-      _streamingText = '';
+      _hasPartialContent = _streamingText.isNotEmpty;
+      // DO NOT clear _streamingText - preserve partial content per PITFALL-01
       _statusMessage = null;
       notifyListeners();
     }
@@ -194,6 +202,7 @@ class ConversationProvider extends ChangeNotifier {
     _error = null;
     _isNotFound = false;
     _loading = false;
+    _hasPartialContent = false;
     notifyListeners();
   }
 
@@ -202,6 +211,8 @@ class ConversationProvider extends ChangeNotifier {
     _error = null;
     _isNotFound = false;
     _lastFailedMessage = null; // Dismiss means "I don't want to retry"
+    _hasPartialContent = false;
+    _streamingText = ''; // Clear partial content on dismiss
     notifyListeners();
   }
 
@@ -212,6 +223,8 @@ class ConversationProvider extends ChangeNotifier {
     final content = _lastFailedMessage!;
     _lastFailedMessage = null;
     _error = null;
+    _hasPartialContent = false;
+    _streamingText = ''; // Clear partial content on retry
 
     // Remove the optimistic user message that was added on first attempt
     // to avoid duplicates when sendMessage adds it again

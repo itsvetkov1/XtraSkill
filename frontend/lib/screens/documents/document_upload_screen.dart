@@ -19,7 +19,53 @@ class DocumentUploadScreen extends StatefulWidget {
 class _DocumentUploadScreenState extends State<DocumentUploadScreen> {
   bool _uploading = false;
 
+  /// Maximum file size in bytes (1MB)
+  static const int _maxFileSizeBytes = 1024 * 1024;
+
+  /// Formats file size in human-readable format
+  String _formatFileSize(int bytes) {
+    if (bytes < 1024) {
+      return '$bytes B';
+    } else if (bytes < 1024 * 1024) {
+      return '${(bytes / 1024).toStringAsFixed(1)} KB';
+    } else {
+      return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
+    }
+  }
+
+  /// Shows file size error dialog with actual size and limit
+  void _showFileSizeError(int actualSize) {
+    showDialog<void>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        icon: const Icon(Icons.warning_amber_rounded, color: Colors.orange, size: 48),
+        title: const Text('File too large'),
+        content: Text(
+          'The selected file is ${_formatFileSize(actualSize)}.\n\n'
+          'Maximum file size is 1MB.\n\n'
+          'Please select a smaller file.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () {
+              Navigator.pop(dialogContext);
+              _pickAndUploadFile();  // Let user immediately select another file
+            },
+            child: const Text('Select Different File'),
+          ),
+        ],
+      ),
+    );
+  }
+
   Future<void> _pickAndUploadFile() async {
+    // Get provider reference BEFORE async gap
+    final provider = context.read<DocumentProvider>();
+
     // Pick file with type filter (only .txt and .md)
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
@@ -38,12 +84,21 @@ class _DocumentUploadScreenState extends State<DocumentUploadScreen> {
       return;
     }
 
+    // VALIDATE FILE SIZE IMMEDIATELY (PITFALL-09: before any upload UI)
+    final fileSize = file.bytes!.length;
+    if (fileSize > _maxFileSizeBytes) {
+      if (mounted) {
+        _showFileSizeError(fileSize);
+      }
+      return;  // Stop here - user can select another file
+    }
+
+    // Only proceed to upload if validation passes
     setState(() {
       _uploading = true;
     });
 
     try {
-      final provider = context.read<DocumentProvider>();
       await provider.uploadDocument(
         widget.projectId,
         file.bytes!,

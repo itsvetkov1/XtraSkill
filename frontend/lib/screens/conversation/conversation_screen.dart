@@ -16,6 +16,8 @@ import '../../widgets/project_picker_dialog.dart';
 import '../../widgets/resource_not_found_state.dart';
 import '../threads/thread_rename_dialog.dart';
 import 'widgets/add_to_project_button.dart';
+import 'widgets/artifact_card.dart';
+import 'widgets/artifact_type_picker.dart';
 import 'widgets/chat_input.dart';
 import 'widgets/error_state_message.dart';
 import 'widgets/message_bubble.dart';
@@ -192,6 +194,27 @@ class _ConversationScreenState extends State<ConversationScreen> {
     }
   }
 
+  /// Show artifact type picker and handle selection
+  Future<void> _showArtifactTypePicker() async {
+    final selection = await ArtifactTypePicker.show(context);
+
+    if (selection != null && mounted) {
+      final provider = context.read<ConversationProvider>();
+
+      // Build prompt based on selection type
+      String prompt;
+      if (selection.isCustom) {
+        // Custom prompt uses requirements_doc type via free-form message
+        prompt = selection.customPrompt!;
+      } else {
+        // Preset type generates standard prompt
+        prompt = 'Generate ${selection.presetType!.displayName} from this conversation.';
+      }
+
+      provider.sendMessage(prompt);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Consumer2<ConversationProvider, BudgetProvider>(
@@ -335,6 +358,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
                   // Refresh budget after sending message
                   budgetProvider.refresh();
                 },
+                onGenerateArtifact: _showArtifactTypePicker,
                 enabled: inputEnabled,
               ),
             ],
@@ -396,25 +420,38 @@ class _ConversationScreenState extends State<ConversationScreen> {
     final hasExtraItem = provider.isStreaming ||
         (provider.hasPartialContent && !provider.isStreaming);
 
+    // Include artifacts in the list (rendered at the end, before streaming/error)
+    final artifactCount = provider.artifacts.length;
+
     return ListView.builder(
       controller: _scrollController,
       padding: const EdgeInsets.symmetric(vertical: 16),
-      itemCount: messages.length + (hasExtraItem ? 1 : 0),
+      itemCount: messages.length + artifactCount + (hasExtraItem ? 1 : 0),
       itemBuilder: (context, index) {
         // Error state partial message at the end (when not streaming)
         if (provider.hasPartialContent &&
             !provider.isStreaming &&
-            index == messages.length) {
+            index == messages.length + artifactCount) {
           return ErrorStateMessage(
             partialText: provider.streamingText,
           );
         }
 
         // Streaming message at the end
-        if (provider.isStreaming && index == messages.length) {
+        if (provider.isStreaming && index == messages.length + artifactCount) {
           return StreamingMessage(
             text: provider.streamingText,
             statusMessage: provider.statusMessage,
+          );
+        }
+
+        // Artifacts after messages (before streaming/error)
+        if (index >= messages.length && index < messages.length + artifactCount) {
+          final artifactIndex = index - messages.length;
+          final artifact = provider.artifacts[artifactIndex];
+          return ArtifactCard(
+            artifact: artifact,
+            threadId: widget.threadId,
           );
         }
 

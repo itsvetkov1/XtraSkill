@@ -9,12 +9,16 @@ class ChatInput extends StatefulWidget {
   /// Callback when message is sent
   final void Function(String message) onSend;
 
+  /// Callback when generate artifact button tapped
+  final VoidCallback? onGenerateArtifact;
+
   /// Whether input is enabled
   final bool enabled;
 
   const ChatInput({
     super.key,
     required this.onSend,
+    this.onGenerateArtifact,
     this.enabled = true,
   });
 
@@ -134,6 +138,12 @@ class _ChatInputState extends State<ChatInput> {
                 ),
               ),
             ),
+            if (widget.onGenerateArtifact != null)
+              IconButton(
+                onPressed: widget.enabled ? widget.onGenerateArtifact : null,
+                icon: const Icon(Icons.auto_awesome),
+                tooltip: 'Generate Artifact',
+              ),
             const SizedBox(width: 8),
             IconButton.filled(
               onPressed: widget.enabled ? _handleSend : null,

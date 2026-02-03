@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 
 import '../../models/message.dart';
 import '../../models/project.dart';
+import '../../providers/budget_provider.dart';
 import '../../providers/conversation_provider.dart';
 import '../../widgets/delete_confirmation_dialog.dart';
 import '../../widgets/mode_selector.dart';
@@ -17,6 +18,7 @@ import 'widgets/add_to_project_button.dart';
 import 'widgets/chat_input.dart';
 import 'widgets/error_state_message.dart';
 import 'widgets/message_bubble.dart';
+import 'widgets/budget_warning_banner.dart';
 import 'widgets/provider_indicator.dart';
 import 'widgets/streaming_message.dart';
 
@@ -44,9 +46,10 @@ class _ConversationScreenState extends State<ConversationScreen> {
   @override
   void initState() {
     super.initState();
-    // Load thread on mount
+    // Load thread and refresh budget on mount
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<ConversationProvider>().loadThread(widget.threadId);
+      context.read<BudgetProvider>().refresh();
     });
   }
 
@@ -160,8 +163,8 @@ class _ConversationScreenState extends State<ConversationScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<ConversationProvider>(
-      builder: (context, provider, child) {
+    return Consumer2<ConversationProvider, BudgetProvider>(
+      builder: (context, provider, budgetProvider, child) {
         // Scroll to bottom when messages change
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (provider.messages.isNotEmpty || provider.isStreaming) {
@@ -196,6 +199,11 @@ class _ConversationScreenState extends State<ConversationScreen> {
             ),
           );
         }
+
+        // Determine if chat input should be enabled
+        // Disabled when streaming OR when budget is exhausted
+        final inputEnabled = !provider.isStreaming &&
+            budgetProvider.status != BudgetStatus.exhausted;
 
         return Scaffold(
           appBar: AppBar(
@@ -234,6 +242,12 @@ class _ConversationScreenState extends State<ConversationScreen> {
           ),
           body: Column(
             children: [
+              // Budget warning banner (above error banner - budget status is more important)
+              BudgetWarningBanner(
+                status: budgetProvider.status,
+                percentage: budgetProvider.percentage,
+              ),
+
               // Error banner with connection-specific message
               if (provider.error != null)
                 MaterialBanner(
@@ -277,10 +291,14 @@ class _ConversationScreenState extends State<ConversationScreen> {
                 ],
               ),
 
-              // Chat input
+              // Chat input - disabled when streaming or budget exhausted
               ChatInput(
-                onSend: provider.sendMessage,
-                enabled: !provider.isStreaming,
+                onSend: (message) {
+                  provider.sendMessage(message);
+                  // Refresh budget after sending message
+                  budgetProvider.refresh();
+                },
+                enabled: inputEnabled,
               ),
             ],
           ),

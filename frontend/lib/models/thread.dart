@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 import 'message.dart';
 
 class Thread {
@@ -11,6 +13,7 @@ class Thread {
   final int? messageCount; // Optional: only in list view
   final List<Message>? messages; // Optional: only in detail view
   final String? modelProvider; // LLM provider used for this thread
+  final String? conversationMode; // "meeting" or "document_refinement"
 
   Thread({
     required this.id,
@@ -23,7 +26,32 @@ class Thread {
     this.messageCount,
     this.messages,
     this.modelProvider,
+    this.conversationMode,
   });
+
+  /// Display name for the mode
+  String get modeDisplayName {
+    switch (conversationMode) {
+      case 'meeting':
+        return 'Meeting Mode';
+      case 'document_refinement':
+        return 'Document Refinement';
+      default:
+        return 'No Mode';
+    }
+  }
+
+  /// Icon for the mode
+  IconData get modeIcon {
+    switch (conversationMode) {
+      case 'meeting':
+        return Icons.groups;
+      case 'document_refinement':
+        return Icons.edit_document;
+      default:
+        return Icons.chat_bubble_outline;
+    }
+  }
 
   /// Whether this thread belongs to a project
   bool get hasProject => projectId != null && projectId!.isNotEmpty;
@@ -46,6 +74,7 @@ class Thread {
               .toList()
           : null,
       modelProvider: json['model_provider'] as String?,
+      conversationMode: json['conversation_mode'] as String?,
     );
   }
 
@@ -63,6 +92,7 @@ class Thread {
       if (messages != null)
         'messages': messages!.map((m) => m.toJson()).toList(),
       if (modelProvider != null) 'model_provider': modelProvider,
+      if (conversationMode != null) 'conversation_mode': conversationMode,
     };
   }
 }

@@ -12,23 +12,23 @@ See: .planning/PROJECT.md (updated 2026-02-02)
 
 Milestone: v1.9.2 - Resilience & AI Transparency
 Phase: 36 - AI Interaction Enhancement (In Progress)
-Plan: 03/04 complete (awaiting checkpoint verification)
+Plan: 04/04 complete (awaiting checkpoint verification)
 Status: Checkpoint - human-verify
-Last activity: 2026-02-03 - Completed 36-04-PLAN.md (Source Attribution UI)
-Next action: User verification of source attribution flow
+Last activity: 2026-02-03 - Completed 36-03-PLAN.md (Artifact UI Components)
+Next action: User verification of artifact generation and source attribution flow
 
 Progress:
 ```
 Phase 34: [##########] 7/7 requirements (COMPLETE)
 Phase 35: [##########] 9/9 requirements (COMPLETE)
-Phase 36: [######....] 6/8 requirements (SRC-01 through SRC-04 complete)
-Overall:  [#########.] 22/24 requirements (92%)
+Phase 36: [##########] 8/8 requirements (All plans complete, verification pending)
+Overall:  [##########] 24/24 requirements (100%)
 ```
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 95 (20 in MVP v1.0, 15 in Beta v1.5, 5 in UX v1.6, 8 in URL v1.7, 8 in LLM v1.8, 9 in UX v1.9, 24 in Unit Tests v1.9.1, 2 in v1.9.2 Phase 34, 3 in v1.9.2 Phase 35, 3 in v1.9.2 Phase 36)
+- Total plans completed: 96 (20 in MVP v1.0, 15 in Beta v1.5, 5 in UX v1.6, 8 in URL v1.7, 8 in LLM v1.8, 9 in UX v1.9, 24 in Unit Tests v1.9.1, 2 in v1.9.2 Phase 34, 3 in v1.9.2 Phase 35, 4 in v1.9.2 Phase 36)
 - Average duration: ~18 minutes (MVP v1.0), ~7 minutes (Beta v1.5), ~5 minutes (UX v1.6), ~4 minutes (URL v1.7), ~5 minutes (LLM v1.8), ~4 minutes (UX v1.9), ~4 minutes (Unit Tests v1.9.1), ~4 minutes (v1.9.2)
 
 **By Milestone:**
@@ -42,7 +42,7 @@ Overall:  [#########.] 22/24 requirements (92%)
 | LLM v1.8 | 19-22 | 8/8 | SHIPPED 2026-01-31 |
 | UX v1.9 | 23-27 | 9/9 | SHIPPED 2026-02-02 |
 | Unit Tests v1.9.1 | 28-33 | 24/24 | SHIPPED 2026-02-02 |
-| v1.9.2 | 34-36 | 8/? | In Progress |
+| v1.9.2 | 34-36 | 9/9 | Checkpoint - verification pending |
 
 ## Accumulated Context
 
@@ -64,6 +64,8 @@ Overall:  [#########.] 22/24 requirements (92%)
 | D-36-01-01: Track documents at backend search time | PITFALL-05: Prevents hallucinated citations | 2026-02-03 |
 | D-36-02-01: ArtifactType enum uses exact backend snake_case values | Direct mapping avoids translation errors | 2026-02-03 |
 | D-36-04-01: Bottom sheet preview for project-less threads | Cannot navigate to /projects/:id/documents/:docId without project context | 2026-02-03 |
+| D-36-03-01: Custom option sends free-form prompt to LLM | Artifact generation is LLM-driven; user prompt triggers save_artifact tool | 2026-02-03 |
+| D-36-03-02: Artifacts rendered after messages in list | Chronological order - artifacts appear where they were created | 2026-02-03 |
 
 Previous milestone decisions archived in:
 - .planning/milestones/v1.5-ROADMAP.md
@@ -113,18 +115,19 @@ From research/PITFALLS-v1.9.2.md:
 ## Session Continuity
 
 Last session: 2026-02-03
-Stopped at: Completed 36-04-PLAN.md (Source Attribution UI) - Checkpoint awaiting verification
+Stopped at: Completed 36-03-PLAN.md (Artifact UI Components) - All plans complete, checkpoint pending
 Resume file: None
-Next action: User verifies source attribution flow, then continue with 36-03 or close phase
+Next action: User verifies artifact generation and source attribution flow
 
 **Context for Next Session:**
 - Phase 34 complete: Network resilience + file validation
 - Phase 35 complete: Budget warnings + mode backend API + mode indicator UI
 - Phase 36-01 complete: Backend tracks documents_used, includes in message_complete SSE
 - Phase 36-02 complete: Artifact model, ArtifactService, ArtifactCreatedEvent in AIService
+- Phase 36-03 complete: ArtifactTypePicker, ArtifactCard, ChatInput generate button
 - Phase 36-04 complete: SourceChips widget, Message.documentsUsed, document navigation
-- Remaining 36: Artifact preview cards (36-03)
+- All Phase 36 plans complete, awaiting user verification
 
 ---
 
-*State updated: 2026-02-03 (Phase 36-04 complete, checkpoint pending)*
+*State updated: 2026-02-03 (Phase 36-03 complete, all plans done, checkpoint pending)*

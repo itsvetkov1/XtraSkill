@@ -15,6 +15,7 @@ import '../../widgets/resource_not_found_state.dart';
 import '../threads/thread_rename_dialog.dart';
 import 'widgets/add_to_project_button.dart';
 import 'widgets/chat_input.dart';
+import 'widgets/error_state_message.dart';
 import 'widgets/message_bubble.dart';
 import 'widgets/provider_indicator.dart';
 import 'widgets/streaming_message.dart';
@@ -233,10 +234,14 @@ class _ConversationScreenState extends State<ConversationScreen> {
           ),
           body: Column(
             children: [
-              // Error banner
+              // Error banner with connection-specific message
               if (provider.error != null)
                 MaterialBanner(
-                  content: SelectableText(provider.error!),
+                  content: Text(
+                    provider.hasPartialContent
+                        ? 'Connection lost - response incomplete'
+                        : provider.error!,
+                  ),
                   backgroundColor: Theme.of(context).colorScheme.errorContainer,
                   actions: [
                     TextButton(
@@ -329,11 +334,24 @@ class _ConversationScreenState extends State<ConversationScreen> {
       );
     }
 
+    // Calculate extra item count for streaming or error state messages
+    final hasExtraItem = provider.isStreaming ||
+        (provider.hasPartialContent && !provider.isStreaming);
+
     return ListView.builder(
       controller: _scrollController,
       padding: const EdgeInsets.symmetric(vertical: 16),
-      itemCount: messages.length + (provider.isStreaming ? 1 : 0),
+      itemCount: messages.length + (hasExtraItem ? 1 : 0),
       itemBuilder: (context, index) {
+        // Error state partial message at the end (when not streaming)
+        if (provider.hasPartialContent &&
+            !provider.isStreaming &&
+            index == messages.length) {
+          return ErrorStateMessage(
+            partialText: provider.streamingText,
+          );
+        }
+
         // Streaming message at the end
         if (provider.isStreaming && index == messages.length) {
           return StreamingMessage(

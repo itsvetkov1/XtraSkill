@@ -335,6 +335,26 @@ class ConversationProvider extends ChangeNotifier {
     }
   }
 
+  /// Update conversation mode for current thread
+  ///
+  /// Returns true on success, false on failure.
+  /// On success, reloads thread to update UI state.
+  /// On failure, sets error message.
+  Future<bool> updateMode(String mode) async {
+    if (_thread == null) return false;
+
+    try {
+      await _threadService.updateThreadMode(_thread!.id, mode);
+      // Reload thread to get updated mode
+      await loadThread(_thread!.id);
+      return true;
+    } catch (e) {
+      _error = e.toString();
+      notifyListeners();
+      return false;
+    }
+  }
+
   @override
   void dispose() {
     _deleteTimer?.cancel();

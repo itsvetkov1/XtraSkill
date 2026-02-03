@@ -239,6 +239,35 @@ class ThreadService {
     }
   }
 
+  /// Update conversation mode for a thread
+  ///
+  /// [threadId] - ID of the thread to update
+  /// [mode] - Conversation mode ("meeting" or "document_refinement")
+  ///
+  /// Returns updated Thread object
+  /// Throws exception if mode is invalid (400) or thread not found (404)
+  Future<Thread> updateThreadMode(String threadId, String mode) async {
+    try {
+      final headers = await _getAuthHeaders();
+      final response = await _dio.patch(
+        '$_baseUrl/api/threads/$threadId',
+        options: Options(headers: headers),
+        data: {'conversation_mode': mode},
+      );
+
+      return Thread.fromJson(response.data as Map<String, dynamic>);
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 401 || e.response?.statusCode == 403) {
+        throw Exception('Authentication required');
+      } else if (e.response?.statusCode == 400) {
+        throw Exception('Invalid mode. Valid options: meeting, document_refinement');
+      } else if (e.response?.statusCode == 404) {
+        throw Exception('Thread not found');
+      }
+      throw Exception('Failed to update mode: ${e.message}');
+    }
+  }
+
   /// Associate a project-less thread with a project
   ///
   /// [threadId] - ID of the thread to associate

@@ -10,6 +10,7 @@ import '../../models/project.dart';
 import '../../providers/budget_provider.dart';
 import '../../providers/conversation_provider.dart';
 import '../../widgets/delete_confirmation_dialog.dart';
+import '../../widgets/mode_change_dialog.dart';
 import '../../widgets/mode_selector.dart';
 import '../../widgets/project_picker_dialog.dart';
 import '../../widgets/resource_not_found_state.dart';
@@ -19,6 +20,7 @@ import 'widgets/chat_input.dart';
 import 'widgets/error_state_message.dart';
 import 'widgets/message_bubble.dart';
 import 'widgets/budget_warning_banner.dart';
+import 'widgets/mode_badge.dart';
 import 'widgets/provider_indicator.dart';
 import 'widgets/streaming_message.dart';
 
@@ -161,6 +163,35 @@ class _ConversationScreenState extends State<ConversationScreen> {
     }
   }
 
+  /// Show mode change dialog and update thread mode
+  Future<void> _showModeChangeDialog() async {
+    final provider = context.read<ConversationProvider>();
+    final currentMode = provider.thread?.conversationMode;
+
+    final selectedMode = await ModeChangeDialog.show(
+      context,
+      currentMode: currentMode,
+    );
+
+    if (selectedMode != null && selectedMode != currentMode && mounted) {
+      final success = await provider.updateMode(selectedMode);
+
+      if (!success && mounted) {
+        // Show error snackbar
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(provider.error ?? 'Failed to change mode'),
+            action: SnackBarAction(
+              label: 'Retry',
+              onPressed: _showModeChangeDialog,
+            ),
+          ),
+        );
+      }
+      // Success: UI updates in-place via loadThread() (no snackbar)
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Consumer2<ConversationProvider, BudgetProvider>(
@@ -209,6 +240,12 @@ class _ConversationScreenState extends State<ConversationScreen> {
           appBar: AppBar(
             title: Text(provider.thread?.title ?? 'New Conversation'),
             actions: [
+              // Mode badge (shows current mode, tap to change)
+              if (provider.thread != null)
+                ModeBadge(
+                  mode: provider.thread!.conversationMode,
+                  onTap: _showModeChangeDialog,
+                ),
               IconButton(
                 icon: const Icon(Icons.edit_outlined),
                 tooltip: 'Rename conversation',
@@ -342,7 +379,10 @@ class _ConversationScreenState extends State<ConversationScreen> {
             ),
             // Mode selector below
             ModeSelector(
-              onModeSelected: (mode) {
+              onModeSelected: (mode) async {
+                // Convert display name to mode value and update thread
+                final modeValue = mode.contains('Meeting') ? 'meeting' : 'document_refinement';
+                await provider.updateMode(modeValue);
                 // Send mode selection as user message
                 provider.sendMessage(mode);
               },

@@ -282,6 +282,14 @@ class Thread(Base):
         default="anthropic"
     )
 
+    # Conversation mode (meeting, document_refinement)
+    # Per PITFALL-07: Mode is a thread property, not global preference
+    conversation_mode: Mapped[Optional[str]] = mapped_column(
+        String(50),
+        nullable=True,
+        default=None
+    )
+
     # Audit timestamps
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),

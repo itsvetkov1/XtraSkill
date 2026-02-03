@@ -9,25 +9,25 @@ Requirements for Resilience & AI Transparency milestone. Each maps to roadmap ph
 
 ### Network Resilience
 
-- [ ] **NET-01**: On network loss during SSE streaming, partial AI content is preserved (not cleared)
-- [ ] **NET-02**: Error banner displays "Connection lost - response incomplete" when stream interrupted
-- [ ] **NET-03**: Retry button available to regenerate interrupted response
-- [ ] **NET-04**: Copy button remains functional for partial content in error state
+- [x] **NET-01**: On network loss during SSE streaming, partial AI content is preserved (not cleared)
+- [x] **NET-02**: Error banner displays "Connection lost - response incomplete" when stream interrupted
+- [x] **NET-03**: Retry button available to regenerate interrupted response
+- [x] **NET-04**: Copy button remains functional for partial content in error state
 
 ### Token Budget UX
 
-- [ ] **BUD-01**: Warning banner at 80% budget usage: "You've used 80% of your token budget"
-- [ ] **BUD-02**: Warning banner at 95% usage: "Almost at limit - limited messages remaining"
-- [ ] **BUD-03**: At 100%: Clear "Budget exhausted" state in ConversationScreen
-- [ ] **BUD-04**: Exhausted state allows viewing history but blocks sending new messages
-- [ ] **BUD-05**: Budget display shows percentage only (no monetary amounts)
+- [x] **BUD-01**: Warning banner at 80% budget usage: "You've used 80% of your token budget"
+- [x] **BUD-02**: Warning banner at 95% usage: "Almost at limit - limited messages remaining"
+- [x] **BUD-03**: At 100%: Clear "Budget exhausted" state in ConversationScreen
+- [x] **BUD-04**: Exhausted state allows viewing history but blocks sending new messages
+- [x] **BUD-05**: Budget display shows percentage only (no monetary amounts)
 
 ### Mode Indicator
 
-- [ ] **MODE-01**: Current conversation mode shown as chip/badge in ConversationScreen AppBar
-- [ ] **MODE-02**: Mode badge is tappable to open mode change menu
-- [ ] **MODE-03**: Mode change shows warning about potential context shift
-- [ ] **MODE-04**: Mode persists in database for that thread (survives app restart)
+- [x] **MODE-01**: Current conversation mode shown as chip/badge in ConversationScreen AppBar
+- [x] **MODE-02**: Mode badge is tappable to open mode change menu
+- [x] **MODE-03**: Mode change shows warning about potential context shift
+- [x] **MODE-04**: Mode persists in database for that thread (survives app restart)
 
 ### Artifact Generation UI
 
@@ -45,9 +45,9 @@ Requirements for Resilience & AI Transparency milestone. Each maps to roadmap ph
 
 ### File Validation
 
-- [ ] **FILE-01**: File size validated client-side before upload attempt
-- [ ] **FILE-02**: Clear error message: "File too large. Maximum size is 1MB."
-- [ ] **FILE-03**: Invalid file selection cleared, user can immediately try again
+- [x] **FILE-01**: File size validated client-side before upload attempt
+- [x] **FILE-02**: Clear error message: "File too large. Maximum size is 1MB."
+- [x] **FILE-03**: Invalid file selection cleared, user can immediately try again
 
 ## v2.0 Deferred
 
@@ -78,22 +78,22 @@ Features acknowledged but not in current milestone scope.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| NET-01 | Phase 34 | Pending |
-| NET-02 | Phase 34 | Pending |
-| NET-03 | Phase 34 | Pending |
-| NET-04 | Phase 34 | Pending |
-| FILE-01 | Phase 34 | Pending |
-| FILE-02 | Phase 34 | Pending |
-| FILE-03 | Phase 34 | Pending |
-| BUD-01 | Phase 35 | Pending |
-| BUD-02 | Phase 35 | Pending |
-| BUD-03 | Phase 35 | Pending |
-| BUD-04 | Phase 35 | Pending |
-| BUD-05 | Phase 35 | Pending |
-| MODE-01 | Phase 35 | Pending |
-| MODE-02 | Phase 35 | Pending |
-| MODE-03 | Phase 35 | Pending |
-| MODE-04 | Phase 35 | Pending |
+| NET-01 | Phase 34 | Complete |
+| NET-02 | Phase 34 | Complete |
+| NET-03 | Phase 34 | Complete |
+| NET-04 | Phase 34 | Complete |
+| FILE-01 | Phase 34 | Complete |
+| FILE-02 | Phase 34 | Complete |
+| FILE-03 | Phase 34 | Complete |
+| BUD-01 | Phase 35 | Complete |
+| BUD-02 | Phase 35 | Complete |
+| BUD-03 | Phase 35 | Complete |
+| BUD-04 | Phase 35 | Complete |
+| BUD-05 | Phase 35 | Complete |
+| MODE-01 | Phase 35 | Complete |
+| MODE-02 | Phase 35 | Complete |
+| MODE-03 | Phase 35 | Complete |
+| MODE-04 | Phase 35 | Complete |
 | ART-01 | Phase 36 | Pending |
 | ART-02 | Phase 36 | Pending |
 | ART-03 | Phase 36 | Pending |
@@ -110,4 +110,4 @@ Features acknowledged but not in current milestone scope.
 
 ---
 *Requirements defined: 2026-02-02*
-*Last updated: 2026-02-02 after initial definition*
+*Last updated: 2026-02-03 (Phase 35 complete)*

@@ -80,6 +80,14 @@ Plans:
 
 **Dependencies:** Phase 35 complete (backend patterns established)
 
+**Plans:** 4 plans
+
+Plans:
+- [ ] 36-01-PLAN.md - Backend source attribution: track documents in search_documents_tool
+- [ ] 36-02-PLAN.md - Frontend foundations: Artifact model, service, SSE events
+- [ ] 36-03-PLAN.md - Artifact UI: type picker, cards, chat input integration
+- [ ] 36-04-PLAN.md - Source attribution UI: source chips, Document Viewer navigation
+
 **Requirements:**
 - ART-01: "Generate Artifact" button visible in ConversationScreen
 - ART-02: Artifact type picker with options: User Stories, Acceptance Criteria, BRD, Custom
@@ -112,4 +120,4 @@ Plans:
 ---
 
 *Roadmap created: 2026-02-03*
-*Last updated: 2026-02-03 (Phase 35 complete)*
+*Last updated: 2026-02-03 (Phase 36 planned)*

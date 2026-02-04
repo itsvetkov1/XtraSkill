@@ -31,17 +31,17 @@ Requirements for Resilience & AI Transparency milestone. Each maps to roadmap ph
 
 ### Artifact Generation UI
 
-- [ ] **ART-01**: "Generate Artifact" button visible in ConversationScreen
-- [ ] **ART-02**: Artifact type picker with options: User Stories, Acceptance Criteria, BRD, Custom
-- [ ] **ART-03**: Generated artifacts have inline export buttons (Markdown, PDF, Word)
-- [ ] **ART-04**: Artifacts visually distinct from regular chat messages (card styling)
+- [x] **ART-01**: "Generate Artifact" button visible in ConversationScreen
+- [x] **ART-02**: Artifact type picker with options: User Stories, Acceptance Criteria, BRD, Custom
+- [x] **ART-03**: Generated artifacts have inline export buttons (Markdown, PDF, Word)
+- [x] **ART-04**: Artifacts visually distinct from regular chat messages (card styling)
 
 ### Document Sources
 
-- [ ] **SRC-01**: AI responses show source document chips when documents were referenced
-- [ ] **SRC-02**: Source chips display document names: "Sources: requirements.md, notes.txt"
-- [ ] **SRC-03**: Clicking source chip opens Document Viewer for that document
-- [ ] **SRC-04**: If no documents used in response, no source section shown
+- [x] **SRC-01**: AI responses show source document chips when documents were referenced
+- [x] **SRC-02**: Source chips display document names: "Sources: requirements.md, notes.txt"
+- [x] **SRC-03**: Clicking source chip opens Document Viewer for that document
+- [x] **SRC-04**: If no documents used in response, no source section shown
 
 ### File Validation
 
@@ -94,20 +94,20 @@ Features acknowledged but not in current milestone scope.
 | MODE-02 | Phase 35 | Complete |
 | MODE-03 | Phase 35 | Complete |
 | MODE-04 | Phase 35 | Complete |
-| ART-01 | Phase 36 | Pending |
-| ART-02 | Phase 36 | Pending |
-| ART-03 | Phase 36 | Pending |
-| ART-04 | Phase 36 | Pending |
-| SRC-01 | Phase 36 | Pending |
-| SRC-02 | Phase 36 | Pending |
-| SRC-03 | Phase 36 | Pending |
-| SRC-04 | Phase 36 | Pending |
+| ART-01 | Phase 36 | Complete |
+| ART-02 | Phase 36 | Complete |
+| ART-03 | Phase 36 | Complete |
+| ART-04 | Phase 36 | Complete |
+| SRC-01 | Phase 36 | Complete |
+| SRC-02 | Phase 36 | Complete |
+| SRC-03 | Phase 36 | Complete |
+| SRC-04 | Phase 36 | Complete |
 
 **Coverage:**
 - v1.9.2 requirements: 24 total
 - Mapped to phases: 24
-- Unmapped: 0 ✓
+- Completed: 24 ✓
 
 ---
 *Requirements defined: 2026-02-02*
-*Last updated: 2026-02-03 (Phase 35 complete)*
+*Last updated: 2026-02-04 (Phase 36 complete - Milestone complete)*

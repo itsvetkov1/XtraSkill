@@ -2,13 +2,13 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../providers/document_column_provider.dart';
 import '../providers/document_provider.dart';
 import '../providers/project_provider.dart';
 import '../screens/documents/document_upload_screen.dart';
-import '../screens/documents/document_viewer_screen.dart';
 import '../widgets/delete_confirmation_dialog.dart';
 
 /// Collapsible documents column widget.
@@ -217,11 +217,8 @@ class _DocumentList extends StatelessWidget {
   }
 
   void _onView(BuildContext context, String documentId) {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => DocumentViewerScreen(documentId: documentId),
-      ),
-    );
+    // Use push to add to browser history (back button returns to project)
+    context.push('/projects/$projectId/documents/$documentId');
   }
 
   Future<void> _onDelete(

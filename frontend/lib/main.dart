@@ -31,6 +31,7 @@ import 'screens/not_found_screen.dart';
 import 'screens/projects/project_list_screen.dart';
 import 'screens/projects/project_detail_screen.dart';
 import 'screens/conversation/conversation_screen.dart';
+import 'screens/documents/document_viewer_screen.dart';
 import 'widgets/responsive_scaffold.dart';
 
 Future<void> main() async {
@@ -304,6 +305,13 @@ class _MyAppState extends State<MyApp> {
                               projectId: projectId,
                               threadId: threadId,
                             );
+                          },
+                        ),
+                        GoRoute(
+                          path: 'documents/:docId',
+                          builder: (context, state) {
+                            final docId = state.pathParameters['docId']!;
+                            return DocumentViewerScreen(documentId: docId);
                           },
                         ),
                       ],

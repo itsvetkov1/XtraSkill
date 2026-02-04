@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../providers/conversation_provider.dart';
+import '../providers/document_provider.dart';
 import '../providers/project_provider.dart';
 
 /// Data class representing a single breadcrumb segment
@@ -70,7 +71,6 @@ class BreadcrumbBar extends StatelessWidget {
 
   /// Build breadcrumb list from current path
   List<Breadcrumb> _buildBreadcrumbs(BuildContext context, String path) {
-    final breadcrumbs = <Breadcrumb>[];
     final segments = path.split('/').where((s) => s.isNotEmpty).toList();
 
     // Root or /home -> Home
@@ -83,6 +83,23 @@ class BreadcrumbBar extends StatelessWidget {
       return [const Breadcrumb('Settings')];
     }
 
+    // /chats routes (project-less threads) - NAV-02
+    if (segments.isNotEmpty && segments[0] == 'chats') {
+      // /chats -> Chats
+      if (segments.length == 1) {
+        return [const Breadcrumb('Chats')];
+      }
+      // /chats/:threadId -> Chats > {Thread Title}
+      if (segments.length >= 2) {
+        final conversationProvider = context.read<ConversationProvider>();
+        final threadTitle = conversationProvider.thread?.title ?? 'Conversation';
+        return [
+          const Breadcrumb('Chats', '/chats'),
+          Breadcrumb(threadTitle),
+        ];
+      }
+    }
+
     // /projects routes
     if (segments.isNotEmpty && segments[0] == 'projects') {
       // /projects -> Projects (just the list, no parent link)
@@ -90,35 +107,43 @@ class BreadcrumbBar extends StatelessWidget {
         return [const Breadcrumb('Projects')];
       }
 
-      // /projects/:id or /projects/:id/threads/:threadId
-      breadcrumbs.add(const Breadcrumb('Projects', '/projects'));
+      final projectId = segments[1];
+      final projectProvider = context.read<ProjectProvider>();
+      final projectName = projectProvider.selectedProject?.name ?? 'Project';
 
-      // Add project name (segments[1] is the project ID)
-      if (segments.length >= 2) {
-        final projectProvider = context.read<ProjectProvider>();
-        final projectName =
-            projectProvider.selectedProject?.name ?? 'Project';
-
-        // If we have threads segment, project name links to project detail
-        if (segments.length >= 4 && segments[2] == 'threads') {
-          final projectId = segments[1];
-          breadcrumbs.add(Breadcrumb(projectName, '/projects/$projectId'));
-
-          // Add thread/conversation name
-          final conversationProvider = context.read<ConversationProvider>();
-          final threadTitle =
-              conversationProvider.thread?.title ?? 'Conversation';
-          breadcrumbs.add(Breadcrumb(threadTitle));
-        } else {
-          // Just /projects/:id - project name is current page (no link)
-          breadcrumbs.add(Breadcrumb(projectName));
-        }
+      // /projects/:id/documents/:docId -> Projects > {Project} > Documents > {Document} - NAV-03
+      if (segments.length >= 4 && segments[2] == 'documents') {
+        final documentProvider = context.read<DocumentProvider>();
+        final documentName = documentProvider.selectedDocument?.filename ?? 'Document';
+        return [
+          const Breadcrumb('Projects', '/projects'),
+          Breadcrumb(projectName, '/projects/$projectId'),
+          Breadcrumb('Documents', '/projects/$projectId'), // Links to project (user clicks Documents tab)
+          Breadcrumb(documentName),
+        ];
       }
 
-      return breadcrumbs;
+      // /projects/:id/threads/:threadId -> Projects > {Project} > Threads > {Thread} - NAV-01
+      if (segments.length >= 4 && segments[2] == 'threads') {
+        final conversationProvider = context.read<ConversationProvider>();
+        final threadTitle = conversationProvider.thread?.title ?? 'Conversation';
+        return [
+          const Breadcrumb('Projects', '/projects'),
+          Breadcrumb(projectName, '/projects/$projectId'),
+          Breadcrumb('Threads', '/projects/$projectId'), // Links to project (user clicks Threads tab)
+          Breadcrumb(threadTitle),
+        ];
+      }
+
+      // /projects/:id -> Projects > {Project}
+      return [
+        const Breadcrumb('Projects', '/projects'),
+        Breadcrumb(projectName),
+      ];
     }
 
     // Fallback: use path segments as labels
+    final breadcrumbs = <Breadcrumb>[];
     for (int i = 0; i < segments.length; i++) {
       final isLast = i == segments.length - 1;
       final label = _formatSegmentLabel(segments[i]);

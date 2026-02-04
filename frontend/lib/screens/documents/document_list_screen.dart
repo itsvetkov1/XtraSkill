@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:file_saver/file_saver.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
@@ -12,7 +13,6 @@ import '../../utils/date_formatter.dart';
 import '../../widgets/delete_confirmation_dialog.dart';
 import '../../widgets/empty_state.dart';
 import 'document_upload_screen.dart';
-import 'document_viewer_screen.dart';
 
 /// Screen displaying list of documents in a project.
 ///
@@ -118,13 +118,7 @@ class _DocumentListScreenState extends State<DocumentListScreen> {
                         : PopupMenuButton<String>(
                             onSelected: (value) {
                               if (value == 'view') {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) =>
-                                        DocumentViewerScreen(documentId: doc.id),
-                                  ),
-                                );
+                                context.push('/projects/${widget.projectId}/documents/${doc.id}');
                               } else if (value == 'download') {
                                 _downloadDocument(context, doc);
                               } else if (value == 'delete') {
@@ -167,13 +161,7 @@ class _DocumentListScreenState extends State<DocumentListScreen> {
                     onTap: provider.isLoading
                         ? null
                         : () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) =>
-                                    DocumentViewerScreen(documentId: doc.id),
-                              ),
-                            );
+                            context.push('/projects/${widget.projectId}/documents/${doc.id}');
                           },
                   ),
                 );

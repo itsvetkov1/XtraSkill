@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:file_picker/file_picker.dart';
 import '../../providers/document_provider.dart';
+import '../../widgets/document_preview_dialog.dart';
 
 /// Screen for uploading documents to a project.
 ///
@@ -92,6 +93,11 @@ class _DocumentUploadScreenState extends State<DocumentUploadScreen> {
       }
       return;  // Stop here - user can select another file
     }
+
+    // After size validation passes, show preview for user confirmation
+    if (!mounted) return;
+    final shouldUpload = await DocumentPreviewDialog.show(context, file);
+    if (!shouldUpload) return;  // User cancelled
 
     // Only proceed to upload if validation passes
     setState(() {

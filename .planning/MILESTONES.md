@@ -1,5 +1,34 @@
 # Project Milestones: Business Analyst Assistant
 
+## v1.9.3 Document & Navigation Polish (Shipped: 2026-02-04)
+
+**Delivered:** Document workflow improvements with download capability and upload preview confirmation, plus full breadcrumb navigation context for threads and documents with proper URL routing.
+
+**Phases completed:** 37-39 (3 plans total)
+
+**Key accomplishments:**
+
+- Document download from Document Viewer AppBar and list context menu using file_saver pattern
+- Document preview dialog before upload showing filename, size, and first 20 lines in monospace
+- Extended breadcrumb navigation for threads (Projects > Project > Threads > Thread)
+- Project-less thread breadcrumbs (Chats > Thread)
+- Document Viewer URL routing via GoRouter (/projects/:id/documents/:docId) with browser back button support
+- Full breadcrumb hierarchy for documents (Projects > Project > Documents > Document)
+
+**Stats:**
+
+- 24 files modified, +3,038 lines
+- ~11,300 lines Dart frontend
+- 3 phases, 3 plans
+- 17/17 requirements satisfied
+- 1 day from start to ship (2026-02-04)
+
+**Git range:** `a867836` → `419980c`
+
+**What's next:** v2.0 — Search, Previews & Integrations
+
+---
+
 ## v1.9.2 Resilience & AI Transparency (Shipped: 2026-02-04)
 
 **Delivered:** Error resilience with partial content preservation, budget transparency with threshold warnings, conversation mode persistence, artifact generation UI, and source attribution display.
@@ -227,4 +256,4 @@
 
 ---
 
-*Last updated: 2026-02-04 (v1.9.2 complete)*
+*Last updated: 2026-02-04 (v1.9.3 complete)*

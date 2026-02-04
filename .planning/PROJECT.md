@@ -10,14 +10,15 @@ Business analysts reduce time spent on requirement documentation while improving
 
 ## Current State
 
-**Active:** v1.9.3 Document & Navigation Polish
+**Shipped:** v1.9.3 Document & Navigation Polish (2026-02-04)
 
-**Goal:** Improve document workflow with upload preview and download capability, plus complete navigation context with thread-level breadcrumbs.
+**Delivered:**
+- Document download from Document Viewer AppBar and list context menu using file_saver pattern
+- Document preview dialog before upload showing filename, size, and first 20 lines in monospace
+- Full breadcrumb navigation: Projects > Project > Threads > Thread, Chats > Thread, Projects > Project > Documents > Document
+- Document Viewer URL routing via GoRouter (/projects/:id/documents/:docId) with browser back button support
 
-**Target features:**
-- Document preview before upload (filename, size, snippet confirmation)
-- Document download from viewer and list
-- Thread-level breadcrumbs with full navigation path
+**Next:** v2.0 — Search, Previews & Integrations (planning)
 
 Previous milestone (v1.9.2):
 - Network error resilience with partial content preservation and retry
@@ -65,7 +66,7 @@ Previous features (v1.5):
 - Deletion with 10-second undo for all resources
 - Professional empty states across all list screens
 
-**Codebase:** ~83,500 lines of Python/Dart across FastAPI backend and Flutter frontend.
+**Codebase:** ~86,500 lines of Python/Dart across FastAPI backend and Flutter frontend (11,279 Dart frontend).
 
 ## Future Vision
 
@@ -154,18 +155,17 @@ Previous features (v1.5):
 - ✓ AI responses show source document chips when documents were referenced — v1.9.2
 - ✓ Source chips clickable to open Document Viewer — v1.9.2
 
+- ✓ User can preview document before upload (filename, size, first lines) — v1.9.3
+- ✓ User can cancel upload after preview — v1.9.3
+- ✓ User can download document from Document Viewer — v1.9.3
+- ✓ User can download document from document list (quick action) — v1.9.3
+- ✓ Breadcrumbs show full path including thread name — v1.9.3
+- ✓ Project threads: Projects > {Project} > Threads > {Thread} — v1.9.3
+- ✓ Project-less chats: Chats > {Thread} — v1.9.3
+- ✓ Each breadcrumb segment is clickable — v1.9.3
+- ✓ Document Viewer has proper URL route (/projects/:id/documents/:docId) — v1.9.3
+
 ### Active
-
-**v1.9.3 — Document & Navigation Polish**
-
-- [ ] User can preview document before upload (filename, size, first lines)
-- [ ] User can cancel upload after preview
-- [ ] User can download document from Document Viewer
-- [ ] User can download document from document list (quick action)
-- [ ] Breadcrumbs show full path including thread name
-- [ ] Project threads: Projects > {Project} > Threads > {Thread}
-- [ ] Project-less chats: Chats > {Thread}
-- [ ] Each breadcrumb segment is clickable
 
 **v2.0 — Search, Previews & Integrations** (planned)
 
@@ -263,6 +263,11 @@ BAs prepare for meetings by uploading existing requirements or stakeholder notes
 | ArtifactType enum uses exact backend snake_case | Direct mapping avoids translation errors | ✓ Implemented (Phase 36) |
 | Collapsible artifact cards (collapsed by default) | PITFALL-08: Minimize vertical space consumption | ✓ Implemented (Phase 36) |
 | Bottom sheet preview for project-less threads | Cannot navigate to document viewer without project context | ✓ Implemented (Phase 36) |
+| Nested document route under project | /projects/:id/documents/:docId enables breadcrumbs and deep links | ✓ Implemented (Phase 39) |
+| context.push for document navigation | Preserves browser history; back button returns to project | ✓ Implemented (Phase 39) |
+| Intermediate breadcrumb segments link to project | "Threads" and "Documents" link to project detail (no separate routes) | ✓ Implemented (Phase 39) |
+| Static show() for preview dialog | Consistent with ModeChangeDialog pattern; simplifies caller code | ✓ Implemented (Phase 38) |
+| Screen-level download (no service) | Simple 10-line operation; service would be over-engineering | ✓ Implemented (Phase 37) |
 
 ---
-*Last updated: 2026-02-04 after v1.9.3 milestone start*
+*Last updated: 2026-02-04 after v1.9.3 milestone complete*

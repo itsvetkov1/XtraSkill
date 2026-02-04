@@ -46,29 +46,29 @@ Requirements for Document & Navigation Polish milestone.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| DOC-01 | TBD | Pending |
-| DOC-02 | TBD | Pending |
-| DOC-03 | TBD | Pending |
-| DOC-04 | TBD | Pending |
-| DOC-05 | TBD | Pending |
-| DOC-06 | TBD | Pending |
-| DOWNLOAD-01 | TBD | Pending |
-| DOWNLOAD-02 | TBD | Pending |
-| DOWNLOAD-03 | TBD | Pending |
-| DOWNLOAD-04 | TBD | Pending |
-| DOWNLOAD-05 | TBD | Pending |
-| NAV-01 | TBD | Pending |
-| NAV-02 | TBD | Pending |
-| NAV-03 | TBD | Pending |
-| NAV-04 | TBD | Pending |
-| NAV-05 | TBD | Pending |
-| NAV-06 | TBD | Pending |
+| DOC-01 | 38 | Pending |
+| DOC-02 | 38 | Pending |
+| DOC-03 | 38 | Pending |
+| DOC-04 | 38 | Pending |
+| DOC-05 | 38 | Pending |
+| DOC-06 | 38 | Pending |
+| DOWNLOAD-01 | 37 | Pending |
+| DOWNLOAD-02 | 37 | Pending |
+| DOWNLOAD-03 | 37 | Pending |
+| DOWNLOAD-04 | 37 | Pending |
+| DOWNLOAD-05 | 37 | Pending |
+| NAV-01 | 39 | Pending |
+| NAV-02 | 39 | Pending |
+| NAV-03 | 39 | Pending |
+| NAV-04 | 39 | Pending |
+| NAV-05 | 39 | Pending |
+| NAV-06 | 39 | Pending |
 
 **Coverage:**
 - v1.9.3 requirements: 17 total
-- Mapped to phases: 0
-- Unmapped: 17
+- Mapped to phases: 17
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-02-04*
-*Last updated: 2026-02-04 after initial definition*
+*Last updated: 2026-02-04 after roadmap creation*

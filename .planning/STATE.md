@@ -6,30 +6,31 @@ See: .planning/PROJECT.md (updated 2026-02-04)
 
 **Core value:** Business analysts reduce time spent on requirement documentation while improving completeness through AI-assisted discovery conversations that systematically explore edge cases and generate production-ready artifacts.
 
-**Current focus:** Planning next milestone (v2.0)
+**Current focus:** v1.9.3 Document & Navigation Polish
 
 ## Current Position
 
-Milestone: v1.9.2 - Resilience & AI Transparency (SHIPPED)
-Phase: N/A - Between milestones
+Milestone: v1.9.3 - Document & Navigation Polish
+Phase: 37 - Document Download (pending)
 Plan: N/A
-Status: Ready for next milestone
-Last activity: 2026-02-04 - v1.9.2 milestone completed and archived
-Next action: /gsd:new-milestone
+Status: Roadmap created, ready for planning
+Last activity: 2026-02-04 - Roadmap created
+Next action: /gsd:plan-phase 37
 
 Progress:
 ```
-Milestone v1.9.2: SHIPPED 2026-02-04
-- Phase 34: Client-Side Resilience (7/7 requirements)
-- Phase 35: Transparency Indicators (9/9 requirements)
-- Phase 36: AI Interaction Enhancement (8/8 requirements)
-- Total: 24/24 requirements complete
+Milestone v1.9.3: IN PROGRESS
+[                    ] 0/17 requirements (0%)
+
+Phase 37: Document Download     [ ] 0/5 requirements
+Phase 38: Document Preview      [ ] 0/6 requirements
+Phase 39: Breadcrumb Navigation [ ] 0/6 requirements
 ```
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 96 (across 8 milestones)
+- Total plans completed: 98 (across 8 milestones)
 - Average duration: ~4-18 minutes per plan (improving with experience)
 
 **By Milestone:**
@@ -44,6 +45,7 @@ Milestone v1.9.2: SHIPPED 2026-02-04
 | UX v1.9 | 23-27 | 9/9 | SHIPPED 2026-02-02 |
 | Unit Tests v1.9.1 | 28-33 | 24/24 | SHIPPED 2026-02-02 |
 | Resilience v1.9.2 | 34-36 | 9/9 | SHIPPED 2026-02-04 |
+| Doc & Nav v1.9.3 | 37-39 | 0/TBD | IN PROGRESS |
 
 **Total:** 98 plans shipped across 36 phases
 
@@ -60,6 +62,14 @@ Milestone decisions archived in:
 - .planning/milestones/v1.9.1-ROADMAP.md
 - .planning/milestones/v1.9.2-ROADMAP.md
 
+### v1.9.3 Research Findings
+
+From research/SUMMARY_v1.9.3.md:
+- Zero new dependencies needed (file_picker, file_saver, go_router already present)
+- Build order: Download (lowest risk) -> Preview (isolated) -> Breadcrumbs (router changes)
+- dart:html deprecated - use web package or file_saver
+- Document Viewer needs to become proper GoRouter route for NAV-06
+
 ### Pending Todos
 
 - [ ] Configure CODECOV_TOKEN secret in GitHub repository
@@ -73,15 +83,16 @@ Milestone decisions archived in:
 ## Session Continuity
 
 Last session: 2026-02-04
-Stopped at: v1.9.2 milestone completed, archived, and tagged
+Stopped at: Roadmap created for v1.9.3
 Resume file: None
-Next action: /gsd:new-milestone
+Next action: /gsd:plan-phase 37
 
 **Context for Next Session:**
-- v1.9.2 shipped with error resilience, budget transparency, mode persistence, artifact UI, source attribution
-- Next milestone: v2.0 - Search, Previews & Integrations
-- Phase numbering continues at 37
+- v1.9.3 milestone started with 3 phases, 17 requirements
+- Phase 37 (Document Download) is first - lowest risk, copy existing pattern
+- Phase 38 (Document Preview) is isolated UI change
+- Phase 39 (Breadcrumb Navigation) has most coordination - router changes
 
 ---
 
-*State updated: 2026-02-04 (v1.9.2 shipped)*
+*State updated: 2026-02-04 (v1.9.3 roadmap created)*

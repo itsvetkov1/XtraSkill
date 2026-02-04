@@ -1,7 +1,7 @@
 # User Stories Index
 
 **Project:** Business Analyst Assistant
-**Last Updated:** 2026-02-02
+**Last Updated:** 2026-02-04
 
 ---
 
@@ -20,11 +20,11 @@
 
 | Priority | Total | Open | Done | Wont Do |
 |----------|-------|------|------|---------|
-| Critical | 13 | 1 | 12 | 0 |
-| High | 13 | 6 | 6 | 1 |
+| Critical | 16 | 4 | 12 | 0 |
+| High | 14 | 7 | 6 | 1 |
 | Medium | 9 | 6 | 1 | 2 |
 | Low | 4 | 3 | 1 | 0 |
-| **Total** | **39** | **16** | **20** | **3** |
+| **Total** | **43** | **20** | **20** | **3** |
 
 ---
 
@@ -34,7 +34,10 @@
 
 | ID | Title | Component | Notes |
 |----|-------|-----------|-------|
-| [BUG-016](BUG-016_artifact-generation-multiplies.md) | Artifact generation multiplies on repeated requests | Agent / Artifact Generation | Accumulates from conversation history |
+| [BUG-016](BUG-016_artifact-generation-multiplies.md) | Artifact generation multiplies on repeated requests | Backend / AI Service | Parent issue — accumulates from conversation history |
+| [BUG-017](BUG-017_prompt-deduplication-rule.md) | System prompt deduplication rule | Backend / AI Service | BUG-016 fix layer 1 — prompt engineering |
+| [BUG-018](BUG-018_tool-description-single-call.md) | Tool description single-call enforcement | Backend / AI Service | BUG-016 fix layer 2 — tool description |
+| [BUG-019](BUG-019_history-filtering-fulfilled-requests.md) | History filtering for fulfilled requests | Backend / Conversation Service | BUG-016 fix layer 3 — structural fix |
 
 ### High Priority (Open)
 
@@ -46,6 +49,7 @@
 | [THREAD-005](THREAD-005_mode-persistence.md) | Show conversation mode | Conversation | User clarity on AI behavior |
 | [NAV-001](NAV-001_breadcrumb-thread-context.md) | Breadcrumb for threads | Navigation | Thread-level breadcrumbs |
 | [DOC-001](DOC-001_document-preview-upload.md) | Document preview before upload | Documents | Error prevention |
+| [THREAD-011](THREAD-011_silent-artifact-generation.md) | Silent artifact generation from buttons | Frontend + Backend | BUG-016 fix layer 4 — UX change |
 
 ### Medium Priority (Open)
 
@@ -136,6 +140,7 @@ Ideas beyond current scope. See [BACKLOG.md](BACKLOG.md) for details.
 | ENH-008 | Keyboard shortcuts |
 | ENH-009 | Offline mode |
 | ENH-010 | Accessibility audit |
+| ENH-011 | Backend request logging |
 
 ---
 
@@ -161,4 +166,4 @@ Ideas beyond current scope. See [BACKLOG.md](BACKLOG.md) for details.
 
 ---
 
-*Last updated: 2026-02-04 — added BUG-016 artifact generation multiplication*
+*Last updated: 2026-02-04 — added BUG-016 layered fix stories (BUG-017/018/019, THREAD-011), ENH-011*

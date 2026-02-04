@@ -30,19 +30,24 @@ The issue is in the backend pipeline, not the frontend. Every chat request rebui
 the full conversation context by loading **all** messages in the thread with no
 filtering (`conversation_service.py:94-101`). This entire history — including all
 prior artifact generation requests and their responses — is flattened into a single
-prompt and sent to the model (`agent_service.py:257-274`).
+prompt and sent to the model.
 
-The system prompt (`SKILL.md`) and the `save_artifact` tool description
-(`agent_service.py:107-127`) contain instructions to "call this tool ONCE per user
-request" and "STOP after generating," but there is no instruction telling the model
-to **ignore prior generation requests already present in the conversation history**. The
-model has no way to distinguish between "this request was already fulfilled in a
-previous turn" and "this is a new, pending request."
+**NOTE:** The active service is `ai_service.py`, NOT `agent_service.py`.
+- `agent_service.py` uses Claude Agent SDK but is **dead code** (never wired to routes)
+- `ai_service.py` uses direct `anthropic` package with hardcoded `SYSTEM_PROMPT`
+- See `backend/tests/test_service_architecture.py` for verification tests
+
+The system prompt (`ai_service.py:114-617`) and the `SAVE_ARTIFACT_TOOL` description
+(`ai_service.py:649-683`) contain instructions about when to use the tool, but there
+is no instruction telling the model to **ignore prior generation requests already
+present in the conversation history**. The model has no way to distinguish between
+"this request was already fulfilled in a previous turn" and "this is a new, pending
+request."
 
 As a result, when the model sees N prior generation requests in the history, it
 treats them as N actionable requests and attempts to generate N artifacts. The
-`max_turns=3` setting (`agent_service.py:293`) caps the tool-call loop per
-invocation but does not prevent the accumulation effect across turns.
+tool loop in `ai_service.py:773-875` continues until no more tool calls are made,
+but does not prevent the accumulation effect across turns.
 
 ### Reproduction Steps
 
@@ -58,13 +63,16 @@ invocation but does not prevent the accumulation effect across turns.
 
 - `backend/app/services/conversation_service.py` — `build_conversation_context()`
   loads all messages without filtering or marking fulfilled requests
-- `backend/app/services/agent_service.py` — `stream_chat()` flattens full history
-  into a single prompt; `save_artifact` tool description lacks "only latest request"
-  semantics
+- `backend/app/services/ai_service.py` — `stream_chat()` flattens full history
+  into a single prompt; `SAVE_ARTIFACT_TOOL` description lacks "only latest request"
+  semantics; `SYSTEM_PROMPT` (hardcoded XML) has no rule to skip prior artifact
+  requests
 - `backend/app/routes/conversations.py` — route handler passes unfiltered context
-  to agent service
-- `.claude/business-analyst/SKILL.md` — system prompt has no rule to skip prior
-  artifact requests already in history
+  to AIService
+
+**Dead code (not used):**
+- `backend/app/services/agent_service.py` — Claude Agent SDK approach, never wired
+- `.claude/business-analyst/SKILL.md` — Not loaded at runtime
 
 ---
 
@@ -83,8 +91,17 @@ invocation but does not prevent the accumulation effect across turns.
 
 ## Technical References
 
+**Active code path (direct API approach):**
 - `backend/app/services/conversation_service.py:77-117` — `build_conversation_context()`
-- `backend/app/services/agent_service.py:107-180` — `save_artifact` tool
-- `backend/app/services/agent_service.py:223-300` — `stream_chat()` prompt assembly
+- `backend/app/services/ai_service.py:114-617` — `SYSTEM_PROMPT` (hardcoded XML)
+- `backend/app/services/ai_service.py:649-683` — `SAVE_ARTIFACT_TOOL` definition
+- `backend/app/services/ai_service.py:755-882` — `AIService.stream_chat()` with tool loop
 - `backend/app/routes/conversations.py:85-211` — `/threads/{thread_id}/chat` endpoint
-- `.claude/business-analyst/SKILL.md:167-203` — BRD generation trigger rules
+
+**Dead code (Agent SDK approach - not used):**
+- `backend/app/services/agent_service.py` — Entire file unused
+- `backend/app/services/skill_loader.py` — Only imported by agent_service
+- `.claude/business-analyst/SKILL.md` — Not loaded at runtime
+
+**Architecture verification:**
+- `backend/tests/test_service_architecture.py` — 10 tests confirming active approach

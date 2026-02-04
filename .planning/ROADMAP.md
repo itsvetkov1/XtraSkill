@@ -23,6 +23,11 @@ v1.9.3 improves document workflow with upload preview and download capability, p
 
 **Requirements:** DOWNLOAD-01, DOWNLOAD-02, DOWNLOAD-03, DOWNLOAD-04, DOWNLOAD-05
 
+**Plans:** 1 plan
+
+Plans:
+- [ ] 37-01-PLAN.md - Add download to viewer and list screens
+
 **Success Criteria:**
 
 1. User clicks download icon in Document Viewer AppBar and file downloads with original filename
@@ -44,6 +49,11 @@ v1.9.3 improves document workflow with upload preview and download capability, p
 **Dependencies:** None (isolated UI change, no backend work)
 
 **Requirements:** DOC-01, DOC-02, DOC-03, DOC-04, DOC-05, DOC-06
+
+**Plans:** TBD
+
+Plans:
+- [ ] TBD (created by /gsd:plan-phase)
 
 **Success Criteria:**
 
@@ -68,6 +78,11 @@ v1.9.3 improves document workflow with upload preview and download capability, p
 
 **Requirements:** NAV-01, NAV-02, NAV-03, NAV-04, NAV-05, NAV-06
 
+**Plans:** TBD
+
+Plans:
+- [ ] TBD (created by /gsd:plan-phase)
+
 **Success Criteria:**
 
 1. Thread screen shows breadcrumb: Projects > {Project Name} > Threads > {Thread Title}
@@ -89,7 +104,7 @@ v1.9.3 improves document workflow with upload preview and download capability, p
 
 | Phase | Name | Status | Requirements | Plans |
 |-------|------|--------|--------------|-------|
-| 37 | Document Download | Pending | 5 | TBD |
+| 37 | Document Download | Planned | 5 | 1 |
 | 38 | Document Preview | Pending | 6 | TBD |
 | 39 | Breadcrumb Navigation | Pending | 6 | TBD |
 

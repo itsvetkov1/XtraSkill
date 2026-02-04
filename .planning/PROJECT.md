@@ -10,14 +10,20 @@ Business analysts reduce time spent on requirement documentation while improving
 
 ## Current State
 
-**Shipped:** v1.9.1 Unit Test Coverage (2026-02-02)
+**Shipped:** v1.9.2 Resilience & AI Transparency (2026-02-04)
 
-The application now has comprehensive test coverage:
+The application now has error resilience, AI transparency, and comprehensive test coverage:
+- Network error resilience with partial content preservation and retry
+- Budget transparency with threshold warnings (80%/95%/100%)
+- Conversation mode persistence with AppBar badge
+- Artifact generation UI with type picker and inline export
+- Source attribution with document chips and navigation
 - 1,098 total tests (471 backend + 627 frontend)
+
+Previous milestone (v1.9.1):
 - Backend: service tests, LLM adapter tests, API contract tests
 - Frontend: provider tests, service tests, widget tests, model tests
 - CI pipeline with Codecov integration and README coverage badge
-- Test infrastructure: MockLLMAdapter, Factory-boy, pytest-cov, Flutter lcov
 
 Previous milestone (v1.9):
 - Enter to send messages, Shift+Enter for newline (industry standard)
@@ -128,25 +134,28 @@ Previous features (v1.5):
 - ✓ All tests pass without failures — v1.9.1
 - ✓ Test suite is CI-ready (can run in automated pipeline) — v1.9.1
 
+- ✓ On network loss during streaming, partial AI content is preserved with "Connection lost" banner — v1.9.2
+- ✓ Retry option available for interrupted responses — v1.9.2
+- ✓ Warning banners at 80%/95% token budget usage — v1.9.2
+- ✓ Clear "Budget exhausted" state at 100% (can view history, cannot send) — v1.9.2
+- ✓ File size validation with clear error before upload attempt — v1.9.2
+- ✓ Current conversation mode shown as persistent badge in AppBar — v1.9.2
+- ✓ Mode badge tappable to change mode with context warning — v1.9.2
+- ✓ "Generate Artifact" button in ConversationScreen — v1.9.2
+- ✓ Artifact type picker (User Stories, Acceptance Criteria, BRD, Custom) — v1.9.2
+- ✓ Generated artifacts visually distinct with inline export buttons — v1.9.2
+- ✓ AI responses show source document chips when documents were referenced — v1.9.2
+- ✓ Source chips clickable to open Document Viewer — v1.9.2
+
 ### Active
 
-**v1.9.2 — Resilience & AI Transparency**
+**v2.0 — Search, Previews & Integrations** (planned)
 
-Error Handling & Resilience:
-- [ ] On network loss during streaming, partial AI content is preserved with "Connection lost" banner
-- [ ] Retry option available for interrupted responses
-- [ ] Warning banners at 80%/95% token budget usage
-- [ ] Clear "Budget exhausted" state at 100% (can view history, cannot send)
-- [ ] File size validation with clear error before upload attempt
-
-AI Transparency & Discoverability:
-- [ ] Current conversation mode shown as persistent badge in AppBar
-- [ ] Mode badge tappable to change mode with context warning
-- [ ] "Generate Artifact" button in ConversationScreen
-- [ ] Artifact type picker (User Stories, Acceptance Criteria, BRD, Custom)
-- [ ] Generated artifacts visually distinct with inline export buttons
-- [ ] AI responses show source document chips when documents were referenced
-- [ ] Source chips clickable to open Document Viewer
+- [ ] Global search across projects and threads
+- [ ] Thread preview text in list view
+- [ ] Thread mode indicator badges
+- [ ] JIRA integration for artifact export
+- [ ] Voice input for mobile meetings
 
 ### Deferred
 
@@ -226,6 +235,16 @@ BAs prepare for meetings by uploading existing requirements or stakeholder notes
 | SET NULL on project FK | Threads become project-less on project delete (not CASCADE) | ✓ Implemented (Phase 25) |
 | Permanent association | Thread-project association is one-way and permanent | ✓ Implemented (Phase 26) |
 | Client-side thread filtering | Computed filteredThreads getter with in-memory filter/sort | ✓ Implemented (Phase 27) |
+| Preserve _streamingText on error | PITFALL-01: Don't clear partial content so users can copy/view incomplete responses | ✓ Implemented (Phase 34) |
+| ErrorStateMessage separate from StreamingMessage | Different UI states (error styling, copy-only vs live streaming) | ✓ Implemented (Phase 34) |
+| Validate file size BEFORE setState | PITFALL-09: User sees error before any upload UI state change | ✓ Implemented (Phase 34) |
+| API costPercentage not local calculation | PITFALL-04: API-provided counts to avoid estimation errors | ✓ Implemented (Phase 35) |
+| Mode validation at API level not DB | Allows flexible mode additions without migrations | ✓ Implemented (Phase 35) |
+| ActionChip for mode badge (not IconButton) | Chip shows icon + label, distinct from other AppBar icons | ✓ Implemented (Phase 35) |
+| Track documents at backend search time | PITFALL-05: Prevents hallucinated citations | ✓ Implemented (Phase 36) |
+| ArtifactType enum uses exact backend snake_case | Direct mapping avoids translation errors | ✓ Implemented (Phase 36) |
+| Collapsible artifact cards (collapsed by default) | PITFALL-08: Minimize vertical space consumption | ✓ Implemented (Phase 36) |
+| Bottom sheet preview for project-less threads | Cannot navigate to document viewer without project context | ✓ Implemented (Phase 36) |
 
 ---
-*Last updated: 2026-02-02 after v1.9.2 milestone planning started*
+*Last updated: 2026-02-04 after v1.9.2 milestone complete*

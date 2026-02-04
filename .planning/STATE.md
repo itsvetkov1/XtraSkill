@@ -2,34 +2,35 @@
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-02-02)
+See: .planning/PROJECT.md (updated 2026-02-04)
 
 **Core value:** Business analysts reduce time spent on requirement documentation while improving completeness through AI-assisted discovery conversations that systematically explore edge cases and generate production-ready artifacts.
 
-**Current focus:** v1.9.2 - Resilience & AI Transparency (Milestone Complete)
+**Current focus:** Planning next milestone (v2.0)
 
 ## Current Position
 
-Milestone: v1.9.2 - Resilience & AI Transparency
-Phase: 36 - AI Interaction Enhancement (Complete)
-Plan: 04/04 complete
-Status: Milestone complete - all phases verified
-Last activity: 2026-02-04 - Phase 36 verified, bug fixes committed
-Next action: /gsd:audit-milestone or /gsd:complete-milestone
+Milestone: v1.9.2 - Resilience & AI Transparency (SHIPPED)
+Phase: N/A - Between milestones
+Plan: N/A
+Status: Ready for next milestone
+Last activity: 2026-02-04 - v1.9.2 milestone completed and archived
+Next action: /gsd:new-milestone
 
 Progress:
 ```
-Phase 34: [##########] 7/7 requirements (COMPLETE)
-Phase 35: [##########] 9/9 requirements (COMPLETE)
-Phase 36: [##########] 8/8 requirements (COMPLETE)
-Overall:  [##########] 24/24 requirements (100%)
+Milestone v1.9.2: SHIPPED 2026-02-04
+- Phase 34: Client-Side Resilience (7/7 requirements)
+- Phase 35: Transparency Indicators (9/9 requirements)
+- Phase 36: AI Interaction Enhancement (8/8 requirements)
+- Total: 24/24 requirements complete
 ```
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 96 (20 in MVP v1.0, 15 in Beta v1.5, 5 in UX v1.6, 8 in URL v1.7, 8 in LLM v1.8, 9 in UX v1.9, 24 in Unit Tests v1.9.1, 2 in v1.9.2 Phase 34, 3 in v1.9.2 Phase 35, 4 in v1.9.2 Phase 36)
-- Average duration: ~18 minutes (MVP v1.0), ~7 minutes (Beta v1.5), ~5 minutes (UX v1.6), ~4 minutes (URL v1.7), ~5 minutes (LLM v1.8), ~4 minutes (UX v1.9), ~4 minutes (Unit Tests v1.9.1), ~4 minutes (v1.9.2)
+- Total plans completed: 96 (across 8 milestones)
+- Average duration: ~4-18 minutes per plan (improving with experience)
 
 **By Milestone:**
 
@@ -42,71 +43,28 @@ Overall:  [##########] 24/24 requirements (100%)
 | LLM v1.8 | 19-22 | 8/8 | SHIPPED 2026-01-31 |
 | UX v1.9 | 23-27 | 9/9 | SHIPPED 2026-02-02 |
 | Unit Tests v1.9.1 | 28-33 | 24/24 | SHIPPED 2026-02-02 |
-| v1.9.2 | 34-36 | 9/9 | Complete |
+| Resilience v1.9.2 | 34-36 | 9/9 | SHIPPED 2026-02-04 |
+
+**Total:** 98 plans shipped across 36 phases
 
 ## Accumulated Context
 
 ### Decisions
 
-| Decision | Rationale | Date |
-|----------|-----------|------|
-| 3-phase structure | Research recommendation: frontend-first, then transparency, then backend-dependent | 2026-02-03 |
-| Quick depth | Config setting, 3-5 phases appropriate for 24 requirements | 2026-02-03 |
-| Phase 34 first | Frontend-only, no deployment coordination needed | 2026-02-03 |
-| D-34-02-01: Validate file size BEFORE setState | PITFALL-09 - user should see error before any upload UI | 2026-02-03 |
-| D-34-02-02: Use AlertDialog instead of SnackBar | Dialog allows "Select Different File" action button | 2026-02-03 |
-| D-35-01-01: Use API costPercentage, not local calculation | PITFALL-04 mandates API-provided counts | 2026-02-03 |
-| D-35-01-02: Exhausted banner cannot be dismissed | Critical state should remain visible | 2026-02-03 |
-| D-35-02-01: Mode validation at API level, not DB constraint | Allows flexible mode additions without migrations | 2026-02-03 |
-| D-35-02-02: conversation_mode nullable with default None | Existing threads continue to work; mode selected on first use | 2026-02-03 |
-| D-35-03-01: Use ActionChip for mode badge (not IconButton) | Chip shows icon + label, distinct from other AppBar icons | 2026-02-03 |
-| D-35-03-02: Outline style for "Select Mode", filled for active | Visual distinction between unset and set states | 2026-02-03 |
-| D-36-01-01: Track documents at backend search time | PITFALL-05: Prevents hallucinated citations | 2026-02-03 |
-| D-36-02-01: ArtifactType enum uses exact backend snake_case values | Direct mapping avoids translation errors | 2026-02-03 |
-| D-36-04-01: Bottom sheet preview for project-less threads | Cannot navigate to /projects/:id/documents/:docId without project context | 2026-02-03 |
-| D-36-03-01: Custom option sends free-form prompt to LLM | Artifact generation is LLM-driven; user prompt triggers save_artifact tool | 2026-02-03 |
-| D-36-03-02: Artifacts rendered after messages in list | Chronological order - artifacts appear where they were created | 2026-02-03 |
-
-Previous milestone decisions archived in:
+Milestone decisions archived in:
 - .planning/milestones/v1.5-ROADMAP.md
 - .planning/milestones/v1.6-ROADMAP.md
 - .planning/milestones/v1.7-ROADMAP.md
 - .planning/milestones/v1.8-ROADMAP.md
 - .planning/milestones/v1.9-ROADMAP.md
 - .planning/milestones/v1.9.1-ROADMAP.md
-
-### Research Flags
-
-| Phase | Research Needed | Status |
-|-------|-----------------|--------|
-| 34 | NO | eventflux, connectivity_plus well-documented |
-| 35 | NO | Extends existing token_usage, provider_indicator patterns |
-| 36 | YES | Source attribution accuracy testing recommended |
-
-### Pitfalls to Prevent
-
-From research/PITFALLS-v1.9.2.md:
-
-**Phase 34:** (COMPLETE)
-- PITFALL-01: Do NOT clear _streamingText on error; preserve partial content
-- PITFALL-09: Validate file immediately after picker returns (before upload)
-- PITFALL-10: Use exponential backoff (1s, 2s, 4s, max 8s)
-
-**Phase 35:** (COMPLETE)
-- PITFALL-04: Use API-provided token counts, not estimates
-- PITFALL-06: Pessimistic budget warnings (estimate response tokens)
-- PITFALL-07: Mode is thread property, not global preference
-
-**Phase 36:** (COMPLETE)
-- PITFALL-05: Verify citations match actual documents (no hallucination) - ADDRESSED in 36-01
-- PITFALL-08: Collapsed artifact cards, lazy render - ADDRESSED in 36-03
-- PITFALL-13: Use Wrap widget for source chips overflow - ADDRESSED in 36-04
+- .planning/milestones/v1.9.2-ROADMAP.md
 
 ### Pending Todos
 
 - [ ] Configure CODECOV_TOKEN secret in GitHub repository
 - [ ] Link repository to Codecov dashboard
-- [ ] Manual testing of remaining v1.7-v1.9 features (see TESTING-QUEUE.md)
+- [ ] Manual testing of remaining features (see TESTING-QUEUE.md)
 
 ### Blockers/Concerns
 
@@ -115,18 +73,15 @@ From research/PITFALLS-v1.9.2.md:
 ## Session Continuity
 
 Last session: 2026-02-04
-Stopped at: Milestone v1.9.2 complete - all 3 phases verified
+Stopped at: v1.9.2 milestone completed, archived, and tagged
 Resume file: None
-Next action: /gsd:audit-milestone or /gsd:complete-milestone
+Next action: /gsd:new-milestone
 
 **Context for Next Session:**
-- Phase 34 complete: Network resilience + file validation
-- Phase 35 complete: Budget warnings + mode backend API + mode indicator UI
-- Phase 36 complete: Artifact generation + source attribution UI
-- Bug fix committed: Infinite artifact loop prevented (max_turns=3)
-- Bug fix committed: PDF export error message improved
-- All 24/24 requirements implemented and verified
+- v1.9.2 shipped with error resilience, budget transparency, mode persistence, artifact UI, source attribution
+- Next milestone: v2.0 - Search, Previews & Integrations
+- Phase numbering continues at 37
 
 ---
 
-*State updated: 2026-02-04 (Milestone v1.9.2 complete)*
+*State updated: 2026-02-04 (v1.9.2 shipped)*

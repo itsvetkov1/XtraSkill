@@ -1,5 +1,34 @@
 # Project Milestones: Business Analyst Assistant
 
+## v1.9.2 Resilience & AI Transparency (Shipped: 2026-02-04)
+
+**Delivered:** Error resilience with partial content preservation, budget transparency with threshold warnings, conversation mode persistence, artifact generation UI, and source attribution display.
+
+**Phases completed:** 34-36 (9 plans total)
+
+**Key accomplishments:**
+
+- Network error resilience: partial AI responses preserved on drop with "Connection lost" banner and retry
+- Client-side file validation: size checked before upload with clear error dialog and immediate retry
+- Budget transparency: warning banners at 80%/95%/100% with input blocking when exhausted
+- Conversation mode persistence: AppBar badge with tap-to-change dialog and database storage
+- Artifact generation UI: type picker with 4 presets + custom, collapsible cards with MD/PDF/Word export
+- Source attribution: collapsible chips showing documents used with navigation to Document Viewer
+
+**Stats:**
+
+- 24 files modified, +1,762 lines
+- ~17,700 lines of code (10,985 Dart + 6,696 Python)
+- 3 phases, 9 plans
+- 24/24 requirements satisfied
+- 2 days from start to ship (2026-02-03 → 2026-02-04)
+
+**Git range:** `ce1b01d` → `0ea6e40`
+
+**What's next:** v2.0 — Search, Previews & Integrations
+
+---
+
 ## v1.9.1 Unit Test Coverage (Shipped: 2026-02-02)
 
 **Delivered:** Comprehensive unit test coverage across backend services, LLM adapters, API routes, frontend providers, widgets, and models with CI-ready test suite and Codecov integration.
@@ -198,4 +227,4 @@
 
 ---
 
-*Last updated: 2026-02-02 (v1.9.1 complete)*
+*Last updated: 2026-02-04 (v1.9.2 complete)*

@@ -1,3 +1,7 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
+import 'package:file_saver/file_saver.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:skeletonizer/skeletonizer.dart';
@@ -121,6 +125,8 @@ class _DocumentListScreenState extends State<DocumentListScreen> {
                                         DocumentViewerScreen(documentId: doc.id),
                                   ),
                                 );
+                              } else if (value == 'download') {
+                                _downloadDocument(context, doc);
                               } else if (value == 'delete') {
                                 _deleteDocument(context, doc.id);
                               }
@@ -133,6 +139,16 @@ class _DocumentListScreenState extends State<DocumentListScreen> {
                                     Icon(Icons.visibility),
                                     SizedBox(width: 8),
                                     Text('View'),
+                                  ],
+                                ),
+                              ),
+                              const PopupMenuItem(
+                                value: 'download',
+                                child: Row(
+                                  children: [
+                                    Icon(Icons.download),
+                                    SizedBox(width: 8),
+                                    Text('Download'),
                                   ],
                                 ),
                               ),
@@ -183,6 +199,83 @@ class _DocumentListScreenState extends State<DocumentListScreen> {
         child: const Icon(Icons.add),
       ),
     );
+  }
+
+  /// Download document - fetches content first if needed
+  Future<void> _downloadDocument(BuildContext context, Document doc) async {
+    final provider = context.read<DocumentProvider>();
+
+    try {
+      // Show loading indicator
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Row(
+            children: [
+              SizedBox(
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              ),
+              SizedBox(width: 16),
+              Text('Preparing download...'),
+            ],
+          ),
+          duration: Duration(seconds: 30), // Will be dismissed on completion
+        ),
+      );
+
+      // Fetch content (documents in list don't have content loaded)
+      await provider.selectDocument(doc.id);
+
+      if (!mounted) return;
+
+      final loadedDoc = provider.selectedDocument;
+      if (loadedDoc == null || loadedDoc.content == null) {
+        ScaffoldMessenger.of(context).clearSnackBars();
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to load document content')),
+        );
+        return;
+      }
+
+      // Download the file
+      final bytes = Uint8List.fromList(utf8.encode(loadedDoc.content!));
+      final extension = loadedDoc.filename.contains('.')
+          ? loadedDoc.filename.split('.').last
+          : 'txt';
+      final nameWithoutExt =
+          loadedDoc.filename.replaceAll(RegExp(r'\.[^.]+$'), '');
+
+      await FileSaver.instance.saveFile(
+        name: nameWithoutExt,
+        bytes: bytes,
+        ext: extension,
+        mimeType: MimeType.text,
+      );
+
+      // Clear the selected document (we just needed it for download)
+      provider.clearSelectedDocument();
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).clearSnackBars();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Downloaded ${loadedDoc.filename}'),
+            action: SnackBarAction(label: 'OK', onPressed: () {}),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).clearSnackBars();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Download failed: $e'),
+            backgroundColor: Theme.of(context).colorScheme.error,
+          ),
+        );
+      }
+    }
   }
 
   /// Delete document with confirmation

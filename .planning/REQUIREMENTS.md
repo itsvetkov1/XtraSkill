@@ -18,11 +18,11 @@ Requirements for Document & Navigation Polish milestone.
 
 ### Document Download (DOWNLOAD)
 
-- [ ] **DOWNLOAD-01**: Download icon button in Document Viewer AppBar
-- [ ] **DOWNLOAD-02**: Download option in document list context menu
-- [ ] **DOWNLOAD-03**: Download uses original filename
-- [ ] **DOWNLOAD-04**: Success snackbar: "Downloaded {filename}"
-- [ ] **DOWNLOAD-05**: Works on web, Android, and iOS
+- [x] **DOWNLOAD-01**: Download icon button in Document Viewer AppBar
+- [x] **DOWNLOAD-02**: Download option in document list context menu
+- [x] **DOWNLOAD-03**: Download uses original filename
+- [x] **DOWNLOAD-04**: Success snackbar: "Downloaded {filename}"
+- [x] **DOWNLOAD-05**: Works on web, Android, and iOS
 
 ### Breadcrumb Navigation (NAV)
 
@@ -52,11 +52,11 @@ Requirements for Document & Navigation Polish milestone.
 | DOC-04 | 38 | Pending |
 | DOC-05 | 38 | Pending |
 | DOC-06 | 38 | Pending |
-| DOWNLOAD-01 | 37 | Pending |
-| DOWNLOAD-02 | 37 | Pending |
-| DOWNLOAD-03 | 37 | Pending |
-| DOWNLOAD-04 | 37 | Pending |
-| DOWNLOAD-05 | 37 | Pending |
+| DOWNLOAD-01 | 37 | Complete |
+| DOWNLOAD-02 | 37 | Complete |
+| DOWNLOAD-03 | 37 | Complete |
+| DOWNLOAD-04 | 37 | Complete |
+| DOWNLOAD-05 | 37 | Complete |
 | NAV-01 | 39 | Pending |
 | NAV-02 | 39 | Pending |
 | NAV-03 | 39 | Pending |
@@ -71,4 +71,4 @@ Requirements for Document & Navigation Polish milestone.
 
 ---
 *Requirements defined: 2026-02-04*
-*Last updated: 2026-02-04 after roadmap creation*
+*Last updated: 2026-02-04 — Phase 37 complete (5 DOWNLOAD requirements)*

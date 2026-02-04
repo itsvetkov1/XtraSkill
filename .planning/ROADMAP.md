@@ -26,7 +26,7 @@ v1.9.3 improves document workflow with upload preview and download capability, p
 **Plans:** 1 plan
 
 Plans:
-- [ ] 37-01-PLAN.md - Add download to viewer and list screens
+- [x] 37-01-PLAN.md - Add download to viewer and list screens ✓
 
 **Success Criteria:**
 
@@ -104,11 +104,11 @@ Plans:
 
 | Phase | Name | Status | Requirements | Plans |
 |-------|------|--------|--------------|-------|
-| 37 | Document Download | Planned | 5 | 1 |
+| 37 | Document Download | ✓ Complete | 5 | 1/1 |
 | 38 | Document Preview | Pending | 6 | TBD |
 | 39 | Breadcrumb Navigation | Pending | 6 | TBD |
 
-**Total:** 0/17 requirements complete
+**Total:** 5/17 requirements complete
 
 ---
 
@@ -139,4 +139,4 @@ Plans:
 ---
 
 *Roadmap created: 2026-02-04*
-*Last updated: 2026-02-04*
+*Last updated: 2026-02-04 — Phase 37 complete*

@@ -26,7 +26,7 @@ v1.9.3 improves document workflow with upload preview and download capability, p
 **Plans:** 1 plan
 
 Plans:
-- [x] 37-01-PLAN.md - Add download to viewer and list screens ✓
+- [x] 37-01-PLAN.md - Add download to viewer and list screens
 
 **Success Criteria:**
 
@@ -50,10 +50,10 @@ Plans:
 
 **Requirements:** DOC-01, DOC-02, DOC-03, DOC-04, DOC-05, DOC-06
 
-**Plans:** TBD
+**Plans:** 1 plan
 
 Plans:
-- [ ] TBD (created by /gsd:plan-phase)
+- [ ] 38-01-PLAN.md - Create preview dialog and integrate into upload flow
 
 **Success Criteria:**
 
@@ -104,8 +104,8 @@ Plans:
 
 | Phase | Name | Status | Requirements | Plans |
 |-------|------|--------|--------------|-------|
-| 37 | Document Download | ✓ Complete | 5 | 1/1 |
-| 38 | Document Preview | Pending | 6 | TBD |
+| 37 | Document Download | Complete | 5 | 1/1 |
+| 38 | Document Preview | Planned | 6 | 0/1 |
 | 39 | Breadcrumb Navigation | Pending | 6 | TBD |
 
 **Total:** 5/17 requirements complete
@@ -139,4 +139,4 @@ Plans:
 ---
 
 *Roadmap created: 2026-02-04*
-*Last updated: 2026-02-04 — Phase 37 complete*
+*Last updated: 2026-02-04 - Phase 38 planned*

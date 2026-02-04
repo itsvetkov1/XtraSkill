@@ -10,9 +10,16 @@ Business analysts reduce time spent on requirement documentation while improving
 
 ## Current State
 
-**Shipped:** v1.9.2 Resilience & AI Transparency (2026-02-04)
+**Active:** v1.9.3 Document & Navigation Polish
 
-The application now has error resilience, AI transparency, and comprehensive test coverage:
+**Goal:** Improve document workflow with upload preview and download capability, plus complete navigation context with thread-level breadcrumbs.
+
+**Target features:**
+- Document preview before upload (filename, size, snippet confirmation)
+- Document download from viewer and list
+- Thread-level breadcrumbs with full navigation path
+
+Previous milestone (v1.9.2):
 - Network error resilience with partial content preservation and retry
 - Budget transparency with threshold warnings (80%/95%/100%)
 - Conversation mode persistence with AppBar badge
@@ -149,6 +156,17 @@ Previous features (v1.5):
 
 ### Active
 
+**v1.9.3 — Document & Navigation Polish**
+
+- [ ] User can preview document before upload (filename, size, first lines)
+- [ ] User can cancel upload after preview
+- [ ] User can download document from Document Viewer
+- [ ] User can download document from document list (quick action)
+- [ ] Breadcrumbs show full path including thread name
+- [ ] Project threads: Projects > {Project} > Threads > {Thread}
+- [ ] Project-less chats: Chats > {Thread}
+- [ ] Each breadcrumb segment is clickable
+
 **v2.0 — Search, Previews & Integrations** (planned)
 
 - [ ] Global search across projects and threads
@@ -247,4 +265,4 @@ BAs prepare for meetings by uploading existing requirements or stakeholder notes
 | Bottom sheet preview for project-less threads | Cannot navigate to document viewer without project context | ✓ Implemented (Phase 36) |
 
 ---
-*Last updated: 2026-02-04 after v1.9.2 milestone complete*
+*Last updated: 2026-02-04 after v1.9.3 milestone start*

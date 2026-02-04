@@ -20,15 +20,21 @@
 
 | Priority | Total | Open | Done | Wont Do |
 |----------|-------|------|------|---------|
-| Critical | 12 | 0 | 12 | 0 |
+| Critical | 13 | 1 | 12 | 0 |
 | High | 13 | 6 | 6 | 1 |
 | Medium | 9 | 6 | 1 | 2 |
 | Low | 4 | 3 | 1 | 0 |
-| **Total** | **38** | **15** | **20** | **3** |
+| **Total** | **39** | **16** | **20** | **3** |
 
 ---
 
 ## Open Items Only
+
+### Critical Priority (Open)
+
+| ID | Title | Component | Notes |
+|----|-------|-----------|-------|
+| [BUG-016](BUG-016_artifact-generation-multiplies.md) | Artifact generation multiplies on repeated requests | Agent / Artifact Generation | Accumulates from conversation history |
 
 ### High Priority (Open)
 
@@ -155,4 +161,4 @@ Ideas beyond current scope. See [BACKLOG.md](BACKLOG.md) for details.
 
 ---
 
-*Last updated: 2026-02-02 after v1.9.1 milestone*
+*Last updated: 2026-02-04 — added BUG-016 artifact generation multiplication*

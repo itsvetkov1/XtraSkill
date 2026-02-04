@@ -117,7 +117,7 @@ Document viewing uses `push` so browser back returns to project. Breadcrumb clic
 
 | Hash | Description |
 |------|-------------|
-| TBD | feat(39-01): complete breadcrumb navigation and document routing |
+| ed241cc | feat(39-01): complete breadcrumb navigation and document routing |
 
 ## Deviations from Plan
 

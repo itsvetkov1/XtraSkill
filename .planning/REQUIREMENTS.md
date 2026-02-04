@@ -26,12 +26,12 @@ Requirements for Document & Navigation Polish milestone.
 
 ### Breadcrumb Navigation (NAV)
 
-- [ ] **NAV-01**: Thread screen shows: Projects > {Project} > Threads > {Thread}
-- [ ] **NAV-02**: Project-less thread shows: Chats > {Thread}
-- [ ] **NAV-03**: Document Viewer shows: Projects > {Project} > Documents > {Doc}
-- [ ] **NAV-04**: Each breadcrumb segment is clickable and navigates
-- [ ] **NAV-05**: Breadcrumbs truncate gracefully on mobile
-- [ ] **NAV-06**: Document Viewer has proper URL route (not modal)
+- [x] **NAV-01**: Thread screen shows: Projects > {Project} > Threads > {Thread}
+- [x] **NAV-02**: Project-less thread shows: Chats > {Thread}
+- [x] **NAV-03**: Document Viewer shows: Projects > {Project} > Documents > {Doc}
+- [x] **NAV-04**: Each breadcrumb segment is clickable and navigates
+- [x] **NAV-05**: Breadcrumbs truncate gracefully on mobile
+- [x] **NAV-06**: Document Viewer has proper URL route (not modal)
 
 ## Out of Scope
 
@@ -57,12 +57,12 @@ Requirements for Document & Navigation Polish milestone.
 | DOWNLOAD-03 | 37 | Complete |
 | DOWNLOAD-04 | 37 | Complete |
 | DOWNLOAD-05 | 37 | Complete |
-| NAV-01 | 39 | Pending |
-| NAV-02 | 39 | Pending |
-| NAV-03 | 39 | Pending |
-| NAV-04 | 39 | Pending |
-| NAV-05 | 39 | Pending |
-| NAV-06 | 39 | Pending |
+| NAV-01 | 39 | Complete |
+| NAV-02 | 39 | Complete |
+| NAV-03 | 39 | Complete |
+| NAV-04 | 39 | Complete |
+| NAV-05 | 39 | Complete |
+| NAV-06 | 39 | Complete |
 
 **Coverage:**
 - v1.9.3 requirements: 17 total
@@ -71,4 +71,4 @@ Requirements for Document & Navigation Polish milestone.
 
 ---
 *Requirements defined: 2026-02-04*
-*Last updated: 2026-02-04 — Phase 38 complete (6 DOC requirements)*
+*Last updated: 2026-02-04 — Phase 39 complete (6 NAV requirements) — Milestone v1.9.3 complete*

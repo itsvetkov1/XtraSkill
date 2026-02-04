@@ -78,10 +78,10 @@ Plans:
 
 **Requirements:** NAV-01, NAV-02, NAV-03, NAV-04, NAV-05, NAV-06
 
-**Plans:** TBD
+**Plans:** 1 plan
 
 Plans:
-- [ ] TBD (created by /gsd:plan-phase)
+- [ ] 39-01-PLAN.md - Add document route, extend breadcrumbs, update navigation
 
 **Success Criteria:**
 
@@ -106,7 +106,7 @@ Plans:
 |-------|------|--------|--------------|-------|
 | 37 | Document Download | Complete | 5 | 1/1 |
 | 38 | Document Preview | Complete | 6 | 1/1 |
-| 39 | Breadcrumb Navigation | Pending | 6 | TBD |
+| 39 | Breadcrumb Navigation | Planned | 6 | 0/1 |
 
 **Total:** 11/17 requirements complete
 
@@ -139,4 +139,4 @@ Plans:
 ---
 
 *Roadmap created: 2026-02-04*
-*Last updated: 2026-02-04 - Phase 38 complete*
+*Last updated: 2026-02-04 - Phase 39 planned*

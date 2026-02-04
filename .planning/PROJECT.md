@@ -18,7 +18,7 @@ Business analysts reduce time spent on requirement documentation while improving
 - Full breadcrumb navigation: Projects > Project > Threads > Thread, Chats > Thread, Projects > Project > Documents > Document
 - Document Viewer URL routing via GoRouter (/projects/:id/documents/:docId) with browser back button support
 
-**Next:** v2.0 — Search, Previews & Integrations (planning)
+**Next:** v1.9.4 — Artifact Generation Deduplication (in progress)
 
 Previous milestone (v1.9.2):
 - Network error resilience with partial content preservation and retry
@@ -70,7 +70,7 @@ Previous features (v1.5):
 
 ## Future Vision
 
-**v2.0 — Search, Previews & Integrations** (planned)
+**v2.0 — Search, Previews & Integrations** (next)
 
 - Global search across projects and threads
 - Thread preview text in list view
@@ -167,13 +167,13 @@ Previous features (v1.5):
 
 ### Active
 
-**v2.0 — Search, Previews & Integrations** (planned)
+**v1.9.4 — Artifact Generation Deduplication** (in progress)
 
-- [ ] Global search across projects and threads
-- [ ] Thread preview text in list view
-- [ ] Thread mode indicator badges
-- [ ] JIRA integration for artifact export
-- [ ] Voice input for mobile meetings
+- [ ] Each artifact generation request produces exactly one artifact regardless of conversation history
+- [ ] System prompt includes deduplication rule for fulfilled artifact requests
+- [ ] save_artifact tool enforces single-call-per-request behavior
+- [ ] Fulfilled artifact requests structurally marked in conversation context before reaching model
+- [ ] Button-triggered artifact generation bypasses chat history (silent generation)
 
 ### Deferred
 
@@ -270,4 +270,4 @@ BAs prepare for meetings by uploading existing requirements or stakeholder notes
 | Screen-level download (no service) | Simple 10-line operation; service would be over-engineering | ✓ Implemented (Phase 37) |
 
 ---
-*Last updated: 2026-02-04 after v1.9.3 milestone complete*
+*Last updated: 2026-02-04 after v1.9.4 milestone start*

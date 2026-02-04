@@ -9,12 +9,12 @@ Requirements for Document & Navigation Polish milestone.
 
 ### Document Preview (DOC)
 
-- [ ] **DOC-01**: After file selection, preview dialog shows filename
-- [ ] **DOC-02**: Preview dialog shows file size (human readable: KB/MB)
-- [ ] **DOC-03**: Preview dialog shows first 20 lines of content
-- [ ] **DOC-04**: Preview uses monospace font consistent with Document Viewer
-- [ ] **DOC-05**: Cancel button clears selection and closes dialog
-- [ ] **DOC-06**: Upload button proceeds with upload
+- [x] **DOC-01**: After file selection, preview dialog shows filename
+- [x] **DOC-02**: Preview dialog shows file size (human readable: KB/MB)
+- [x] **DOC-03**: Preview dialog shows first 20 lines of content
+- [x] **DOC-04**: Preview uses monospace font consistent with Document Viewer
+- [x] **DOC-05**: Cancel button clears selection and closes dialog
+- [x] **DOC-06**: Upload button proceeds with upload
 
 ### Document Download (DOWNLOAD)
 
@@ -46,12 +46,12 @@ Requirements for Document & Navigation Polish milestone.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| DOC-01 | 38 | Pending |
-| DOC-02 | 38 | Pending |
-| DOC-03 | 38 | Pending |
-| DOC-04 | 38 | Pending |
-| DOC-05 | 38 | Pending |
-| DOC-06 | 38 | Pending |
+| DOC-01 | 38 | Complete |
+| DOC-02 | 38 | Complete |
+| DOC-03 | 38 | Complete |
+| DOC-04 | 38 | Complete |
+| DOC-05 | 38 | Complete |
+| DOC-06 | 38 | Complete |
 | DOWNLOAD-01 | 37 | Complete |
 | DOWNLOAD-02 | 37 | Complete |
 | DOWNLOAD-03 | 37 | Complete |
@@ -71,4 +71,4 @@ Requirements for Document & Navigation Polish milestone.
 
 ---
 *Requirements defined: 2026-02-04*
-*Last updated: 2026-02-04 — Phase 37 complete (5 DOWNLOAD requirements)*
+*Last updated: 2026-02-04 — Phase 38 complete (6 DOC requirements)*

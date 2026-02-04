@@ -95,47 +95,47 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| PROMPT-01 | TBD | Pending |
-| PROMPT-02 | TBD | Pending |
-| PROMPT-03 | TBD | Pending |
-| PROMPT-04 | TBD | Pending |
-| PROMPT-05 | TBD | Pending |
-| PROMPT-06 | TBD | Pending |
-| PROMPT-07 | TBD | Pending |
-| PROMPT-08 | TBD | Pending |
-| HIST-01 | TBD | Pending |
-| HIST-02 | TBD | Pending |
-| HIST-03 | TBD | Pending |
-| HIST-04 | TBD | Pending |
-| HIST-05 | TBD | Pending |
-| HIST-06 | TBD | Pending |
-| SILENT-01 | TBD | Pending |
-| SILENT-02 | TBD | Pending |
-| SILENT-03 | TBD | Pending |
-| SILENT-04 | TBD | Pending |
-| SILENT-05 | TBD | Pending |
-| SILENT-06 | TBD | Pending |
-| SILENT-07 | TBD | Pending |
-| SILENT-08 | TBD | Pending |
-| SILENT-09 | TBD | Pending |
-| SILENT-10 | TBD | Pending |
-| SILENT-11 | TBD | Pending |
-| SILENT-12 | TBD | Pending |
-| SILENT-13 | TBD | Pending |
-| SILENT-14 | TBD | Pending |
-| SILENT-15 | TBD | Pending |
-| SILENT-16 | TBD | Pending |
-| SILENT-17 | TBD | Pending |
-| ERR-01 | TBD | Pending |
-| ERR-02 | TBD | Pending |
-| ERR-03 | TBD | Pending |
-| ERR-04 | TBD | Pending |
+| PROMPT-01 | Phase 40 | Pending |
+| PROMPT-02 | Phase 40 | Pending |
+| PROMPT-03 | Phase 40 | Pending |
+| PROMPT-04 | Phase 40 | Pending |
+| PROMPT-05 | Phase 40 | Pending |
+| PROMPT-06 | Phase 40 | Pending |
+| PROMPT-07 | Phase 40 | Pending |
+| PROMPT-08 | Phase 40 | Pending |
+| HIST-01 | Phase 41 | Pending |
+| HIST-02 | Phase 41 | Pending |
+| HIST-03 | Phase 41 | Pending |
+| HIST-04 | Phase 41 | Pending |
+| HIST-05 | Phase 41 | Pending |
+| HIST-06 | Phase 41 | Pending |
+| SILENT-01 | Phase 42 | Pending |
+| SILENT-02 | Phase 42 | Pending |
+| SILENT-03 | Phase 42 | Pending |
+| SILENT-04 | Phase 42 | Pending |
+| SILENT-05 | Phase 42 | Pending |
+| SILENT-06 | Phase 42 | Pending |
+| SILENT-07 | Phase 42 | Pending |
+| SILENT-08 | Phase 42 | Pending |
+| SILENT-09 | Phase 42 | Pending |
+| SILENT-10 | Phase 42 | Pending |
+| SILENT-11 | Phase 42 | Pending |
+| SILENT-12 | Phase 42 | Pending |
+| SILENT-13 | Phase 42 | Pending |
+| SILENT-14 | Phase 42 | Pending |
+| SILENT-15 | Phase 42 | Pending |
+| SILENT-16 | Phase 42 | Pending |
+| SILENT-17 | Phase 42 | Pending |
+| ERR-01 | Phase 42 | Pending |
+| ERR-02 | Phase 42 | Pending |
+| ERR-03 | Phase 42 | Pending |
+| ERR-04 | Phase 42 | Pending |
 
 **Coverage:**
 - v1 requirements: 35 total
-- Mapped to phases: 0
-- Unmapped: 35 (awaiting roadmap creation)
+- Mapped to phases: 35
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-02-05*
-*Last updated: 2026-02-05 after initial definition*
+*Last updated: 2026-02-05 after roadmap creation (traceability added)*

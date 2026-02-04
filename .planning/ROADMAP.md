@@ -1,0 +1,106 @@
+# Roadmap: BA Assistant v1.9.4
+
+**Milestone:** v1.9.4 Artifact Generation Deduplication
+**Phases:** 3 (Phase 40-42)
+**Depth:** Quick
+**Total Requirements:** 35 (all v1)
+**Created:** 2026-02-05
+
+## Overview
+
+Fix the artifact multiplication bug (BUG-016) through a 4-layer defense-in-depth strategy: prompt engineering (Layers 1+2), structural history annotation (Layer 3), and ephemeral silent generation (Layer 4). Each phase delivers measurable deduplication improvement and is independently shippable. Zero new dependencies -- all changes modify existing files.
+
+## Phases
+
+### Phase 40: Prompt Engineering Fixes (Layers 1+2)
+
+**Goal:** The AI model treats each artifact generation request as a single-call operation and ignores fulfilled requests in conversation history.
+
+**Bug Reference:** BUG-017 (prompt deduplication rule), BUG-018 (tool description single-call)
+
+**Dependencies:** None (first phase, zero-risk string edits)
+
+**Requirements:** PROMPT-01, PROMPT-02, PROMPT-03, PROMPT-04, PROMPT-05, PROMPT-06, PROMPT-07, PROMPT-08
+
+**Files:** `backend/app/services/ai_service.py` only
+
+**Success Criteria:**
+1. When a user has generated 3+ artifacts in a thread, sending a new chat message produces exactly one artifact (not duplicates of previous artifacts)
+2. When a user says "regenerate the BRD with more detail," the model honors the request as a new generation (escape hatch works)
+3. The save_artifact tool description no longer contains "multiple times" language
+4. Regular chat messages (non-artifact) are completely unaffected by the prompt changes
+
+**Research Flags:** None (well-documented patterns, skip research-phase)
+
+---
+
+### Phase 41: Structural History Filtering (Layer 3)
+
+**Goal:** Fulfilled artifact requests are structurally distinguished from pending requests in conversation context before reaching the model.
+
+**Bug Reference:** BUG-019 (history filtering fulfilled requests)
+
+**Dependencies:** None (code-independent from Phase 40, but should execute after for safety-net benefit)
+
+**Requirements:** HIST-01, HIST-02, HIST-03, HIST-04, HIST-05, HIST-06
+
+**Files:** `backend/app/services/conversation_service.py` (primary), possibly `backend/app/routers/conversations.py` (marker injection at save time)
+
+**Success Criteria:**
+1. In a thread with 5+ fulfilled artifact requests, the model's conversation context contains markers distinguishing fulfilled from pending requests
+2. A failed artifact generation (no artifact created) leaves the request unmarked, allowing the user to retry
+3. The marker format does not leak into user-visible AI responses (no "[FULFILLED]" echoed in chat)
+4. Existing conversation truncation behavior (token limits) is unchanged
+
+**Research Flags:** CRITICAL -- Must verify actual database content of saved assistant messages after artifact generation before implementing detection strategy. The marker referenced in BUG-019 (`ARTIFACT_CREATED:`) is from dead code and will not work.
+
+---
+
+### Phase 42: Silent Artifact Generation (Layer 4)
+
+**Goal:** Button-triggered artifact generation produces an artifact card with a loading indicator and no chat message bubbles, completely bypassing conversation history accumulation.
+
+**Bug Reference:** THREAD-011 (silent artifact generation)
+
+**Dependencies:** Phases 40-41 provide safety net for edge cases; Phase 42 is code-independent but should execute last due to complexity.
+
+**Requirements:** SILENT-01, SILENT-02, SILENT-03, SILENT-04, SILENT-05, SILENT-06, SILENT-07, SILENT-08, SILENT-09, SILENT-10, SILENT-11, SILENT-12, SILENT-13, SILENT-14, SILENT-15, SILENT-16, SILENT-17, ERR-01, ERR-02, ERR-03, ERR-04
+
+**Files:**
+- Backend: `backend/app/routers/conversations.py` (ChatRequest model, stream_chat, event_generator), `backend/app/services/ai_service.py` (token tracking fix)
+- Frontend: `frontend/lib/services/api_service.dart`, `frontend/lib/providers/conversation_provider.dart`, `frontend/lib/screens/conversation_screen.dart`, new `frontend/lib/widgets/generating_indicator.dart`
+
+**Success Criteria:**
+1. Clicking a preset artifact button (e.g., "User Stories") shows a typed loading animation ("Generating User Stories..."), then an artifact card appears -- no user or assistant message bubbles in the chat
+2. If generation fails (network error, API error), the loading animation clears, an error message is shown, and the user can try again
+3. Sending a regular typed message in the same thread works exactly as before (no regressions from silent generation changes)
+4. After silent generation, the thread summary is NOT updated (no wasted API call for a message that does not exist in history)
+5. The generated artifact appears in the artifacts list and can be exported normally
+
+**Research Flags:** Frontend state management for `generateArtifact()` needs careful design to avoid blank message bubbles (PITFALL-06). Must be a separate code path from `sendMessage()`.
+
+---
+
+## Progress
+
+| Phase | Name | Requirements | Status |
+|-------|------|-------------|--------|
+| 40 | Prompt Engineering Fixes | 8 | Pending |
+| 41 | Structural History Filtering | 6 | Pending |
+| 42 | Silent Artifact Generation | 21 | Pending |
+
+**Coverage:** 35/35 requirements mapped (100%)
+
+---
+
+## Build Order Rationale
+
+1. **Phase 40 first:** Zero-risk string constant edits in one file. Delivers ~95% fix immediately. Testable in minutes.
+2. **Phase 41 second:** Single backend function change. Provides deterministic structural guarantee. Combined with Phase 40, bug is ~99%+ eliminated for typed requests.
+3. **Phase 42 last:** Most complex (frontend + backend, new widget, separate code path). Phases 40-41 provide safety net if issues arise. Delivers 100% fix for the most common path (button clicks).
+
+Each phase is independently shippable -- if Phase 42 is delayed, Phases 40+41 already solve the bug for all request types.
+
+---
+*Roadmap created: 2026-02-05*
+*Last updated: 2026-02-05*

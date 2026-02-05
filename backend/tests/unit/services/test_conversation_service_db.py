@@ -7,7 +7,7 @@ from app.services.conversation_service import (
     build_conversation_context,
     get_message_count,
 )
-from app.models import Thread, Message, User, Project
+from app.models import Thread, Message, User, Project, Artifact, ArtifactType
 
 
 class TestSaveMessage:
@@ -140,6 +140,70 @@ class TestBuildConversationContext:
         context = await build_conversation_context(db_session, thread.id)
 
         assert context[0] == {"role": "user", "content": "Hello"}
+
+    @pytest.mark.asyncio
+    async def test_build_context_excludes_fulfilled_artifact_pairs(self, db_session, user):
+        """Fulfilled artifact generation pairs are excluded from context."""
+        db_session.add(user)
+        await db_session.commit()
+
+        thread = Thread(id="test-thread-artifacts", user_id=user.id, title="Artifacts")
+        db_session.add(thread)
+        await db_session.commit()
+
+        base_time = datetime.utcnow()
+
+        # Create first pair (user request + assistant response) with artifact
+        msg1 = Message(
+            thread_id=thread.id,
+            role="user",
+            content="Generate a BRD",
+            created_at=base_time
+        )
+        msg2 = Message(
+            thread_id=thread.id,
+            role="assistant",
+            content="I've created a comprehensive BRD...",
+            created_at=base_time + timedelta(seconds=1)
+        )
+        db_session.add_all([msg1, msg2])
+        await db_session.commit()
+
+        # Create artifact for this pair (within 5s window)
+        artifact = Artifact(
+            thread_id=thread.id,
+            artifact_type=ArtifactType.BRD,
+            title="Business Requirements Document",
+            content_markdown="# BRD Content",
+            created_at=base_time + timedelta(seconds=2)  # 1s after assistant msg
+        )
+        db_session.add(artifact)
+        await db_session.commit()
+
+        # Create second pair (follow-up question) WITHOUT artifact
+        msg3 = Message(
+            thread_id=thread.id,
+            role="user",
+            content="What about edge cases?",
+            created_at=base_time + timedelta(seconds=10)
+        )
+        msg4 = Message(
+            thread_id=thread.id,
+            role="assistant",
+            content="Good question. Let me explain...",
+            created_at=base_time + timedelta(seconds=11)
+        )
+        db_session.add_all([msg3, msg4])
+        await db_session.commit()
+
+        # Build conversation context
+        context = await build_conversation_context(db_session, thread.id)
+
+        # Should only have the second pair (edge case discussion)
+        # First pair should be filtered out because artifact was created
+        assert len(context) == 2
+        assert context[0]["content"] == "What about edge cases?"
+        assert context[1]["content"] == "Good question. Let me explain..."
 
 
 class TestGetMessageCount:

@@ -1,12 +1,16 @@
 """Unit tests for conversation_service pure functions."""
 
 import pytest
+from datetime import datetime, timedelta
+from types import SimpleNamespace
 from app.services.conversation_service import (
     estimate_tokens,
     estimate_messages_tokens,
     truncate_conversation,
+    _identify_fulfilled_pairs,
     CHARS_PER_TOKEN,
     MAX_CONTEXT_TOKENS,
+    ARTIFACT_CORRELATION_WINDOW,
 )
 
 
@@ -124,3 +128,117 @@ class TestTruncateConversation:
         # Plus summary
         assert len(result) == 2
         assert result[1]["content"] == "b" * 2800
+
+
+class TestIdentifyFulfilledPairs:
+    """Tests for _identify_fulfilled_pairs function."""
+
+    def test_no_artifacts_returns_empty_set(self):
+        """No artifacts means nothing to filter."""
+        base_time = datetime(2026, 2, 5, 12, 0, 0)
+        messages = [
+            SimpleNamespace(id="msg1", role="user", created_at=base_time),
+            SimpleNamespace(id="msg2", role="assistant", created_at=base_time + timedelta(seconds=1)),
+        ]
+        artifacts = []
+
+        result = _identify_fulfilled_pairs(messages, artifacts)
+
+        assert result == set()
+
+    def test_single_fulfilled_pair_detected(self):
+        """User + assistant with artifact within 5s window are both filtered."""
+        base_time = datetime(2026, 2, 5, 12, 0, 0)
+        messages = [
+            SimpleNamespace(id="msg1", role="user", created_at=base_time),
+            SimpleNamespace(id="msg2", role="assistant", created_at=base_time + timedelta(seconds=1)),
+        ]
+        artifacts = [
+            SimpleNamespace(created_at=base_time + timedelta(seconds=3)),  # 2s after assistant
+        ]
+
+        result = _identify_fulfilled_pairs(messages, artifacts)
+
+        assert result == {"msg1", "msg2"}
+
+    def test_unfulfilled_request_not_filtered(self):
+        """User + assistant with NO artifact remain in context."""
+        base_time = datetime(2026, 2, 5, 12, 0, 0)
+        messages = [
+            SimpleNamespace(id="msg1", role="user", created_at=base_time),
+            SimpleNamespace(id="msg2", role="assistant", created_at=base_time + timedelta(seconds=1)),
+        ]
+        artifacts = []  # No artifact created
+
+        result = _identify_fulfilled_pairs(messages, artifacts)
+
+        assert result == set()
+
+    def test_multiple_fulfilled_pairs(self):
+        """Multiple request pairs, only fulfilled ones are filtered."""
+        base_time = datetime(2026, 2, 5, 12, 0, 0)
+        messages = [
+            # Pair 1 - fulfilled
+            SimpleNamespace(id="msg1", role="user", created_at=base_time),
+            SimpleNamespace(id="msg2", role="assistant", created_at=base_time + timedelta(seconds=1)),
+            # Pair 2 - NOT fulfilled (no artifact)
+            SimpleNamespace(id="msg3", role="user", created_at=base_time + timedelta(seconds=10)),
+            SimpleNamespace(id="msg4", role="assistant", created_at=base_time + timedelta(seconds=11)),
+            # Pair 3 - fulfilled
+            SimpleNamespace(id="msg5", role="user", created_at=base_time + timedelta(seconds=20)),
+            SimpleNamespace(id="msg6", role="assistant", created_at=base_time + timedelta(seconds=21)),
+        ]
+        artifacts = [
+            SimpleNamespace(created_at=base_time + timedelta(seconds=3)),   # Matches msg2
+            SimpleNamespace(created_at=base_time + timedelta(seconds=22)),  # Matches msg6
+        ]
+
+        result = _identify_fulfilled_pairs(messages, artifacts)
+
+        # Pairs 1 and 3 fulfilled, Pair 2 NOT fulfilled
+        assert result == {"msg1", "msg2", "msg5", "msg6"}
+
+    def test_artifact_before_message_not_matched(self):
+        """Artifact created BEFORE assistant message doesn't match (negative time diff)."""
+        base_time = datetime(2026, 2, 5, 12, 0, 0)
+        messages = [
+            SimpleNamespace(id="msg1", role="user", created_at=base_time),
+            SimpleNamespace(id="msg2", role="assistant", created_at=base_time + timedelta(seconds=10)),
+        ]
+        artifacts = [
+            SimpleNamespace(created_at=base_time + timedelta(seconds=5)),  # Before assistant msg
+        ]
+
+        result = _identify_fulfilled_pairs(messages, artifacts)
+
+        assert result == set()
+
+    def test_artifact_outside_window_not_matched(self):
+        """Artifact created >5s after assistant message doesn't match."""
+        base_time = datetime(2026, 2, 5, 12, 0, 0)
+        messages = [
+            SimpleNamespace(id="msg1", role="user", created_at=base_time),
+            SimpleNamespace(id="msg2", role="assistant", created_at=base_time + timedelta(seconds=1)),
+        ]
+        artifacts = [
+            SimpleNamespace(created_at=base_time + timedelta(seconds=11)),  # 10s after assistant
+        ]
+
+        result = _identify_fulfilled_pairs(messages, artifacts)
+
+        assert result == set()
+
+    def test_no_preceding_user_message(self):
+        """Assistant message first in list (no preceding user) only filters assistant."""
+        base_time = datetime(2026, 2, 5, 12, 0, 0)
+        messages = [
+            SimpleNamespace(id="msg1", role="assistant", created_at=base_time),
+        ]
+        artifacts = [
+            SimpleNamespace(created_at=base_time + timedelta(seconds=2)),
+        ]
+
+        result = _identify_fulfilled_pairs(messages, artifacts)
+
+        # Only assistant message filtered, no IndexError
+        assert result == {"msg1"}

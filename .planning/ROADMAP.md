@@ -27,7 +27,7 @@ Fix the artifact multiplication bug (BUG-016) through a 4-layer defense-in-depth
 **Plans:** 1 plan
 
 Plans:
-- [ ] 40-01-PLAN.md -- Add deduplication rule to SYSTEM_PROMPT and enforce single-call in SAVE_ARTIFACT_TOOL
+- [x] 40-01-PLAN.md -- Add deduplication rule to SYSTEM_PROMPT and enforce single-call in SAVE_ARTIFACT_TOOL
 
 **Success Criteria:**
 1. When a user has generated 3+ artifacts in a thread, sending a new chat message produces exactly one artifact (not duplicates of previous artifacts)
@@ -90,7 +90,7 @@ Plans:
 
 | Phase | Name | Requirements | Status |
 |-------|------|-------------|--------|
-| 40 | Prompt Engineering Fixes | 8 | Pending |
+| 40 | Prompt Engineering Fixes | 8 | Complete ✓ |
 | 41 | Structural History Filtering | 6 | Pending |
 | 42 | Silent Artifact Generation | 21 | Pending |
 
@@ -108,4 +108,4 @@ Each phase is independently shippable -- if Phase 42 is delayed, Phases 40+41 al
 
 ---
 *Roadmap created: 2026-02-05*
-*Last updated: 2026-02-05*
+*Last updated: 2026-02-05 (Phase 40 complete)*

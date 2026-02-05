@@ -327,4 +327,50 @@ Full test matrix available in `.planning/phases/18-validation/18-VALIDATION.md`
 
 ---
 
+## Phase 40: Prompt Engineering Fixes (Artifact Deduplication Layers 1+2)
+
+**Status:** Pending user testing
+**Collected:** 2026-02-05
+
+### Test Environment Setup
+
+1. Start backend: `cd backend && python run.py`
+2. Start frontend: `cd frontend && flutter run -d chrome`
+3. Log in and open a project with existing threads
+
+### Test Cases
+
+#### TC-40-01: Multi-Artifact Deduplication Test
+
+1. Create a new conversation thread
+2. Generate 3 different artifacts using preset buttons (e.g., User Stories, Acceptance Criteria, Requirements Doc)
+3. Send a regular chat message (e.g., "Thank you, looks good")
+4. **Expected:** No artifacts are auto-generated from step 3 — only a chat response appears. The 3 existing artifacts remain unchanged.
+
+#### TC-40-02: Escape Hatch Test (Regenerate Request)
+
+1. Create a conversation with 1 existing artifact (e.g., User Stories)
+2. Send message: "Regenerate the user stories with more detail about the login flow"
+3. **Expected:** A NEW artifact IS generated (not blocked by dedup rule). The artifact contains enhanced detail about the login flow.
+
+#### TC-40-03: Regular Chat Regression Test
+
+1. Create a new conversation with no artifacts
+2. Send several chat messages asking discovery questions (e.g., "What information do you need about my project?")
+3. **Expected:** BA assistant asks one question at a time (unchanged behavior). Responses are conversational and helpful. No changes to non-artifact chat behavior.
+
+### Results
+
+| Test Case | Status | Notes |
+|-----------|--------|-------|
+| TC-40-01 | Pending | |
+| TC-40-02 | Pending | |
+| TC-40-03 | Pending | |
+
+**Tested by:**
+**Date:**
+**Issues found:**
+
+---
+
 *Add new phases below as development continues*

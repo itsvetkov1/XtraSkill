@@ -9,14 +9,14 @@ Requirements for v1.9.4 Artifact Generation Deduplication. Each maps to roadmap 
 
 ### Prompt Engineering
 
-- [ ] **PROMPT-01**: System prompt includes artifact deduplication rule at priority 2 in `<critical_rules>` section
-- [ ] **PROMPT-02**: Deduplication rule uses positive framing: "ONLY act on the MOST RECENT user message"
-- [ ] **PROMPT-03**: Deduplication rule includes re-generation escape hatch (user explicitly asking to regenerate/revise is honored as a new request)
-- [ ] **PROMPT-04**: Deduplication rule references save_artifact tool results as completion evidence
-- [ ] **PROMPT-05**: Existing critical rules renumbered correctly (priorities shifted by +1)
-- [ ] **PROMPT-06**: save_artifact tool description enforces single-call: "Call this tool ONCE per user request"
-- [ ] **PROMPT-07**: "You may call this tool multiple times" line is removed from tool description
-- [ ] **PROMPT-08**: Tool description allows explicit re-generation via new user message
+- [x] **PROMPT-01**: System prompt includes artifact deduplication rule at priority 2 in `<critical_rules>` section
+- [x] **PROMPT-02**: Deduplication rule uses positive framing: "ONLY act on the MOST RECENT user message"
+- [x] **PROMPT-03**: Deduplication rule includes re-generation escape hatch (user explicitly asking to regenerate/revise is honored as a new request)
+- [x] **PROMPT-04**: Deduplication rule references save_artifact tool results as completion evidence
+- [x] **PROMPT-05**: Existing critical rules renumbered correctly (priorities shifted by +1)
+- [x] **PROMPT-06**: save_artifact tool description enforces single-call: "Call this tool ONCE per user request"
+- [x] **PROMPT-07**: "You may call this tool multiple times" line is removed from tool description
+- [x] **PROMPT-08**: Tool description allows explicit re-generation via new user message
 
 ### History Filtering
 
@@ -95,14 +95,14 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| PROMPT-01 | Phase 40 | Pending |
-| PROMPT-02 | Phase 40 | Pending |
-| PROMPT-03 | Phase 40 | Pending |
-| PROMPT-04 | Phase 40 | Pending |
-| PROMPT-05 | Phase 40 | Pending |
-| PROMPT-06 | Phase 40 | Pending |
-| PROMPT-07 | Phase 40 | Pending |
-| PROMPT-08 | Phase 40 | Pending |
+| PROMPT-01 | Phase 40 | Complete |
+| PROMPT-02 | Phase 40 | Complete |
+| PROMPT-03 | Phase 40 | Complete |
+| PROMPT-04 | Phase 40 | Complete |
+| PROMPT-05 | Phase 40 | Complete |
+| PROMPT-06 | Phase 40 | Complete |
+| PROMPT-07 | Phase 40 | Complete |
+| PROMPT-08 | Phase 40 | Complete |
 | HIST-01 | Phase 41 | Pending |
 | HIST-02 | Phase 41 | Pending |
 | HIST-03 | Phase 41 | Pending |

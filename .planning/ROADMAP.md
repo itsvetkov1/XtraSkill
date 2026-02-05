@@ -24,6 +24,11 @@ Fix the artifact multiplication bug (BUG-016) through a 4-layer defense-in-depth
 
 **Files:** `backend/app/services/ai_service.py` only
 
+**Plans:** 1 plan
+
+Plans:
+- [ ] 40-01-PLAN.md -- Add deduplication rule to SYSTEM_PROMPT and enforce single-call in SAVE_ARTIFACT_TOOL
+
 **Success Criteria:**
 1. When a user has generated 3+ artifacts in a thread, sending a new chat message produces exactly one artifact (not duplicates of previous artifacts)
 2. When a user says "regenerate the BRD with more detail," the model honors the request as a new generation (escape hatch works)

@@ -11,26 +11,26 @@ See: .planning/PROJECT.md (updated 2026-02-04)
 ## Current Position
 
 Milestone: v1.9.4
-Phase: 41 (Structural History Filtering)
-Plan: 1 of 1 complete (41-01)
-Status: Phase 41 complete
-Last activity: 2026-02-05 - Completed 41-01-PLAN.md
-Next action: Plan Phase 42
+Phase: 42 (Silent Artifact Generation)
+Plan: 1 of 3 complete (42-01)
+Status: In progress
+Last activity: 2026-02-05 - Completed 42-01-PLAN.md
+Next action: Execute 42-02-PLAN.md (Frontend generateArtifact function)
 
 Progress:
 ```
-v1.9.4: [████......] 14/35 requirements (40%)
+v1.9.4: [██████....] 15/35 requirements (43%)
 
 Phase 40 - Prompt Engineering Fixes:     Complete (8 reqs) ✓
 Phase 41 - Structural History Filtering: Complete (6 reqs) ✓
-Phase 42 - Silent Artifact Generation:   Pending (21 reqs)
+Phase 42 - Silent Artifact Generation:   In Progress (1/3 plans, 42-01 done)
 ```
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 102 (across 9 milestones)
-- Average duration: ~4-18 minutes per plan (improving with experience)
+- Total plans completed: 104 (across 10 milestones)
+- Average duration: ~2-18 minutes per plan (improving with experience)
 
 **By Milestone:**
 
@@ -45,9 +45,9 @@ Phase 42 - Silent Artifact Generation:   Pending (21 reqs)
 | Unit Tests v1.9.1 | 28-33 | 24/24 | SHIPPED 2026-02-02 |
 | Resilience v1.9.2 | 34-36 | 9/9 | SHIPPED 2026-02-04 |
 | Doc & Nav v1.9.3 | 37-39 | 3/3 | SHIPPED 2026-02-04 |
-| Dedup v1.9.4 | 40-42 | 2/3 | IN PROGRESS |
+| Dedup v1.9.4 | 40-42 | 3/5 | IN PROGRESS |
 
-**Total:** 103 plans shipped across 41 phases
+**Total:** 104 plans shipped across 42 phases
 
 ## Accumulated Context
 
@@ -63,6 +63,9 @@ Phase 42 - Silent Artifact Generation:   Pending (21 reqs)
 | Filter fulfilled pairs before truncation | 41-01 | Ensures truncation works on already-filtered conversation for accurate token estimation |
 | 5-second correlation window for artifacts | 41-01 | Wide enough to catch typical latency, narrow enough to avoid false positives |
 | Use total_seconds() for timestamp comparison | 41-01 | Handles timezone-aware vs naive datetime issues safely across DBs |
+| text_delta is only SSE event suppressed in silent mode | 42-01 | message_complete needed for usage, artifact_created for frontend, error for debugging |
+| Ephemeral instruction appended in-memory only | 42-01 | Guides model to artifact-only generation without persisting to DB |
+| Token tracking unconditional in silent mode | 42-01 | All API calls must be tracked for budget enforcement (ERR-04) |
 
 Milestone decisions archived in:
 - .planning/milestones/v1.5-ROADMAP.md
@@ -101,20 +104,19 @@ Milestone decisions archived in:
 ## Session Continuity
 
 Last session: 2026-02-05
-Stopped at: Completed 41-01-PLAN.md
+Stopped at: Completed 42-01-PLAN.md
 Resume file: None
-Next action: Plan Phase 42 (Silent Artifact Generation)
+Next action: Execute 42-02-PLAN.md (Frontend generateArtifact function)
 
 **Context for Next Session:**
 - Phase 40 complete: Layers 1+2 of deduplication (prompt rule + tool description) ✓
 - Phase 41 complete: Layer 3 (structural history filtering via timestamp correlation) ✓
-- Phase 42 next: Layer 4 (silent generation) - most complex phase
-  - Frontend: New `generateArtifact()` function separate from `sendMessage()`
-  - Backend: New endpoint that creates artifact WITHOUT saving messages
-  - Testing: Verify no messages saved when silent generation used
-  - Integration: Wire up preset buttons to use silent generation
-- Phase 42 is the final phase for v1.9.4 milestone (21 requirements)
+- Phase 42 in progress: Layer 4 (silent generation) - most complex phase
+  - 42-01 DONE: Backend ChatRequest.artifact_generation flag, conditional persistence, SSE filtering
+  - 42-02 NEXT: Frontend generateArtifact() function separate from sendMessage()
+  - 42-03: Integration testing and wiring preset buttons to silent generation
+- Phase 42 is the final phase for v1.9.4 milestone
 
 ---
 
-*State updated: 2026-02-05 (41-01 complete)*
+*State updated: 2026-02-05 (42-01 complete)*

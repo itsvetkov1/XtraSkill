@@ -12,16 +12,16 @@ See: .planning/PROJECT.md (updated 2026-02-04)
 
 Milestone: v1.9.4
 Phase: 40 (Prompt Engineering Fixes)
-Plan: Not started
-Status: Roadmap created, ready to plan Phase 40
-Last activity: 2026-02-05 - Roadmap created for v1.9.4
-Next action: /gsd:plan-phase 40
+Plan: 1 of 1 complete (40-01)
+Status: Phase 40 complete
+Last activity: 2026-02-05 - Completed 40-01-PLAN.md
+Next action: Plan Phase 41
 
 Progress:
 ```
-v1.9.4: [..........] 0/35 requirements (0%)
+v1.9.4: [██........] 8/35 requirements (23%)
 
-Phase 40 - Prompt Engineering Fixes:   Pending (8 reqs)
+Phase 40 - Prompt Engineering Fixes:   Complete (8 reqs) ✓
 Phase 41 - Structural History Filtering: Pending (6 reqs)
 Phase 42 - Silent Artifact Generation:   Pending (21 reqs)
 ```
@@ -45,13 +45,21 @@ Phase 42 - Silent Artifact Generation:   Pending (21 reqs)
 | Unit Tests v1.9.1 | 28-33 | 24/24 | SHIPPED 2026-02-02 |
 | Resilience v1.9.2 | 34-36 | 9/9 | SHIPPED 2026-02-04 |
 | Doc & Nav v1.9.3 | 37-39 | 3/3 | SHIPPED 2026-02-04 |
-| Dedup v1.9.4 | 40-42 | 0/? | IN PROGRESS |
+| Dedup v1.9.4 | 40-42 | 1/3 | IN PROGRESS |
 
-**Total:** 101 plans shipped across 39 phases
+**Total:** 102 plans shipped across 40 phases
 
 ## Accumulated Context
 
 ### Decisions
+
+| Decision | Phase | Rationale |
+|----------|-------|-----------|
+| Deduplication rule at priority 2 | 40-01 | After one-question-at-a-time but before mode detection - critical for all phases |
+| Tool results as completion evidence | 40-01 | ARTIFACT_CREATED marker from BUG-019 is dead code - tool results are reliable |
+| Escape hatch: regenerate/revise/update/create-new-version | 40-01 | Covers user intent to modify artifacts without overly broad catch-all |
+| Positive framing in deduplication rule | 40-01 | "ONLY act on MOST RECENT" clearer than negative framing per PROMPT-02 |
+| Single-call enforcement in tool description | 40-01 | Tool description guides model directly - explicit constraint prevents duplication |
 
 Milestone decisions archived in:
 - .planning/milestones/v1.5-ROADMAP.md
@@ -91,17 +99,16 @@ Milestone decisions archived in:
 ## Session Continuity
 
 Last session: 2026-02-05
-Stopped at: Roadmap created for v1.9.4
+Stopped at: Completed 40-01-PLAN.md
 Resume file: None
-Next action: /gsd:plan-phase 40
+Next action: Plan Phase 41 (Structural History Filtering)
 
 **Context for Next Session:**
-- v1.9.4 roadmap created with 3 phases (40-42), 35 requirements
-- Phase 40 is zero-risk prompt string edits -- start here
-- Phase 41 has CRITICAL research flag: must verify detection marker strategy before coding
-- Phase 42 is most complex: frontend + backend, new widget, separate code path
-- Each phase is independently shippable
+- Phase 40 complete: Layers 1+2 of deduplication (prompt rule + tool description) implemented
+- Phase 41 next: Layer 3 (structural history filtering with HTML comment markers)
+- CRITICAL for Phase 41: Verify alternative detection strategy (tool results vs dead ARTIFACT_CREATED marker) per PITFALL-01
+- Phase 42 most complex: frontend + backend, new widget, separate code path for silent generation
 
 ---
 
-*State updated: 2026-02-05 (v1.9.4 roadmap created)*
+*State updated: 2026-02-05 (40-01 complete)*

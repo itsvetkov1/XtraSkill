@@ -651,6 +651,8 @@ SAVE_ARTIFACT_TOOL = {
     "name": "save_artifact",
     "description": """Save a business analysis artifact to the current conversation thread.
 
+Call this tool ONCE per user request. Each user message that requests an artifact should result in exactly one save_artifact call.
+
 USE THIS TOOL WHEN:
 - User requests user stories, acceptance criteria, or requirements documents
 - You have gathered enough context from conversation and documents
@@ -661,7 +663,7 @@ BEFORE USING:
 - Review the full conversation for ALL requirements discussed
 - Ensure comprehensive coverage, not just recent messages
 
-You may call this tool multiple times to create multiple artifacts.""",
+If the user sends a NEW message explicitly asking to regenerate, revise, or create another artifact, that is a separate request - call this tool once for that new request.""",
     "input_schema": {
         "type": "object",
         "properties": {

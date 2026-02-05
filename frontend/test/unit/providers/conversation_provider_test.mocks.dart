@@ -41,9 +41,17 @@ class _FakePaginatedThreads_1 extends _i1.SmartFake
 /// See the documentation for Mockito's code generation for more information.
 class MockAIService extends _i1.Mock implements _i3.AIService {
   @override
-  _i4.Stream<_i3.ChatEvent> streamChat(String? threadId, String? message) =>
+  _i4.Stream<_i3.ChatEvent> streamChat(
+    String? threadId,
+    String? message, {
+    bool? artifactGeneration = false,
+  }) =>
       (super.noSuchMethod(
-            Invocation.method(#streamChat, [threadId, message]),
+            Invocation.method(
+              #streamChat,
+              [threadId, message],
+              {#artifactGeneration: artifactGeneration},
+            ),
             returnValue: _i4.Stream<_i3.ChatEvent>.empty(),
             returnValueForMissingStub: _i4.Stream<_i3.ChatEvent>.empty(),
           )

@@ -63,6 +63,21 @@ class ConversationProvider extends ChangeNotifier {
   /// Artifacts created in this conversation
   List<Artifact> _artifacts = [];
 
+  /// Whether artifact is currently being generated silently
+  bool _isGeneratingArtifact = false;
+
+  /// Type label for current generation (e.g., "User Stories")
+  String? _generatingArtifactType;
+
+  /// Prompt of last generation attempt (for retry)
+  String? _lastGenerationPrompt;
+
+  /// Type of last generation attempt (for retry)
+  String? _lastGenerationArtifactType;
+
+  /// Whether the last error was from a generation operation
+  bool _lastOperationWasGeneration = false;
+
   ConversationProvider({
     AIService? aiService,
     ThreadService? threadService,
@@ -102,6 +117,18 @@ class ConversationProvider extends ChangeNotifier {
   /// Artifacts in conversation
   List<Artifact> get artifacts => _artifacts;
 
+  /// Whether artifact generation is in progress
+  bool get isGeneratingArtifact => _isGeneratingArtifact;
+
+  /// Type of artifact being generated (for label display)
+  String? get generatingArtifactType => _generatingArtifactType;
+
+  /// Whether retry is available for a failed generation
+  bool get canRetryGeneration => _lastGenerationPrompt != null && _error != null && _lastOperationWasGeneration;
+
+  /// Whether the last error was from generation (for error state display)
+  bool get lastOperationWasGeneration => _lastOperationWasGeneration;
+
   /// Load a thread with its message history
   Future<void> loadThread(String threadId) async {
     _loading = true;
@@ -137,6 +164,7 @@ class ConversationProvider extends ChangeNotifier {
 
     _error = null;
     _lastFailedMessage = content;
+    _lastOperationWasGeneration = false; // Distinguish from generation errors
 
     // Add user message optimistically (will be confirmed by refresh)
     final userMessage = Message(
@@ -209,6 +237,91 @@ class ConversationProvider extends ChangeNotifier {
     }
   }
 
+  /// Generate artifact silently without adding chat messages.
+  ///
+  /// This is a SEPARATE code path from sendMessage() (PITFALL-06).
+  /// It does NOT:
+  /// - Add user message to _messages
+  /// - Set _isStreaming
+  /// - Accumulate _streamingText
+  /// - Add assistant message to _messages
+  ///
+  /// It ONLY:
+  /// - Sets _isGeneratingArtifact state
+  /// - Listens for ArtifactCreatedEvent to add to _artifacts
+  /// - Clears state on completion or error
+  Future<void> generateArtifact(String prompt, String artifactType) async {
+    if (_thread == null || _isGeneratingArtifact || _isStreaming) return;
+
+    _error = null;
+    _lastOperationWasGeneration = true;
+    _lastGenerationPrompt = prompt;
+    _lastGenerationArtifactType = artifactType;
+    _isGeneratingArtifact = true;
+    _generatingArtifactType = artifactType;
+    notifyListeners();
+
+    try {
+      await for (final event in _aiService.streamChat(
+        _thread!.id,
+        prompt,
+        artifactGeneration: true,
+      )) {
+        if (event is ArtifactCreatedEvent) {
+          // Add artifact to list
+          _artifacts.add(Artifact.fromEvent(
+            id: event.id,
+            artifactType: event.artifactType,
+            title: event.title,
+            threadId: _thread!.id,
+          ));
+          // Clear generating state immediately when artifact appears (PITFALL-05)
+          _isGeneratingArtifact = false;
+          _generatingArtifactType = null;
+          _lastGenerationPrompt = null; // Success - clear retry data
+          _lastGenerationArtifactType = null;
+          notifyListeners();
+        } else if (event is ErrorEvent) {
+          _error = event.message;
+          break;
+        } else if (event is MessageCompleteEvent) {
+          // Stream ended (after artifact_created typically)
+          break;
+        }
+        // Note: TextDeltaEvent and ToolExecutingEvent are suppressed by backend
+        // but handle gracefully if they somehow arrive
+      }
+    } catch (e) {
+      _error = e.toString();
+    } finally {
+      // Ensure state cleared even if error before artifact_created (PITFALL-04)
+      _isGeneratingArtifact = false;
+      _generatingArtifactType = null;
+      notifyListeners();
+    }
+  }
+
+  /// Retry the last failed artifact generation
+  void retryLastGeneration() {
+    if (_lastGenerationPrompt == null || !_lastOperationWasGeneration) return;
+
+    final prompt = _lastGenerationPrompt!;
+    final type = _lastGenerationArtifactType ?? 'Artifact';
+    _error = null;
+    generateArtifact(prompt, type);
+  }
+
+  /// Cancel in-progress artifact generation
+  void cancelGeneration() {
+    _isGeneratingArtifact = false;
+    _generatingArtifactType = null;
+    _lastOperationWasGeneration = false;
+    _lastGenerationPrompt = null;
+    _lastGenerationArtifactType = null;
+    _error = null;
+    notifyListeners();
+  }
+
   /// Clear current conversation state
   void clearConversation() {
     _thread = null;
@@ -221,6 +334,11 @@ class ConversationProvider extends ChangeNotifier {
     _isNotFound = false;
     _loading = false;
     _hasPartialContent = false;
+    _isGeneratingArtifact = false;
+    _generatingArtifactType = null;
+    _lastGenerationPrompt = null;
+    _lastGenerationArtifactType = null;
+    _lastOperationWasGeneration = false;
     notifyListeners();
   }
 
@@ -231,6 +349,9 @@ class ConversationProvider extends ChangeNotifier {
     _lastFailedMessage = null; // Dismiss means "I don't want to retry"
     _hasPartialContent = false;
     _streamingText = ''; // Clear partial content on dismiss
+    _lastOperationWasGeneration = false;
+    _lastGenerationPrompt = null;
+    _lastGenerationArtifactType = null;
     notifyListeners();
   }
 

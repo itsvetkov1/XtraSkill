@@ -5,14 +5,17 @@ Handles saving messages to database and building conversation context
 for Claude API calls with token-aware truncation.
 """
 from typing import List, Dict, Any
+from datetime import datetime, timedelta
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.models import Message, Thread
+from app.models import Message, Thread, Artifact
 
 # Context window limits
 MAX_CONTEXT_TOKENS = 150000  # Leave room for response and system prompt
 # Rough estimate: 1 token ~= 4 characters
 CHARS_PER_TOKEN = 4
+# Artifact correlation window for fulfilled pair detection
+ARTIFACT_CORRELATION_WINDOW = timedelta(seconds=5)
 
 
 def estimate_tokens(text: str) -> int:
@@ -33,6 +36,49 @@ def estimate_messages_tokens(messages: List[Dict[str, Any]]) -> int:
                 if isinstance(part, dict):
                     total += estimate_tokens(str(part.get("content", "")))
     return total
+
+
+def _identify_fulfilled_pairs(
+    messages: list,
+    artifacts: list
+) -> set:
+    """
+    Identify message pairs (user + assistant) that resulted in artifact creation.
+
+    Uses timestamp correlation: if an artifact was created within 0-5 seconds
+    after an assistant message, that message pair is considered "fulfilled"
+    and should be excluded from conversation context.
+
+    Args:
+        messages: List of Message objects with id, role, created_at attributes
+        artifacts: List of Artifact objects with created_at attribute
+
+    Returns:
+        Set of message IDs to exclude from conversation context
+    """
+    fulfilled_ids = set()
+
+    for i, msg in enumerate(messages):
+        if msg.role != "assistant":
+            continue
+
+        # Check if any artifact was created within correlation window
+        for artifact in artifacts:
+            # Use total_seconds() for safe comparison (handles timezone issues)
+            time_diff = (artifact.created_at - msg.created_at).total_seconds()
+
+            if 0 <= time_diff <= ARTIFACT_CORRELATION_WINDOW.total_seconds():
+                # Mark assistant message as fulfilled
+                fulfilled_ids.add(msg.id)
+
+                # Mark preceding user message if it exists
+                if i > 0 and messages[i - 1].role == "user":
+                    fulfilled_ids.add(messages[i - 1].id)
+
+                # Break after first match (one artifact per message)
+                break
+
+    return fulfilled_ids
 
 
 async def save_message(
@@ -67,7 +113,6 @@ async def save_message(
     result = await db.execute(stmt)
     thread = result.scalar_one_or_none()
     if thread:
-        from datetime import datetime
         thread.updated_at = datetime.utcnow()
         await db.commit()
 
@@ -82,6 +127,7 @@ async def build_conversation_context(
     Build conversation context from thread messages.
 
     Loads all messages from thread and converts to Claude message format.
+    Filters out fulfilled artifact request pairs before truncation.
     Implements token-aware truncation if conversation is too long.
 
     Args:
@@ -100,13 +146,26 @@ async def build_conversation_context(
     result = await db.execute(stmt)
     messages = result.scalars().all()
 
-    # Convert to Claude message format
+    # Fetch all artifacts for this thread
+    artifact_stmt = (
+        select(Artifact)
+        .where(Artifact.thread_id == thread_id)
+        .order_by(Artifact.created_at)
+    )
+    artifact_result = await db.execute(artifact_stmt)
+    artifacts = artifact_result.scalars().all()
+
+    # Identify fulfilled pairs to exclude
+    fulfilled_ids = _identify_fulfilled_pairs(messages, artifacts)
+
+    # Convert to Claude message format, excluding fulfilled pairs
     conversation = []
     for msg in messages:
-        conversation.append({
-            "role": msg.role,
-            "content": msg.content
-        })
+        if msg.id not in fulfilled_ids:
+            conversation.append({
+                "role": msg.role,
+                "content": msg.content
+            })
 
     # Check token count and truncate if needed
     total_tokens = estimate_messages_tokens(conversation)

@@ -12,24 +12,24 @@ See: .planning/PROJECT.md (updated 2026-02-04)
 
 Milestone: v1.9.4
 Phase: 42 (Silent Artifact Generation)
-Plan: 1 of 3 complete (42-01)
+Plan: 2 of 3 complete (42-01, 42-02)
 Status: In progress
-Last activity: 2026-02-05 - Completed 42-01-PLAN.md
-Next action: Execute 42-02-PLAN.md (Frontend generateArtifact function)
+Last activity: 2026-02-05 - Completed 42-02-PLAN.md
+Next action: Execute 42-03-PLAN.md (Integration testing / UI wiring)
 
 Progress:
 ```
-v1.9.4: [██████....] 15/35 requirements (43%)
+v1.9.4: [███████...] 16/35 requirements (46%)
 
-Phase 40 - Prompt Engineering Fixes:     Complete (8 reqs) ✓
-Phase 41 - Structural History Filtering: Complete (6 reqs) ✓
-Phase 42 - Silent Artifact Generation:   In Progress (1/3 plans, 42-01 done)
+Phase 40 - Prompt Engineering Fixes:     Complete (8 reqs)
+Phase 41 - Structural History Filtering: Complete (6 reqs)
+Phase 42 - Silent Artifact Generation:   In Progress (2/3 plans, 42-01 + 42-02 done)
 ```
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 104 (across 10 milestones)
+- Total plans completed: 105 (across 10 milestones)
 - Average duration: ~2-18 minutes per plan (improving with experience)
 
 **By Milestone:**
@@ -45,9 +45,9 @@ Phase 42 - Silent Artifact Generation:   In Progress (1/3 plans, 42-01 done)
 | Unit Tests v1.9.1 | 28-33 | 24/24 | SHIPPED 2026-02-02 |
 | Resilience v1.9.2 | 34-36 | 9/9 | SHIPPED 2026-02-04 |
 | Doc & Nav v1.9.3 | 37-39 | 3/3 | SHIPPED 2026-02-04 |
-| Dedup v1.9.4 | 40-42 | 3/5 | IN PROGRESS |
+| Dedup v1.9.4 | 40-42 | 4/5 | IN PROGRESS |
 
-**Total:** 104 plans shipped across 42 phases
+**Total:** 105 plans shipped across 42 phases
 
 ## Accumulated Context
 
@@ -66,6 +66,9 @@ Phase 42 - Silent Artifact Generation:   In Progress (1/3 plans, 42-01 done)
 | text_delta is only SSE event suppressed in silent mode | 42-01 | message_complete needed for usage, artifact_created for frontend, error for debugging |
 | Ephemeral instruction appended in-memory only | 42-01 | Guides model to artifact-only generation without persisting to DB |
 | Token tracking unconditional in silent mode | 42-01 | All API calls must be tracked for budget enforcement (ERR-04) |
+| generateArtifact() separate state machine from sendMessage() | 42-02 | PITFALL-06: prevents blank message bubbles, streaming UI conflicts |
+| State clears on ArtifactCreatedEvent not MessageCompleteEvent | 42-02 | PITFALL-05: artifact appears before stream ends; user sees result immediately |
+| Error source tagging via _lastOperationWasGeneration | 42-02 | UI can distinguish generation errors from chat errors for appropriate retry UI |
 
 Milestone decisions archived in:
 - .planning/milestones/v1.5-ROADMAP.md
@@ -87,7 +90,8 @@ Milestone decisions archived in:
 - PITFALL-01: BUG-019's `ARTIFACT_CREATED:` marker is from dead code -- must use alternative detection
 - PITFALL-03: Deduplication rule must include re-generation escape hatch
 - PITFALL-04: History prefix must not leak to user (use short/HTML-comment format)
-- PITFALL-06: `generateArtifact()` must be separate code path from `sendMessage()`
+- PITFALL-05: State clears on ArtifactCreatedEvent not MessageCompleteEvent (DONE in 42-02)
+- PITFALL-06: `generateArtifact()` must be separate code path from `sendMessage()` (DONE in 42-02)
 
 **Research:** .planning/research/SUMMARY.md (HIGH confidence, 2026-02-05)
 
@@ -96,6 +100,7 @@ Milestone decisions archived in:
 - [ ] Configure CODECOV_TOKEN secret in GitHub repository
 - [ ] Link repository to Codecov dashboard
 - [ ] Manual testing of remaining features (see TESTING-QUEUE.md)
+- [ ] Fix 2 pre-existing test failures in conversation_provider_test.dart (streamingText preservation)
 
 ### Blockers/Concerns
 
@@ -104,19 +109,19 @@ Milestone decisions archived in:
 ## Session Continuity
 
 Last session: 2026-02-05
-Stopped at: Completed 42-01-PLAN.md
+Stopped at: Completed 42-02-PLAN.md
 Resume file: None
-Next action: Execute 42-02-PLAN.md (Frontend generateArtifact function)
+Next action: Execute 42-03-PLAN.md (Integration testing / UI wiring)
 
 **Context for Next Session:**
-- Phase 40 complete: Layers 1+2 of deduplication (prompt rule + tool description) ✓
-- Phase 41 complete: Layer 3 (structural history filtering via timestamp correlation) ✓
+- Phase 40 complete: Layers 1+2 of deduplication (prompt rule + tool description)
+- Phase 41 complete: Layer 3 (structural history filtering via timestamp correlation)
 - Phase 42 in progress: Layer 4 (silent generation) - most complex phase
   - 42-01 DONE: Backend ChatRequest.artifact_generation flag, conditional persistence, SSE filtering
-  - 42-02 NEXT: Frontend generateArtifact() function separate from sendMessage()
-  - 42-03: Integration testing and wiring preset buttons to silent generation
+  - 42-02 DONE: Frontend generateArtifact() separate from sendMessage(), retry/cancel, state management
+  - 42-03 NEXT: Integration testing and wiring preset buttons to silent generation
 - Phase 42 is the final phase for v1.9.4 milestone
 
 ---
 
-*State updated: 2026-02-05 (42-01 complete)*
+*State updated: 2026-02-05 (42-02 complete)*

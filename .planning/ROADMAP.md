@@ -41,7 +41,7 @@ Plans:
 
 ### Phase 41: Structural History Filtering (Layer 3)
 
-**Goal:** Fulfilled artifact requests are structurally distinguished from pending requests in conversation context before reaching the model.
+**Goal:** Fulfilled artifact requests are structurally removed from conversation context before reaching the model, so the model never sees completed generation requests.
 
 **Bug Reference:** BUG-019 (history filtering fulfilled requests)
 
@@ -49,15 +49,20 @@ Plans:
 
 **Requirements:** HIST-01, HIST-02, HIST-03, HIST-04, HIST-05, HIST-06
 
-**Files:** `backend/app/services/conversation_service.py` (primary), possibly `backend/app/routers/conversations.py` (marker injection at save time)
+**Files:** `backend/app/services/conversation_service.py` (primary), `backend/tests/unit/services/test_conversation_service.py`, `backend/tests/unit/services/test_conversation_service_db.py`
+
+**Plans:** 1 plan
+
+Plans:
+- [ ] 41-01-PLAN.md -- Add artifact-aware filtering to build_conversation_context with database timestamp correlation detection
 
 **Success Criteria:**
-1. In a thread with 5+ fulfilled artifact requests, the model's conversation context contains markers distinguishing fulfilled from pending requests
-2. A failed artifact generation (no artifact created) leaves the request unmarked, allowing the user to retry
-3. The marker format does not leak into user-visible AI responses (no "[FULFILLED]" echoed in chat)
+1. In a thread with fulfilled artifact requests, the model's conversation context excludes those message pairs entirely
+2. A failed artifact generation (no artifact created) leaves the request in context, allowing the user to retry
+3. No marker text leaks into user-visible responses (removal, not annotation)
 4. Existing conversation truncation behavior (token limits) is unchanged
 
-**Research Flags:** CRITICAL -- Must verify actual database content of saved assistant messages after artifact generation before implementing detection strategy. The marker referenced in BUG-019 (`ARTIFACT_CREATED:`) is from dead code and will not work.
+**Research Flags:** Resolved -- database correlation via timestamp matching confirmed as detection strategy (see 41-RESEARCH.md).
 
 ---
 
@@ -91,7 +96,7 @@ Plans:
 | Phase | Name | Requirements | Status |
 |-------|------|-------------|--------|
 | 40 | Prompt Engineering Fixes | 8 | Complete ✓ |
-| 41 | Structural History Filtering | 6 | Pending |
+| 41 | Structural History Filtering | 6 | Planned |
 | 42 | Silent Artifact Generation | 21 | Pending |
 
 **Coverage:** 35/35 requirements mapped (100%)
@@ -108,4 +113,4 @@ Each phase is independently shippable -- if Phase 42 is delayed, Phases 40+41 al
 
 ---
 *Roadmap created: 2026-02-05*
-*Last updated: 2026-02-05 (Phase 40 complete)*
+*Last updated: 2026-02-05 (Phase 41 planned)*

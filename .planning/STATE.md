@@ -11,25 +11,25 @@ See: .planning/PROJECT.md (updated 2026-02-04)
 ## Current Position
 
 Milestone: v1.9.4
-Phase: 40 (Prompt Engineering Fixes)
-Plan: 1 of 1 complete (40-01)
-Status: Phase 40 complete
-Last activity: 2026-02-05 - Completed 40-01-PLAN.md
-Next action: Plan Phase 41
+Phase: 41 (Structural History Filtering)
+Plan: 1 of 1 complete (41-01)
+Status: Phase 41 complete
+Last activity: 2026-02-05 - Completed 41-01-PLAN.md
+Next action: Plan Phase 42
 
 Progress:
 ```
-v1.9.4: [██........] 8/35 requirements (23%)
+v1.9.4: [████......] 14/35 requirements (40%)
 
-Phase 40 - Prompt Engineering Fixes:   Complete (8 reqs) ✓
-Phase 41 - Structural History Filtering: Pending (6 reqs)
+Phase 40 - Prompt Engineering Fixes:     Complete (8 reqs) ✓
+Phase 41 - Structural History Filtering: Complete (6 reqs) ✓
 Phase 42 - Silent Artifact Generation:   Pending (21 reqs)
 ```
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 101 (across 9 milestones)
+- Total plans completed: 102 (across 9 milestones)
 - Average duration: ~4-18 minutes per plan (improving with experience)
 
 **By Milestone:**
@@ -45,9 +45,9 @@ Phase 42 - Silent Artifact Generation:   Pending (21 reqs)
 | Unit Tests v1.9.1 | 28-33 | 24/24 | SHIPPED 2026-02-02 |
 | Resilience v1.9.2 | 34-36 | 9/9 | SHIPPED 2026-02-04 |
 | Doc & Nav v1.9.3 | 37-39 | 3/3 | SHIPPED 2026-02-04 |
-| Dedup v1.9.4 | 40-42 | 1/3 | IN PROGRESS |
+| Dedup v1.9.4 | 40-42 | 2/3 | IN PROGRESS |
 
-**Total:** 102 plans shipped across 40 phases
+**Total:** 103 plans shipped across 41 phases
 
 ## Accumulated Context
 
@@ -60,6 +60,9 @@ Phase 42 - Silent Artifact Generation:   Pending (21 reqs)
 | Escape hatch: regenerate/revise/update/create-new-version | 40-01 | Covers user intent to modify artifacts without overly broad catch-all |
 | Positive framing in deduplication rule | 40-01 | "ONLY act on MOST RECENT" clearer than negative framing per PROMPT-02 |
 | Single-call enforcement in tool description | 40-01 | Tool description guides model directly - explicit constraint prevents duplication |
+| Filter fulfilled pairs before truncation | 41-01 | Ensures truncation works on already-filtered conversation for accurate token estimation |
+| 5-second correlation window for artifacts | 41-01 | Wide enough to catch typical latency, narrow enough to avoid false positives |
+| Use total_seconds() for timestamp comparison | 41-01 | Handles timezone-aware vs naive datetime issues safely across DBs |
 
 Milestone decisions archived in:
 - .planning/milestones/v1.5-ROADMAP.md
@@ -90,7 +93,6 @@ Milestone decisions archived in:
 - [ ] Configure CODECOV_TOKEN secret in GitHub repository
 - [ ] Link repository to Codecov dashboard
 - [ ] Manual testing of remaining features (see TESTING-QUEUE.md)
-- [ ] Phase 41: Verify database content of saved assistant messages after artifact generation (PITFALL-01)
 
 ### Blockers/Concerns
 
@@ -99,16 +101,20 @@ Milestone decisions archived in:
 ## Session Continuity
 
 Last session: 2026-02-05
-Stopped at: Completed 40-01-PLAN.md
+Stopped at: Completed 41-01-PLAN.md
 Resume file: None
-Next action: Plan Phase 41 (Structural History Filtering)
+Next action: Plan Phase 42 (Silent Artifact Generation)
 
 **Context for Next Session:**
-- Phase 40 complete: Layers 1+2 of deduplication (prompt rule + tool description) implemented
-- Phase 41 next: Layer 3 (structural history filtering with HTML comment markers)
-- CRITICAL for Phase 41: Verify alternative detection strategy (tool results vs dead ARTIFACT_CREATED marker) per PITFALL-01
-- Phase 42 most complex: frontend + backend, new widget, separate code path for silent generation
+- Phase 40 complete: Layers 1+2 of deduplication (prompt rule + tool description) ✓
+- Phase 41 complete: Layer 3 (structural history filtering via timestamp correlation) ✓
+- Phase 42 next: Layer 4 (silent generation) - most complex phase
+  - Frontend: New `generateArtifact()` function separate from `sendMessage()`
+  - Backend: New endpoint that creates artifact WITHOUT saving messages
+  - Testing: Verify no messages saved when silent generation used
+  - Integration: Wire up preset buttons to use silent generation
+- Phase 42 is the final phase for v1.9.4 milestone (21 requirements)
 
 ---
 
-*State updated: 2026-02-05 (40-01 complete)*
+*State updated: 2026-02-05 (41-01 complete)*

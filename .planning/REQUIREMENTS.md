@@ -20,12 +20,12 @@ Requirements for v1.9.4 Artifact Generation Deduplication. Each maps to roadmap 
 
 ### History Filtering
 
-- [ ] **HIST-01**: `build_conversation_context()` detects fulfilled artifact requests in conversation history
-- [ ] **HIST-02**: Detection uses response-based strategy (what actually happened, not input guessing)
-- [ ] **HIST-03**: Fulfilled user messages are prefixed with a short, non-leaky marker (e.g., `[FULFILLED]` or HTML comment)
-- [ ] **HIST-04**: Unfulfilled requests (failed generation, no artifact created) are left untouched for retry
-- [ ] **HIST-05**: Custom freeform prompts handled correctly (response-based detection works for all prompt types)
-- [ ] **HIST-06**: Existing truncation logic in `build_conversation_context()` is unaffected
+- [x] **HIST-01**: `build_conversation_context()` detects fulfilled artifact requests in conversation history
+- [x] **HIST-02**: Detection uses response-based strategy (what actually happened, not input guessing)
+- [x] **HIST-03**: Fulfilled message pairs completely removed from context (user decision: removal, not annotation)
+- [x] **HIST-04**: Unfulfilled requests (failed generation, no artifact created) are left untouched for retry
+- [x] **HIST-05**: Custom freeform prompts handled correctly (response-based detection works for all prompt types)
+- [x] **HIST-06**: Existing truncation logic in `build_conversation_context()` is unaffected
 
 ### Silent Generation
 
@@ -103,12 +103,12 @@ Which phases cover which requirements. Updated during roadmap creation.
 | PROMPT-06 | Phase 40 | Complete |
 | PROMPT-07 | Phase 40 | Complete |
 | PROMPT-08 | Phase 40 | Complete |
-| HIST-01 | Phase 41 | Pending |
-| HIST-02 | Phase 41 | Pending |
-| HIST-03 | Phase 41 | Pending |
-| HIST-04 | Phase 41 | Pending |
-| HIST-05 | Phase 41 | Pending |
-| HIST-06 | Phase 41 | Pending |
+| HIST-01 | Phase 41 | Complete |
+| HIST-02 | Phase 41 | Complete |
+| HIST-03 | Phase 41 | Complete |
+| HIST-04 | Phase 41 | Complete |
+| HIST-05 | Phase 41 | Complete |
+| HIST-06 | Phase 41 | Complete |
 | SILENT-01 | Phase 42 | Pending |
 | SILENT-02 | Phase 42 | Pending |
 | SILENT-03 | Phase 42 | Pending |
@@ -138,4 +138,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-02-05*
-*Last updated: 2026-02-05 after roadmap creation (traceability added)*
+*Last updated: 2026-02-05 (Phase 41 complete — HIST requirements marked done)*

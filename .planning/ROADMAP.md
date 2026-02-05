@@ -54,7 +54,7 @@ Plans:
 **Plans:** 1 plan
 
 Plans:
-- [ ] 41-01-PLAN.md -- Add artifact-aware filtering to build_conversation_context with database timestamp correlation detection
+- [x] 41-01-PLAN.md -- Add artifact-aware filtering to build_conversation_context with database timestamp correlation detection
 
 **Success Criteria:**
 1. In a thread with fulfilled artifact requests, the model's conversation context excludes those message pairs entirely
@@ -96,7 +96,7 @@ Plans:
 | Phase | Name | Requirements | Status |
 |-------|------|-------------|--------|
 | 40 | Prompt Engineering Fixes | 8 | Complete ✓ |
-| 41 | Structural History Filtering | 6 | Planned |
+| 41 | Structural History Filtering | 6 | Complete ✓ |
 | 42 | Silent Artifact Generation | 21 | Pending |
 
 **Coverage:** 35/35 requirements mapped (100%)
@@ -113,4 +113,4 @@ Each phase is independently shippable -- if Phase 42 is delayed, Phases 40+41 al
 
 ---
 *Roadmap created: 2026-02-05*
-*Last updated: 2026-02-05 (Phase 41 planned)*
+*Last updated: 2026-02-05 (Phase 41 complete)*

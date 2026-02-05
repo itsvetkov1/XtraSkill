@@ -108,7 +108,11 @@ class AIService {
   /// - ToolExecutingEvent: AI is using a tool
   /// - MessageCompleteEvent: Response complete
   /// - ErrorEvent: Error occurred
-  Stream<ChatEvent> streamChat(String threadId, String message) async* {
+  Stream<ChatEvent> streamChat(
+    String threadId,
+    String message,
+    {bool artifactGeneration = false}
+  ) async* {
     final token = await _storage.read(key: _tokenKey);
     if (token == null) {
       yield ErrorEvent(message: 'Not authenticated');
@@ -128,7 +132,10 @@ class AIService {
           'Accept': 'text/event-stream',
           'Cache-Control': 'no-cache',
         },
-        body: {'content': message},
+        body: {
+          'content': message,
+          if (artifactGeneration) 'artifact_generation': true,
+        },
       );
 
       await for (final event in stream) {

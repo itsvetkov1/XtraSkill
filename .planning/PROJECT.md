@@ -10,15 +10,16 @@ Business analysts reduce time spent on requirement documentation while improving
 
 ## Current State
 
-**Shipped:** v1.9.3 Document & Navigation Polish (2026-02-04)
+**Shipped:** v1.9.4 Artifact Generation Deduplication (2026-02-05)
 
 **Delivered:**
-- Document download from Document Viewer AppBar and list context menu using file_saver pattern
-- Document preview dialog before upload showing filename, size, and first 20 lines in monospace
-- Full breadcrumb navigation: Projects > Project > Threads > Thread, Chats > Thread, Projects > Project > Documents > Document
-- Document Viewer URL routing via GoRouter (/projects/:id/documents/:docId) with browser back button support
+- 4-layer defense-in-depth fix for artifact multiplication bug (BUG-016)
+- Prompt engineering: ARTIFACT DEDUPLICATION rule at priority 2 with escape hatch for regenerate/revise
+- Tool description: Single-call enforcement ("Call this tool ONCE per user request")
+- Structural filtering: Fulfilled artifact message pairs removed from conversation context via timestamp correlation
+- Silent generation: Button-triggered artifacts produce no chat bubbles (frontend + backend separate code paths)
 
-**Next:** v1.9.4 — Artifact Generation Deduplication (in progress)
+**Next:** v2.0 — Search, Previews & Integrations
 
 Previous milestone (v1.9.2):
 - Network error resilience with partial content preservation and retry
@@ -66,7 +67,7 @@ Previous features (v1.5):
 - Deletion with 10-second undo for all resources
 - Professional empty states across all list screens
 
-**Codebase:** ~86,500 lines of Python/Dart across FastAPI backend and Flutter frontend (11,279 Dart frontend).
+**Codebase:** ~86,400 lines of Python/Dart across FastAPI backend and Flutter frontend (74,766 Python + 11,652 Dart).
 
 ## Future Vision
 
@@ -165,15 +166,21 @@ Previous features (v1.5):
 - ✓ Each breadcrumb segment is clickable — v1.9.3
 - ✓ Document Viewer has proper URL route (/projects/:id/documents/:docId) — v1.9.3
 
+- ✓ Each artifact generation request produces exactly one artifact regardless of conversation history — v1.9.4
+- ✓ System prompt includes deduplication rule for fulfilled artifact requests — v1.9.4
+- ✓ save_artifact tool enforces single-call-per-request behavior — v1.9.4
+- ✓ Fulfilled artifact requests structurally removed from conversation context before reaching model — v1.9.4
+- ✓ Button-triggered artifact generation bypasses chat history (silent generation) — v1.9.4
+
 ### Active
 
-**v1.9.4 — Artifact Generation Deduplication** (in progress)
+**v2.0 — Search, Previews & Integrations** (planned)
 
-- [ ] Each artifact generation request produces exactly one artifact regardless of conversation history
-- [ ] System prompt includes deduplication rule for fulfilled artifact requests
-- [ ] save_artifact tool enforces single-call-per-request behavior
-- [ ] Fulfilled artifact requests structurally marked in conversation context before reaching model
-- [ ] Button-triggered artifact generation bypasses chat history (silent generation)
+- [ ] Global search across projects and threads
+- [ ] Thread preview text in list view
+- [ ] Thread mode indicator badges
+- [ ] JIRA integration for artifact export
+- [ ] Voice input for mobile meetings
 
 ### Deferred
 
@@ -269,5 +276,13 @@ BAs prepare for meetings by uploading existing requirements or stakeholder notes
 | Static show() for preview dialog | Consistent with ModeChangeDialog pattern; simplifies caller code | ✓ Implemented (Phase 38) |
 | Screen-level download (no service) | Simple 10-line operation; service would be over-engineering | ✓ Implemented (Phase 37) |
 
+| Deduplication rule at priority 2 | After one-question-at-a-time but before mode detection; artifact deduplication critical for all phases | ✓ Implemented (Phase 40) |
+| Tool results as completion evidence | ARTIFACT_CREATED marker from BUG-019 is dead code; tool results are reliable detection signal | ✓ Implemented (Phase 40) |
+| Escape hatch for regenerate/revise | Covers user intent to modify artifacts without overly broad catch-all that re-enables duplication | ✓ Implemented (Phase 40) |
+| 5-second correlation window | Wide enough to catch typical artifact creation latency, narrow enough to avoid false positives | ✓ Implemented (Phase 41) |
+| Filter fulfilled pairs BEFORE truncation | Ensures truncation works on already-filtered conversation for accurate token estimation | ✓ Implemented (Phase 41) |
+| generateArtifact() separate from sendMessage() | PITFALL-06: Prevents blank message bubbles, streaming UI conflicts, state machine interference | ✓ Implemented (Phase 42) |
+| State clears on ArtifactCreatedEvent | PITFALL-05: Artifact appears before stream ends; user sees result immediately | ✓ Implemented (Phase 42) |
+
 ---
-*Last updated: 2026-02-04 after v1.9.4 milestone start*
+*Last updated: 2026-02-05 after v1.9.4 milestone complete*

@@ -1,5 +1,34 @@
 # Project Milestones: Business Analyst Assistant
 
+## v1.9.4 Artifact Generation Deduplication (Shipped: 2026-02-05)
+
+**Delivered:** 4-layer defense-in-depth fix for artifact multiplication bug (BUG-016) — prompt engineering deduplication rule, tool description single-call enforcement, structural history filtering via timestamp correlation, and silent artifact generation that bypasses chat history entirely.
+
+**Phases completed:** 40-42 (5 plans total)
+
+**Key accomplishments:**
+
+- Added ARTIFACT DEDUPLICATION rule at priority 2 in SYSTEM_PROMPT with "ONLY act on MOST RECENT user message" and escape hatch for regenerate/revise
+- Enforced single-call behavior in SAVE_ARTIFACT_TOOL description — "Call this tool ONCE per user request"
+- Built _identify_fulfilled_pairs() with 5-second timestamp correlation to detect completed artifact requests
+- Implemented structural history filtering in build_conversation_context() — fulfilled pairs removed before model sees them
+- Created silent artifact generation backend mode — ChatRequest.artifact_generation flag gates conditional persistence and SSE suppression
+- Built separate generateArtifact() frontend code path with GeneratingIndicator and GenerationErrorState UI widgets
+
+**Stats:**
+
+- 67 files modified, +8,725 / -1,188 lines
+- ~86,400 LOC (74,766 Python + 11,652 Dart)
+- 3 phases, 5 plans
+- 35/35 requirements satisfied
+- 1 day from start to ship (2026-02-05)
+
+**Git range:** `7b6aca4` → `1451be1`
+
+**What's next:** v2.0 — Search, Previews & Integrations
+
+---
+
 ## v1.9.3 Document & Navigation Polish (Shipped: 2026-02-04)
 
 **Delivered:** Document workflow improvements with download capability and upload preview confirmation, plus full breadcrumb navigation context for threads and documents with proper URL routing.
@@ -256,4 +285,4 @@
 
 ---
 
-*Last updated: 2026-02-04 (v1.9.3 complete)*
+*Last updated: 2026-02-05 (v1.9.4 complete)*

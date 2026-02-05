@@ -92,9 +92,9 @@ Plans:
 **Plans:** 3 plans
 
 Plans:
-- [ ] 42-01-PLAN.md -- Backend: ChatRequest extension + conditional persistence + SSE event filtering
-- [ ] 42-02-PLAN.md -- Frontend: AIService parameter + ConversationProvider generateArtifact() method
-- [ ] 42-03-PLAN.md -- Frontend UI: GeneratingIndicator + GenerationErrorState widgets + screen integration
+- [x] 42-01-PLAN.md -- Backend: ChatRequest extension + conditional persistence + SSE event filtering
+- [x] 42-02-PLAN.md -- Frontend: AIService parameter + ConversationProvider generateArtifact() method
+- [x] 42-03-PLAN.md -- Frontend UI: GeneratingIndicator + GenerationErrorState widgets + screen integration
 
 ---
 
@@ -104,7 +104,7 @@ Plans:
 |-------|------|-------------|--------|
 | 40 | Prompt Engineering Fixes | 8 | Complete ✓ |
 | 41 | Structural History Filtering | 6 | Complete ✓ |
-| 42 | Silent Artifact Generation | 21 | In Progress |
+| 42 | Silent Artifact Generation | 21 | Complete ✓ |
 
 **Coverage:** 35/35 requirements mapped (100%)
 
@@ -120,4 +120,4 @@ Each phase is independently shippable -- if Phase 42 is delayed, Phases 40+41 al
 
 ---
 *Roadmap created: 2026-02-05*
-*Last updated: 2026-02-05 (Phase 41 complete)*
+*Last updated: 2026-02-05 (Phase 42 complete — v1.9.4 milestone complete)*

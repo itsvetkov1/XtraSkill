@@ -3,10 +3,11 @@
 // Do not manually edit this file.
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
-import 'dart:async' as _i5;
-import 'dart:ui' as _i7;
+import 'dart:async' as _i6;
+import 'dart:ui' as _i8;
 
-import 'package:flutter/material.dart' as _i6;
+import 'package:flutter/material.dart' as _i7;
+import 'package:frontend/models/artifact.dart' as _i5;
 import 'package:frontend/models/message.dart' as _i3;
 import 'package:frontend/providers/conversation_provider.dart' as _i2;
 import 'package:mockito/mockito.dart' as _i1;
@@ -93,6 +94,51 @@ class MockConversationProvider extends _i1.Mock
           as bool);
 
   @override
+  bool get hasPartialContent =>
+      (super.noSuchMethod(
+            Invocation.getter(#hasPartialContent),
+            returnValue: false,
+            returnValueForMissingStub: false,
+          )
+          as bool);
+
+  @override
+  List<_i5.Artifact> get artifacts =>
+      (super.noSuchMethod(
+            Invocation.getter(#artifacts),
+            returnValue: <_i5.Artifact>[],
+            returnValueForMissingStub: <_i5.Artifact>[],
+          )
+          as List<_i5.Artifact>);
+
+  @override
+  bool get isGeneratingArtifact =>
+      (super.noSuchMethod(
+            Invocation.getter(#isGeneratingArtifact),
+            returnValue: false,
+            returnValueForMissingStub: false,
+          )
+          as bool);
+
+  @override
+  bool get canRetryGeneration =>
+      (super.noSuchMethod(
+            Invocation.getter(#canRetryGeneration),
+            returnValue: false,
+            returnValueForMissingStub: false,
+          )
+          as bool);
+
+  @override
+  bool get lastOperationWasGeneration =>
+      (super.noSuchMethod(
+            Invocation.getter(#lastOperationWasGeneration),
+            returnValue: false,
+            returnValueForMissingStub: false,
+          )
+          as bool);
+
+  @override
   bool get hasListeners =>
       (super.noSuchMethod(
             Invocation.getter(#hasListeners),
@@ -102,22 +148,43 @@ class MockConversationProvider extends _i1.Mock
           as bool);
 
   @override
-  _i5.Future<void> loadThread(String? threadId) =>
+  _i6.Future<void> loadThread(String? threadId) =>
       (super.noSuchMethod(
             Invocation.method(#loadThread, [threadId]),
-            returnValue: _i5.Future<void>.value(),
-            returnValueForMissingStub: _i5.Future<void>.value(),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
           )
-          as _i5.Future<void>);
+          as _i6.Future<void>);
 
   @override
-  _i5.Future<void> sendMessage(String? content) =>
+  _i6.Future<void> sendMessage(String? content) =>
       (super.noSuchMethod(
             Invocation.method(#sendMessage, [content]),
-            returnValue: _i5.Future<void>.value(),
-            returnValueForMissingStub: _i5.Future<void>.value(),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
           )
-          as _i5.Future<void>);
+          as _i6.Future<void>);
+
+  @override
+  _i6.Future<void> generateArtifact(String? prompt, String? artifactType) =>
+      (super.noSuchMethod(
+            Invocation.method(#generateArtifact, [prompt, artifactType]),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
+          )
+          as _i6.Future<void>);
+
+  @override
+  void retryLastGeneration() => super.noSuchMethod(
+    Invocation.method(#retryLastGeneration, []),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  void cancelGeneration() => super.noSuchMethod(
+    Invocation.method(#cancelGeneration, []),
+    returnValueForMissingStub: null,
+  );
 
   @override
   void clearConversation() => super.noSuchMethod(
@@ -138,26 +205,35 @@ class MockConversationProvider extends _i1.Mock
   );
 
   @override
-  _i5.Future<void> deleteMessage(
-    _i6.BuildContext? context,
+  _i6.Future<void> deleteMessage(
+    _i7.BuildContext? context,
     String? threadId,
     String? messageId,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#deleteMessage, [context, threadId, messageId]),
-            returnValue: _i5.Future<void>.value(),
-            returnValueForMissingStub: _i5.Future<void>.value(),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
           )
-          as _i5.Future<void>);
+          as _i6.Future<void>);
 
   @override
-  _i5.Future<bool> associateWithProject(String? projectId) =>
+  _i6.Future<bool> associateWithProject(String? projectId) =>
       (super.noSuchMethod(
             Invocation.method(#associateWithProject, [projectId]),
-            returnValue: _i5.Future<bool>.value(false),
-            returnValueForMissingStub: _i5.Future<bool>.value(false),
+            returnValue: _i6.Future<bool>.value(false),
+            returnValueForMissingStub: _i6.Future<bool>.value(false),
           )
-          as _i5.Future<bool>);
+          as _i6.Future<bool>);
+
+  @override
+  _i6.Future<bool> updateMode(String? mode) =>
+      (super.noSuchMethod(
+            Invocation.method(#updateMode, [mode]),
+            returnValue: _i6.Future<bool>.value(false),
+            returnValueForMissingStub: _i6.Future<bool>.value(false),
+          )
+          as _i6.Future<bool>);
 
   @override
   void dispose() => super.noSuchMethod(
@@ -166,13 +242,13 @@ class MockConversationProvider extends _i1.Mock
   );
 
   @override
-  void addListener(_i7.VoidCallback? listener) => super.noSuchMethod(
+  void addListener(_i8.VoidCallback? listener) => super.noSuchMethod(
     Invocation.method(#addListener, [listener]),
     returnValueForMissingStub: null,
   );
 
   @override
-  void removeListener(_i7.VoidCallback? listener) => super.noSuchMethod(
+  void removeListener(_i8.VoidCallback? listener) => super.noSuchMethod(
     Invocation.method(#removeListener, [listener]),
     returnValueForMissingStub: null,
   );

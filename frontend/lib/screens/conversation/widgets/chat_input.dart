@@ -15,11 +15,15 @@ class ChatInput extends StatefulWidget {
   /// Whether input is enabled
   final bool enabled;
 
+  /// Whether artifact generation is in progress (for context-aware placeholder)
+  final bool isGenerating;
+
   const ChatInput({
     super.key,
     required this.onSend,
     this.onGenerateArtifact,
     this.enabled = true,
+    this.isGenerating = false,
   });
 
   @override
@@ -124,7 +128,9 @@ class _ChatInputState extends State<ChatInput> {
                 decoration: InputDecoration(
                   hintText: widget.enabled
                       ? 'Type a message...'
-                      : 'Waiting for response...',
+                      : (widget.isGenerating
+                          ? 'Generating artifact...'
+                          : 'Waiting for response...'),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(24),
                     borderSide: BorderSide.none,

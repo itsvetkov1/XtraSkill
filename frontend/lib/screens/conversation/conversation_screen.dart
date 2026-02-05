@@ -20,6 +20,8 @@ import 'widgets/artifact_card.dart';
 import 'widgets/artifact_type_picker.dart';
 import 'widgets/chat_input.dart';
 import 'widgets/error_state_message.dart';
+import 'widgets/generating_indicator.dart';
+import 'widgets/generation_error_state.dart';
 import 'widgets/message_bubble.dart';
 import 'widgets/budget_warning_banner.dart';
 import 'widgets/mode_badge.dart';
@@ -201,17 +203,20 @@ class _ConversationScreenState extends State<ConversationScreen> {
     if (selection != null && mounted) {
       final provider = context.read<ConversationProvider>();
 
-      // Build prompt based on selection type
+      // Build prompt and artifact type label
       String prompt;
+      String artifactType;
+
       if (selection.isCustom) {
-        // Custom prompt uses requirements_doc type via free-form message
         prompt = selection.customPrompt!;
+        artifactType = 'Artifact'; // Generic label for custom
       } else {
-        // Preset type generates standard prompt
         prompt = 'Generate ${selection.presetType!.displayName} from this conversation.';
+        artifactType = selection.presetType!.displayName;
       }
 
-      provider.sendMessage(prompt);
+      // Call generateArtifact (NOT sendMessage) for silent generation
+      provider.generateArtifact(prompt, artifactType);
     }
   }
 
@@ -255,8 +260,9 @@ class _ConversationScreenState extends State<ConversationScreen> {
         }
 
         // Determine if chat input should be enabled
-        // Disabled when streaming OR when budget is exhausted
+        // Disabled when streaming, generating artifact, OR when budget is exhausted
         final inputEnabled = !provider.isStreaming &&
+            !provider.isGeneratingArtifact &&
             budgetProvider.status != BudgetStatus.exhausted;
 
         return Scaffold(
@@ -309,7 +315,8 @@ class _ConversationScreenState extends State<ConversationScreen> {
               ),
 
               // Error banner with connection-specific message
-              if (provider.error != null)
+              // Hide for generation errors - those show in GenerationErrorState widget
+              if (provider.error != null && !provider.lastOperationWasGeneration)
                 MaterialBanner(
                   content: Text(
                     provider.hasPartialContent
@@ -351,7 +358,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
                 ],
               ),
 
-              // Chat input - disabled when streaming or budget exhausted
+              // Chat input - disabled when streaming, generating, or budget exhausted
               ChatInput(
                 onSend: (message) {
                   provider.sendMessage(message);
@@ -360,6 +367,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
                 },
                 onGenerateArtifact: _showArtifactTypePicker,
                 enabled: inputEnabled,
+                isGenerating: provider.isGeneratingArtifact,
               ),
             ],
           ),
@@ -371,7 +379,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
   Widget _buildMessageList(ConversationProvider provider) {
     final messages = provider.messages;
 
-    if (messages.isEmpty && !provider.isStreaming) {
+    if (messages.isEmpty && !provider.isStreaming && !provider.isGeneratingArtifact) {
       return SingleChildScrollView(
         child: Column(
           children: [
@@ -416,37 +424,37 @@ class _ConversationScreenState extends State<ConversationScreen> {
       );
     }
 
-    // Calculate extra item count for streaming or error state messages
-    final hasExtraItem = provider.isStreaming ||
-        (provider.hasPartialContent && !provider.isStreaming);
+    // Calculate extra items for streaming, error, and generation states
+    final hasStreamingItem = provider.isStreaming;
+    final hasPartialErrorItem = provider.hasPartialContent && !provider.isStreaming;
+    final hasGeneratingItem = provider.isGeneratingArtifact;
+    final hasGenerationError = provider.canRetryGeneration;
 
-    // Include artifacts in the list (rendered at the end, before streaming/error)
     final artifactCount = provider.artifacts.length;
+    final extraItemCount = (hasStreamingItem ? 1 : 0) +
+        (hasPartialErrorItem ? 1 : 0) +
+        (hasGeneratingItem ? 1 : 0) +
+        (hasGenerationError ? 1 : 0);
 
     return ListView.builder(
       controller: _scrollController,
       padding: const EdgeInsets.symmetric(vertical: 16),
-      itemCount: messages.length + artifactCount + (hasExtraItem ? 1 : 0),
+      itemCount: messages.length + artifactCount + extraItemCount,
       itemBuilder: (context, index) {
-        // Error state partial message at the end (when not streaming)
-        if (provider.hasPartialContent &&
-            !provider.isStreaming &&
-            index == messages.length + artifactCount) {
-          return ErrorStateMessage(
-            partialText: provider.streamingText,
+        // Regular messages
+        if (index < messages.length) {
+          final message = messages[index];
+          return GestureDetector(
+            onLongPress: () => _showMessageOptions(context, message),
+            child: MessageBubble(
+              message: message,
+              projectId: widget.projectId, // Pass for document navigation (SRC-03)
+            ),
           );
         }
 
-        // Streaming message at the end
-        if (provider.isStreaming && index == messages.length + artifactCount) {
-          return StreamingMessage(
-            text: provider.streamingText,
-            statusMessage: provider.statusMessage,
-          );
-        }
-
-        // Artifacts after messages (before streaming/error)
-        if (index >= messages.length && index < messages.length + artifactCount) {
+        // Artifacts (after messages)
+        if (index < messages.length + artifactCount) {
           final artifactIndex = index - messages.length;
           final artifact = provider.artifacts[artifactIndex];
           return ArtifactCard(
@@ -455,14 +463,56 @@ class _ConversationScreenState extends State<ConversationScreen> {
           );
         }
 
-        final message = messages[index];
-        return GestureDetector(
-          onLongPress: () => _showMessageOptions(context, message),
-          child: MessageBubble(
-            message: message,
-            projectId: widget.projectId, // Pass for document navigation (SRC-03)
-          ),
-        );
+        // Special states (after artifacts)
+        final specialIndex = index - messages.length - artifactCount;
+        int currentSpecialItem = 0;
+
+        // Generating indicator
+        if (hasGeneratingItem) {
+          if (specialIndex == currentSpecialItem) {
+            return GeneratingIndicator(
+              artifactType: provider.generatingArtifactType ?? 'Artifact',
+              onCancel: () {
+                provider.cancelGeneration();
+              },
+            );
+          }
+          currentSpecialItem++;
+        }
+
+        // Generation error state
+        if (hasGenerationError) {
+          if (specialIndex == currentSpecialItem) {
+            return GenerationErrorState(
+              onRetry: provider.retryLastGeneration,
+              onDismiss: provider.clearError,
+            );
+          }
+          currentSpecialItem++;
+        }
+
+        // Streaming message (existing)
+        if (hasStreamingItem) {
+          if (specialIndex == currentSpecialItem) {
+            return StreamingMessage(
+              text: provider.streamingText,
+              statusMessage: provider.statusMessage,
+            );
+          }
+          currentSpecialItem++;
+        }
+
+        // Error state partial message (existing)
+        if (hasPartialErrorItem) {
+          if (specialIndex == currentSpecialItem) {
+            return ErrorStateMessage(
+              partialText: provider.streamingText,
+            );
+          }
+          currentSpecialItem++;
+        }
+
+        return const SizedBox.shrink();
       },
     );
   }

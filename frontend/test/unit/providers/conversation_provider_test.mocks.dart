@@ -225,6 +225,25 @@ class MockThreadService extends _i1.Mock implements _i5.ThreadService {
           as _i4.Future<_i2.Thread>);
 
   @override
+  _i4.Future<_i2.Thread> updateThreadMode(String? threadId, String? mode) =>
+      (super.noSuchMethod(
+            Invocation.method(#updateThreadMode, [threadId, mode]),
+            returnValue: _i4.Future<_i2.Thread>.value(
+              _FakeThread_0(
+                this,
+                Invocation.method(#updateThreadMode, [threadId, mode]),
+              ),
+            ),
+            returnValueForMissingStub: _i4.Future<_i2.Thread>.value(
+              _FakeThread_0(
+                this,
+                Invocation.method(#updateThreadMode, [threadId, mode]),
+              ),
+            ),
+          )
+          as _i4.Future<_i2.Thread>);
+
+  @override
   _i4.Future<_i2.Thread> associateWithProject(
     String? threadId,
     String? projectId,

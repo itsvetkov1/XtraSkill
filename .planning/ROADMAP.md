@@ -89,6 +89,13 @@ Plans:
 
 **Research Flags:** Frontend state management for `generateArtifact()` needs careful design to avoid blank message bubbles (PITFALL-06). Must be a separate code path from `sendMessage()`.
 
+**Plans:** 3 plans
+
+Plans:
+- [ ] 42-01-PLAN.md -- Backend: ChatRequest extension + conditional persistence + SSE event filtering
+- [ ] 42-02-PLAN.md -- Frontend: AIService parameter + ConversationProvider generateArtifact() method
+- [ ] 42-03-PLAN.md -- Frontend UI: GeneratingIndicator + GenerationErrorState widgets + screen integration
+
 ---
 
 ## Progress
@@ -97,7 +104,7 @@ Plans:
 |-------|------|-------------|--------|
 | 40 | Prompt Engineering Fixes | 8 | Complete ✓ |
 | 41 | Structural History Filtering | 6 | Complete ✓ |
-| 42 | Silent Artifact Generation | 21 | Pending |
+| 42 | Silent Artifact Generation | 21 | In Progress |
 
 **Coverage:** 35/35 requirements mapped (100%)
 

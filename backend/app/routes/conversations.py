@@ -34,6 +34,7 @@ router = APIRouter()
 class ChatRequest(BaseModel):
     """Request model for chat message."""
     content: str = Field(..., min_length=1, max_length=32000)
+    artifact_generation: bool = Field(default=False)
 
 
 async def validate_thread_access(
@@ -122,8 +123,9 @@ async def stream_chat(
             detail="Monthly token budget exceeded. Please try again next month."
         )
 
-    # Save user message to database
-    await save_message(db, thread_id, "user", body.content)
+    # Save user message to database (skip for silent artifact generation)
+    if not body.artifact_generation:
+        await save_message(db, thread_id, "user", body.content)
 
     # Update thread activity timestamp
     from datetime import datetime
@@ -132,6 +134,16 @@ async def stream_chat(
 
     # Build conversation context from thread history
     conversation = await build_conversation_context(db, thread_id)
+
+    # Append ephemeral instruction for silent generation (in-memory only, NOT persisted)
+    if body.artifact_generation:
+        conversation.append({
+            "role": "user",
+            "content": f"{body.content}\n\n"
+                       "IMPORTANT: Generate the artifact silently. "
+                       "Do not include any conversational text. "
+                       "Only call the save_artifact tool and stop."
+        })
 
     # Use thread's bound provider (set at creation time)
     # This ensures consistency - conversations stay with their original provider
@@ -165,8 +177,12 @@ async def stream_chat(
                     yield event
                     continue
 
-                # Track accumulated text for saving
-                if event.get("event") == "text_delta":
+                # Suppress text_delta for silent artifact generation
+                if body.artifact_generation and event.get("event") == "text_delta":
+                    continue  # Skip yielding - frontend doesn't need text for silent mode
+
+                # Track accumulated text for saving (skip for silent mode)
+                if not body.artifact_generation and event.get("event") == "text_delta":
                     data = json.loads(event["data"])
                     accumulated_text += data.get("text", "")
 
@@ -178,8 +194,8 @@ async def stream_chat(
 
                 yield event
 
-            # Save assistant message after streaming completes
-            if accumulated_text:
+            # Save assistant message after streaming completes (skip for silent generation)
+            if accumulated_text and not body.artifact_generation:
                 await save_message(db, thread_id, "assistant", accumulated_text)
 
             # Track token usage
@@ -193,10 +209,15 @@ async def stream_chat(
                     f"/threads/{thread_id}/chat"
                 )
 
-            # Update thread summary if needed
-            await maybe_update_summary(db, thread_id, current_user["user_id"])
+            # Update thread summary (skip for silent generation - no new messages to summarize)
+            if not body.artifact_generation:
+                await maybe_update_summary(db, thread_id, current_user["user_id"])
 
         except Exception as e:
+            import logging
+            logger = logging.getLogger(__name__)
+            if body.artifact_generation:
+                logger.error(f"Silent artifact generation failed for thread {thread_id}: {e}")
             yield {
                 "event": "error",
                 "data": json.dumps({"message": str(e)})

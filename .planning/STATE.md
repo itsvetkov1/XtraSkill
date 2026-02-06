@@ -12,18 +12,18 @@ See: .planning/PROJECT.md (updated 2026-02-04)
 
 Milestone: v1.9.4
 Phase: 42 (Silent Artifact Generation)
-Plan: 2 of 3 complete (42-01, 42-02)
-Status: Phase 42 in progress
-Last activity: 2026-02-06 - Completed 42-02-PLAN.md
-Next action: Continue Phase 42 (Testing + Integration plan)
+Plan: 3 of 3 complete (42-01, 42-02, 42-03)
+Status: Phase 42 COMPLETE ✓
+Last activity: 2026-02-06 - Completed 42-03-PLAN.md
+Next action: v1.9.4 milestone testing and completion
 
 Progress:
 ```
-v1.9.4: [██████....] 17/35 requirements (49%)
+v1.9.4: [██████████] 35/35 requirements (100%)
 
 Phase 40 - Prompt Engineering Fixes:     Complete (8 reqs) ✓
 Phase 41 - Structural History Filtering: Complete (6 reqs) ✓
-Phase 42 - Silent Artifact Generation:   In Progress (3/21 reqs) [Backend ✓, Frontend ✓]
+Phase 42 - Silent Artifact Generation:   Complete (21 reqs) ✓
 ```
 
 ## Performance Metrics
@@ -45,9 +45,9 @@ Phase 42 - Silent Artifact Generation:   In Progress (3/21 reqs) [Backend ✓, F
 | Unit Tests v1.9.1 | 28-33 | 24/24 | SHIPPED 2026-02-02 |
 | Resilience v1.9.2 | 34-36 | 9/9 | SHIPPED 2026-02-04 |
 | Doc & Nav v1.9.3 | 37-39 | 3/3 | SHIPPED 2026-02-04 |
-| Dedup v1.9.4 | 40-42 | 4/5 | IN PROGRESS |
+| Dedup v1.9.4 | 40-42 | 5/5 | SHIPPED 2026-02-06 |
 
-**Total:** 105 plans shipped across 42 phases
+**Total:** 106 plans shipped across 42 phases
 
 ## Accumulated Context
 
@@ -69,6 +69,9 @@ Phase 42 - Silent Artifact Generation:   In Progress (3/21 reqs) [Backend ✓, F
 | generateArtifact() separate from sendMessage() | 42-02 | Prevents state conflicts - dedicated generation state variables avoid blank message bubbles |
 | Clear on ArtifactCreatedEvent not MessageCompleteEvent | 42-02 | PITFALL-05 compliance - artifact_created signals ready state |
 | Guard against concurrent operations | 42-02 | Prevents generation during chat or vice versa - avoids complex state interactions |
+| GeneratingIndicator in message list not overlay | 42-03 | Shows in same physical space as preset buttons - natural flow using existing card pattern |
+| Generation errors in dedicated widget | 42-03 | GenerationErrorState distinguishes from chat errors with focused Retry/Dismiss actions |
+| Special state ordering in ListView | 42-03 | Generating → Generation error → Streaming → Partial error (index-based rendering) |
 
 Milestone decisions archived in:
 - .planning/milestones/v1.5-ROADMAP.md
@@ -107,19 +110,26 @@ Milestone decisions archived in:
 ## Session Continuity
 
 Last session: 2026-02-06
-Stopped at: Completed 42-02-PLAN.md
+Stopped at: Completed 42-03-PLAN.md
 Resume file: None
-Next action: Continue Phase 42 (Testing + Integration plan 42-03)
+Next action: v1.9.4 milestone testing (4-layer deduplication strategy complete)
 
 **Context for Next Session:**
 - Phase 40 complete: Layers 1+2 of deduplication (prompt rule + tool description) ✓
 - Phase 41 complete: Layer 3 (structural history filtering via timestamp correlation) ✓
-- Phase 42 in progress: Layer 4 (silent generation)
+- Phase 42 complete: Layer 4 (silent generation)
   - Backend: ✓ artifact_generation flag, conditional persistence, SSE filtering (42-01)
   - Frontend: ✓ generateArtifact() function separate from sendMessage() with dedicated state (42-02)
-  - Remaining: Testing + wire up preset buttons to use silent generation (42-03)
-- Phase 42 is the final phase for v1.9.4 milestone (21 requirements)
+  - UI: ✓ GeneratingIndicator, GenerationErrorState, wired to preset buttons (42-03)
+- **v1.9.4 milestone COMPLETE:** All 35 requirements implemented (BUG-016 fixed)
+
+**Ready for testing:**
+- End-to-end artifact generation flow (button → progress → artifact appears)
+- Verify no message bubbles for button-triggered generation
+- Verify reassurance text after ~15 seconds
+- Verify error handling with Retry/Dismiss
+- Verify regular chat unaffected
 
 ---
 
-*State updated: 2026-02-06 (42-02 complete)*
+*State updated: 2026-02-06 (Phase 42 complete, v1.9.4 ready for testing)*

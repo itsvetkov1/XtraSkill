@@ -164,7 +164,7 @@ class ConversationProvider extends ChangeNotifier {
 
     _error = null;
     _lastFailedMessage = content;
-    _lastOperationWasGeneration = false; // Distinguish from generation errors
+    _lastOperationWasGeneration = false;  // Distinguish from generation errors
 
     // Add user message optimistically (will be confirmed by refresh)
     final userMessage = Message(

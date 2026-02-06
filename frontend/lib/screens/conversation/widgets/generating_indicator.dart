@@ -1,18 +1,15 @@
-/// Progress indicator for silent artifact generation.
+/// Widget displaying artifact generation progress.
 library;
 
 import 'dart:async';
 import 'package:flutter/material.dart';
 
-/// Progress indicator for silent artifact generation.
-///
-/// Shows indeterminate progress bar with typed label,
-/// optional cancel button, and reassurance text after delay.
+/// Displays progress indicator during artifact generation
 class GeneratingIndicator extends StatefulWidget {
-  /// Type of artifact being generated (for label: "Generating [type]...")
+  /// Type of artifact being generated (e.g., "User Stories")
   final String artifactType;
 
-  /// Callback when user cancels generation
+  /// Callback when cancel button tapped
   final VoidCallback? onCancel;
 
   /// Delay before showing reassurance text
@@ -64,17 +61,14 @@ class _GeneratingIndicatorState extends State<GeneratingIndicator> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Indeterminate progress bar
           ClipRRect(
             borderRadius: BorderRadius.circular(4),
             child: LinearProgressIndicator(
-              value: null, // Indeterminate
+              value: null,
               backgroundColor: theme.colorScheme.surfaceContainerHighest,
             ),
           ),
           const SizedBox(height: 12),
-
-          // Label row with cancel button
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -93,8 +87,6 @@ class _GeneratingIndicatorState extends State<GeneratingIndicator> {
                 ),
             ],
           ),
-
-          // Reassurance text (after delay)
           if (_showReassurance) ...[
             const SizedBox(height: 4),
             Text(

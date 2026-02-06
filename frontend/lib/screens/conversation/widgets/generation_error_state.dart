@@ -1,17 +1,14 @@
-/// Error state shown when silent artifact generation fails.
+/// Widget displaying artifact generation error state.
 library;
 
 import 'package:flutter/material.dart';
 
-/// Error state shown when silent artifact generation fails.
-///
-/// Shows generic user-friendly error message with Retry and Dismiss actions.
-/// No technical error details are shown (per CONTEXT.md decision).
+/// Displays friendly error message with retry and dismiss options
 class GenerationErrorState extends StatelessWidget {
-  /// Callback when user taps Retry
+  /// Callback when retry button tapped
   final VoidCallback onRetry;
 
-  /// Callback when user taps Dismiss
+  /// Callback when dismiss button tapped
   final VoidCallback onDismiss;
 
   const GenerationErrorState({
@@ -35,7 +32,6 @@ class GenerationErrorState extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Error icon + message
           Row(
             children: [
               Icon(
@@ -54,8 +50,6 @@ class GenerationErrorState extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 12),
-
-          // Action buttons
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [

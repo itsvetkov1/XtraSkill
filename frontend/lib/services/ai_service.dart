@@ -102,6 +102,7 @@ class AIService {
   /// Connects to SSE endpoint and yields chat events as they arrive.
   /// [threadId] - ID of the thread to chat in
   /// [message] - User message content
+  /// [artifactGeneration] - If true, request silent artifact generation (no text_delta events)
   ///
   /// Yields ChatEvent subclasses:
   /// - TextDeltaEvent: Incremental text
@@ -110,9 +111,9 @@ class AIService {
   /// - ErrorEvent: Error occurred
   Stream<ChatEvent> streamChat(
     String threadId,
-    String message,
-    {bool artifactGeneration = false}
-  ) async* {
+    String message, {
+    bool artifactGeneration = false,
+  }) async* {
     final token = await _storage.read(key: _tokenKey);
     if (token == null) {
       yield ErrorEvent(message: 'Not authenticated');

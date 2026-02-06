@@ -12,18 +12,18 @@ See: .planning/PROJECT.md (updated 2026-02-04)
 
 Milestone: v1.9.4
 Phase: 42 (Silent Artifact Generation)
-Plan: 1 of 3 in progress (42-01 complete)
+Plan: 2 of 3 complete (42-01, 42-02)
 Status: Phase 42 in progress
-Last activity: 2026-02-06 - Completed 42-01-PLAN.md
-Next action: Continue Phase 42 (Frontend + Testing plans)
+Last activity: 2026-02-06 - Completed 42-02-PLAN.md
+Next action: Continue Phase 42 (Testing + Integration plan)
 
 Progress:
 ```
-v1.9.4: [█████.....] 15/35 requirements (43%)
+v1.9.4: [██████....] 17/35 requirements (49%)
 
 Phase 40 - Prompt Engineering Fixes:     Complete (8 reqs) ✓
 Phase 41 - Structural History Filtering: Complete (6 reqs) ✓
-Phase 42 - Silent Artifact Generation:   In Progress (1/21 reqs) [Backend ✓]
+Phase 42 - Silent Artifact Generation:   In Progress (3/21 reqs) [Backend ✓, Frontend ✓]
 ```
 
 ## Performance Metrics
@@ -45,9 +45,9 @@ Phase 42 - Silent Artifact Generation:   In Progress (1/21 reqs) [Backend ✓]
 | Unit Tests v1.9.1 | 28-33 | 24/24 | SHIPPED 2026-02-02 |
 | Resilience v1.9.2 | 34-36 | 9/9 | SHIPPED 2026-02-04 |
 | Doc & Nav v1.9.3 | 37-39 | 3/3 | SHIPPED 2026-02-04 |
-| Dedup v1.9.4 | 40-42 | 3/3 | IN PROGRESS |
+| Dedup v1.9.4 | 40-42 | 4/5 | IN PROGRESS |
 
-**Total:** 104 plans shipped across 42 phases
+**Total:** 105 plans shipped across 42 phases
 
 ## Accumulated Context
 
@@ -66,6 +66,9 @@ Phase 42 - Silent Artifact Generation:   In Progress (1/21 reqs) [Backend ✓]
 | text_delta suppression in silent mode | 42-01 | Prevents frontend from displaying text while preserving control events |
 | Ephemeral instruction for silent generation | 42-01 | In-memory only instruction guides model without persisting to database |
 | Token tracking unconditional | 42-01 | Prevents ERR-04 (silent tokens not tracked) by always tracking regardless of mode |
+| generateArtifact() separate from sendMessage() | 42-02 | Prevents state conflicts - dedicated generation state variables avoid blank message bubbles |
+| Clear on ArtifactCreatedEvent not MessageCompleteEvent | 42-02 | PITFALL-05 compliance - artifact_created signals ready state |
+| Guard against concurrent operations | 42-02 | Prevents generation during chat or vice versa - avoids complex state interactions |
 
 Milestone decisions archived in:
 - .planning/milestones/v1.5-ROADMAP.md
@@ -104,20 +107,19 @@ Milestone decisions archived in:
 ## Session Continuity
 
 Last session: 2026-02-06
-Stopped at: Completed 42-01-PLAN.md
+Stopped at: Completed 42-02-PLAN.md
 Resume file: None
-Next action: Continue Phase 42 (Frontend silent generation + Testing)
+Next action: Continue Phase 42 (Testing + Integration plan 42-03)
 
 **Context for Next Session:**
 - Phase 40 complete: Layers 1+2 of deduplication (prompt rule + tool description) ✓
 - Phase 41 complete: Layer 3 (structural history filtering via timestamp correlation) ✓
 - Phase 42 in progress: Layer 4 (silent generation)
   - Backend: ✓ artifact_generation flag, conditional persistence, SSE filtering (42-01)
-  - Frontend: Needs `generateArtifact()` function separate from `sendMessage()` (PITFALL-06)
-  - Testing: Verify no messages saved when silent generation used
-  - Integration: Wire up preset buttons to use silent generation
+  - Frontend: ✓ generateArtifact() function separate from sendMessage() with dedicated state (42-02)
+  - Remaining: Testing + wire up preset buttons to use silent generation (42-03)
 - Phase 42 is the final phase for v1.9.4 milestone (21 requirements)
 
 ---
 
-*State updated: 2026-02-06 (42-01 complete)*
+*State updated: 2026-02-06 (42-02 complete)*

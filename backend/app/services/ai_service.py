@@ -10,6 +10,8 @@ import time
 from typing import AsyncGenerator, List, Dict, Any, Optional
 from app.services.document_search import search_documents
 from app.services.llm import LLMFactory, StreamChunk
+from app.services.logging_service import get_logging_service
+from app.middleware.logging_middleware import get_correlation_id
 from app.models import Artifact, ArtifactType
 
 
@@ -772,6 +774,25 @@ class AIService:
         - message_complete: Final message with usage stats
         - error: Error occurred
         """
+        logging_service = get_logging_service()
+        correlation_id = get_correlation_id()
+        stream_start_time = time.perf_counter()
+        sse_event_count = 0
+
+        # Log AI stream start
+        logging_service.log(
+            'INFO',
+            'AI stream started',
+            'ai',
+            correlation_id=correlation_id,
+            provider=self.adapter.provider_name if hasattr(self.adapter, 'provider_name') else 'unknown',
+            model=self.adapter.model if hasattr(self.adapter, 'model') else 'unknown',
+            message_count=len(messages),
+            project_id=project_id,
+            thread_id=thread_id,
+            event='ai_stream_start'
+        )
+
         try:
             while True:
                 accumulated_text = ""
@@ -787,6 +808,7 @@ class AIService:
                 ):
                     if chunk.chunk_type == "text":
                         accumulated_text += chunk.content
+                        sse_event_count += 1
                         yield {
                             "event": "text_delta",
                             "data": json.dumps({"text": chunk.content})
@@ -799,6 +821,18 @@ class AIService:
                         usage_data = chunk.usage
 
                     elif chunk.chunk_type == "error":
+                        # Log error with timing
+                        duration_ms = (time.perf_counter() - stream_start_time) * 1000
+                        logging_service.log(
+                            'ERROR',
+                            'AI stream error',
+                            'ai',
+                            correlation_id=correlation_id,
+                            provider=self.adapter.provider_name if hasattr(self.adapter, 'provider_name') else 'unknown',
+                            duration_ms=round(duration_ms, 2),
+                            error=chunk.error,
+                            event='ai_stream_error'
+                        )
                         yield {
                             "event": "error",
                             "data": json.dumps({"message": chunk.error})
@@ -807,6 +841,21 @@ class AIService:
 
                 # If no tool calls, we're done
                 if not tool_calls:
+                    # Log stream completion with token counts and timing
+                    duration_ms = (time.perf_counter() - stream_start_time) * 1000
+                    logging_service.log(
+                        'INFO',
+                        'AI stream complete',
+                        'ai',
+                        correlation_id=correlation_id,
+                        provider=self.adapter.provider_name if hasattr(self.adapter, 'provider_name') else 'unknown',
+                        model=self.adapter.model if hasattr(self.adapter, 'model') else 'unknown',
+                        sse_event_count=sse_event_count,
+                        duration_ms=round(duration_ms, 2),
+                        input_tokens=usage_data.get('input_tokens', 0) if usage_data else 0,
+                        output_tokens=usage_data.get('output_tokens', 0) if usage_data else 0,
+                        event='ai_stream_complete'
+                    )
                     yield {
                         "event": "message_complete",
                         "data": json.dumps({
@@ -852,6 +901,36 @@ class AIService:
                             "event": "artifact_created",
                             "data": json.dumps(event_data)
                         }
+                        # BUG-016 FIX: Exit loop immediately after artifact creation
+                        # Prevents infinite loop where model keeps generating artifacts
+                        # especially with Gemini/DeepSeek which may not respect
+                        # the "already complete" instruction in conversation history
+
+                        # Log stream completion with token counts and timing
+                        duration_ms = (time.perf_counter() - stream_start_time) * 1000
+                        logging_service.log(
+                            'INFO',
+                            'AI stream complete (artifact created)',
+                            'ai',
+                            correlation_id=correlation_id,
+                            provider=self.adapter.provider_name if hasattr(self.adapter, 'provider_name') else 'unknown',
+                            model=self.adapter.model if hasattr(self.adapter, 'model') else 'unknown',
+                            sse_event_count=sse_event_count,
+                            duration_ms=round(duration_ms, 2),
+                            input_tokens=usage_data.get('input_tokens', 0) if usage_data else 0,
+                            output_tokens=usage_data.get('output_tokens', 0) if usage_data else 0,
+                            tool_calls=len(tool_calls),
+                            event='ai_stream_complete'
+                        )
+
+                        yield {
+                            "event": "message_complete",
+                            "data": json.dumps({
+                                "content": accumulated_text,
+                                "usage": usage_data or {}
+                            })
+                        }
+                        return
 
                 # Build assistant message content for conversation history
                 # Need to reconstruct content blocks for Anthropic format
@@ -878,6 +957,19 @@ class AIService:
                     }
 
         except Exception as e:
+            # Log unexpected error with timing
+            duration_ms = (time.perf_counter() - stream_start_time) * 1000
+            logging_service.log(
+                'ERROR',
+                'AI stream unexpected error',
+                'ai',
+                correlation_id=correlation_id,
+                provider=self.adapter.provider_name if hasattr(self.adapter, 'provider_name') else 'unknown',
+                duration_ms=round(duration_ms, 2),
+                error=str(e),
+                error_type=type(e).__name__,
+                event='ai_stream_error'
+            )
             yield {
                 "event": "error",
                 "data": json.dumps({"message": f"Unexpected error: {str(e)}"})

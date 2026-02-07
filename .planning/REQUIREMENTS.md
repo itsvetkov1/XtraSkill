@@ -81,14 +81,14 @@ Which phases cover which requirements.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| LOG-01 | Phase 43 | Pending |
-| LOG-02 | Phase 43 | Pending |
-| LOG-03 | Phase 43 | Pending |
-| LOG-04 | Phase 43 | Pending |
+| LOG-01 | Phase 43 | Complete |
+| LOG-02 | Phase 43 | Complete |
+| LOG-03 | Phase 43 | Complete |
+| LOG-04 | Phase 43 | Complete |
 | LOG-05 | Phase 47 | Pending |
-| LOG-06 | Phase 43 | Pending |
+| LOG-06 | Phase 43 | Complete |
 | LOG-07 | Phase 44 | Pending |
-| LOG-08 | Phase 43 | Pending |
+| LOG-08 | Phase 43 | Complete |
 | FLOG-01 | Phase 45 | Pending |
 | FLOG-02 | Phase 45 | Pending |
 | FLOG-03 | Phase 46 | Pending |
@@ -97,17 +97,17 @@ Which phases cover which requirements.
 | FLOG-06 | Phase 45 | Pending |
 | FLOG-07 | Phase 45 | Pending |
 | FLOG-08 | Phase 48 | Pending |
-| BLOG-01 | Phase 43 | Pending |
-| BLOG-02 | Phase 43 | Pending |
-| BLOG-03 | Phase 43 | Pending |
-| BLOG-04 | Phase 43 | Pending |
-| BLOG-05 | Phase 43 | Pending |
-| BLOG-06 | Phase 43 | Pending |
-| BLOG-07 | Phase 43 | Pending |
-| BLOG-08 | Phase 43 | Pending |
+| BLOG-01 | Phase 43 | Complete |
+| BLOG-02 | Phase 43 | Complete |
+| BLOG-03 | Phase 43 | Complete |
+| BLOG-04 | Phase 43 | Complete |
+| BLOG-05 | Phase 43 | Complete |
+| BLOG-06 | Phase 43 | Complete |
+| BLOG-07 | Phase 43 | Complete |
+| BLOG-08 | Phase 43 | Complete |
 | SLOG-01 | Phase 47 | Pending |
-| SLOG-02 | Phase 43 | Pending |
-| SLOG-03 | Phase 43 | Pending |
+| SLOG-02 | Phase 43 | Complete |
+| SLOG-03 | Phase 43 | Complete |
 | SLOG-04 | Phase 45 | Pending |
 | SLOG-05 | Phase 48 | Pending |
 

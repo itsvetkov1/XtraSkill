@@ -10,8 +10,12 @@ from typing import Optional
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from jose import JWTError, jwt
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import settings
+from app.database import get_db
+from app.models import User
 
 # JWT configuration
 ALGORITHM = "HS256"
@@ -110,3 +114,45 @@ async def get_current_user(
         )
 
     return {"user_id": user_id, "email": email}
+
+
+async def get_admin_user(
+    user: dict = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> User:
+    """
+    FastAPI dependency to verify current user has admin privileges.
+
+    Usage:
+        @router.get("/admin/logs")
+        async def list_logs(admin: User = Depends(get_admin_user)):
+            # Only admins reach here
+
+    Args:
+        user: Current authenticated user dict from get_current_user
+        db: Database session
+
+    Returns:
+        User object with admin privileges
+
+    Raises:
+        HTTPException 403: If user lacks admin privileges
+        HTTPException 404: If user not found in database
+    """
+    stmt = select(User).where(User.id == user["user_id"])
+    result = await db.execute(stmt)
+    user_obj = result.scalar_one_or_none()
+
+    if not user_obj:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found"
+        )
+
+    if not user_obj.is_admin:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Admin privileges required"
+        )
+
+    return user_obj

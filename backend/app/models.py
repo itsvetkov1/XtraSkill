@@ -46,6 +46,13 @@ class User(Base):
     )
     oauth_id: Mapped[str] = mapped_column(String(255), unique=True, nullable=False, index=True)
 
+    # Admin role flag
+    is_admin: Mapped[bool] = mapped_column(
+        default=False,
+        nullable=False,
+        server_default="0"  # SQLite compatibility (boolean stored as integer)
+    )
+
     # User profile from OAuth provider
     display_name: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
 

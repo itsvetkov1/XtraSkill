@@ -8,6 +8,19 @@ A hybrid mobile and web application that augments business analysts during featu
 
 Business analysts reduce time spent on requirement documentation while improving completeness through AI-assisted discovery conversations that systematically explore edge cases and generate production-ready artifacts.
 
+## Current Milestone: v1.9.5 Pilot Logging Infrastructure
+
+**Goal:** Add comprehensive logging for AI-powered debugging during pilot testing
+
+**Target features:**
+- Settings toggle to enable/disable logging
+- Frontend logging (user actions, navigation, state changes, errors)
+- Backend logging (API calls, AI interactions, database operations, errors)
+- Structured JSON format with correlation IDs
+- Efficient file storage with 7-day rolling retention
+- Admin API endpoint for log download
+- Direct file access for bulk analysis
+
 ## Current State
 
 **Shipped:** v1.9.4 Artifact Generation Deduplication (2026-02-05)

@@ -87,7 +87,7 @@ Which phases cover which requirements.
 | LOG-04 | Phase 43 | Complete |
 | LOG-05 | Phase 47 | Pending |
 | LOG-06 | Phase 43 | Complete |
-| LOG-07 | Phase 44 | Pending |
+| LOG-07 | Phase 44 | Complete |
 | LOG-08 | Phase 43 | Complete |
 | FLOG-01 | Phase 45 | Pending |
 | FLOG-02 | Phase 45 | Pending |

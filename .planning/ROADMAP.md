@@ -15,7 +15,7 @@ This milestone adds comprehensive logging infrastructure for AI-powered debuggin
 - Decimal phases (43.1, 43.2): Urgent insertions (marked with INSERTED)
 
 - [x] **Phase 43: Backend Logging Foundation** - Core LoggingService with structlog, middleware, file rotation, config ✓
-- [ ] **Phase 44: Backend Admin API** - Log listing, download, and ingest endpoints
+- [x] **Phase 44: Backend Admin API** - Log listing, download, and ingest endpoints ✓
 - [ ] **Phase 45: Frontend Logging Foundation** - LoggingService, LoggingProvider, categories, buffering
 - [ ] **Phase 46: Frontend HTTP Integration** - Dio interceptor with correlation ID header
 - [ ] **Phase 47: Frontend Settings UI** - Logging toggle in Settings screen with persistence
@@ -51,7 +51,7 @@ Plans:
 **Plans**: 1 plan in 1 wave
 
 Plans:
-- [ ] 44-01-PLAN.md — Admin role + log endpoints (is_admin field, get_admin_user dependency, routes/logs.py)
+- [x] 44-01-PLAN.md — Admin role + log endpoints (is_admin field, get_admin_user dependency, routes/logs.py) ✓
 
 ### Phase 45: Frontend Logging Foundation
 **Goal**: Frontend captures user actions, navigation, and errors with session grouping
@@ -116,7 +116,7 @@ Phases execute in numeric order: 43 -> 44 -> 45 -> 46 -> 47 -> 48
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 43. Backend Logging Foundation | 3/3 | ✓ Complete | 2026-02-07 |
-| 44. Backend Admin API | 0/1 | Not started | - |
+| 44. Backend Admin API | 1/1 | ✓ Complete | 2026-02-08 |
 | 45. Frontend Logging Foundation | 0/TBD | Not started | - |
 | 46. Frontend HTTP Integration | 0/TBD | Not started | - |
 | 47. Frontend Settings UI | 0/TBD | Not started | - |

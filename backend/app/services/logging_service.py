@@ -14,13 +14,67 @@ Key features:
 import logging
 import logging.handlers
 import queue
+import re
 import sys
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional, Union
 
 import structlog
 from app.config import settings
+
+
+class LogSanitizer:
+    """
+    Sanitize sensitive data before logging to prevent credential leakage.
+
+    Redacts sensitive field names and recognizable patterns (API keys, tokens).
+    """
+
+    # Sensitive field names to redact (case-insensitive)
+    SENSITIVE_FIELDS = {
+        'password', 'token', 'api_key', 'secret', 'authorization',
+        'bearer', 'credential', 'private_key', 'access_token',
+        'refresh_token', 'anthropic_api_key', 'google_api_key',
+        'deepseek_api_key', 'fernet_key', 'secret_key'
+    }
+
+    # Sensitive patterns in strings (compiled regex)
+    SENSITIVE_PATTERNS = [
+        re.compile(r'sk-[a-zA-Z0-9]{20,}'),  # Anthropic API keys
+        re.compile(r'AIza[a-zA-Z0-9_-]{35}'),  # Google API keys
+        re.compile(r'Bearer\s+[a-zA-Z0-9._-]+'),  # Bearer tokens
+        re.compile(r'eyJ[a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+'),  # JWT tokens
+    ]
+
+    @classmethod
+    def sanitize(cls, data: Any) -> Any:
+        """
+        Recursively sanitize data structure by redacting sensitive fields and patterns.
+
+        Args:
+            data: Data to sanitize (dict, list, str, or primitive)
+
+        Returns:
+            Sanitized copy of data
+        """
+        if isinstance(data, dict):
+            return {
+                key: '[REDACTED]' if key.lower() in cls.SENSITIVE_FIELDS
+                else cls.sanitize(value)
+                for key, value in data.items()
+            }
+        elif isinstance(data, (list, tuple)):
+            return [cls.sanitize(item) for item in data]
+        elif isinstance(data, str):
+            # Check for sensitive patterns in string
+            sanitized = data
+            for pattern in cls.SENSITIVE_PATTERNS:
+                sanitized = pattern.sub('[REDACTED]', sanitized)
+            return sanitized
+        else:
+            # Primitives (int, float, bool, None) pass through
+            return data
 
 
 class LoggingService:
@@ -145,8 +199,11 @@ class LoggingService:
                 provider='google'
             )
         """
+        # Sanitize kwargs to prevent sensitive data leakage
+        sanitized_kwargs = LogSanitizer.sanitize(kwargs)
+
         log_method = getattr(self.logger, level.lower())
-        log_method(message, category=category, **kwargs)
+        log_method(message, category=category, **sanitized_kwargs)
 
     def shutdown(self) -> None:
         """

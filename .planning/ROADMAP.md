@@ -48,10 +48,10 @@ Plans:
   1. Admin can list available log files via GET /api/logs
   2. Admin can download log files via GET /api/logs/download
   3. Backend can receive frontend logs via POST /api/logs/ingest
-**Plans**: TBD
+**Plans**: 1 plan in 1 wave
 
 Plans:
-- [ ] 44-01: TBD
+- [ ] 44-01-PLAN.md — Admin role + log endpoints (is_admin field, get_admin_user dependency, routes/logs.py)
 
 ### Phase 45: Frontend Logging Foundation
 **Goal**: Frontend captures user actions, navigation, and errors with session grouping
@@ -116,7 +116,7 @@ Phases execute in numeric order: 43 -> 44 -> 45 -> 46 -> 47 -> 48
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 43. Backend Logging Foundation | 3/3 | ✓ Complete | 2026-02-07 |
-| 44. Backend Admin API | 0/TBD | Not started | - |
+| 44. Backend Admin API | 0/1 | Not started | - |
 | 45. Frontend Logging Foundation | 0/TBD | Not started | - |
 | 46. Frontend HTTP Integration | 0/TBD | Not started | - |
 | 47. Frontend Settings UI | 0/TBD | Not started | - |

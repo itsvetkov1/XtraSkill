@@ -1,6 +1,5 @@
 import 'dart:ui' show PlatformDispatcher;
 
-import 'package:flutter/foundation.dart' show kReleaseMode;
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -10,6 +9,8 @@ import 'package:intl/date_symbol_data_local.dart';
 
 import 'core/theme.dart';
 import 'utils/date_formatter.dart';
+import 'utils/logging_observer.dart';
+import 'services/logging_service.dart';
 import 'providers/auth_provider.dart';
 import 'providers/budget_provider.dart';
 import 'providers/conversation_provider.dart';
@@ -47,18 +48,22 @@ Future<void> main() async {
   final navigationProvider = await NavigationProvider.load(prefs);
   final providerProvider = await ProviderProvider.load(prefs);
 
-  // Global error handlers to prevent crashes
+  // Initialize logging service with connectivity monitoring
+  final loggingService = LoggingService();
+  loggingService.init();
+
+  // Global error handlers to prevent crashes and log errors
   FlutterError.onError = (FlutterErrorDetails details) {
-    FlutterError.presentError(details);
-    if (kReleaseMode) {
-      print('FlutterError: ${details.exception}');
-      print('StackTrace: ${details.stack}');
-    }
+    FlutterError.presentError(details); // Still show in console
+    loggingService.logError(
+      details.exception,
+      details.stack,
+      context: 'FlutterError: ${details.context}',
+    );
   };
 
   PlatformDispatcher.instance.onError = (error, stack) {
-    print('PlatformError: $error');
-    print('StackTrace: $stack');
+    loggingService.logError(error, stack, context: 'PlatformError');
     return true; // Mark error as handled
   };
 
@@ -169,6 +174,7 @@ class _MyAppState extends State<MyApp> {
 
     return GoRouter(
       initialLocation: '/splash',
+      observers: [LoggingNavigatorObserver()],
       redirect: (context, state) {
         final isAuthenticated = authProvider.isAuthenticated;
         final isLoading = authProvider.isLoading;

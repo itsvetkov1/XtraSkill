@@ -790,7 +790,7 @@ class AIService:
             message_count=len(messages),
             project_id=project_id,
             thread_id=thread_id,
-            event='ai_stream_start'
+            ai_event='stream_start'
         )
 
         try:
@@ -831,7 +831,7 @@ class AIService:
                             provider=self.adapter.provider_name if hasattr(self.adapter, 'provider_name') else 'unknown',
                             duration_ms=round(duration_ms, 2),
                             error=chunk.error,
-                            event='ai_stream_error'
+                            ai_event='stream_error'
                         )
                         yield {
                             "event": "error",
@@ -854,7 +854,7 @@ class AIService:
                         duration_ms=round(duration_ms, 2),
                         input_tokens=usage_data.get('input_tokens', 0) if usage_data else 0,
                         output_tokens=usage_data.get('output_tokens', 0) if usage_data else 0,
-                        event='ai_stream_complete'
+                        ai_event='stream_complete'
                     )
                     yield {
                         "event": "message_complete",
@@ -920,7 +920,7 @@ class AIService:
                             input_tokens=usage_data.get('input_tokens', 0) if usage_data else 0,
                             output_tokens=usage_data.get('output_tokens', 0) if usage_data else 0,
                             tool_calls=len(tool_calls),
-                            event='ai_stream_complete'
+                            ai_event='stream_complete'
                         )
 
                         yield {
@@ -968,7 +968,7 @@ class AIService:
                 duration_ms=round(duration_ms, 2),
                 error=str(e),
                 error_type=type(e).__name__,
-                event='ai_stream_error'
+                ai_event='stream_error'
             )
             yield {
                 "event": "error",

@@ -12,7 +12,9 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
 from app.database import close_db, init_db
+from app.middleware import LoggingMiddleware
 from app.routes import artifacts, auth, conversations, documents, projects, threads
+from app.services.logging_service import get_logging_service
 
 logger = logging.getLogger(__name__)
 
@@ -35,6 +37,11 @@ async def lifespan(app: FastAPI):
     # Shutdown: Cleanup
     await close_db()
     print("Database connection closed")
+
+    # Shutdown logging service
+    logging_service = get_logging_service()
+    logging_service.shutdown()
+    print("Logging service shutdown")
 
 
 # Validate configuration before starting
@@ -61,6 +68,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Configure logging middleware (after CORS to log all requests)
+app.add_middleware(LoggingMiddleware)
 
 # Register routers
 app.include_router(auth.router, prefix="/auth", tags=["Authentication"])

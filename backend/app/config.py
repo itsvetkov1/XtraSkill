@@ -5,6 +5,7 @@ Loads configuration from environment variables with validation.
 """
 
 import os
+from pathlib import Path
 from typing import List
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -50,6 +51,18 @@ class Settings(BaseSettings):
 
     # Skill configuration
     skill_path: str = ".claude/business-analyst"
+
+    # Logging configuration
+    log_dir: str = "logs"
+    log_level: str = "INFO"
+    log_rotation_days: int = 7
+
+    @property
+    def log_dir_path(self) -> Path:
+        """Return Path object for log directory relative to backend directory."""
+        # Get backend directory (parent of app/)
+        backend_dir = Path(__file__).parent.parent
+        return backend_dir / self.log_dir
 
     @property
     def cors_origins_list(self) -> List[str]:

@@ -2,26 +2,26 @@
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-02-06)
+See: .planning/PROJECT.md (updated 2026-02-07)
 
 **Core value:** Business analysts reduce time spent on requirement documentation while improving completeness through AI-assisted discovery conversations that systematically explore edge cases and generate production-ready artifacts.
 
-**Current focus:** v1.9.5 — Pilot Logging Infrastructure
+**Current focus:** v1.9.5 — Pilot Logging Infrastructure (Phase 43)
 
 ## Current Position
 
 Milestone: v1.9.5 Pilot Logging Infrastructure
-Phase: Not started (defining requirements)
-Plan: —
-Status: Defining requirements
-Last activity: 2026-02-07 — Milestone v1.9.5 started
+Phase: 43 of 48 (Backend Logging Foundation)
+Plan: — (phase not yet planned)
+Status: Ready to plan
+Last activity: 2026-02-07 — Roadmap created for v1.9.5
 
 Progress:
 ```
-v1.0-v1.9.4: [██████████] 42 phases, 106 plans, 10 milestones SHIPPED
+v1.0-v1.9.4: [##########] 42 phases, 106 plans, 10 milestones SHIPPED
 
-Current: v1.9.5 — Pilot Logging Infrastructure (defining requirements)
-Next: v2.0 — Search, Previews & Integrations (planned)
+v1.9.5:      [..........] 0/6 phases (0%)
+Next: Phase 43 — Backend Logging Foundation
 ```
 
 ## Performance Metrics
@@ -44,6 +44,7 @@ Next: v2.0 — Search, Previews & Integrations (planned)
 | Resilience v1.9.2 | 34-36 | 9/9 | SHIPPED 2026-02-04 |
 | Doc & Nav v1.9.3 | 37-39 | 3/3 | SHIPPED 2026-02-04 |
 | Dedup v1.9.4 | 40-42 | 5/5 | SHIPPED 2026-02-06 |
+| Logging v1.9.5 | 43-48 | 0/TBD | In progress |
 
 **Total:** 106 plans shipped across 42 phases
 
@@ -51,22 +52,19 @@ Next: v2.0 — Search, Previews & Integrations (planned)
 
 ### Decisions
 
-Milestone decisions archived in:
-- .planning/milestones/v1.5-ROADMAP.md
-- .planning/milestones/v1.6-ROADMAP.md
-- .planning/milestones/v1.7-ROADMAP.md
-- .planning/milestones/v1.8-ROADMAP.md
-- .planning/milestones/v1.9-ROADMAP.md
-- .planning/milestones/v1.9.1-ROADMAP.md
-- .planning/milestones/v1.9.2-ROADMAP.md
-- .planning/milestones/v1.9.3-ROADMAP.md
-- .planning/milestones/v1.9.4-ROADMAP.md
+Milestone decisions archived in .planning/milestones/
+
+Recent decisions for v1.9.5:
+- Backend as single source of truth (frontend logs sent to backend)
+- Structured JSON format for AI analysis compatibility
+- Correlation IDs via HTTP headers (X-Correlation-ID)
+- Async-safe logging with QueueHandler pattern
+- 7-day rolling retention
 
 ### Pending Todos
 
 - [ ] Configure CODECOV_TOKEN secret in GitHub repository
 - [ ] Link repository to Codecov dashboard
-- [ ] Manual testing of remaining features (see TESTING-QUEUE.md)
 
 ### Blockers/Concerns
 
@@ -75,18 +73,18 @@ Milestone decisions archived in:
 ## Session Continuity
 
 Last session: 2026-02-07
-Stopped at: Milestone v1.9.5 initialization
+Stopped at: Roadmap created for v1.9.5 milestone
 Resume file: None
-Next action: Define requirements for logging infrastructure
+Next action: `/gsd:plan-phase 43` to plan Backend Logging Foundation
 
 **Context for Next Session:**
 - 10 milestones shipped (v1.0 through v1.9.4)
 - 42 phases, 106 plans completed
 - ~86,400 LOC (74,766 Python + 11,652 Dart)
 - 1,098 tests (471 backend + 627 frontend)
-- v1.9.5 focus: comprehensive pilot logging with AI-powered analysis capability
-- v2.0 deferred: global search, thread previews, mode badges, JIRA integration, voice input
+- v1.9.5: 6 phases, 29 requirements for pilot logging infrastructure
+- Research complete with stack recommendations (structlog, asgi-correlation-id)
 
 ---
 
-*State updated: 2026-02-07 (v1.9.5 milestone started — Pilot Logging Infrastructure)*
+*State updated: 2026-02-07 (v1.9.5 roadmap created)*

@@ -12,22 +12,22 @@ See: .planning/PROJECT.md (updated 2026-02-07)
 
 Milestone: v1.9.5 Pilot Logging Infrastructure
 Phase: 43 of 48 (Backend Logging Foundation)
-Plan: — (phase not yet planned)
-Status: Ready to plan
-Last activity: 2026-02-07 — Roadmap created for v1.9.5
+Plan: 1 of 1 (plan 43-01 complete)
+Status: Phase complete, ready for Phase 44
+Last activity: 2026-02-07 — Completed 43-01-PLAN.md
 
 Progress:
 ```
 v1.0-v1.9.4: [##########] 42 phases, 106 plans, 10 milestones SHIPPED
 
-v1.9.5:      [..........] 0/6 phases (0%)
-Next: Phase 43 — Backend Logging Foundation
+v1.9.5:      [#.........] 1/6 phases (17%)
+Next: Phase 44 — Correlation ID Middleware
 ```
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 106 (across 10 milestones)
+- Total plans completed: 107 (across 10 milestones)
 - Average duration: ~1-18 minutes per plan
 
 **By Milestone:**
@@ -44,9 +44,9 @@ Next: Phase 43 — Backend Logging Foundation
 | Resilience v1.9.2 | 34-36 | 9/9 | SHIPPED 2026-02-04 |
 | Doc & Nav v1.9.3 | 37-39 | 3/3 | SHIPPED 2026-02-04 |
 | Dedup v1.9.4 | 40-42 | 5/5 | SHIPPED 2026-02-06 |
-| Logging v1.9.5 | 43-48 | 0/TBD | In progress |
+| Logging v1.9.5 | 43-48 | 1/TBD | In progress |
 
-**Total:** 106 plans shipped across 42 phases
+**Total:** 107 plans shipped across 43 phases
 
 ## Accumulated Context
 
@@ -58,8 +58,10 @@ Recent decisions for v1.9.5:
 - Backend as single source of truth (frontend logs sent to backend)
 - Structured JSON format for AI analysis compatibility
 - Correlation IDs via HTTP headers (X-Correlation-ID)
-- Async-safe logging with QueueHandler pattern
+- Async-safe logging with QueueHandler pattern (LOG-001: prevents event loop blocking)
 - 7-day rolling retention
+- structlog chosen for JSON output and processor chains (LOG-002)
+- TimedRotatingFileHandler for daily rotation (LOG-003)
 
 ### Pending Todos
 
@@ -73,18 +75,18 @@ Recent decisions for v1.9.5:
 ## Session Continuity
 
 Last session: 2026-02-07
-Stopped at: Roadmap created for v1.9.5 milestone
+Stopped at: Completed 43-01-PLAN.md
 Resume file: None
-Next action: `/gsd:plan-phase 43` to plan Backend Logging Foundation
+Next action: Plan Phase 44 (Correlation ID Middleware)
 
 **Context for Next Session:**
 - 10 milestones shipped (v1.0 through v1.9.4)
-- 42 phases, 106 plans completed
-- ~86,400 LOC (74,766 Python + 11,652 Dart)
-- 1,098 tests (471 backend + 627 frontend)
-- v1.9.5: 6 phases, 29 requirements for pilot logging infrastructure
-- Research complete with stack recommendations (structlog, asgi-correlation-id)
+- 43 phases, 107 plans completed
+- Phase 43 complete: LoggingService with async-safe JSON logging foundation in place
+- Ready for Phase 44: Can now add correlation ID middleware and request tracking
+- structlog 25.5.0 and asgi-correlation-id 4.3.0 installed
+- Config settings: log_dir, log_level, log_rotation_days available
 
 ---
 
-*State updated: 2026-02-07 (v1.9.5 roadmap created)*
+*State updated: 2026-02-07 (completed plan 43-01)*

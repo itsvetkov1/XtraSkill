@@ -10,6 +10,7 @@ import '../providers/auth_provider.dart';
 import '../providers/chats_provider.dart';
 import '../providers/project_provider.dart';
 import '../providers/provider_provider.dart';
+import '../services/logging_service.dart';
 import '../widgets/responsive_layout.dart';
 
 /// Home screen content shown in the navigation shell after authentication
@@ -30,6 +31,8 @@ class _HomeScreenState extends State<HomeScreen> {
     // Load projects after frame is built
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<ProjectProvider>().loadProjects();
+      // Log that home screen loaded (useful for debugging session flow)
+      LoggingService().logAction('home_screen_loaded');
     });
   }
 

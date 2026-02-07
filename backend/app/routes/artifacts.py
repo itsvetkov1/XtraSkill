@@ -85,7 +85,15 @@ async def list_thread_artifacts(
     result = await db.execute(stmt)
     thread = result.scalar_one_or_none()
 
-    if not thread or thread.project.user_id != current_user["user_id"]:
+    if not thread:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Thread not found"
+        )
+
+    # Check ownership: project-less threads use user_id, project threads use project.user_id
+    owner_id = thread.user_id if thread.project is None else thread.project.user_id
+    if owner_id != current_user["user_id"]:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Thread not found"
@@ -131,7 +139,16 @@ async def get_artifact(
     result = await db.execute(stmt)
     artifact = result.scalar_one_or_none()
 
-    if not artifact or artifact.thread.project.user_id != current_user["user_id"]:
+    if not artifact:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Artifact not found"
+        )
+
+    # Check ownership: project-less threads use user_id, project threads use project.user_id
+    thread = artifact.thread
+    owner_id = thread.user_id if thread.project is None else thread.project.user_id
+    if owner_id != current_user["user_id"]:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Artifact not found"
@@ -184,7 +201,10 @@ async def export_artifact(
     if not artifact:
         raise HTTPException(status_code=404, detail="Artifact not found")
 
-    if artifact.thread.project.user_id != current_user["user_id"]:
+    # Check ownership: project-less threads use user_id, project threads use project.user_id
+    thread = artifact.thread
+    owner_id = thread.user_id if thread.project is None else thread.project.user_id
+    if owner_id != current_user["user_id"]:
         raise HTTPException(status_code=404, detail="Artifact not found")
 
     # Generate export based on format

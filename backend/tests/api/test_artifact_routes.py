@@ -767,3 +767,208 @@ class TestExportArtifact:
         )
 
         assert response.status_code == 404
+
+
+class TestProjectlessThreadArtifacts:
+    """Tests for artifacts in project-less threads (threads with no project)."""
+
+    @pytest.mark.asyncio
+    async def test_list_artifacts_for_projectless_thread(self, client, db_session):
+        """Returns artifacts for a project-less thread owned by user."""
+        user = User(
+            id=str(uuid4()),
+            email="test@example.com",
+            oauth_provider=OAuthProvider.GOOGLE,
+            oauth_id="google_123",
+        )
+        db_session.add(user)
+        await db_session.commit()
+
+        # Create project-less thread (project_id=None, user_id set)
+        thread = Thread(
+            id=str(uuid4()),
+            project_id=None,
+            user_id=user.id,
+            title="Project-less Thread",
+            model_provider="anthropic",
+            last_activity_at=datetime.utcnow(),
+        )
+        db_session.add(thread)
+        await db_session.commit()
+
+        artifact = Artifact(
+            id=str(uuid4()),
+            thread_id=thread.id,
+            artifact_type=ArtifactType.USER_STORIES,
+            title="User Stories",
+            content_markdown="# Stories\n\nAs a user...",
+        )
+        db_session.add(artifact)
+        await db_session.commit()
+
+        token = create_access_token(user.id, user.email)
+
+        response = await client.get(
+            f"/api/threads/{thread.id}/artifacts",
+            headers={"Authorization": f"Bearer {token}"},
+        )
+
+        assert response.status_code == 200
+        data = response.json()
+        assert len(data) == 1
+        assert data[0]["title"] == "User Stories"
+
+    @pytest.mark.asyncio
+    async def test_get_artifact_from_projectless_thread(self, client, db_session):
+        """Returns artifact content from a project-less thread."""
+        user = User(
+            id=str(uuid4()),
+            email="test@example.com",
+            oauth_provider=OAuthProvider.GOOGLE,
+            oauth_id="google_123",
+        )
+        db_session.add(user)
+        await db_session.commit()
+
+        thread = Thread(
+            id=str(uuid4()),
+            project_id=None,
+            user_id=user.id,
+            title="Project-less Thread",
+            model_provider="anthropic",
+            last_activity_at=datetime.utcnow(),
+        )
+        db_session.add(thread)
+        await db_session.commit()
+
+        artifact = Artifact(
+            id=str(uuid4()),
+            thread_id=thread.id,
+            artifact_type=ArtifactType.BRD,
+            title="Business Requirements",
+            content_markdown="# BRD\n\n## Overview\n\nTest content.",
+        )
+        db_session.add(artifact)
+        await db_session.commit()
+
+        token = create_access_token(user.id, user.email)
+
+        response = await client.get(
+            f"/api/artifacts/{artifact.id}",
+            headers={"Authorization": f"Bearer {token}"},
+        )
+
+        assert response.status_code == 200
+        data = response.json()
+        assert data["title"] == "Business Requirements"
+        assert "content_markdown" in data
+        assert "# BRD" in data["content_markdown"]
+
+    @pytest.mark.asyncio
+    async def test_export_artifact_from_projectless_thread(self, client, db_session):
+        """Exports artifact from a project-less thread as markdown."""
+        user = User(
+            id=str(uuid4()),
+            email="test@example.com",
+            oauth_provider=OAuthProvider.GOOGLE,
+            oauth_id="google_123",
+        )
+        db_session.add(user)
+        await db_session.commit()
+
+        thread = Thread(
+            id=str(uuid4()),
+            project_id=None,
+            user_id=user.id,
+            title="Project-less Thread",
+            model_provider="anthropic",
+            last_activity_at=datetime.utcnow(),
+        )
+        db_session.add(thread)
+        await db_session.commit()
+
+        artifact = Artifact(
+            id=str(uuid4()),
+            thread_id=thread.id,
+            artifact_type=ArtifactType.BRD,
+            title="Exported BRD",
+            content_markdown="# Export Test\n\nContent here.",
+        )
+        db_session.add(artifact)
+        await db_session.commit()
+
+        token = create_access_token(user.id, user.email)
+
+        response = await client.get(
+            f"/api/artifacts/{artifact.id}/export/md",
+            headers={"Authorization": f"Bearer {token}"},
+        )
+
+        assert response.status_code == 200
+        assert response.headers["content-type"] == "text/markdown; charset=utf-8"
+        content = response.content.decode("utf-8")
+        assert "Export Test" in content
+
+    @pytest.mark.asyncio
+    async def test_404_projectless_thread_not_owned(self, client, db_session):
+        """Returns 404 when accessing artifact from another user's project-less thread."""
+        owner = User(
+            id=str(uuid4()),
+            email="owner@example.com",
+            oauth_provider=OAuthProvider.GOOGLE,
+            oauth_id="google_owner",
+        )
+        db_session.add(owner)
+        await db_session.commit()
+
+        thread = Thread(
+            id=str(uuid4()),
+            project_id=None,
+            user_id=owner.id,
+            title="Owner's Project-less Thread",
+            model_provider="anthropic",
+            last_activity_at=datetime.utcnow(),
+        )
+        db_session.add(thread)
+        await db_session.commit()
+
+        artifact = Artifact(
+            id=str(uuid4()),
+            thread_id=thread.id,
+            artifact_type=ArtifactType.BRD,
+            title="Private BRD",
+            content_markdown="Confidential content",
+        )
+        db_session.add(artifact)
+        await db_session.commit()
+
+        # Different user tries to access
+        other_user = User(
+            id=str(uuid4()),
+            email="other@example.com",
+            oauth_provider=OAuthProvider.GOOGLE,
+            oauth_id="google_other",
+        )
+        db_session.add(other_user)
+        await db_session.commit()
+
+        token = create_access_token(other_user.id, other_user.email)
+
+        # Test all three endpoints
+        list_response = await client.get(
+            f"/api/threads/{thread.id}/artifacts",
+            headers={"Authorization": f"Bearer {token}"},
+        )
+        assert list_response.status_code == 404
+
+        get_response = await client.get(
+            f"/api/artifacts/{artifact.id}",
+            headers={"Authorization": f"Bearer {token}"},
+        )
+        assert get_response.status_code == 404
+
+        export_response = await client.get(
+            f"/api/artifacts/{artifact.id}/export/md",
+            headers={"Authorization": f"Bearer {token}"},
+        )
+        assert export_response.status_code == 404

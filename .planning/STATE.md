@@ -6,29 +6,29 @@ See: .planning/PROJECT.md (updated 2026-02-07)
 
 **Core value:** Business analysts reduce time spent on requirement documentation while improving completeness through AI-assisted discovery conversations that systematically explore edge cases and generate production-ready artifacts.
 
-**Current focus:** v1.9.5 — Pilot Logging Infrastructure (Phase 44)
+**Current focus:** v1.9.5 — Pilot Logging Infrastructure (Phase 45)
 
 ## Current Position
 
 Milestone: v1.9.5 Pilot Logging Infrastructure
-Phase: 44 of 48 (Backend Admin API)
-Plan: 1 of 1 (plan 44-01 complete)
+Phase: 45 of 48 (Frontend Logging Foundation)
+Plan: 1 of 1 (plan 45-01 complete)
 Status: Phase complete, ready for next phase
-Last activity: 2026-02-08 — Completed 44-01-PLAN.md
+Last activity: 2026-02-08 — Completed 45-01-PLAN.md
 
 Progress:
 ```
 v1.0-v1.9.4: [##########] 42 phases, 106 plans, 10 milestones SHIPPED
 
-v1.9.5:      [##........] 2/6 phases (33%)
-Phase 44:    [##########] 1/1 plans complete
-Next: Plan Phase 45
+v1.9.5:      [###.......] 3/6 phases (50%)
+Phase 45:    [##########] 1/1 plans complete
+Next: Plan Phase 46
 ```
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 110 (across 10 milestones)
+- Total plans completed: 111 (across 10 milestones)
 - Average duration: ~1-18 minutes per plan
 
 **By Milestone:**
@@ -45,9 +45,9 @@ Next: Plan Phase 45
 | Resilience v1.9.2 | 34-36 | 9/9 | SHIPPED 2026-02-04 |
 | Doc & Nav v1.9.3 | 37-39 | 3/3 | SHIPPED 2026-02-04 |
 | Dedup v1.9.4 | 40-42 | 5/5 | SHIPPED 2026-02-06 |
-| Logging v1.9.5 | 43-48 | 4/TBD | In progress |
+| Logging v1.9.5 | 43-48 | 5/TBD | In progress |
 
-**Total:** 110 plans shipped across 44 phases
+**Total:** 111 plans shipped across 45 phases
 
 ## Accumulated Context
 
@@ -74,6 +74,12 @@ Recent decisions for v1.9.5:
 - Frontend logs to same file with [FRONTEND] prefix (LOG-012: simpler than separate files)
 - Path traversal protection via pathlib.resolve() + is_relative_to() (LOG-013)
 - Pydantic max_length=1000 on log batches (LOG-014: prevent memory exhaustion)
+- Use logger package with ProductionFilter for console output in release mode (LOG-015)
+- Buffer size limited to 1000 entries (SLOG-04) with auto-trim on overflow (LOG-016)
+- Session ID generated once per app lifecycle using UUID v4 (LOG-017)
+- All log entries include timestamp, level, message, category, session_id fields (LOG-018)
+- NavigatorObserver logs didPush, didPop, didReplace events (LOG-019)
+- FlutterError.onError and PlatformDispatcher.onError wired to LoggingService (LOG-020)
 
 ### Pending Todos
 
@@ -87,25 +93,28 @@ Recent decisions for v1.9.5:
 ## Session Continuity
 
 Last session: 2026-02-08
-Stopped at: Completed 44-01-PLAN.md
+Stopped at: Completed 45-01-PLAN.md
 Resume file: None
-Next action: `/gsd:discuss-phase 45` or `/gsd:plan-phase 45` for next logging phase
+Next action: `/gsd:discuss-phase 46` or `/gsd:plan-phase 46` for next logging phase
 
 **Context for Next Session:**
 - 10 milestones shipped (v1.0 through v1.9.4)
-- 44 phases, 110 plans completed
-- Phase 44 COMPLETE: Backend Admin API
-  - Plan 44-01: Admin log management with role-based access
-    - GET /api/logs lists available log files (admin only)
-    - GET /api/logs/download serves files securely (admin only)
-    - POST /api/logs/ingest accepts frontend logs (authenticated users)
-    - User.is_admin field for admin role enforcement
-    - Path traversal protection via validate_log_file_path()
-- Admin endpoints require manual is_admin=1 database setup (pilot acceptable)
-- Frontend logs written to same file with [FRONTEND] prefix
-- Log file streaming via FileResponse (efficient, no memory bloat)
-- Ready for Phase 45: Frontend log viewer or additional logging features
+- 45 phases, 111 plans completed
+- Phase 45 COMPLETE: Frontend Logging Foundation
+  - Plan 45-01: Frontend logging infrastructure
+    - LoggingService singleton with in-memory buffer (max 1000 entries)
+    - SessionService singleton with UUID v4 session IDs
+    - NavigatorObserver for go_router route tracking
+    - Error handlers (FlutterError.onError, PlatformDispatcher.onError) wired to LoggingService
+    - Network state change monitoring via connectivity_plus
+    - Dependencies added: logger@2.6.2, uuid@4.5.2, connectivity_plus@6.1.5
+    - Log methods: logNavigation, logAction, logError, logNetworkStateChange
+    - All logs include timestamp, level, message, category, session_id
+    - Buffer auto-trims at max size (1000 entries)
+- Frontend logs buffered in memory, ready for transmission to backend (Phase 46)
+- Session ID generated once per app lifecycle, included in all logs
+- Ready for Phase 46: Frontend log transmission to backend /api/logs/ingest
 
 ---
 
-*State updated: 2026-02-08 (completed plan 44-01)*
+*State updated: 2026-02-08 (completed plan 45-01)*

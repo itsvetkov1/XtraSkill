@@ -6,6 +6,9 @@ Uses async SQLAlchemy for non-blocking database operations with FastAPI.
 """
 
 import os
+import re
+import time
+from contextvars import ContextVar
 from typing import AsyncGenerator
 
 from sqlalchemy import event, text
@@ -13,6 +16,12 @@ from sqlalchemy.engine import Engine
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
 from app.models import Base
+from app.services.logging_service import get_logging_service
+from app.middleware.logging_middleware import get_correlation_id
+
+
+# Context variable for query timing (async-safe, query-scoped)
+_query_start_time: ContextVar[float] = ContextVar('query_start_time', default=0.0)
 
 
 @event.listens_for(Engine, "connect")
@@ -53,6 +62,69 @@ AsyncSessionLocal = async_sessionmaker(
     autocommit=False,
     autoflush=False,
 )
+
+
+# Database operation logging event listeners
+@event.listens_for(Engine, "before_cursor_execute")
+def before_cursor_execute(conn, cursor, statement, parameters, context, executemany):
+    """Record query start time before execution."""
+    _query_start_time.set(time.perf_counter())
+
+
+@event.listens_for(Engine, "after_cursor_execute")
+def after_cursor_execute(conn, cursor, statement, parameters, context, executemany):
+    """
+    Log database operation after execution with timing.
+
+    Logs at DEBUG level to avoid excessive volume in production.
+    Skips PRAGMA statements (SQLite metadata queries) to reduce noise.
+    """
+    # Calculate query duration
+    start_time = _query_start_time.get()
+    duration_ms = (time.perf_counter() - start_time) * 1000 if start_time else 0
+
+    # Skip PRAGMA statements (SQLite metadata)
+    if statement.strip().upper().startswith('PRAGMA'):
+        return
+
+    # Extract table name and operation type from SQL
+    statement_upper = statement.strip().upper()
+    operation = 'UNKNOWN'
+    table = 'unknown'
+
+    # Parse operation type
+    if statement_upper.startswith('SELECT'):
+        operation = 'SELECT'
+    elif statement_upper.startswith('INSERT'):
+        operation = 'INSERT'
+    elif statement_upper.startswith('UPDATE'):
+        operation = 'UPDATE'
+    elif statement_upper.startswith('DELETE'):
+        operation = 'DELETE'
+
+    # Extract table name using regex (basic pattern)
+    # Matches: FROM/INTO/UPDATE <table_name>
+    table_match = re.search(
+        r'(?:FROM|INTO|UPDATE)\s+([a-zA-Z_][a-zA-Z0-9_]*)',
+        statement_upper
+    )
+    if table_match:
+        table = table_match.group(1).lower()
+
+    # Log database operation
+    logging_service = get_logging_service()
+    correlation_id = get_correlation_id()
+
+    logging_service.log(
+        'DEBUG',
+        f'DB {operation} {table}',
+        'db',
+        correlation_id=correlation_id,
+        operation=operation,
+        table=table,
+        duration_ms=round(duration_ms, 2),
+        db_event='query'
+    )
 
 
 async def get_db() -> AsyncGenerator[AsyncSession, None]:

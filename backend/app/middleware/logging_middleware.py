@@ -115,7 +115,7 @@ class LoggingMiddleware(BaseHTTPMiddleware):
             path=str(request.url.path),
             query_params=dict(request.query_params),
             user_id=user_id,
-            event='request_start'
+            http_event='request_start'
         )
 
         # Process request
@@ -143,7 +143,7 @@ class LoggingMiddleware(BaseHTTPMiddleware):
             status_code=response.status_code,
             duration_ms=round(duration_ms, 2),
             user_id=user_id,
-            event='request_complete'
+            http_event='request_complete'
         )
 
         # Add correlation ID to response headers

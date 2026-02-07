@@ -12,23 +12,23 @@ See: .planning/PROJECT.md (updated 2026-02-07)
 
 Milestone: v1.9.5 Pilot Logging Infrastructure
 Phase: 43 of 48 (Backend Logging Foundation)
-Plan: 2 of 2 (plan 43-02 complete)
+Plan: 3 of 3 (plan 43-03 complete)
 Status: Phase complete, ready for next phase
-Last activity: 2026-02-07 — Completed 43-02-PLAN.md
+Last activity: 2026-02-07 — Completed 43-03-PLAN.md
 
 Progress:
 ```
 v1.0-v1.9.4: [##########] 42 phases, 106 plans, 10 milestones SHIPPED
 
 v1.9.5:      [#.........] 1/6 phases (17%)
-Phase 43:    [##########] 2/2 plans complete
+Phase 43:    [##########] 3/3 plans complete
 Next: Plan Phase 44
 ```
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 108 (across 10 milestones)
+- Total plans completed: 109 (across 10 milestones)
 - Average duration: ~1-18 minutes per plan
 
 **By Milestone:**
@@ -45,9 +45,9 @@ Next: Plan Phase 44
 | Resilience v1.9.2 | 34-36 | 9/9 | SHIPPED 2026-02-04 |
 | Doc & Nav v1.9.3 | 37-39 | 3/3 | SHIPPED 2026-02-04 |
 | Dedup v1.9.4 | 40-42 | 5/5 | SHIPPED 2026-02-06 |
-| Logging v1.9.5 | 43-48 | 2/TBD | In progress |
+| Logging v1.9.5 | 43-48 | 3/TBD | In progress |
 
-**Total:** 108 plans shipped across 43 phases
+**Total:** 109 plans shipped across 43 phases
 
 ## Accumulated Context
 
@@ -66,6 +66,10 @@ Recent decisions for v1.9.5:
 - contextvars for correlation ID storage (LOG-004: async-safe, request-scoped)
 - UUID v4 for generated correlation IDs (LOG-005: globally unique)
 - Log level varies by status code: INFO for success, WARNING for 4xx, ERROR for 5xx (LOG-006)
+- LogSanitizer for credential redaction (LOG-007: centralized in log() method)
+- Database logging at DEBUG level (LOG-008: avoid excessive volume)
+- Skip PRAGMA statements in DB logging (LOG-009: reduce noise)
+- Service-specific event field names (LOG-010: http_event, ai_event, db_event to avoid structlog conflict)
 
 ### Pending Todos
 
@@ -79,19 +83,23 @@ Recent decisions for v1.9.5:
 ## Session Continuity
 
 Last session: 2026-02-07
-Stopped at: Completed 43-02-PLAN.md
+Stopped at: Completed 43-03-PLAN.md
 Resume file: None
 Next action: Plan next phase in v1.9.5 milestone
 
 **Context for Next Session:**
 - 10 milestones shipped (v1.0 through v1.9.4)
-- 43 phases, 108 plans completed
-- Phase 43 COMPLETE: Backend Logging Foundation with LoggingService and LoggingMiddleware
-- HTTP requests now logged with correlation IDs, timing, and structured JSON
-- Correlation ID accessible via get_correlation_id() from any request context
-- X-Correlation-ID header support for frontend/backend log correlation
-- Ready for service-level logging integration (ai_service, auth, database)
+- 43 phases, 109 plans completed
+- Phase 43 COMPLETE: Backend Logging Foundation
+  - Plan 43-01: Async-safe JSON logging with QueueHandler
+  - Plan 43-02: HTTP request/response logging with correlation IDs
+  - Plan 43-03: AI service, database, and sensitive data logging
+- LogSanitizer prevents credential leakage (P-04)
+- AI streams logged with provider, model, token counts, timing
+- Database queries logged with table, operation, duration at DEBUG level
+- All service logs include correlation IDs for request tracing
+- Ready for Phase 44: Additional service logging or log aggregation
 
 ---
 
-*State updated: 2026-02-07 (completed plan 43-02)*
+*State updated: 2026-02-07 (completed plan 43-03)*

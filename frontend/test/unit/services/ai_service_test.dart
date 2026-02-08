@@ -62,10 +62,9 @@ void main() {
     group('deleteMessage', () {
       test('makes DELETE request to correct endpoint', () async {
         setupAuth();
-        // Match the URL pattern used in ai_service.dart: $apiBaseUrl/api/threads/$threadId/messages/$messageId
-        // apiBaseUrl defaults to http://localhost:8000
+        // AIService now uses relative paths via ApiClient
         when(mockDio.delete(
-          'http://localhost:8000/api/threads/thread-1/messages/msg-1',
+          '/api/threads/thread-1/messages/msg-1',
           options: anyNamed('options'),
         )).thenAnswer((_) async => Response(
               statusCode: 204,
@@ -75,7 +74,7 @@ void main() {
         await service.deleteMessage('thread-1', 'msg-1');
 
         verify(mockDio.delete(
-          'http://localhost:8000/api/threads/thread-1/messages/msg-1',
+          '/api/threads/thread-1/messages/msg-1',
           options: anyNamed('options'),
         )).called(1);
       });

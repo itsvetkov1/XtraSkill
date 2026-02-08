@@ -1,6 +1,8 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+
 import '../models/document.dart';
+import 'api_client.dart';
 
 /// Service for document-related API calls.
 ///
@@ -12,15 +14,10 @@ class DocumentService {
   /// Secure storage for JWT tokens
   final FlutterSecureStorage _storage;
 
-  /// Backend API base URL
-  final String _baseUrl;
-
   DocumentService({
-    String? baseUrl,
     Dio? dio,
     FlutterSecureStorage? storage,
-  })  : _baseUrl = baseUrl ?? 'http://localhost:8000',
-        _dio = dio ?? Dio(),
+  })  : _dio = dio ?? ApiClient().dio,
         _storage = storage ?? const FlutterSecureStorage();
 
   /// Storage key for JWT token
@@ -56,7 +53,7 @@ class DocumentService {
     });
 
     final response = await _dio.post(
-      '$_baseUrl/api/projects/$projectId/documents',
+      '/api/projects/$projectId/documents',
       data: formData,
       options: await _getAuthHeaders(),
       onSendProgress: onSendProgress,
@@ -69,7 +66,9 @@ class DocumentService {
   ///
   /// Returns metadata only (no content).
   Future<List<Document>> getDocuments(String projectId) async {
-    final response = await _dio.get('/projects/$projectId/documents');
+    final response = await _dio.get('/api/projects/$projectId/documents',
+      options: await _getAuthHeaders(),
+    );
     return (response.data as List)
         .map((json) => Document.fromJson(json))
         .toList();
@@ -79,7 +78,7 @@ class DocumentService {
   ///
   /// Returns full document with decrypted content.
   Future<Document> getDocumentContent(String documentId) async {
-    final response = await _dio.get('/documents/$documentId',
+    final response = await _dio.get('/api/documents/$documentId',
       options: await _getAuthHeaders(),
     );
     return Document.fromJson(response.data);
@@ -96,8 +95,9 @@ class DocumentService {
     String query,
   ) async {
     final response = await _dio.get(
-      '/projects/$projectId/documents/search',
+      '/api/projects/$projectId/documents/search',
       queryParameters: {'q': query},
+      options: await _getAuthHeaders(),
     );
 
     return (response.data as List)
@@ -112,7 +112,7 @@ class DocumentService {
     try {
       final options = await _getAuthHeaders();
       await _dio.delete(
-        '$_baseUrl/api/documents/$id',
+        '/api/documents/$id',
         options: options,
       );
     } on DioException catch (e) {

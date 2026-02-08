@@ -5,6 +5,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import '../models/project.dart';
+import 'api_client.dart';
 
 /// Service for project API operations
 class ProjectService {
@@ -14,15 +15,10 @@ class ProjectService {
   /// Secure storage for JWT tokens
   final FlutterSecureStorage _storage;
 
-  /// Backend API base URL
-  final String _baseUrl;
-
   ProjectService({
-    String? baseUrl,
     Dio? dio,
     FlutterSecureStorage? storage,
-  })  : _baseUrl = baseUrl ?? 'http://localhost:8000',
-        _dio = dio ?? Dio(),
+  })  : _dio = dio ?? ApiClient().dio,
         _storage = storage ?? const FlutterSecureStorage();
 
   /// Storage key for JWT token
@@ -48,7 +44,7 @@ class ProjectService {
     try {
       final headers = await _getHeaders();
       final response = await _dio.get(
-        '$_baseUrl/api/projects',
+        '/api/projects',
         options: Options(headers: headers),
       );
 
@@ -74,7 +70,7 @@ class ProjectService {
     try {
       final headers = await _getHeaders();
       final response = await _dio.post(
-        '$_baseUrl/api/projects',
+        '/api/projects',
         data: {
           'name': name,
           'description': description,
@@ -104,7 +100,7 @@ class ProjectService {
     try {
       final headers = await _getHeaders();
       final response = await _dio.get(
-        '$_baseUrl/api/projects/$id',
+        '/api/projects/$id',
         options: Options(headers: headers),
       );
 
@@ -136,7 +132,7 @@ class ProjectService {
     try {
       final headers = await _getHeaders();
       final response = await _dio.put(
-        '$_baseUrl/api/projects/$id',
+        '/api/projects/$id',
         data: {
           'name': name,
           'description': description,
@@ -165,7 +161,7 @@ class ProjectService {
     try {
       final headers = await _getHeaders();
       await _dio.delete(
-        '$_baseUrl/api/projects/$id',
+        '/api/projects/$id',
         options: Options(headers: headers),
       );
     } on DioException catch (e) {

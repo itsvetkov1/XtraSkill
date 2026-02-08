@@ -7,6 +7,8 @@ import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import 'api_client.dart';
+
 /// Authentication service handling OAuth flows and token management
 class AuthService {
   /// HTTP client for API requests
@@ -15,15 +17,10 @@ class AuthService {
   /// Secure storage for JWT tokens
   final FlutterSecureStorage _storage;
 
-  /// Backend API base URL
-  final String _baseUrl;
-
   AuthService({
-    String? baseUrl,
     Dio? dio,
     FlutterSecureStorage? storage,
-  })  : _baseUrl = baseUrl ?? 'http://localhost:8000',
-        _dio = dio ?? Dio(),
+  })  : _dio = dio ?? ApiClient().dio,
         _storage = storage ?? const FlutterSecureStorage();
 
   /// Storage key for JWT token
@@ -56,7 +53,7 @@ class AuthService {
     try {
       // Step 1: Get authorization URL from backend
       final response = await _dio.post(
-        '$_baseUrl/auth/$provider/initiate',
+        '/auth/$provider/initiate',
       );
 
       final authUrl = response.data['auth_url'] as String;
@@ -142,7 +139,7 @@ class AuthService {
 
     try {
       final response = await _dio.get(
-        '$_baseUrl/auth/me',
+        '/auth/me',
         options: Options(
           headers: {
             'Authorization': 'Bearer $token',
@@ -168,7 +165,7 @@ class AuthService {
 
     try {
       final response = await _dio.get(
-        '$_baseUrl/auth/usage',
+        '/auth/usage',
         options: Options(
           headers: {
             'Authorization': 'Bearer $token',
@@ -192,7 +189,7 @@ class AuthService {
 
     // Optional: Call backend logout endpoint
     try {
-      await _dio.post('$_baseUrl/auth/logout');
+      await _dio.post('/auth/logout');
     } catch (e) {
       // Ignore backend errors - token already deleted locally
     }

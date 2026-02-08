@@ -7,8 +7,8 @@ import 'package:dio/dio.dart';
 import 'package:file_saver/file_saver.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
-import '../core/config.dart';
 import '../models/artifact.dart';
+import 'api_client.dart';
 
 /// Service for artifact API operations
 class ArtifactService {
@@ -17,7 +17,7 @@ class ArtifactService {
   static const String _tokenKey = 'auth_token';
 
   ArtifactService({Dio? dio, FlutterSecureStorage? storage})
-      : _dio = dio ?? Dio(),
+      : _dio = dio ?? ApiClient().dio,
         _storage = storage ?? const FlutterSecureStorage();
 
   Future<Map<String, String>> _getHeaders() async {
@@ -36,7 +36,7 @@ class ArtifactService {
     try {
       final headers = await _getHeaders();
       final response = await _dio.get(
-        '$apiBaseUrl/api/artifacts/$artifactId',
+        '/api/artifacts/$artifactId',
         options: Options(headers: headers),
       );
       return Artifact.fromJson(response.data);
@@ -53,7 +53,7 @@ class ArtifactService {
     try {
       final headers = await _getHeaders();
       final response = await _dio.get(
-        '$apiBaseUrl/api/threads/$threadId/artifacts',
+        '/api/threads/$threadId/artifacts',
         options: Options(headers: headers),
       );
       return (response.data as List)
@@ -79,7 +79,7 @@ class ArtifactService {
     try {
       final headers = await _getHeaders();
       final response = await _dio.get<List<int>>(
-        '$apiBaseUrl/api/artifacts/$artifactId/export/$format',
+        '/api/artifacts/$artifactId/export/$format',
         options: Options(
           responseType: ResponseType.bytes,
           headers: headers,

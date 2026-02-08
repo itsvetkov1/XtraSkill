@@ -5,6 +5,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import '../models/thread.dart';
+import 'api_client.dart';
 
 /// Thread service handling API calls for conversation threads
 class ThreadService {
@@ -14,15 +15,10 @@ class ThreadService {
   /// Secure storage for JWT tokens
   final FlutterSecureStorage _storage;
 
-  /// Backend API base URL
-  final String _baseUrl;
-
   ThreadService({
-    String? baseUrl,
     Dio? dio,
     FlutterSecureStorage? storage,
-  })  : _baseUrl = baseUrl ?? 'http://localhost:8000',
-        _dio = dio ?? Dio(),
+  })  : _dio = dio ?? ApiClient().dio,
         _storage = storage ?? const FlutterSecureStorage();
 
   /// Storage key for JWT token
@@ -49,7 +45,7 @@ class ThreadService {
     try {
       final headers = await _getAuthHeaders();
       final response = await _dio.get(
-        '$_baseUrl/api/projects/$projectId/threads',
+        '/api/projects/$projectId/threads',
         options: Options(headers: headers),
       );
 
@@ -79,7 +75,7 @@ class ThreadService {
     try {
       final headers = await _getAuthHeaders();
       final response = await _dio.post(
-        '$_baseUrl/api/projects/$projectId/threads',
+        '/api/projects/$projectId/threads',
         options: Options(headers: headers),
         data: {
           if (title != null && title.isNotEmpty) 'title': title,
@@ -112,7 +108,7 @@ class ThreadService {
     try {
       final headers = await _getAuthHeaders();
       final response = await _dio.get(
-        '$_baseUrl/api/threads/$threadId',
+        '/api/threads/$threadId',
         options: Options(headers: headers),
       );
 
@@ -135,7 +131,7 @@ class ThreadService {
     try {
       final headers = await _getAuthHeaders();
       await _dio.delete(
-        '$_baseUrl/api/threads/$id',
+        '/api/threads/$id',
         options: Options(headers: headers),
       );
     } on DioException catch (e) {
@@ -158,7 +154,7 @@ class ThreadService {
     try {
       final headers = await _getAuthHeaders();
       final response = await _dio.patch(
-        '$_baseUrl/api/threads/$threadId',
+        '/api/threads/$threadId',
         options: Options(headers: headers),
         data: {
           'title': title,
@@ -190,7 +186,7 @@ class ThreadService {
     try {
       final headers = await _getAuthHeaders();
       final response = await _dio.get(
-        '$_baseUrl/api/threads?page=$page&page_size=$pageSize',
+        '/api/threads?page=$page&page_size=$pageSize',
         options: Options(headers: headers),
       );
 
@@ -223,7 +219,7 @@ class ThreadService {
       if (modelProvider != null) data['model_provider'] = modelProvider;
 
       final response = await _dio.post(
-        '$_baseUrl/api/threads',
+        '/api/threads',
         options: Options(headers: headers),
         data: data,
       );
@@ -250,7 +246,7 @@ class ThreadService {
     try {
       final headers = await _getAuthHeaders();
       final response = await _dio.patch(
-        '$_baseUrl/api/threads/$threadId',
+        '/api/threads/$threadId',
         options: Options(headers: headers),
         data: {'conversation_mode': mode},
       );
@@ -279,7 +275,7 @@ class ThreadService {
     try {
       final headers = await _getAuthHeaders();
       final response = await _dio.patch(
-        '$_baseUrl/api/threads/$threadId',
+        '/api/threads/$threadId',
         options: Options(headers: headers),
         data: {'project_id': projectId},
       );

@@ -18,14 +18,12 @@ void main() {
     late MockFlutterSecureStorage mockStorage;
     late ThreadService service;
 
-    const testBaseUrl = 'http://test.api';
     const testToken = 'test-jwt-token';
 
     setUp(() {
       mockDio = MockDio();
       mockStorage = MockFlutterSecureStorage();
       service = ThreadService(
-        baseUrl: testBaseUrl,
         dio: mockDio,
         storage: mockStorage,
       );
@@ -72,7 +70,6 @@ void main() {
         final customService = ThreadService(
           dio: customDio,
           storage: customStorage,
-          baseUrl: 'http://custom.api',
         );
         expect(customService, isNotNull);
       });
@@ -82,7 +79,7 @@ void main() {
       test('makes GET request to /projects/{projectId}/threads', () async {
         setupAuth();
         when(mockDio.get(
-          '$testBaseUrl/api/projects/proj-1/threads',
+          '/api/projects/proj-1/threads',
           options: anyNamed('options'),
         )).thenAnswer((_) async => Response(
               data: [],
@@ -93,7 +90,7 @@ void main() {
         await service.getThreads('proj-1');
 
         verify(mockDio.get(
-          '$testBaseUrl/api/projects/proj-1/threads',
+          '/api/projects/proj-1/threads',
           options: anyNamed('options'),
         )).called(1);
       });
@@ -101,7 +98,7 @@ void main() {
       test('returns list of Thread objects', () async {
         setupAuth();
         when(mockDio.get(
-          '$testBaseUrl/api/projects/proj-1/threads',
+          '/api/projects/proj-1/threads',
           options: anyNamed('options'),
         )).thenAnswer((_) async => Response(
               data: [
@@ -195,7 +192,7 @@ void main() {
       test('makes POST request to /projects/{projectId}/threads', () async {
         setupAuth();
         when(mockDio.post(
-          '$testBaseUrl/api/projects/proj-1/threads',
+          '/api/projects/proj-1/threads',
           options: anyNamed('options'),
           data: anyNamed('data'),
         )).thenAnswer((_) async => Response(
@@ -207,7 +204,7 @@ void main() {
         await service.createThread('proj-1', 'New Thread');
 
         verify(mockDio.post(
-          '$testBaseUrl/api/projects/proj-1/threads',
+          '/api/projects/proj-1/threads',
           options: anyNamed('options'),
           data: anyNamed('data'),
         )).called(1);
@@ -349,7 +346,7 @@ void main() {
       test('makes GET request to /threads/{threadId}', () async {
         setupAuth();
         when(mockDio.get(
-          '$testBaseUrl/api/threads/thread-1',
+          '/api/threads/thread-1',
           options: anyNamed('options'),
         )).thenAnswer((_) async => Response(
               data: createThreadJson(id: 'thread-1'),
@@ -360,7 +357,7 @@ void main() {
         await service.getThread('thread-1');
 
         verify(mockDio.get(
-          '$testBaseUrl/api/threads/thread-1',
+          '/api/threads/thread-1',
           options: anyNamed('options'),
         )).called(1);
       });
@@ -429,7 +426,7 @@ void main() {
       test('makes DELETE request to /threads/{id}', () async {
         setupAuth();
         when(mockDio.delete(
-          '$testBaseUrl/api/threads/thread-1',
+          '/api/threads/thread-1',
           options: anyNamed('options'),
         )).thenAnswer((_) async => Response(
               statusCode: 204,
@@ -439,7 +436,7 @@ void main() {
         await service.deleteThread('thread-1');
 
         verify(mockDio.delete(
-          '$testBaseUrl/api/threads/thread-1',
+          '/api/threads/thread-1',
           options: anyNamed('options'),
         )).called(1);
       });
@@ -502,7 +499,7 @@ void main() {
       test('makes PATCH request to /threads/{threadId}', () async {
         setupAuth();
         when(mockDio.patch(
-          '$testBaseUrl/api/threads/thread-1',
+          '/api/threads/thread-1',
           options: anyNamed('options'),
           data: anyNamed('data'),
         )).thenAnswer((_) async => Response(
@@ -514,7 +511,7 @@ void main() {
         await service.renameThread('thread-1', 'New Title');
 
         verify(mockDio.patch(
-          '$testBaseUrl/api/threads/thread-1',
+          '/api/threads/thread-1',
           options: anyNamed('options'),
           data: anyNamed('data'),
         )).called(1);
@@ -590,7 +587,7 @@ void main() {
       test('makes GET request to /threads with pagination', () async {
         setupAuth();
         when(mockDio.get(
-          '$testBaseUrl/api/threads?page=1&page_size=25',
+          '/api/threads?page=1&page_size=25',
           options: anyNamed('options'),
         )).thenAnswer((_) async => Response(
               data: {
@@ -607,7 +604,7 @@ void main() {
         await service.getGlobalThreads();
 
         verify(mockDio.get(
-          '$testBaseUrl/api/threads?page=1&page_size=25',
+          '/api/threads?page=1&page_size=25',
           options: anyNamed('options'),
         )).called(1);
       });
@@ -615,7 +612,7 @@ void main() {
       test('uses provided page and pageSize parameters', () async {
         setupAuth();
         when(mockDio.get(
-          '$testBaseUrl/api/threads?page=3&page_size=50',
+          '/api/threads?page=3&page_size=50',
           options: anyNamed('options'),
         )).thenAnswer((_) async => Response(
               data: {
@@ -632,7 +629,7 @@ void main() {
         await service.getGlobalThreads(page: 3, pageSize: 50);
 
         verify(mockDio.get(
-          '$testBaseUrl/api/threads?page=3&page_size=50',
+          '/api/threads?page=3&page_size=50',
           options: anyNamed('options'),
         )).called(1);
       });
@@ -734,7 +731,7 @@ void main() {
       test('makes POST request to /threads', () async {
         setupAuth();
         when(mockDio.post(
-          '$testBaseUrl/api/threads',
+          '/api/threads',
           options: anyNamed('options'),
           data: anyNamed('data'),
         )).thenAnswer((_) async => Response(
@@ -746,7 +743,7 @@ void main() {
         await service.createGlobalThread();
 
         verify(mockDio.post(
-          '$testBaseUrl/api/threads',
+          '/api/threads',
           options: anyNamed('options'),
           data: anyNamed('data'),
         )).called(1);
@@ -830,7 +827,7 @@ void main() {
       test('makes PATCH request to /threads/{threadId}', () async {
         setupAuth();
         when(mockDio.patch(
-          '$testBaseUrl/api/threads/thread-1',
+          '/api/threads/thread-1',
           options: anyNamed('options'),
           data: anyNamed('data'),
         )).thenAnswer((_) async => Response(
@@ -842,7 +839,7 @@ void main() {
         await service.associateWithProject('thread-1', 'proj-1');
 
         verify(mockDio.patch(
-          '$testBaseUrl/api/threads/thread-1',
+          '/api/threads/thread-1',
           options: anyNamed('options'),
           data: anyNamed('data'),
         )).called(1);

@@ -8,6 +8,7 @@ import 'package:flutter_client_sse/flutter_client_sse.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import '../core/config.dart';
+import 'api_client.dart';
 
 /// Base class for chat events from SSE stream
 abstract class ChatEvent {}
@@ -82,7 +83,7 @@ class AIService {
   static const String _tokenKey = 'auth_token';
 
   AIService({Dio? dio, FlutterSecureStorage? storage})
-      : _dio = dio ?? Dio(),
+      : _dio = dio ?? ApiClient().dio,
         _storage = storage ?? const FlutterSecureStorage();
 
   /// Get authorization headers with JWT token
@@ -193,7 +194,7 @@ class AIService {
     try {
       final headers = await _getHeaders();
       await _dio.delete(
-        '$apiBaseUrl/api/threads/$threadId/messages/$messageId',
+        '/api/threads/$threadId/messages/$messageId',
         options: Options(headers: headers),
       );
     } on DioException catch (e) {

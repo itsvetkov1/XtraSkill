@@ -18,15 +18,12 @@ void main() {
     late MockFlutterSecureStorage mockStorage;
     late ProjectService service;
 
-    const testBaseUrl = 'http://test.api';
-
     setUp(() {
       mockDio = MockDio();
       mockStorage = MockFlutterSecureStorage();
       service = ProjectService(
         dio: mockDio,
         storage: mockStorage,
-        baseUrl: testBaseUrl,
       );
     });
 
@@ -61,8 +58,8 @@ void main() {
         expect(svc, isNotNull);
       });
 
-      test('accepts custom baseUrl', () {
-        final svc = ProjectService(baseUrl: 'http://custom.api');
+      test('creates with no parameters', () {
+        final svc = ProjectService();
         expect(svc, isNotNull);
       });
 
@@ -90,7 +87,7 @@ void main() {
         when(mockStorage.read(key: 'auth_token'))
             .thenAnswer((_) async => 'test-token');
         when(mockDio.get(
-          '$testBaseUrl/api/projects',
+          '/api/projects',
           options: anyNamed('options'),
         )).thenAnswer((_) async => Response(
               data: [],
@@ -104,7 +101,7 @@ void main() {
           captureAny,
           options: captureAnyNamed('options'),
         )).captured;
-        expect(captured[0], equals('$testBaseUrl/api/projects'));
+        expect(captured[0], equals('/api/projects'));
         final options = captured[1] as Options;
         expect(options.headers!['Authorization'], equals('Bearer test-token'));
         expect(options.headers!['Content-Type'], equals('application/json'));
@@ -114,7 +111,7 @@ void main() {
         when(mockStorage.read(key: 'auth_token'))
             .thenAnswer((_) async => 'test-token');
         when(mockDio.get(
-          '$testBaseUrl/api/projects',
+          '/api/projects',
           options: anyNamed('options'),
         )).thenAnswer((_) async => Response(
               data: [],
@@ -131,7 +128,7 @@ void main() {
         when(mockStorage.read(key: 'auth_token'))
             .thenAnswer((_) async => 'test-token');
         when(mockDio.get(
-          '$testBaseUrl/api/projects',
+          '/api/projects',
           options: anyNamed('options'),
         )).thenAnswer((_) async => Response(
               data: [
@@ -157,7 +154,7 @@ void main() {
         when(mockStorage.read(key: 'auth_token'))
             .thenAnswer((_) async => 'expired-token');
         when(mockDio.get(
-          '$testBaseUrl/api/projects',
+          '/api/projects',
           options: anyNamed('options'),
         )).thenThrow(DioException(
           type: DioExceptionType.badResponse,
@@ -182,7 +179,7 @@ void main() {
         when(mockStorage.read(key: 'auth_token'))
             .thenAnswer((_) async => 'test-token');
         when(mockDio.get(
-          '$testBaseUrl/api/projects',
+          '/api/projects',
           options: anyNamed('options'),
         )).thenThrow(DioException(
           type: DioExceptionType.connectionError,
@@ -221,7 +218,7 @@ void main() {
         when(mockStorage.read(key: 'auth_token'))
             .thenAnswer((_) async => 'test-token');
         when(mockDio.post(
-          '$testBaseUrl/api/projects',
+          '/api/projects',
           data: anyNamed('data'),
           options: anyNamed('options'),
         )).thenAnswer((_) async => Response(
@@ -241,7 +238,7 @@ void main() {
           data: captureAnyNamed('data'),
           options: captureAnyNamed('options'),
         )).captured;
-        expect(captured[0], equals('$testBaseUrl/api/projects'));
+        expect(captured[0], equals('/api/projects'));
         expect(captured[1]['name'], equals('Test Project'));
         expect(captured[1]['description'], equals('Test Description'));
       });
@@ -250,7 +247,7 @@ void main() {
         when(mockStorage.read(key: 'auth_token'))
             .thenAnswer((_) async => 'test-token');
         when(mockDio.post(
-          '$testBaseUrl/api/projects',
+          '/api/projects',
           data: anyNamed('data'),
           options: anyNamed('options'),
         )).thenAnswer((_) async => Response(
@@ -273,7 +270,7 @@ void main() {
         when(mockStorage.read(key: 'auth_token'))
             .thenAnswer((_) async => 'test-token');
         when(mockDio.post(
-          '$testBaseUrl/api/projects',
+          '/api/projects',
           data: anyNamed('data'),
           options: anyNamed('options'),
         )).thenAnswer((_) async => Response(
@@ -366,7 +363,7 @@ void main() {
         when(mockStorage.read(key: 'auth_token'))
             .thenAnswer((_) async => 'test-token');
         when(mockDio.get(
-          '$testBaseUrl/api/projects/proj-123',
+          '/api/projects/proj-123',
           options: anyNamed('options'),
         )).thenAnswer((_) async => Response(
               data: createProjectJson(id: 'proj-123', name: 'Test Project'),
@@ -377,7 +374,7 @@ void main() {
         await service.getProject('proj-123');
 
         verify(mockDio.get(
-          '$testBaseUrl/api/projects/proj-123',
+          '/api/projects/proj-123',
           options: anyNamed('options'),
         )).called(1);
       });
@@ -386,7 +383,7 @@ void main() {
         when(mockStorage.read(key: 'auth_token'))
             .thenAnswer((_) async => 'test-token');
         when(mockDio.get(
-          '$testBaseUrl/api/projects/proj-123',
+          '/api/projects/proj-123',
           options: anyNamed('options'),
         )).thenAnswer((_) async => Response(
               data: {
@@ -420,7 +417,7 @@ void main() {
         when(mockStorage.read(key: 'auth_token'))
             .thenAnswer((_) async => 'test-token');
         when(mockDio.get(
-          '$testBaseUrl/api/projects/nonexistent',
+          '/api/projects/nonexistent',
           options: anyNamed('options'),
         )).thenThrow(DioException(
           type: DioExceptionType.badResponse,
@@ -488,7 +485,7 @@ void main() {
         when(mockStorage.read(key: 'auth_token'))
             .thenAnswer((_) async => 'test-token');
         when(mockDio.put(
-          '$testBaseUrl/api/projects/proj-123',
+          '/api/projects/proj-123',
           data: anyNamed('data'),
           options: anyNamed('options'),
         )).thenAnswer((_) async => Response(
@@ -508,7 +505,7 @@ void main() {
           data: captureAnyNamed('data'),
           options: captureAnyNamed('options'),
         )).captured;
-        expect(captured[0], equals('$testBaseUrl/api/projects/proj-123'));
+        expect(captured[0], equals('/api/projects/proj-123'));
         expect(captured[1]['name'], equals('Updated Name'));
         expect(captured[1]['description'], equals('Updated Description'));
       });
@@ -637,7 +634,7 @@ void main() {
         when(mockStorage.read(key: 'auth_token'))
             .thenAnswer((_) async => 'test-token');
         when(mockDio.delete(
-          '$testBaseUrl/api/projects/proj-123',
+          '/api/projects/proj-123',
           options: anyNamed('options'),
         )).thenAnswer((_) async => Response(
               data: null,
@@ -648,7 +645,7 @@ void main() {
         await service.deleteProject('proj-123');
 
         verify(mockDio.delete(
-          '$testBaseUrl/api/projects/proj-123',
+          '/api/projects/proj-123',
           options: anyNamed('options'),
         )).called(1);
       });
@@ -657,7 +654,7 @@ void main() {
         when(mockStorage.read(key: 'auth_token'))
             .thenAnswer((_) async => 'test-token');
         when(mockDio.delete(
-          '$testBaseUrl/api/projects/proj-123',
+          '/api/projects/proj-123',
           options: anyNamed('options'),
         )).thenAnswer((_) async => Response(
               data: null,

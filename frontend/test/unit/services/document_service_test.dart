@@ -18,14 +18,12 @@ void main() {
     late MockFlutterSecureStorage mockStorage;
     late DocumentService service;
 
-    const testBaseUrl = 'http://test.api';
     const testToken = 'test-jwt-token';
 
     setUp(() {
       mockDio = MockDio();
       mockStorage = MockFlutterSecureStorage();
       service = DocumentService(
-        baseUrl: testBaseUrl,
         dio: mockDio,
         storage: mockStorage,
       );
@@ -49,7 +47,6 @@ void main() {
         final customService = DocumentService(
           dio: customDio,
           storage: customStorage,
-          baseUrl: 'http://custom.api',
         );
         expect(customService, isNotNull);
       });
@@ -57,36 +54,45 @@ void main() {
 
     group('getDocuments', () {
       test('makes GET request to /projects/{projectId}/documents', () async {
-        when(mockDio.get('/projects/proj-1/documents'))
-            .thenAnswer((_) async => Response(
-                  data: [],
-                  statusCode: 200,
-                  requestOptions: RequestOptions(path: ''),
-                ));
+        setupAuth();
+        when(mockDio.get(
+          '/api/projects/proj-1/documents',
+          options: anyNamed('options'),
+        )).thenAnswer((_) async => Response(
+              data: [],
+              statusCode: 200,
+              requestOptions: RequestOptions(path: ''),
+            ));
 
         await service.getDocuments('proj-1');
 
-        verify(mockDio.get('/projects/proj-1/documents')).called(1);
+        verify(mockDio.get(
+          '/api/projects/proj-1/documents',
+          options: anyNamed('options'),
+        )).called(1);
       });
 
       test('returns list of Document objects', () async {
-        when(mockDio.get('/projects/proj-1/documents'))
-            .thenAnswer((_) async => Response(
-                  data: [
-                    {
-                      'id': 'doc-1',
-                      'filename': 'test1.txt',
-                      'created_at': '2024-01-01T00:00:00Z',
-                    },
-                    {
-                      'id': 'doc-2',
-                      'filename': 'test2.txt',
-                      'created_at': '2024-01-02T00:00:00Z',
-                    },
-                  ],
-                  statusCode: 200,
-                  requestOptions: RequestOptions(path: ''),
-                ));
+        setupAuth();
+        when(mockDio.get(
+          '/api/projects/proj-1/documents',
+          options: anyNamed('options'),
+        )).thenAnswer((_) async => Response(
+              data: [
+                {
+                  'id': 'doc-1',
+                  'filename': 'test1.txt',
+                  'created_at': '2024-01-01T00:00:00Z',
+                },
+                {
+                  'id': 'doc-2',
+                  'filename': 'test2.txt',
+                  'created_at': '2024-01-02T00:00:00Z',
+                },
+              ],
+              statusCode: 200,
+              requestOptions: RequestOptions(path: ''),
+            ));
 
         final documents = await service.getDocuments('proj-1');
 
@@ -97,12 +103,15 @@ void main() {
       });
 
       test('handles empty list', () async {
-        when(mockDio.get('/projects/proj-1/documents'))
-            .thenAnswer((_) async => Response(
-                  data: [],
-                  statusCode: 200,
-                  requestOptions: RequestOptions(path: ''),
-                ));
+        setupAuth();
+        when(mockDio.get(
+          '/api/projects/proj-1/documents',
+          options: anyNamed('options'),
+        )).thenAnswer((_) async => Response(
+              data: [],
+              statusCode: 200,
+              requestOptions: RequestOptions(path: ''),
+            ));
 
         final documents = await service.getDocuments('proj-1');
 
@@ -131,7 +140,7 @@ void main() {
         await service.uploadDocument('proj-1', [1, 2, 3], 'test.txt');
 
         verify(mockDio.post(
-          '$testBaseUrl/api/projects/proj-1/documents',
+          '/api/projects/proj-1/documents',
           data: anyNamed('data'),
           options: anyNamed('options'),
           onSendProgress: anyNamed('onSendProgress'),
@@ -285,7 +294,7 @@ void main() {
       test('makes GET request to /documents/{id}', () async {
         setupAuth();
         when(mockDio.get(
-          '/documents/doc-1',
+          '/api/documents/doc-1',
           options: anyNamed('options'),
         )).thenAnswer((_) async => Response(
               data: {
@@ -301,7 +310,7 @@ void main() {
         await service.getDocumentContent('doc-1');
 
         verify(mockDio.get(
-          '/documents/doc-1',
+          '/api/documents/doc-1',
           options: anyNamed('options'),
         )).called(1);
       });
@@ -309,7 +318,7 @@ void main() {
       test('returns Document with content field populated', () async {
         setupAuth();
         when(mockDio.get(
-          '/documents/doc-1',
+          '/api/documents/doc-1',
           options: anyNamed('options'),
         )).thenAnswer((_) async => Response(
               data: {
@@ -358,9 +367,11 @@ void main() {
     group('searchDocuments', () {
       test('makes GET request to /projects/{projectId}/documents/search',
           () async {
+        setupAuth();
         when(mockDio.get(
-          '/projects/proj-1/documents/search',
+          '/api/projects/proj-1/documents/search',
           queryParameters: anyNamed('queryParameters'),
+          options: anyNamed('options'),
         )).thenAnswer((_) async => Response(
               data: [],
               statusCode: 200,
@@ -370,15 +381,18 @@ void main() {
         await service.searchDocuments('proj-1', 'test query');
 
         verify(mockDio.get(
-          '/projects/proj-1/documents/search',
+          '/api/projects/proj-1/documents/search',
           queryParameters: {'q': 'test query'},
+          options: anyNamed('options'),
         )).called(1);
       });
 
       test('returns list of DocumentSearchResult objects', () async {
+        setupAuth();
         when(mockDio.get(
-          '/projects/proj-1/documents/search',
+          '/api/projects/proj-1/documents/search',
           queryParameters: anyNamed('queryParameters'),
+          options: anyNamed('options'),
         )).thenAnswer((_) async => Response(
               data: [
                 {
@@ -408,9 +422,11 @@ void main() {
       });
 
       test('handles empty results', () async {
+        setupAuth();
         when(mockDio.get(
-          '/projects/proj-1/documents/search',
+          '/api/projects/proj-1/documents/search',
           queryParameters: anyNamed('queryParameters'),
+          options: anyNamed('options'),
         )).thenAnswer((_) async => Response(
               data: [],
               statusCode: 200,
@@ -427,7 +443,7 @@ void main() {
       test('makes DELETE request to /documents/{id}', () async {
         setupAuth();
         when(mockDio.delete(
-          '$testBaseUrl/api/documents/doc-1',
+          '/api/documents/doc-1',
           options: anyNamed('options'),
         )).thenAnswer((_) async => Response(
               statusCode: 204,
@@ -437,7 +453,7 @@ void main() {
         await service.deleteDocument('doc-1');
 
         verify(mockDio.delete(
-          '$testBaseUrl/api/documents/doc-1',
+          '/api/documents/doc-1',
           options: anyNamed('options'),
         )).called(1);
       });

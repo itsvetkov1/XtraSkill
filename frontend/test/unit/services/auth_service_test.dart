@@ -19,15 +19,12 @@ void main() {
     late MockFlutterSecureStorage mockStorage;
     late AuthService service;
 
-    const testBaseUrl = 'http://test.api';
-
     setUp(() {
       mockDio = MockDio();
       mockStorage = MockFlutterSecureStorage();
       service = AuthService(
         dio: mockDio,
         storage: mockStorage,
-        baseUrl: testBaseUrl,
       );
     });
 
@@ -54,8 +51,8 @@ void main() {
         expect(svc, isNotNull);
       });
 
-      test('accepts custom baseUrl', () {
-        final svc = AuthService(baseUrl: 'http://custom.api');
+      test('creates with no parameters', () {
+        final svc = AuthService();
         expect(svc, isNotNull);
       });
 
@@ -236,7 +233,7 @@ void main() {
         when(mockStorage.read(key: 'auth_token'))
             .thenAnswer((_) async => 'test-token');
         when(mockDio.get(
-          '$testBaseUrl/auth/me',
+          '/auth/me',
           options: anyNamed('options'),
         )).thenAnswer((_) async => Response(
               data: {'id': '123', 'email': 'test@example.com'},
@@ -250,7 +247,7 @@ void main() {
           captureAny,
           options: captureAnyNamed('options'),
         )).captured;
-        expect(captured[0], equals('$testBaseUrl/auth/me'));
+        expect(captured[0], equals('/auth/me'));
         final options = captured[1] as Options;
         expect(options.headers!['Authorization'], equals('Bearer test-token'));
       });
@@ -259,7 +256,7 @@ void main() {
         when(mockStorage.read(key: 'auth_token'))
             .thenAnswer((_) async => 'test-token');
         when(mockDio.get(
-          '$testBaseUrl/auth/me',
+          '/auth/me',
           options: anyNamed('options'),
         )).thenAnswer((_) async => Response(
               data: {
@@ -282,7 +279,7 @@ void main() {
         when(mockStorage.read(key: 'auth_token'))
             .thenAnswer((_) async => 'test-token');
         when(mockDio.get(
-          '$testBaseUrl/auth/me',
+          '/auth/me',
           options: anyNamed('options'),
         )).thenThrow(DioException(
           type: DioExceptionType.connectionTimeout,
@@ -306,7 +303,7 @@ void main() {
         when(mockStorage.read(key: 'auth_token'))
             .thenAnswer((_) async => 'expired-token');
         when(mockDio.get(
-          '$testBaseUrl/auth/me',
+          '/auth/me',
           options: anyNamed('options'),
         )).thenThrow(DioException(
           type: DioExceptionType.badResponse,
@@ -344,7 +341,7 @@ void main() {
         when(mockStorage.read(key: 'auth_token'))
             .thenAnswer((_) async => 'test-token');
         when(mockDio.get(
-          '$testBaseUrl/auth/usage',
+          '/auth/usage',
           options: anyNamed('options'),
         )).thenAnswer((_) async => Response(
               data: {'input_tokens': 1000, 'output_tokens': 500},
@@ -358,7 +355,7 @@ void main() {
           captureAny,
           options: captureAnyNamed('options'),
         )).captured;
-        expect(captured[0], equals('$testBaseUrl/auth/usage'));
+        expect(captured[0], equals('/auth/usage'));
         final options = captured[1] as Options;
         expect(options.headers!['Authorization'], equals('Bearer test-token'));
       });
@@ -367,7 +364,7 @@ void main() {
         when(mockStorage.read(key: 'auth_token'))
             .thenAnswer((_) async => 'test-token');
         when(mockDio.get(
-          '$testBaseUrl/auth/usage',
+          '/auth/usage',
           options: anyNamed('options'),
         )).thenAnswer((_) async => Response(
               data: {
@@ -392,7 +389,7 @@ void main() {
         when(mockStorage.read(key: 'auth_token'))
             .thenAnswer((_) async => 'test-token');
         when(mockDio.get(
-          '$testBaseUrl/auth/usage',
+          '/auth/usage',
           options: anyNamed('options'),
         )).thenThrow(DioException(
           type: DioExceptionType.connectionTimeout,
@@ -417,7 +414,7 @@ void main() {
       test('deletes token from secure storage', () async {
         when(mockStorage.delete(key: 'auth_token'))
             .thenAnswer((_) async => {});
-        when(mockDio.post('$testBaseUrl/auth/logout'))
+        when(mockDio.post('/auth/logout'))
             .thenAnswer((_) async => Response(
                   data: {},
                   statusCode: 200,
@@ -432,7 +429,7 @@ void main() {
       test('makes POST request to /auth/logout', () async {
         when(mockStorage.delete(key: 'auth_token'))
             .thenAnswer((_) async => {});
-        when(mockDio.post('$testBaseUrl/auth/logout'))
+        when(mockDio.post('/auth/logout'))
             .thenAnswer((_) async => Response(
                   data: {},
                   statusCode: 200,
@@ -441,13 +438,13 @@ void main() {
 
         await service.logout();
 
-        verify(mockDio.post('$testBaseUrl/auth/logout')).called(1);
+        verify(mockDio.post('/auth/logout')).called(1);
       });
 
       test('ignores backend errors during logout', () async {
         when(mockStorage.delete(key: 'auth_token'))
             .thenAnswer((_) async => {});
-        when(mockDio.post('$testBaseUrl/auth/logout')).thenThrow(DioException(
+        when(mockDio.post('/auth/logout')).thenThrow(DioException(
           type: DioExceptionType.connectionError,
           requestOptions: RequestOptions(path: '/auth/logout'),
         ));
@@ -462,7 +459,7 @@ void main() {
       test('completes even when backend returns 500', () async {
         when(mockStorage.delete(key: 'auth_token'))
             .thenAnswer((_) async => {});
-        when(mockDio.post('$testBaseUrl/auth/logout')).thenThrow(DioException(
+        when(mockDio.post('/auth/logout')).thenThrow(DioException(
           type: DioExceptionType.badResponse,
           response: Response(
             statusCode: 500,
@@ -480,7 +477,7 @@ void main() {
 
     group('loginWithGoogle', () {
       test('makes POST request to /auth/google/initiate', () async {
-        when(mockDio.post('$testBaseUrl/auth/google/initiate'))
+        when(mockDio.post('/auth/google/initiate'))
             .thenAnswer((_) async => Response(
                   data: {'auth_url': 'https://accounts.google.com/oauth'},
                   statusCode: 200,
@@ -496,11 +493,11 @@ void main() {
           // Expected - launchUrl doesn't work in test environment
         }
 
-        verify(mockDio.post('$testBaseUrl/auth/google/initiate')).called(1);
+        verify(mockDio.post('/auth/google/initiate')).called(1);
       });
 
       test('throws exception on Dio error', () async {
-        when(mockDio.post('$testBaseUrl/auth/google/initiate'))
+        when(mockDio.post('/auth/google/initiate'))
             .thenThrow(DioException(
           type: DioExceptionType.connectionError,
           requestOptions: RequestOptions(path: '/auth/google/initiate'),
@@ -520,7 +517,7 @@ void main() {
 
     group('loginWithMicrosoft', () {
       test('makes POST request to /auth/microsoft/initiate', () async {
-        when(mockDio.post('$testBaseUrl/auth/microsoft/initiate'))
+        when(mockDio.post('/auth/microsoft/initiate'))
             .thenAnswer((_) async => Response(
                   data: {
                     'auth_url': 'https://login.microsoftonline.com/oauth'
@@ -537,11 +534,11 @@ void main() {
           // Expected - launchUrl doesn't work in test environment
         }
 
-        verify(mockDio.post('$testBaseUrl/auth/microsoft/initiate')).called(1);
+        verify(mockDio.post('/auth/microsoft/initiate')).called(1);
       });
 
       test('throws exception on Dio error', () async {
-        when(mockDio.post('$testBaseUrl/auth/microsoft/initiate'))
+        when(mockDio.post('/auth/microsoft/initiate'))
             .thenThrow(DioException(
           type: DioExceptionType.connectionError,
           requestOptions: RequestOptions(path: '/auth/microsoft/initiate'),

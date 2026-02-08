@@ -22,7 +22,7 @@ Requirements for Pilot Logging Infrastructure milestone.
 
 - [ ] **FLOG-01**: User navigation events are logged (screen views, route changes)
 - [ ] **FLOG-02**: User actions are logged (button clicks, form submits)
-- [ ] **FLOG-03**: API requests/responses are logged via Dio interceptor (endpoint, method, status, duration)
+- [x] **FLOG-03**: API requests/responses are logged via Dio interceptor (endpoint, method, status, duration)
 - [ ] **FLOG-04**: Errors are captured with exception type and stack trace
 - [ ] **FLOG-05**: All frontend logs include session ID for grouping
 - [ ] **FLOG-06**: Logs include category tags (auth, api, ai, navigation, error)
@@ -91,7 +91,7 @@ Which phases cover which requirements.
 | LOG-08 | Phase 43 | Complete |
 | FLOG-01 | Phase 45 | Pending |
 | FLOG-02 | Phase 45 | Pending |
-| FLOG-03 | Phase 46 | Pending |
+| FLOG-03 | Phase 46 | Complete |
 | FLOG-04 | Phase 45 | Pending |
 | FLOG-05 | Phase 45 | Pending |
 | FLOG-06 | Phase 45 | Pending |

@@ -6,29 +6,29 @@ See: .planning/PROJECT.md (updated 2026-02-07)
 
 **Core value:** Business analysts reduce time spent on requirement documentation while improving completeness through AI-assisted discovery conversations that systematically explore edge cases and generate production-ready artifacts.
 
-**Current focus:** v1.9.5 — Pilot Logging Infrastructure (Phase 46)
+**Current focus:** v1.9.5 — Pilot Logging Infrastructure (Phase 46 Complete)
 
 ## Current Position
 
 Milestone: v1.9.5 Pilot Logging Infrastructure
 Phase: 46 of 48 (Frontend HTTP Integration)
-Plan: 1 of 1 (plan 46-01 planned)
-Status: Ready for execution
-Last activity: 2026-02-08 — Planned 46-01-PLAN.md
+Plan: 1 of 1 (plan 46-01 complete)
+Status: Phase complete
+Last activity: 2026-02-08 — Completed 46-01-PLAN.md
 
 Progress:
 ```
 v1.0-v1.9.4: [##########] 42 phases, 106 plans, 10 milestones SHIPPED
 
-v1.9.5:      [###.......] 3/6 phases (50%)
-Phase 46:    [..........] 0/1 plans planned
-Next: Execute Plan 46-01
+v1.9.5:      [####......] 4/6 phases (67%)
+Phase 46:    [##########] 1/1 plans complete
+Next: Phase 47 (Settings UI with logging toggle)
 ```
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 111 (across 10 milestones)
+- Total plans completed: 112 (across 10 milestones)
 - Average duration: ~1-18 minutes per plan
 
 **By Milestone:**
@@ -45,9 +45,9 @@ Next: Execute Plan 46-01
 | Resilience v1.9.2 | 34-36 | 9/9 | SHIPPED 2026-02-04 |
 | Doc & Nav v1.9.3 | 37-39 | 3/3 | SHIPPED 2026-02-04 |
 | Dedup v1.9.4 | 40-42 | 5/5 | SHIPPED 2026-02-06 |
-| Logging v1.9.5 | 43-48 | 5/TBD | In progress |
+| Logging v1.9.5 | 43-48 | 6/TBD | In progress |
 
-**Total:** 111 plans shipped across 45 phases
+**Total:** 112 plans shipped across 46 phases
 
 ## Accumulated Context
 
@@ -80,6 +80,9 @@ Recent decisions for v1.9.5:
 - All log entries include timestamp, level, message, category, session_id fields (LOG-018)
 - NavigatorObserver logs didPush, didPop, didReplace events (LOG-019)
 - FlutterError.onError and PlatformDispatcher.onError wired to LoggingService (LOG-020)
+- ApiClient singleton pattern ensures all HTTP requests route through shared interceptor (LOG-021)
+- Removed baseUrl from services; now configured centrally in ApiClient via ApiConfig.baseUrl (LOG-022)
+- Test compatibility maintained via optional dio parameter for mock injection (LOG-023)
 
 ### Pending Todos
 
@@ -93,31 +96,29 @@ Recent decisions for v1.9.5:
 ## Session Continuity
 
 Last session: 2026-02-08
-Stopped at: Planned 46-01-PLAN.md
+Stopped at: Completed 46-01-PLAN.md
 Resume file: None
-Next action: `/gsd:execute-phase 46` to execute plan 46-01
+Next action: `/gsd:plan-phase 47` to plan Settings UI with logging toggle
 
 **Context for Next Session:**
 - 10 milestones shipped (v1.0 through v1.9.4)
-- 45 phases, 111 plans completed
+- 46 phases, 112 plans completed
 - Phase 45 COMPLETE: Frontend Logging Foundation
   - LoggingService singleton with in-memory buffer (max 1000 entries)
   - SessionService singleton with UUID v4 session IDs
   - NavigatorObserver for go_router route tracking
   - Error handlers wired to LoggingService
   - Network state change monitoring via connectivity_plus
-- Phase 46 PLANNED: Frontend HTTP Integration
-  - Plan 46-01: ApiClient singleton with Dio interceptor
-    - Create ApiClient singleton with shared Dio instance
-    - InterceptorsWrapper adds X-Correlation-ID header to all requests
-    - Store correlation ID and start time in options.extra
-    - Log API calls via new LoggingService.logApi() method
-    - Refactor all 6 services (auth, project, thread, document, ai, artifact) to use ApiClient().dio
-  - Outcome: All HTTP requests will have correlation IDs linking frontend to backend logs
+- Phase 46 COMPLETE: Frontend HTTP Integration
+  - ApiClient singleton with shared Dio instance
+  - InterceptorsWrapper adds X-Correlation-ID header to all requests
+  - logApi() method in LoggingService with status-based log levels
+  - All 6 services refactored to use ApiClient().dio
+  - All HTTP requests now include correlation ID for backend tracing
 
 **Roadmap:**
-Phase 46 -> Phase 47 (Settings UI with logging toggle) -> Phase 48 (Flush logs to backend)
+Phase 47 (Settings UI with logging toggle) -> Phase 48 (Flush logs to backend)
 
 ---
 
-*State updated: 2026-02-08 (planned 46-01)*
+*State updated: 2026-02-08 (completed 46-01)*

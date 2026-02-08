@@ -6,23 +6,23 @@ See: .planning/PROJECT.md (updated 2026-02-07)
 
 **Core value:** Business analysts reduce time spent on requirement documentation while improving completeness through AI-assisted discovery conversations that systematically explore edge cases and generate production-ready artifacts.
 
-**Current focus:** v1.9.5 — Pilot Logging Infrastructure (Phase 45)
+**Current focus:** v1.9.5 — Pilot Logging Infrastructure (Phase 46)
 
 ## Current Position
 
 Milestone: v1.9.5 Pilot Logging Infrastructure
-Phase: 45 of 48 (Frontend Logging Foundation)
-Plan: 1 of 1 (plan 45-01 complete)
-Status: Phase complete, ready for next phase
-Last activity: 2026-02-08 — Completed 45-01-PLAN.md
+Phase: 46 of 48 (Frontend HTTP Integration)
+Plan: 1 of 1 (plan 46-01 planned)
+Status: Ready for execution
+Last activity: 2026-02-08 — Planned 46-01-PLAN.md
 
 Progress:
 ```
 v1.0-v1.9.4: [##########] 42 phases, 106 plans, 10 milestones SHIPPED
 
 v1.9.5:      [###.......] 3/6 phases (50%)
-Phase 45:    [##########] 1/1 plans complete
-Next: Plan Phase 46
+Phase 46:    [..........] 0/1 plans planned
+Next: Execute Plan 46-01
 ```
 
 ## Performance Metrics
@@ -93,28 +93,31 @@ Recent decisions for v1.9.5:
 ## Session Continuity
 
 Last session: 2026-02-08
-Stopped at: Completed 45-01-PLAN.md
+Stopped at: Planned 46-01-PLAN.md
 Resume file: None
-Next action: `/gsd:discuss-phase 46` or `/gsd:plan-phase 46` for next logging phase
+Next action: `/gsd:execute-phase 46` to execute plan 46-01
 
 **Context for Next Session:**
 - 10 milestones shipped (v1.0 through v1.9.4)
 - 45 phases, 111 plans completed
 - Phase 45 COMPLETE: Frontend Logging Foundation
-  - Plan 45-01: Frontend logging infrastructure
-    - LoggingService singleton with in-memory buffer (max 1000 entries)
-    - SessionService singleton with UUID v4 session IDs
-    - NavigatorObserver for go_router route tracking
-    - Error handlers (FlutterError.onError, PlatformDispatcher.onError) wired to LoggingService
-    - Network state change monitoring via connectivity_plus
-    - Dependencies added: logger@2.6.2, uuid@4.5.2, connectivity_plus@6.1.5
-    - Log methods: logNavigation, logAction, logError, logNetworkStateChange
-    - All logs include timestamp, level, message, category, session_id
-    - Buffer auto-trims at max size (1000 entries)
-- Frontend logs buffered in memory, ready for transmission to backend (Phase 46)
-- Session ID generated once per app lifecycle, included in all logs
-- Ready for Phase 46: Frontend log transmission to backend /api/logs/ingest
+  - LoggingService singleton with in-memory buffer (max 1000 entries)
+  - SessionService singleton with UUID v4 session IDs
+  - NavigatorObserver for go_router route tracking
+  - Error handlers wired to LoggingService
+  - Network state change monitoring via connectivity_plus
+- Phase 46 PLANNED: Frontend HTTP Integration
+  - Plan 46-01: ApiClient singleton with Dio interceptor
+    - Create ApiClient singleton with shared Dio instance
+    - InterceptorsWrapper adds X-Correlation-ID header to all requests
+    - Store correlation ID and start time in options.extra
+    - Log API calls via new LoggingService.logApi() method
+    - Refactor all 6 services (auth, project, thread, document, ai, artifact) to use ApiClient().dio
+  - Outcome: All HTTP requests will have correlation IDs linking frontend to backend logs
+
+**Roadmap:**
+Phase 46 -> Phase 47 (Settings UI with logging toggle) -> Phase 48 (Flush logs to backend)
 
 ---
 
-*State updated: 2026-02-08 (completed plan 45-01)*
+*State updated: 2026-02-08 (planned 46-01)*

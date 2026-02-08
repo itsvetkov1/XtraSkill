@@ -76,10 +76,10 @@ Plans:
   1. Dio interceptor attaches X-Correlation-ID header to all requests
   2. API requests/responses are logged with endpoint, method, status, and duration
   3. Correlation ID links frontend requests to backend logs
-**Plans**: TBD
+**Plans**: 1 plan in 1 wave
 
 Plans:
-- [ ] 46-01: TBD
+- [ ] 46-01-PLAN.md — ApiClient singleton with Dio interceptor, LoggingService.logApi, service refactoring
 
 ### Phase 47: Frontend Settings UI
 **Goal**: Users can toggle detailed logging from Settings screen
@@ -118,7 +118,7 @@ Phases execute in numeric order: 43 -> 44 -> 45 -> 46 -> 47 -> 48
 | 43. Backend Logging Foundation | 3/3 | ✓ Complete | 2026-02-07 |
 | 44. Backend Admin API | 1/1 | ✓ Complete | 2026-02-08 |
 | 45. Frontend Logging Foundation | 1/1 | ✓ Complete | 2026-02-08 |
-| 46. Frontend HTTP Integration | 0/TBD | Not started | - |
+| 46. Frontend HTTP Integration | 0/1 | Planned | - |
 | 47. Frontend Settings UI | 0/TBD | Not started | - |
 | 48. Frontend-to-Backend Flush | 0/TBD | Not started | - |
 

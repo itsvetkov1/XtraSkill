@@ -103,10 +103,10 @@ Plans:
   2. Logs flush on configurable interval (default: 5 minutes)
   3. Logs flush on app lifecycle events (pause, terminate)
   4. Buffered logs persist until successfully delivered
-**Plans**: TBD
+**Plans**: 1 plan in 1 wave
 
 Plans:
-- [ ] 48-01: TBD
+- [ ] 48-01-PLAN.md — flush() method, AppLifecycleListener, Timer.periodic, logout flush
 
 ## Progress
 
@@ -120,7 +120,7 @@ Phases execute in numeric order: 43 -> 44 -> 45 -> 46 -> 47 -> 48
 | 45. Frontend Logging Foundation | 1/1 | ✓ Complete | 2026-02-08 |
 | 46. Frontend HTTP Integration | 1/1 | ✓ Complete | 2026-02-08 |
 | 47. Frontend Settings UI | 1/1 | ✓ Complete | 2026-02-08 |
-| 48. Frontend-to-Backend Flush | 0/TBD | Not started | - |
+| 48. Frontend-to-Backend Flush | 0/1 | Not started | - |
 
 ---
 

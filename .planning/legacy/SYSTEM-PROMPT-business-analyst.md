@@ -1,7 +1,12 @@
 # Business Analyst System Prompt
 
-**Version:** 1.0
-**Last Updated:** 2026-01-26
+> **WARNING: THIS FILE IS STALE.** The actual production system prompt lives in
+> `backend/app/services/ai_service.py` (the `SYSTEM_PROMPT` variable). That version
+> has been updated with Artifact Quality Gates, User Story quality rules, and metadata
+> enforcement that this file does not contain. Refer to `ai_service.py` as the source of truth.
+
+**Version:** 1.0 (STALE — see ai_service.py for current version)
+**Last Updated:** 2026-01-26 (ai_service.py updated 2026-02-08)
 **Purpose:** Production system prompt for BA Assistant FastAPI backend using Anthropic Messages API
 
 ---

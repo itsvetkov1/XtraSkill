@@ -1,14 +1,18 @@
 /// Comprehensive frontend logging service with buffering and connectivity monitoring.
 ///
 /// Captures user actions, navigation, errors, and network state changes.
-/// Logs are buffered in memory (max 1000 entries) for Phase 48 batch transmission.
+/// Logs are buffered in memory (max 1000 entries) and flushed to backend.
 library;
 
 import 'dart:async';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:dio/dio.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:logger/logger.dart';
 
+import 'api_client.dart';
 import 'session_service.dart';
 
 /// Singleton logging service that buffers logs and monitors network state
@@ -54,6 +58,21 @@ class LoggingService {
   /// Logging enabled state (controlled by LoggingProvider)
   bool _isEnabled = true;
 
+  /// App lifecycle listener for pause/detach flush triggers
+  AppLifecycleListener? _lifecycleListener;
+
+  /// Secure storage for token retrieval
+  final FlutterSecureStorage _storage = const FlutterSecureStorage();
+
+  /// Storage key for auth token (matches AuthService)
+  static const String _tokenKey = 'auth_token';
+
+  /// Default flush interval in minutes
+  static const int _defaultFlushIntervalMinutes = 5;
+
+  /// Flag to prevent concurrent flush operations
+  bool _isFlushInProgress = false;
+
   /// Set logging enabled state
   ///
   /// When disabled, clears the buffer for privacy protection.
@@ -65,7 +84,7 @@ class LoggingService {
     }
   }
 
-  /// Initialize logging service with connectivity monitoring
+  /// Initialize logging service with connectivity monitoring and flush triggers
   void init() {
     // Start connectivity monitoring
     _connectivitySubscription = Connectivity()
@@ -76,8 +95,23 @@ class LoggingService {
       logNetworkStateChange(isConnected);
     });
 
-    // Phase 48: Periodic flush timer (placeholder for now)
-    // _flushTimer = Timer.periodic(const Duration(minutes: 5), (_) => flush());
+    // Periodic flush timer (default: 5 minutes)
+    _flushTimer = Timer.periodic(
+      Duration(minutes: _defaultFlushIntervalMinutes),
+      (_) => flush(),
+    );
+
+    // App lifecycle listener for pause/detach flush triggers
+    _lifecycleListener = AppLifecycleListener(
+      onPause: () {
+        debugPrint('[LoggingService] App paused - flushing logs');
+        flush();
+      },
+      onDetach: () {
+        debugPrint('[LoggingService] App detaching - flushing logs');
+        flush();
+      },
+    );
   }
 
   /// Log navigation event (route changes, screen views)
@@ -198,14 +232,68 @@ class LoggingService {
   /// Get buffered logs (for Phase 48 flush to backend)
   List<Map<String, dynamic>> get buffer => List.unmodifiable(_buffer);
 
-  /// Clear buffer after successful flush (Phase 48)
+  /// Clear buffer after successful flush
   void clearBuffer() {
     _buffer.clear();
   }
 
-  /// Dispose resources (cancel subscriptions, timers)
+  /// Flush buffered logs to backend
+  ///
+  /// Sends all buffered logs to POST /api/logs/ingest endpoint.
+  /// On success, clears sent logs from buffer.
+  /// On failure, keeps logs for retry (in-memory persistence).
+  Future<void> flush() async {
+    // Skip if empty, disabled, or already flushing
+    if (_buffer.isEmpty) return;
+    if (!_isEnabled) return;
+    if (_isFlushInProgress) return;
+
+    // Check network connectivity
+    final connectivity = await Connectivity().checkConnectivity();
+    if (connectivity.contains(ConnectivityResult.none)) {
+      debugPrint('[LoggingService] Skipping flush - no network');
+      return;
+    }
+
+    // Check authentication
+    final token = await _storage.read(key: _tokenKey);
+    if (token == null) {
+      debugPrint('[LoggingService] Skipping flush - not authenticated');
+      return;
+    }
+
+    _isFlushInProgress = true;
+
+    try {
+      // Copy buffer to avoid mutation during async POST
+      final logsToSend = List<Map<String, dynamic>>.from(_buffer);
+
+      await ApiClient().dio.post(
+        '/api/logs/ingest',
+        data: {'logs': logsToSend},
+        options: Options(
+          headers: {'Authorization': 'Bearer $token'},
+          sendTimeout: const Duration(seconds: 10),
+          receiveTimeout: const Duration(seconds: 10),
+        ),
+      );
+
+      // Success - remove sent logs from buffer
+      _buffer.removeRange(0, logsToSend.length);
+      debugPrint('[LoggingService] Flushed ${logsToSend.length} logs');
+    } catch (e) {
+      // Silent fail - logs remain in buffer for retry
+      // Use debugPrint to avoid infinite loop (not logError)
+      debugPrint('[LoggingService] Flush failed: $e');
+    } finally {
+      _isFlushInProgress = false;
+    }
+  }
+
+  /// Dispose resources (cancel subscriptions, timers, listeners)
   void dispose() {
     _connectivitySubscription?.cancel();
     _flushTimer?.cancel();
+    _lifecycleListener?.dispose();
   }
 }

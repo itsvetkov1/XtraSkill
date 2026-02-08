@@ -89,10 +89,10 @@ Plans:
   1. Logging toggle appears in Settings screen
   2. Toggle state persists across app restarts via SharedPreferences
   3. Disabling logging stops all log capture (no privacy leakage)
-**Plans**: TBD
+**Plans**: 1 plan in 1 wave
 
 Plans:
-- [ ] 47-01: TBD
+- [ ] 47-01-PLAN.md — LoggingProvider with persistence, LoggingService isEnabled, Settings toggle UI
 
 ### Phase 48: Frontend-to-Backend Flush
 **Goal**: Buffered frontend logs are sent to backend for centralized storage
@@ -119,7 +119,7 @@ Phases execute in numeric order: 43 -> 44 -> 45 -> 46 -> 47 -> 48
 | 44. Backend Admin API | 1/1 | ✓ Complete | 2026-02-08 |
 | 45. Frontend Logging Foundation | 1/1 | ✓ Complete | 2026-02-08 |
 | 46. Frontend HTTP Integration | 1/1 | ✓ Complete | 2026-02-08 |
-| 47. Frontend Settings UI | 0/TBD | Not started | - |
+| 47. Frontend Settings UI | 0/1 | Not started | - |
 | 48. Frontend-to-Backend Flush | 0/TBD | Not started | - |
 
 ---

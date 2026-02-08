@@ -8,29 +8,28 @@ A hybrid mobile and web application that augments business analysts during featu
 
 Business analysts reduce time spent on requirement documentation while improving completeness through AI-assisted discovery conversations that systematically explore edge cases and generate production-ready artifacts.
 
-## Current Milestone: v1.9.5 Pilot Logging Infrastructure
+## Current Milestone: v2.0 Search, Previews & Integrations
 
-**Goal:** Add comprehensive logging for AI-powered debugging during pilot testing
+**Goal:** Enhance discoverability and enable external system integrations
 
 **Target features:**
-- Settings toggle to enable/disable logging
-- Frontend logging (user actions, navigation, state changes, errors)
-- Backend logging (API calls, AI interactions, database operations, errors)
-- Structured JSON format with correlation IDs
-- Efficient file storage with 7-day rolling retention
-- Admin API endpoint for log download
-- Direct file access for bulk analysis
+- Global search across projects and threads
+- Thread preview text in list view
+- Thread mode indicator badges
+- JIRA integration for artifact export
+- Voice input for mobile meetings
 
 ## Current State
 
-**Shipped:** v1.9.4 Artifact Generation Deduplication (2026-02-05)
+**Shipped:** v1.9.5 Pilot Logging Infrastructure (2026-02-08)
 
 **Delivered:**
-- 4-layer defense-in-depth fix for artifact multiplication bug (BUG-016)
-- Prompt engineering: ARTIFACT DEDUPLICATION rule at priority 2 with escape hatch for regenerate/revise
-- Tool description: Single-call enforcement ("Call this tool ONCE per user request")
-- Structural filtering: Fulfilled artifact message pairs removed from conversation context via timestamp correlation
-- Silent generation: Button-triggered artifacts produce no chat bubbles (frontend + backend separate code paths)
+- Backend LoggingService with async-safe QueueHandler pattern, structlog JSON formatting, and 7-day rolling retention
+- Admin API endpoints for log listing, download, and frontend log ingestion with role-based access control
+- Frontend LoggingService with 1000-entry buffer, session ID grouping, and NavigatorObserver for route tracking
+- ApiClient singleton with X-Correlation-ID header injection linking frontend requests to backend logs
+- Settings toggle for logging enable/disable with SharedPreferences persistence and privacy-first buffer clearing
+- Lifecycle-aware flush with 5-minute Timer.periodic, AppLifecycleListener (pause/detach), and pre-logout capture
 
 **Next:** v2.0 — Search, Previews & Integrations
 
@@ -80,7 +79,7 @@ Previous features (v1.5):
 - Deletion with 10-second undo for all resources
 - Professional empty states across all list screens
 
-**Codebase:** ~86,400 lines of Python/Dart across FastAPI backend and Flutter frontend (74,766 Python + 11,652 Dart).
+**Codebase:** ~88,000 lines of Python/Dart across FastAPI backend and Flutter frontend (75,852 Python + 12,220 Dart).
 
 ## Future Vision
 
@@ -184,6 +183,35 @@ Previous features (v1.5):
 - ✓ save_artifact tool enforces single-call-per-request behavior — v1.9.4
 - ✓ Fulfilled artifact requests structurally removed from conversation context before reaching model — v1.9.4
 - ✓ Button-triggered artifact generation bypasses chat history (silent generation) — v1.9.4
+
+- ✓ All log entries use structured JSON format with consistent schema — v1.9.5
+- ✓ Log entries include severity level (DEBUG, INFO, WARN, ERROR) — v1.9.5
+- ✓ Log entries include ISO 8601 timestamps — v1.9.5
+- ✓ Correlation ID links frontend requests to backend operations via X-Correlation-ID header — v1.9.5
+- ✓ User can toggle detailed logging on/off from Settings screen — v1.9.5
+- ✓ Logs are retained for 7 days with automatic rotation/deletion — v1.9.5
+- ✓ Admin can download logs via authenticated API endpoint — v1.9.5
+- ✓ Logs are stored in accessible files for direct analysis — v1.9.5
+- ✓ User navigation events are logged (screen views, route changes) — v1.9.5
+- ✓ User actions are logged (button clicks, form submits) — v1.9.5
+- ✓ API requests/responses are logged via Dio interceptor (endpoint, method, status, duration) — v1.9.5
+- ✓ Errors are captured with exception type and stack trace — v1.9.5
+- ✓ All frontend logs include session ID for grouping — v1.9.5
+- ✓ Logs include category tags (auth, api, ai, navigation, error) — v1.9.5
+- ✓ Network state changes are logged (connectivity, timeouts) — v1.9.5
+- ✓ Frontend logs are sent to backend for centralized storage — v1.9.5
+- ✓ HTTP requests are logged via middleware (method, path, correlation ID, user ID) — v1.9.5
+- ✓ HTTP responses are logged (status code, duration) — v1.9.5
+- ✓ AI service calls are logged (provider, model, input/output tokens, duration) — v1.9.5
+- ✓ Database operations are logged (table, operation, duration) — v1.9.5
+- ✓ SSE streaming summaries are logged (event count, total duration) — v1.9.5
+- ✓ Logging uses async-safe pattern (QueueHandler) to avoid blocking event loop — v1.9.5
+- ✓ Sensitive data is sanitized before logging (tokens, API keys, PII fields) — v1.9.5
+- ✓ Logging toggle state persists across app restarts — v1.9.5
+- ✓ Backend logging level is configurable via environment variable — v1.9.5
+- ✓ Log directory path is configurable via environment variable — v1.9.5
+- ✓ Frontend buffer size is configurable (default: 1000 entries) — v1.9.5
+- ✓ Frontend flush interval is configurable (default: 5 minutes) — v1.9.5
 
 ### Active
 
@@ -296,6 +324,20 @@ BAs prepare for meetings by uploading existing requirements or stakeholder notes
 | Filter fulfilled pairs BEFORE truncation | Ensures truncation works on already-filtered conversation for accurate token estimation | ✓ Implemented (Phase 41) |
 | generateArtifact() separate from sendMessage() | PITFALL-06: Prevents blank message bubbles, streaming UI conflicts, state machine interference | ✓ Implemented (Phase 42) |
 | State clears on ArtifactCreatedEvent | PITFALL-05: Artifact appears before stream ends; user sees result immediately | ✓ Implemented (Phase 42) |
+| QueueHandler + QueueListener pattern | Async-safe logging that doesn't block FastAPI event loop during file I/O | ✓ Implemented (Phase 43) |
+| structlog for JSON logging | Native JSON output, processor chains, compatible with AI analysis tools | ✓ Implemented (Phase 43) |
+| TimedRotatingFileHandler | Daily rotation with configurable retention (default 7 days) | ✓ Implemented (Phase 43) |
+| contextvars for correlation ID | Async-safe, request-scoped storage without thread-local issues | ✓ Implemented (Phase 43) |
+| Boolean is_admin flag | Simple admin role sufficient for pilot; RBAC library would be overkill | ✓ Implemented (Phase 44) |
+| Frontend logs to same file with [FRONTEND] prefix | Simpler than separate log files, enables unified correlation | ✓ Implemented (Phase 44) |
+| Path traversal protection via is_relative_to() | Security-critical for log download endpoint | ✓ Implemented (Phase 44) |
+| LoggingService singleton with 1000-entry buffer | Memory-bounded with auto-trim on overflow | ✓ Implemented (Phase 45) |
+| UUID v4 session ID per app lifecycle | Enables grouping logs by session without auth dependency | ✓ Implemented (Phase 45) |
+| ApiClient singleton for shared Dio | All HTTP requests route through same interceptor automatically | ✓ Implemented (Phase 46) |
+| Default logging enabled for pilot | Maximizes diagnostic data collection during pilot testing | ✓ Implemented (Phase 47) |
+| Clear buffer when logging disabled | Privacy protection - no stale logs remain after user disables | ✓ Implemented (Phase 47) |
+| Copy buffer before POST in flush | Prevents mutation during async operation if new logs added | ✓ Implemented (Phase 48) |
+| debugPrint for flush errors | Avoids infinite loop if logError triggers another flush attempt | ✓ Implemented (Phase 48) |
 
 ---
-*Last updated: 2026-02-05 after v1.9.4 milestone complete*
+*Last updated: 2026-02-08 after v1.9.5 milestone complete*

@@ -1,5 +1,34 @@
 # Project Milestones: Business Analyst Assistant
 
+## v1.9.5 Pilot Logging Infrastructure (Shipped: 2026-02-08)
+
+**Delivered:** Comprehensive logging infrastructure for AI-powered debugging during pilot testing — structured JSON logging with correlation IDs linking frontend and backend, admin API for log access, settings toggle for privacy control, and lifecycle-aware flush to centralized storage.
+
+**Phases completed:** 43-48 (8 plans total)
+
+**Key accomplishments:**
+
+- Backend LoggingService with async-safe QueueHandler pattern, structlog JSON formatting, and 7-day rolling retention
+- Admin API endpoints for log listing, download, and frontend log ingestion with role-based access control
+- Frontend LoggingService with 1000-entry buffer, session ID grouping, and NavigatorObserver for route tracking
+- ApiClient singleton with X-Correlation-ID header injection linking frontend requests to backend logs
+- Settings toggle for logging enable/disable with SharedPreferences persistence and privacy-first buffer clearing
+- Lifecycle-aware flush with 5-minute Timer.periodic, AppLifecycleListener (pause/detach), and pre-logout capture
+
+**Stats:**
+
+- 65 files modified, +9,525 / -288 lines
+- ~88,000 LOC (75,852 Python + 12,220 Dart)
+- 6 phases, 8 plans
+- 29/29 requirements satisfied
+- 2 days from start to ship (2026-02-07 → 2026-02-08)
+
+**Git range:** `67c582d` → `01e5360`
+
+**What's next:** v2.0 — Search, Previews & Integrations
+
+---
+
 ## v1.9.4 Artifact Generation Deduplication (Shipped: 2026-02-05)
 
 **Delivered:** 4-layer defense-in-depth fix for artifact multiplication bug (BUG-016) — prompt engineering deduplication rule, tool description single-call enforcement, structural history filtering via timestamp correlation, and silent artifact generation that bypasses chat history entirely.

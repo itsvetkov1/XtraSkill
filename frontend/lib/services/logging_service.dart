@@ -51,6 +51,20 @@ class LoggingService {
   /// Timer for periodic flush (Phase 48)
   Timer? _flushTimer;
 
+  /// Logging enabled state (controlled by LoggingProvider)
+  bool _isEnabled = true;
+
+  /// Set logging enabled state
+  ///
+  /// When disabled, clears the buffer for privacy protection.
+  /// This setter is called by LoggingProvider when user toggles logging.
+  set isEnabled(bool enabled) {
+    _isEnabled = enabled;
+    if (!enabled) {
+      clearBuffer();
+    }
+  }
+
   /// Initialize logging service with connectivity monitoring
   void init() {
     // Start connectivity monitoring
@@ -155,6 +169,9 @@ class LoggingService {
     required String category,
     Map<String, dynamic>? metadata,
   }) {
+    // Early return if logging is disabled
+    if (!_isEnabled) return;
+
     // Console logging for development
     final logLevel = Level.values.byName(level.toLowerCase());
     _logger.log(logLevel, message);

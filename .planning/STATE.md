@@ -6,29 +6,29 @@ See: .planning/PROJECT.md (updated 2026-02-07)
 
 **Core value:** Business analysts reduce time spent on requirement documentation while improving completeness through AI-assisted discovery conversations that systematically explore edge cases and generate production-ready artifacts.
 
-**Current focus:** v1.9.5 — Pilot Logging Infrastructure (Phase 46 Complete)
+**Current focus:** v1.9.5 — Pilot Logging Infrastructure (Phase 47 Complete)
 
 ## Current Position
 
 Milestone: v1.9.5 Pilot Logging Infrastructure
-Phase: 46 of 48 (Frontend HTTP Integration)
-Plan: 1 of 1 (plan 46-01 complete)
+Phase: 47 of 48 (Frontend Settings UI)
+Plan: 1 of 1 (plan 47-01 complete)
 Status: Phase complete
-Last activity: 2026-02-08 — Completed 46-01-PLAN.md
+Last activity: 2026-02-08 — Completed 47-01-PLAN.md
 
 Progress:
 ```
 v1.0-v1.9.4: [##########] 42 phases, 106 plans, 10 milestones SHIPPED
 
-v1.9.5:      [####......] 4/6 phases (67%)
-Phase 46:    [##########] 1/1 plans complete
-Next: Phase 47 (Settings UI with logging toggle)
+v1.9.5:      [#####.....] 5/6 phases (83%)
+Phase 47:    [##########] 1/1 plans complete
+Next: Phase 48 (Flush logs to backend)
 ```
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 112 (across 10 milestones)
+- Total plans completed: 113 (across 10 milestones)
 - Average duration: ~1-18 minutes per plan
 
 **By Milestone:**
@@ -47,7 +47,7 @@ Next: Phase 47 (Settings UI with logging toggle)
 | Dedup v1.9.4 | 40-42 | 5/5 | SHIPPED 2026-02-06 |
 | Logging v1.9.5 | 43-48 | 6/TBD | In progress |
 
-**Total:** 112 plans shipped across 46 phases
+**Total:** 113 plans shipped across 47 phases
 
 ## Accumulated Context
 
@@ -83,6 +83,9 @@ Recent decisions for v1.9.5:
 - ApiClient singleton pattern ensures all HTTP requests route through shared interceptor (LOG-021)
 - Removed baseUrl from services; now configured centrally in ApiClient via ApiConfig.baseUrl (LOG-022)
 - Test compatibility maintained via optional dio parameter for mock injection (LOG-023)
+- Default logging enabled for pilot phase to maximize diagnostic data (LOG-024)
+- Clear buffer when logging disabled for privacy protection (LOG-025)
+- Early return in _log() method for zero overhead when disabled (LOG-026)
 
 ### Pending Todos
 
@@ -96,13 +99,13 @@ Recent decisions for v1.9.5:
 ## Session Continuity
 
 Last session: 2026-02-08
-Stopped at: Completed 46-01-PLAN.md
+Stopped at: Completed 47-01-PLAN.md
 Resume file: None
-Next action: `/gsd:plan-phase 47` to plan Settings UI with logging toggle
+Next action: `/gsd:plan-phase 48` to plan Flush logs to backend
 
 **Context for Next Session:**
 - 10 milestones shipped (v1.0 through v1.9.4)
-- 46 phases, 112 plans completed
+- 47 phases, 113 plans completed
 - Phase 45 COMPLETE: Frontend Logging Foundation
   - LoggingService singleton with in-memory buffer (max 1000 entries)
   - SessionService singleton with UUID v4 session IDs
@@ -115,10 +118,16 @@ Next action: `/gsd:plan-phase 47` to plan Settings UI with logging toggle
   - logApi() method in LoggingService with status-based log levels
   - All 6 services refactored to use ApiClient().dio
   - All HTTP requests now include correlation ID for backend tracing
+- Phase 47 COMPLETE: Frontend Settings UI
+  - LoggingProvider with persist-before-notify pattern
+  - Settings screen "Detailed Logging" toggle
+  - SharedPreferences persistence (defaults to enabled)
+  - LoggingService.isEnabled with early return and buffer clear
+  - Privacy protection: buffer clears on disable
 
 **Roadmap:**
-Phase 47 (Settings UI with logging toggle) -> Phase 48 (Flush logs to backend)
+Phase 48 (Flush logs to backend) is final phase for v1.9.5 milestone
 
 ---
 
-*State updated: 2026-02-08 (completed 46-01)*
+*State updated: 2026-02-08 (completed 47-01)*

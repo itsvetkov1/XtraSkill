@@ -111,6 +111,43 @@ class LoggingService {
     );
   }
 
+  /// Log API request/response (HTTP calls via Dio interceptor)
+  void logApi({
+    required String endpoint,
+    required String method,
+    int? statusCode,
+    int? durationMs,
+    String? correlationId,
+    String? error,
+  }) {
+    final level = _getLogLevelForStatus(statusCode);
+    final message = error != null
+        ? '$method $endpoint -> ${statusCode ?? 'ERROR'} ($error)'
+        : '$method $endpoint -> $statusCode';
+
+    _log(
+      level: level,
+      message: message,
+      category: 'api',
+      metadata: {
+        'endpoint': endpoint,
+        'method': method,
+        if (statusCode != null) 'status_code': statusCode,
+        if (durationMs != null) 'duration_ms': durationMs,
+        if (correlationId != null) 'correlation_id': correlationId,
+        if (error != null) 'error': error,
+      },
+    );
+  }
+
+  /// Determine log level based on HTTP status code (per LOG-006)
+  String _getLogLevelForStatus(int? statusCode) {
+    if (statusCode == null) return 'ERROR';
+    if (statusCode >= 500) return 'ERROR';
+    if (statusCode >= 400) return 'WARNING';
+    return 'INFO';
+  }
+
   /// Internal logging method that writes to console and buffers for backend
   void _log({
     required String level,

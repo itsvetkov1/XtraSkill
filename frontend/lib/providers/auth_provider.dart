@@ -4,6 +4,7 @@ library;
 import 'package:flutter/foundation.dart';
 
 import '../services/auth_service.dart';
+import '../services/logging_service.dart';
 
 /// Authentication state enumeration
 enum AuthState {
@@ -186,6 +187,15 @@ class AuthProvider extends ChangeNotifier {
   Future<void> logout() async {
     _state = AuthState.loading;
     notifyListeners();
+
+    // Flush logs before logout to capture final session events
+    try {
+      await LoggingService().flush();
+    } catch (e) {
+      // Ignore flush errors - proceed with logout
+      // Use debugPrint to avoid infinite loop (not logError)
+      debugPrint('Flush before logout failed: $e');
+    }
 
     try {
       await _authService.logout();

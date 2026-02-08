@@ -8,6 +8,7 @@ import 'dart:ui' as _i4;
 
 import 'package:flutter/material.dart' as _i6;
 import 'package:frontend/providers/auth_provider.dart' as _i2;
+import 'package:frontend/providers/logging_provider.dart' as _i9;
 import 'package:frontend/providers/provider_provider.dart' as _i7;
 import 'package:frontend/providers/theme_provider.dart' as _i5;
 import 'package:mockito/mockito.dart' as _i1;
@@ -253,6 +254,62 @@ class MockProviderProvider extends _i1.Mock implements _i7.ProviderProvider {
   _i3.Future<void> setProvider(String? provider) =>
       (super.noSuchMethod(
             Invocation.method(#setProvider, [provider]),
+            returnValue: _i3.Future<void>.value(),
+            returnValueForMissingStub: _i3.Future<void>.value(),
+          )
+          as _i3.Future<void>);
+
+  @override
+  void addListener(_i4.VoidCallback? listener) => super.noSuchMethod(
+    Invocation.method(#addListener, [listener]),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  void removeListener(_i4.VoidCallback? listener) => super.noSuchMethod(
+    Invocation.method(#removeListener, [listener]),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  void dispose() => super.noSuchMethod(
+    Invocation.method(#dispose, []),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  void notifyListeners() => super.noSuchMethod(
+    Invocation.method(#notifyListeners, []),
+    returnValueForMissingStub: null,
+  );
+}
+
+/// A class which mocks [LoggingProvider].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockLoggingProvider extends _i1.Mock implements _i9.LoggingProvider {
+  @override
+  bool get isLoggingEnabled =>
+      (super.noSuchMethod(
+            Invocation.getter(#isLoggingEnabled),
+            returnValue: false,
+            returnValueForMissingStub: false,
+          )
+          as bool);
+
+  @override
+  bool get hasListeners =>
+      (super.noSuchMethod(
+            Invocation.getter(#hasListeners),
+            returnValue: false,
+            returnValueForMissingStub: false,
+          )
+          as bool);
+
+  @override
+  _i3.Future<void> toggleLogging() =>
+      (super.noSuchMethod(
+            Invocation.method(#toggleLogging, []),
             returnValue: _i3.Future<void>.value(),
             returnValueForMissingStub: _i3.Future<void>.value(),
           )

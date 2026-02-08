@@ -9,6 +9,7 @@ import '../models/token_usage.dart';
 import '../providers/auth_provider.dart';
 import '../providers/provider_provider.dart';
 import '../providers/theme_provider.dart';
+import '../providers/logging_provider.dart';
 import '../services/auth_service.dart';
 
 /// Settings screen content displaying user profile, theme toggle, usage, and logout
@@ -120,6 +121,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   }
                 },
               ),
+            );
+          },
+        ),
+        Consumer<LoggingProvider>(
+          builder: (context, loggingProvider, _) {
+            return SwitchListTile(
+              title: const Text('Detailed Logging'),
+              subtitle: const Text('Capture diagnostic logs for troubleshooting'),
+              value: loggingProvider.isLoggingEnabled,
+              onChanged: (_) => loggingProvider.toggleLogging(),
             );
           },
         ),

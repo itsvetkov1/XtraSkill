@@ -22,6 +22,7 @@ import 'providers/theme_provider.dart';
 import 'providers/provider_provider.dart';
 import 'providers/thread_provider.dart';
 import 'providers/chats_provider.dart';
+import 'providers/logging_provider.dart';
 import 'screens/auth/callback_screen.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/home_screen.dart';
@@ -47,10 +48,14 @@ Future<void> main() async {
   final themeProvider = await ThemeProvider.load(prefs);
   final navigationProvider = await NavigationProvider.load(prefs);
   final providerProvider = await ProviderProvider.load(prefs);
+  final loggingProvider = await LoggingProvider.load(prefs);
 
   // Initialize logging service with connectivity monitoring
   final loggingService = LoggingService();
   loggingService.init();
+
+  // Sync logging provider state to service
+  loggingService.isEnabled = loggingProvider.isLoggingEnabled;
 
   // Global error handlers to prevent crashes and log errors
   FlutterError.onError = (FlutterErrorDetails details) {
@@ -94,6 +99,7 @@ Future<void> main() async {
     themeProvider: themeProvider,
     navigationProvider: navigationProvider,
     providerProvider: providerProvider,
+    loggingProvider: loggingProvider,
   ));
 }
 
@@ -101,12 +107,14 @@ class MyApp extends StatefulWidget {
   final ThemeProvider themeProvider;
   final NavigationProvider navigationProvider;
   final ProviderProvider providerProvider;
+  final LoggingProvider loggingProvider;
 
   const MyApp({
     super.key,
     required this.themeProvider,
     required this.navigationProvider,
     required this.providerProvider,
+    required this.loggingProvider,
   });
 
   @override
@@ -124,6 +132,7 @@ class _MyAppState extends State<MyApp> {
         ChangeNotifierProvider.value(value: widget.themeProvider),
         ChangeNotifierProvider.value(value: widget.navigationProvider),
         ChangeNotifierProvider.value(value: widget.providerProvider),
+        ChangeNotifierProvider.value(value: widget.loggingProvider),
         ChangeNotifierProvider(create: (_) => DocumentColumnProvider()),
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => BudgetProvider()),

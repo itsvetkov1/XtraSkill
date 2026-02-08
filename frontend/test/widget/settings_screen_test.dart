@@ -6,6 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:frontend/providers/auth_provider.dart';
 import 'package:frontend/providers/provider_provider.dart';
 import 'package:frontend/providers/theme_provider.dart';
+import 'package:frontend/providers/logging_provider.dart';
 import 'package:frontend/screens/settings_screen.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
@@ -17,17 +18,20 @@ import 'settings_screen_test.mocks.dart';
   MockSpec<AuthProvider>(),
   MockSpec<ThemeProvider>(),
   MockSpec<ProviderProvider>(),
+  MockSpec<LoggingProvider>(),
 ])
 void main() {
   group('SettingsScreen Widget Tests', () {
     late MockAuthProvider mockAuthProvider;
     late MockThemeProvider mockThemeProvider;
     late MockProviderProvider mockProviderProvider;
+    late MockLoggingProvider mockLoggingProvider;
 
     setUp(() {
       mockAuthProvider = MockAuthProvider();
       mockThemeProvider = MockThemeProvider();
       mockProviderProvider = MockProviderProvider();
+      mockLoggingProvider = MockLoggingProvider();
 
       // Default mock behavior
       when(mockAuthProvider.email).thenReturn('user@example.com');
@@ -37,6 +41,8 @@ void main() {
       when(mockThemeProvider.isDarkMode).thenReturn(false);
 
       when(mockProviderProvider.selectedProvider).thenReturn('anthropic');
+
+      when(mockLoggingProvider.isLoggingEnabled).thenReturn(true);
     });
 
     Widget buildTestWidget() {
@@ -48,6 +54,8 @@ void main() {
                 value: mockThemeProvider),
             ChangeNotifierProvider<ProviderProvider>.value(
                 value: mockProviderProvider),
+            ChangeNotifierProvider<LoggingProvider>.value(
+                value: mockLoggingProvider),
           ],
           child: const Scaffold(
             body: SettingsScreen(),
@@ -65,6 +73,13 @@ void main() {
         expect(find.text('Appearance'), findsOneWidget);
         expect(find.text('Preferences'), findsOneWidget);
         expect(find.text('Usage'), findsOneWidget);
+
+        // Actions section may be off-screen, scroll to it
+        await tester.scrollUntilVisible(
+          find.text('Actions'),
+          100,
+          scrollable: find.byType(Scrollable),
+        );
         expect(find.text('Actions'), findsOneWidget);
       });
     });
@@ -150,14 +165,18 @@ void main() {
         await tester.pump();
 
         expect(find.text('Dark Mode'), findsOneWidget);
-        expect(find.byType(SwitchListTile), findsOneWidget);
+        // Now there are 2 SwitchListTiles: dark mode and logging
+        expect(find.byType(SwitchListTile), findsNWidgets(2));
       });
 
       testWidgets('toggle calls toggleTheme', (tester) async {
         await tester.pumpWidget(buildTestWidget());
         await tester.pump();
 
-        await tester.tap(find.byType(Switch));
+        // Find the first switch (dark mode toggle)
+        final switches = find.byType(Switch);
+        expect(switches, findsNWidgets(2));
+        await tester.tap(switches.first);
         await tester.pump();
 
         verify(mockThemeProvider.toggleTheme()).called(1);
@@ -205,10 +224,43 @@ void main() {
       });
     });
 
+    group('Logging Section', () {
+      testWidgets('shows logging toggle', (tester) async {
+        await tester.pumpWidget(buildTestWidget());
+        await tester.pump();
+
+        expect(find.text('Detailed Logging'), findsOneWidget);
+        expect(find.text('Capture diagnostic logs for troubleshooting'),
+            findsOneWidget);
+      });
+
+      testWidgets('toggle calls toggleLogging', (tester) async {
+        await tester.pumpWidget(buildTestWidget());
+        await tester.pump();
+
+        // Find the logging toggle switch (there are two SwitchListTiles: dark mode and logging)
+        final switches = find.byType(Switch);
+        expect(switches, findsNWidgets(2));
+
+        // Tap the second switch (logging toggle)
+        await tester.tap(switches.at(1));
+        await tester.pump();
+
+        verify(mockLoggingProvider.toggleLogging()).called(1);
+      });
+    });
+
     group('Actions Section', () {
       testWidgets('shows logout button', (tester) async {
         await tester.pumpWidget(buildTestWidget());
         await tester.pump();
+
+        // Scroll to the logout button (it may be off-screen in Actions section)
+        await tester.scrollUntilVisible(
+          find.text('Log Out'),
+          100,
+          scrollable: find.byType(Scrollable),
+        );
 
         expect(find.text('Log Out'), findsOneWidget);
         expect(find.byIcon(Icons.logout), findsOneWidget);

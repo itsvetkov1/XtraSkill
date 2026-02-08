@@ -6,29 +6,29 @@ See: .planning/PROJECT.md (updated 2026-02-07)
 
 **Core value:** Business analysts reduce time spent on requirement documentation while improving completeness through AI-assisted discovery conversations that systematically explore edge cases and generate production-ready artifacts.
 
-**Current focus:** v1.9.5 — Pilot Logging Infrastructure (Phase 47 Complete)
+**Current focus:** v1.9.5 — Pilot Logging Infrastructure (COMPLETE)
 
 ## Current Position
 
 Milestone: v1.9.5 Pilot Logging Infrastructure
-Phase: 47 of 48 (Frontend Settings UI)
-Plan: 1 of 1 (plan 47-01 complete)
-Status: Phase complete
-Last activity: 2026-02-08 — Completed 47-01-PLAN.md
+Phase: 48 of 48 (Frontend to Backend Flush)
+Plan: 1 of 1 (plan 48-01 complete)
+Status: MILESTONE COMPLETE
+Last activity: 2026-02-08 — Completed 48-01-PLAN.md
 
 Progress:
 ```
 v1.0-v1.9.4: [##########] 42 phases, 106 plans, 10 milestones SHIPPED
 
-v1.9.5:      [#####.....] 5/6 phases (83%)
-Phase 47:    [##########] 1/1 plans complete
-Next: Phase 48 (Flush logs to backend)
+v1.9.5:      [##########] 6/6 phases (100%)
+Phase 48:    [##########] 1/1 plans complete
+MILESTONE COMPLETE - Ready for pilot testing
 ```
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 113 (across 10 milestones)
+- Total plans completed: 114 (across 11 milestones)
 - Average duration: ~1-18 minutes per plan
 
 **By Milestone:**
@@ -45,9 +45,9 @@ Next: Phase 48 (Flush logs to backend)
 | Resilience v1.9.2 | 34-36 | 9/9 | SHIPPED 2026-02-04 |
 | Doc & Nav v1.9.3 | 37-39 | 3/3 | SHIPPED 2026-02-04 |
 | Dedup v1.9.4 | 40-42 | 5/5 | SHIPPED 2026-02-06 |
-| Logging v1.9.5 | 43-48 | 6/TBD | In progress |
+| Logging v1.9.5 | 43-48 | 6/6 | SHIPPED 2026-02-08 |
 
-**Total:** 113 plans shipped across 47 phases
+**Total:** 114 plans shipped across 48 phases
 
 ## Accumulated Context
 
@@ -86,6 +86,9 @@ Recent decisions for v1.9.5:
 - Default logging enabled for pilot phase to maximize diagnostic data (LOG-024)
 - Clear buffer when logging disabled for privacy protection (LOG-025)
 - Early return in _log() method for zero overhead when disabled (LOG-026)
+- Copy buffer before POST to prevent mutation during async operation (LOG-027)
+- Use debugPrint for flush errors to avoid infinite logging loop (LOG-028)
+- Skip flush if not authenticated to prevent 401 spam (LOG-029)
 
 ### Pending Todos
 
@@ -99,35 +102,31 @@ Recent decisions for v1.9.5:
 ## Session Continuity
 
 Last session: 2026-02-08
-Stopped at: Completed 47-01-PLAN.md
+Stopped at: Completed 48-01-PLAN.md (MILESTONE v1.9.5 COMPLETE)
 Resume file: None
-Next action: `/gsd:plan-phase 48` to plan Flush logs to backend
+Next action: Plan next milestone (v1.9.6 or v2.0)
 
 **Context for Next Session:**
-- 10 milestones shipped (v1.0 through v1.9.4)
-- 47 phases, 113 plans completed
-- Phase 45 COMPLETE: Frontend Logging Foundation
-  - LoggingService singleton with in-memory buffer (max 1000 entries)
-  - SessionService singleton with UUID v4 session IDs
-  - NavigatorObserver for go_router route tracking
-  - Error handlers wired to LoggingService
-  - Network state change monitoring via connectivity_plus
-- Phase 46 COMPLETE: Frontend HTTP Integration
-  - ApiClient singleton with shared Dio instance
-  - InterceptorsWrapper adds X-Correlation-ID header to all requests
-  - logApi() method in LoggingService with status-based log levels
-  - All 6 services refactored to use ApiClient().dio
-  - All HTTP requests now include correlation ID for backend tracing
-- Phase 47 COMPLETE: Frontend Settings UI
-  - LoggingProvider with persist-before-notify pattern
-  - Settings screen "Detailed Logging" toggle
-  - SharedPreferences persistence (defaults to enabled)
-  - LoggingService.isEnabled with early return and buffer clear
-  - Privacy protection: buffer clears on disable
+- 11 milestones shipped (v1.0 through v1.9.5)
+- 48 phases, 114 plans completed
+- Milestone v1.9.5 COMPLETE: Pilot Logging Infrastructure
+  - Phase 43: Backend logging infrastructure (structlog, JSON, rotation)
+  - Phase 44: Frontend logging ingest endpoint
+  - Phase 45: Frontend LoggingService with buffer
+  - Phase 46: ApiClient with correlation ID
+  - Phase 47: Settings UI logging toggle
+  - Phase 48: Flush to backend (timer, lifecycle, logout)
 
-**Roadmap:**
-Phase 48 (Flush logs to backend) is final phase for v1.9.5 milestone
+**Logging Pipeline Complete:**
+1. Frontend captures logs in buffer (max 1000 entries)
+2. API calls include X-Correlation-ID header
+3. User can toggle logging in Settings
+4. Logs flush to backend every 5 minutes
+5. Logs flush on app pause/detach lifecycle events
+6. Logs flush before logout
+7. Backend stores logs with [FRONTEND] prefix
+8. 7-day rolling retention with daily rotation
 
 ---
 
-*State updated: 2026-02-08 (completed 47-01)*
+*State updated: 2026-02-08 (completed 48-01, milestone v1.9.5 complete)*

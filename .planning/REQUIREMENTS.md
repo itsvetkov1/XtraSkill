@@ -13,7 +13,7 @@ Requirements for Pilot Logging Infrastructure milestone.
 - [ ] **LOG-02**: Log entries include severity level (DEBUG, INFO, WARN, ERROR)
 - [ ] **LOG-03**: Log entries include ISO 8601 timestamps
 - [ ] **LOG-04**: Correlation ID links frontend requests to backend operations via X-Correlation-ID header
-- [ ] **LOG-05**: User can toggle detailed logging on/off from Settings screen
+- [x] **LOG-05**: User can toggle detailed logging on/off from Settings screen
 - [ ] **LOG-06**: Logs are retained for 7 days with automatic rotation/deletion
 - [ ] **LOG-07**: Admin can download logs via authenticated API endpoint
 - [ ] **LOG-08**: Logs are stored in accessible files for direct analysis
@@ -42,7 +42,7 @@ Requirements for Pilot Logging Infrastructure milestone.
 
 ### Settings & Configuration
 
-- [ ] **SLOG-01**: Logging toggle state persists across app restarts
+- [x] **SLOG-01**: Logging toggle state persists across app restarts
 - [ ] **SLOG-02**: Backend logging level is configurable via environment variable
 - [ ] **SLOG-03**: Log directory path is configurable via environment variable
 - [ ] **SLOG-04**: Frontend buffer size is configurable (default: 1000 entries)
@@ -85,7 +85,7 @@ Which phases cover which requirements.
 | LOG-02 | Phase 43 | Complete |
 | LOG-03 | Phase 43 | Complete |
 | LOG-04 | Phase 43 | Complete |
-| LOG-05 | Phase 47 | Pending |
+| LOG-05 | Phase 47 | Complete |
 | LOG-06 | Phase 43 | Complete |
 | LOG-07 | Phase 44 | Complete |
 | LOG-08 | Phase 43 | Complete |
@@ -105,7 +105,7 @@ Which phases cover which requirements.
 | BLOG-06 | Phase 43 | Complete |
 | BLOG-07 | Phase 43 | Complete |
 | BLOG-08 | Phase 43 | Complete |
-| SLOG-01 | Phase 47 | Pending |
+| SLOG-01 | Phase 47 | Complete |
 | SLOG-02 | Phase 43 | Complete |
 | SLOG-03 | Phase 43 | Complete |
 | SLOG-04 | Phase 45 | Pending |

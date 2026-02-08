@@ -18,7 +18,7 @@ This milestone adds comprehensive logging infrastructure for AI-powered debuggin
 - [x] **Phase 44: Backend Admin API** - Log listing, download, and ingest endpoints ✓
 - [x] **Phase 45: Frontend Logging Foundation** - LoggingService, LoggingProvider, categories, buffering ✓
 - [x] **Phase 46: Frontend HTTP Integration** - Dio interceptor with correlation ID header ✓
-- [ ] **Phase 47: Frontend Settings UI** - Logging toggle in Settings screen with persistence
+- [x] **Phase 47: Frontend Settings UI** - Logging toggle in Settings screen with persistence ✓
 - [ ] **Phase 48: Frontend-to-Backend Flush** - Send buffered logs to backend, lifecycle handling
 
 ## Phase Details
@@ -92,7 +92,7 @@ Plans:
 **Plans**: 1 plan in 1 wave
 
 Plans:
-- [ ] 47-01-PLAN.md — LoggingProvider with persistence, LoggingService isEnabled, Settings toggle UI
+- [x] 47-01-PLAN.md — LoggingProvider with persistence, LoggingService isEnabled, Settings toggle UI ✓
 
 ### Phase 48: Frontend-to-Backend Flush
 **Goal**: Buffered frontend logs are sent to backend for centralized storage
@@ -119,7 +119,7 @@ Phases execute in numeric order: 43 -> 44 -> 45 -> 46 -> 47 -> 48
 | 44. Backend Admin API | 1/1 | ✓ Complete | 2026-02-08 |
 | 45. Frontend Logging Foundation | 1/1 | ✓ Complete | 2026-02-08 |
 | 46. Frontend HTTP Integration | 1/1 | ✓ Complete | 2026-02-08 |
-| 47. Frontend Settings UI | 0/1 | Not started | - |
+| 47. Frontend Settings UI | 1/1 | ✓ Complete | 2026-02-08 |
 | 48. Frontend-to-Backend Flush | 0/TBD | Not started | - |
 
 ---

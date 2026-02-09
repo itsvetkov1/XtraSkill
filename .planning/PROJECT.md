@@ -8,16 +8,17 @@ A hybrid mobile and web application that augments business analysts during featu
 
 Business analysts reduce time spent on requirement documentation while improving completeness through AI-assisted discovery conversations that systematically explore edge cases and generate production-ready artifacts.
 
-## Current Milestone: v2.0 Search, Previews & Integrations
+## Current Milestone: v2.0 Security Audit & Deployment
 
-**Goal:** Enhance discoverability and enable external system integrations
+**Goal:** Harden the application for production and deploy to live environment with custom domain for pilot group
 
 **Target features:**
-- Global search across projects and threads
-- Thread preview text in list view
-- Thread mode indicator badges
-- JIRA integration for artifact export
-- Voice input for mobile meetings
+- OWASP-aligned security audit and hardening (auth, input validation, secrets, API security)
+- Production environment configuration (environment variables, CORS, HTTPS)
+- Hosting platform setup with step-by-step deployment guide
+- Custom domain purchase and DNS configuration
+- OAuth redirect URI updates for production (Google Cloud Console + Azure AD)
+- First-time deployer handholding from zero to live
 
 ## Current State
 
@@ -31,7 +32,7 @@ Business analysts reduce time spent on requirement documentation while improving
 - Settings toggle for logging enable/disable with SharedPreferences persistence and privacy-first buffer clearing
 - Lifecycle-aware flush with 5-minute Timer.periodic, AppLifecycleListener (pause/detach), and pre-logout capture
 
-**Next:** v2.0 — Search, Previews & Integrations
+**Next:** v2.0 — Security Audit & Deployment
 
 Previous milestone (v1.9.2):
 - Network error resilience with partial content preservation and retry
@@ -83,7 +84,7 @@ Previous features (v1.5):
 
 ## Future Vision
 
-**v2.0 — Search, Previews & Integrations** (next)
+**v2.1 — Search, Previews & Integrations** (after deployment)
 
 - Global search across projects and threads
 - Thread preview text in list view
@@ -215,13 +216,14 @@ Previous features (v1.5):
 
 ### Active
 
-**v2.0 — Search, Previews & Integrations** (planned)
+**v2.0 — Security Audit & Deployment** (planned)
 
-- [ ] Global search across projects and threads
-- [ ] Thread preview text in list view
-- [ ] Thread mode indicator badges
-- [ ] JIRA integration for artifact export
-- [ ] Voice input for mobile meetings
+- [ ] OWASP-aligned security audit and hardening
+- [ ] Production environment configuration
+- [ ] Hosting platform deployment (research-recommended)
+- [ ] Custom domain with DNS setup
+- [ ] OAuth production redirect URIs (Google + Microsoft)
+- [ ] End-to-end deployment guide for first-time deployer
 
 ### Deferred
 
@@ -340,4 +342,4 @@ BAs prepare for meetings by uploading existing requirements or stakeholder notes
 | debugPrint for flush errors | Avoids infinite loop if logError triggers another flush attempt | ✓ Implemented (Phase 48) |
 
 ---
-*Last updated: 2026-02-08 after v1.9.5 milestone complete*
+*Last updated: 2026-02-09 after v2.0 milestone started — Security Audit & Deployment*

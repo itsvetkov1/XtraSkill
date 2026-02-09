@@ -6,21 +6,21 @@ See: .planning/PROJECT.md (updated 2026-02-08)
 
 **Core value:** Business analysts reduce time spent on requirement documentation while improving completeness through AI-assisted discovery conversations that systematically explore edge cases and generate production-ready artifacts.
 
-**Current focus:** v2.0 — Search, Previews & Integrations (planning)
+**Current focus:** v2.0 — Security Audit & Deployment
 
 ## Current Position
 
-Milestone: v2.0 Search, Previews & Integrations
-Phase: Not started
-Plan: Not started
-Status: Ready to plan next milestone
-Last activity: 2026-02-08 — v1.9.5 milestone complete
+Milestone: v2.0 Security Audit & Deployment
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-02-09 — Milestone v2.0 started
 
 Progress:
 ```
 v1.0-v1.9.5: [##########] 48 phases, 114 plans, 11 milestones SHIPPED
 
-v2.0:        [          ] 0/? phases (planning)
+v2.0:        [          ] 0/? phases (defining requirements)
 ```
 
 ## Performance Metrics
@@ -70,22 +70,19 @@ Recent key decisions (full archive in MILESTONES.md and milestone archives):
 
 ## Session Continuity
 
-Last session: 2026-02-08
-Stopped at: Milestone v1.9.5 complete
+Last session: 2026-02-09
+Stopped at: v2.0 milestone started — defining requirements
 Resume file: None
-Next action: Start v2.0 milestone planning
+Next action: Research → Requirements → Roadmap
 
 **Context for Next Session:**
 - 11 milestones shipped (v1.0 through v1.9.5)
 - 48 phases, 114 plans completed
 - ~88,000 LOC (75,852 Python + 12,220 Dart)
-- v1.9.5 added comprehensive logging infrastructure:
-  - Backend: structlog, QueueHandler, 7-day rotation, admin API
-  - Frontend: LoggingService, correlation IDs, Settings toggle
-  - Integration: 5-minute flush, lifecycle triggers, logout capture
-
-**Ready for pilot deployment and testing.**
+- v2.0 focus: Security audit + first deployment with custom domain
+- Target: Small pilot group (< 10 BAs)
+- First-time deployer — needs full handholding
 
 ---
 
-*State updated: 2026-02-08 (v1.9.5 milestone archived)*
+*State updated: 2026-02-09 (v2.0 milestone started)*

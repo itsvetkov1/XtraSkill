@@ -1,0 +1,22 @@
+# Python Playwright E2E Testing Framework
+# BA Assistant Flutter Web Application
+
+# Core testing
+playwright>=1.40.0
+pytest>=8.0.0
+pytest-playwright>=0.4.4
+
+# Reporting
+pytest-html>=4.1.0
+
+# Environment & configuration
+python-dotenv>=1.0.0
+
+# HTTP client for API testing
+requests>=2.31.0
+
+# JWT handling for auth mocking
+pyjwt>=2.8.0
+
+# Parallel test execution (optional)
+pytest-xdist>=3.5.0

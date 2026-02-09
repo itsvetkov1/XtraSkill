@@ -219,6 +219,18 @@ Thumbs.db
 
 ---
 
+## Log Files
+
+**Location:** `G:\git_repos\BA_assistant\backend\logs`
+
+When investigating issues, check logs here:
+- `backend/logs/app.log` — current log file (backend + frontend logs)
+- `backend/logs/app.log.YYYY-MM-DD` — rotated daily logs (7-day retention)
+
+Do NOT look for logs in root directory or other locations.
+
+---
+
 ## Deferred Testing Workflow
 
 ### Rule: Collect Testing Points, Continue Development

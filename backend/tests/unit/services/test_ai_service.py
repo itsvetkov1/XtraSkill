@@ -478,7 +478,11 @@ class TestAIServiceStreamChatEdgeCases:
 
     @pytest.mark.asyncio
     async def test_text_before_tool_call(self, db_session, user):
-        """Text before tool call is accumulated and separator is added."""
+        """Text before tool call is accumulated and included in message_complete.
+
+        NOTE: After BUG-016 fix, save_artifact causes immediate loop exit,
+        so we only get the initial text (no second iteration with "Done!").
+        """
         db_session.add(user)
         await db_session.commit()
 
@@ -508,6 +512,7 @@ class TestAIServiceStreamChatEdgeCases:
                     })
                     yield StreamChunk(chunk_type="complete", usage={"input_tokens": 10, "output_tokens": 20})
                 else:
+                    # This won't be reached after BUG-016 fix (loop exits after save_artifact)
                     yield StreamChunk(chunk_type="text", content="Done!")
                     yield StreamChunk(chunk_type="complete", usage={"input_tokens": 15, "output_tokens": 10})
 
@@ -525,13 +530,253 @@ class TestAIServiceStreamChatEdgeCases:
         ):
             events.append(event)
 
-        # Should have initial text delta
+        # Should have initial text delta (BUG-016 fix: loop exits after save_artifact, so only 1 text)
         text_deltas = [e for e in events if e.get("event") == "text_delta"]
-        assert len(text_deltas) >= 2  # At least initial text + separator + final text
+        assert len(text_deltas) >= 1
 
         # First text should be the introductory text
         first_text = json.loads(text_deltas[0]["data"])["text"]
         assert "create an artifact" in first_text
+
+        # Verify artifact was created and loop exited (BUG-016 fix)
+        artifact_events = [e for e in events if e.get("event") == "artifact_created"]
+        assert len(artifact_events) == 1
+        assert call_count == 1  # Only 1 adapter call - loop exited after save_artifact
+
+
+class TestBUG016ArtifactLoopFix:
+    """
+    Tests for BUG-016 fix: Artifact multiplication / infinite loop prevention.
+
+    The bug: When model keeps calling save_artifact in a loop (especially Gemini/DeepSeek),
+    the tool execution loop would continue indefinitely, creating multiple artifacts.
+
+    The fix: Exit the loop immediately after save_artifact executes successfully.
+    """
+
+    @pytest.mark.asyncio
+    async def test_exits_after_first_save_artifact(self, db_session, user):
+        """
+        BUG-016: Loop exits immediately after save_artifact - no second iteration.
+
+        Simulates a model that would keep calling save_artifact forever.
+        Verifies the fix stops after the first artifact.
+        """
+        db_session.add(user)
+        await db_session.commit()
+
+        thread = Thread(user_id=user.id, title="Test")
+        db_session.add(thread)
+        await db_session.commit()
+
+        call_count = 0
+
+        class InfiniteArtifactAdapter(MockLLMAdapter):
+            """Simulates Gemini/DeepSeek behavior: always returns save_artifact."""
+            async def stream_chat(self, messages, system_prompt, tools=None, max_tokens=4096):
+                nonlocal call_count
+                self.call_history.append({"messages": messages})
+                call_count += 1
+
+                # Always return save_artifact - simulating the bug scenario
+                yield StreamChunk(chunk_type="tool_use", tool_call={
+                    "id": f"tool_{call_count}",
+                    "name": "save_artifact",
+                    "input": {
+                        "artifact_type": "requirements_doc",
+                        "title": f"BRD #{call_count}",
+                        "content_markdown": f"# BRD {call_count}\n\nContent."
+                    }
+                })
+                yield StreamChunk(chunk_type="complete", usage={"input_tokens": 10, "output_tokens": 5})
+
+        adapter = InfiniteArtifactAdapter()
+        service = AIService.__new__(AIService)
+        service.adapter = adapter
+        service.tools = []
+
+        events = []
+        async for event in service.stream_chat(
+            messages=[{"role": "user", "content": "Generate a BRD"}],
+            project_id=None,
+            thread_id=thread.id,
+            db=db_session
+        ):
+            events.append(event)
+
+        # CRITICAL: Adapter should only be called ONCE
+        assert call_count == 1, f"Expected 1 adapter call, got {call_count} - loop didn't exit!"
+
+        # Should have exactly ONE artifact_created event
+        artifact_events = [e for e in events if e.get("event") == "artifact_created"]
+        assert len(artifact_events) == 1, f"Expected 1 artifact, got {len(artifact_events)}"
+
+        # Should end with message_complete
+        assert events[-1]["event"] == "message_complete"
+
+    @pytest.mark.asyncio
+    async def test_only_one_artifact_created_in_database(self, db_session, user):
+        """
+        BUG-016: Only one artifact saved to database, not multiple.
+        """
+        db_session.add(user)
+        await db_session.commit()
+
+        thread = Thread(user_id=user.id, title="Test")
+        db_session.add(thread)
+        await db_session.commit()
+
+        class AlwaysArtifactAdapter(MockLLMAdapter):
+            async def stream_chat(self, messages, system_prompt, tools=None, max_tokens=4096):
+                self.call_history.append({"messages": messages})
+                yield StreamChunk(chunk_type="tool_use", tool_call={
+                    "id": "tool_1",
+                    "name": "save_artifact",
+                    "input": {
+                        "artifact_type": "user_stories",
+                        "title": "User Stories",
+                        "content_markdown": "# Stories\n\nAs a user..."
+                    }
+                })
+                yield StreamChunk(chunk_type="complete", usage={"input_tokens": 10, "output_tokens": 5})
+
+        adapter = AlwaysArtifactAdapter()
+        service = AIService.__new__(AIService)
+        service.adapter = adapter
+        service.tools = []
+
+        # Consume all events
+        async for _ in service.stream_chat(
+            messages=[{"role": "user", "content": "Create user stories"}],
+            project_id=None,
+            thread_id=thread.id,
+            db=db_session
+        ):
+            pass
+
+        # Verify exactly ONE artifact in database
+        from sqlalchemy import select, func
+        stmt = select(func.count()).select_from(Artifact).where(Artifact.thread_id == thread.id)
+        result = await db_session.execute(stmt)
+        count = result.scalar()
+        assert count == 1, f"Expected 1 artifact in DB, got {count}"
+
+    @pytest.mark.asyncio
+    async def test_search_tool_does_not_exit_loop(self, db_session, user):
+        """
+        Non-artifact tools (search_documents) should NOT cause early exit.
+        The loop should continue after search to allow model to respond.
+        """
+        db_session.add(user)
+        await db_session.commit()
+
+        project = Project(user_id=user.id, name="Test Project")
+        db_session.add(project)
+        await db_session.commit()
+
+        thread = Thread(user_id=user.id, title="Test", project_id=project.id)
+        db_session.add(thread)
+        await db_session.commit()
+
+        call_count = 0
+
+        class SearchThenTextAdapter(MockLLMAdapter):
+            async def stream_chat(self, messages, system_prompt, tools=None, max_tokens=4096):
+                nonlocal call_count
+                self.call_history.append({"messages": messages})
+                call_count += 1
+
+                if call_count == 1:
+                    # First call: search tool
+                    yield StreamChunk(chunk_type="tool_use", tool_call={
+                        "id": "tool_search",
+                        "name": "search_documents",
+                        "input": {"query": "requirements"}
+                    })
+                    yield StreamChunk(chunk_type="complete", usage={"input_tokens": 10, "output_tokens": 5})
+                else:
+                    # Second call: text response after getting search results
+                    yield StreamChunk(chunk_type="text", content="Based on the documents, here's my analysis.")
+                    yield StreamChunk(chunk_type="complete", usage={"input_tokens": 20, "output_tokens": 15})
+
+        adapter = SearchThenTextAdapter()
+        service = AIService.__new__(AIService)
+        service.adapter = adapter
+        service.tools = []
+
+        events = []
+        async for event in service.stream_chat(
+            messages=[{"role": "user", "content": "Search for requirements"}],
+            project_id=project.id,
+            thread_id=thread.id,
+            db=db_session
+        ):
+            events.append(event)
+
+        # Search tool should NOT cause early exit - loop continues
+        assert call_count == 2, f"Expected 2 adapter calls (search then response), got {call_count}"
+
+        # Should have text response after search
+        text_events = [e for e in events if e.get("event") == "text_delta"]
+        assert len(text_events) >= 1
+
+    @pytest.mark.asyncio
+    async def test_text_before_artifact_is_preserved(self, db_session, user):
+        """
+        Text streamed before save_artifact should be included in final message.
+        """
+        db_session.add(user)
+        await db_session.commit()
+
+        thread = Thread(user_id=user.id, title="Test")
+        db_session.add(thread)
+        await db_session.commit()
+
+        class TextThenArtifactAdapter(MockLLMAdapter):
+            async def stream_chat(self, messages, system_prompt, tools=None, max_tokens=4096):
+                self.call_history.append({"messages": messages})
+                # Text first
+                yield StreamChunk(chunk_type="text", content="Creating your BRD now...")
+                # Then artifact
+                yield StreamChunk(chunk_type="tool_use", tool_call={
+                    "id": "tool_1",
+                    "name": "save_artifact",
+                    "input": {
+                        "artifact_type": "requirements_doc",
+                        "title": "BRD",
+                        "content_markdown": "# BRD Content"
+                    }
+                })
+                yield StreamChunk(chunk_type="complete", usage={"input_tokens": 10, "output_tokens": 20})
+
+        adapter = TextThenArtifactAdapter()
+        service = AIService.__new__(AIService)
+        service.adapter = adapter
+        service.tools = []
+
+        events = []
+        async for event in service.stream_chat(
+            messages=[{"role": "user", "content": "Generate BRD"}],
+            project_id=None,
+            thread_id=thread.id,
+            db=db_session
+        ):
+            events.append(event)
+
+        # Should have text_delta event with the intro text
+        text_events = [e for e in events if e.get("event") == "text_delta"]
+        assert len(text_events) >= 1
+        first_text = json.loads(text_events[0]["data"])["text"]
+        assert "Creating your BRD" in first_text
+
+        # Should have artifact_created
+        artifact_events = [e for e in events if e.get("event") == "artifact_created"]
+        assert len(artifact_events) == 1
+
+        # message_complete should contain the accumulated text
+        complete_event = [e for e in events if e.get("event") == "message_complete"][0]
+        data = json.loads(complete_event["data"])
+        assert "Creating your BRD" in data["content"]
 
 
 class TestAIServiceInit:

@@ -1,7 +1,7 @@
 # User Stories Index
 
 **Project:** Business Analyst Assistant
-**Last Updated:** 2026-02-04
+**Last Updated:** 2026-02-08
 
 ---
 
@@ -20,11 +20,11 @@
 
 | Priority | Total | Open | Done | Wont Do |
 |----------|-------|------|------|---------|
-| Critical | 16 | 4 | 12 | 0 |
-| High | 14 | 7 | 6 | 1 |
-| Medium | 9 | 6 | 1 | 2 |
+| Critical | 17 | 5 | 12 | 0 |
+| High | 19 | 12 | 6 | 1 |
+| Medium | 10 | 7 | 1 | 2 |
 | Low | 4 | 3 | 1 | 0 |
-| **Total** | **43** | **20** | **20** | **3** |
+| **Total** | **50** | **27** | **20** | **3** |
 
 ---
 
@@ -38,11 +38,16 @@
 | [BUG-017](BUG-017_prompt-deduplication-rule.md) | System prompt deduplication rule | Backend / AI Service | BUG-016 fix layer 1 — prompt engineering |
 | [BUG-018](BUG-018_tool-description-single-call.md) | Tool description single-call enforcement | Backend / AI Service | BUG-016 fix layer 2 — tool description |
 | [BUG-019](BUG-019_history-filtering-fulfilled-requests.md) | History filtering for fulfilled requests | Backend / Conversation Service | BUG-016 fix layer 3 — structural fix |
+| [BUG-020](BUG-020_deepseek-cannot-read-documents.md) | DeepSeek Reasoner cannot read uploaded documents | Backend / AI Service / LLM Adapters | Documents invisible when provider lacks tool support |
 
 ### High Priority (Open)
 
 | ID | Title | Component | Notes |
 |----|-------|-----------|-------|
+| [UX-004](UX-004_question-card-ui.md) | Question Card UI (Epic) | Frontend + Backend | AI questions as interactive cards |
+| [UX-005](UX-005_question-card-backend.md) | Backend Structured Question Output | Backend | SSE event with question metadata |
+| [UX-006](UX-006_question-card-rendering.md) | Frontend Question Card Rendering | Frontend | Card widget and styling |
+| [UX-007](UX-007_question-card-interaction.md) | Question Card Interaction | Frontend | Tap, type, collapse behaviors |
 | [THREAD-004](THREAD-004_network-interruption-streaming.md) | Handle network interruption | Streaming | Data loss prevention |
 | [DELETE-001](DELETE-001_undo-behavior.md) | Consistent undo behavior | Deletion | UX consistency |
 | [BUDGET-001](BUDGET-001_token-budget-ux.md) | Token budget exhaustion UX | Settings | Prevents cryptic errors |
@@ -50,6 +55,7 @@
 | [NAV-001](NAV-001_breadcrumb-thread-context.md) | Breadcrumb for threads | Navigation | Thread-level breadcrumbs |
 | [DOC-001](DOC-001_document-preview-upload.md) | Document preview before upload | Documents | Error prevention |
 | [THREAD-011](THREAD-011_silent-artifact-generation.md) | Silent artifact generation from buttons | Frontend + Backend | BUG-016 fix layer 4 — UX change |
+| [BUG-021](BUG-021_pdf-export-500.md) | PDF export returns 500 error | Backend / Export Service | DOCX works, PDF fails + connection leak |
 
 ### Medium Priority (Open)
 
@@ -61,6 +67,7 @@
 | [DOC-004](DOC-004_conversation-export.md) | Conversation export docs | Documentation | Feature clarity |
 | [DOC-003](DOC-003_token-refresh-docs.md) | Token refresh docs | Documentation | Documentation |
 | [DOC-005](DOC-005_file-size-error.md) | File size error UX | Documents | Error handling |
+| [BUG-022](BUG-022_token-usage-model-mismatch.md) | Token usage records wrong model name | Backend / Token Tracking | Hardcoded AGENT_MODEL instead of actual model |
 
 ### Low Priority (Open)
 
@@ -166,4 +173,4 @@ Ideas beyond current scope. See [BACKLOG.md](BACKLOG.md) for details.
 
 ---
 
-*Last updated: 2026-02-04 — added BUG-016 layered fix stories (BUG-017/018/019, THREAD-011), ENH-011*
+*Last updated: 2026-02-08 — added BUG-020 (DeepSeek doc access), BUG-021 (PDF export), BUG-022 (token model mismatch)*

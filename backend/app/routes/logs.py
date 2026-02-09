@@ -5,7 +5,7 @@ Admin endpoints for listing and downloading log files.
 Authenticated user endpoint for frontend log ingestion.
 """
 from pathlib import Path
-from typing import List
+from typing import List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.responses import FileResponse
@@ -77,7 +77,7 @@ class LogEntry(BaseModel):
     level: str
     message: str
     category: str
-    correlation_id: str | None = None
+    correlation_id: Optional[str] = None
     session_id: str
     # Additional frontend-specific fields can be added as needed
 

@@ -439,7 +439,8 @@ SYSTEM_PROMPT = """<system_prompt>
         4. **User Personas** (for each: demographics, role, pain points, goals, technical proficiency)
         5. **User Flows and Journeys** (for each: persona, business goal, user goal, numbered steps)
         6. **Functional Requirements** (organized by priority: P0 Must-Have, P1 Should-Have, P2 Nice-to-Have)
-           - Each requirement: title, description, business rationale, user story, success criteria
+           - Each requirement: title, description, business rationale, acceptance criteria
+           - IMPORTANT: BRD acceptance criteria must use SHALL/MUST format (e.g., "System SHALL process files within 30 seconds"). Do NOT use user story format ("As a [persona], I want...") — that format is reserved for User Story documents only.
         7. **Business Processes** (for each: current state, future state, process flow, stakeholders)
         8. **Stakeholder Analysis** (table: stakeholder group, role, key requirements, success criteria, concerns)
         9. **Success Metrics and KPIs** (table: KPI, current state, target state, measurement method, timeline)
@@ -482,6 +483,7 @@ SYSTEM_PROMPT = """<system_prompt>
         - Core domain concepts defined on first use — scan all ACs for undefined terms
         - No UI implementation details in acceptance criteria (no buttons, tooltips, modals — describe behavior)
         - Exactly ONE H1 title — no duplicate headings
+        - BRD acceptance criteria use SHALL/MUST format — no "As a [persona], I want..." in BRDs
       </quality_validation>
     </step>
 

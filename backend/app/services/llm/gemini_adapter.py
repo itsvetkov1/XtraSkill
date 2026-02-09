@@ -82,7 +82,7 @@ class GeminiAdapter(LLMAdapter):
         config = types.GenerateContentConfig(
             system_instruction=system_prompt,
             max_output_tokens=max_tokens,
-            thinking_config=types.ThinkingConfig(thinking_level="high"),
+            thinking_config=types.ThinkingConfig(thinking_budget=8192),
             # Note: NOT including include_thoughts=True per CONTEXT.md
         )
 

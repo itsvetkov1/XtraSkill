@@ -15,6 +15,7 @@ from sqlalchemy import event, text
 from sqlalchemy.engine import Engine
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
+from app.config import settings
 from app.models import Base
 from app.services.logging_service import get_logging_service
 from app.middleware.logging_middleware import get_correlation_id
@@ -50,7 +51,7 @@ DATABASE_URL = os.getenv(
 # echo=True enables SQL logging for development (disable in production)
 engine = create_async_engine(
     DATABASE_URL,
-    echo=True,
+    echo=(settings.environment != "production"),
     future=True,
 )
 

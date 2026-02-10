@@ -38,11 +38,11 @@
   2. SQLite database persists across Railway deployments (data survives redeploy)
   3. All secrets (SECRET_KEY, API keys) are configured via environment variables with no hardcoded values
   4. Database backup mechanism is operational and has produced at least one successful backup
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 49-01: TBD
-- [ ] 49-02: TBD
+- [ ] 49-01-PLAN.md — Code preparation (railway.json health check config, production-aware database settings)
+- [ ] 49-02-PLAN.md — Railway deployment (project creation, env vars, persistent volume, backup, verification)
 
 ### Phase 50: Security Hardening
 **Goal**: Application passes automated security scans and serves proper security headers in production
@@ -132,7 +132,7 @@ No orphaned requirements. No duplicate mappings.
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
-| 49. Backend Deployment Foundation | v2.0 | 0/TBD | Not started | - |
+| 49. Backend Deployment Foundation | v2.0 | 0/2 | Planning complete | - |
 | 50. Security Hardening | v2.0 | 0/TBD | Not started | - |
 | 51. Custom Domain & SSL | v2.0 | 0/TBD | Not started | - |
 | 52. Frontend Deployment | v2.0 | 0/TBD | Not started | - |
@@ -141,5 +141,6 @@ No orphaned requirements. No duplicate mappings.
 ---
 
 *Roadmap created: 2026-02-09*
+*Phase 49 planned: 2026-02-10 — 2 plans in 2 waves*
 *Depth: quick (5 phases from 16 requirements)*
 *Research: HIGH confidence, all domains investigated*

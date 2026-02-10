@@ -69,28 +69,28 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| SEC-01 | Pending | Pending |
-| SEC-02 | Pending | Pending |
-| SEC-03 | Pending | Pending |
-| SEC-04 | Pending | Pending |
-| HOST-01 | Pending | Pending |
-| HOST-02 | Pending | Pending |
-| HOST-03 | Pending | Pending |
-| HOST-04 | Pending | Pending |
-| DOM-01 | Pending | Pending |
-| DOM-02 | Pending | Pending |
-| DOM-03 | Pending | Pending |
-| DOM-04 | Pending | Pending |
-| VER-01 | Pending | Pending |
-| VER-02 | Pending | Pending |
-| VER-03 | Pending | Pending |
-| VER-04 | Pending | Pending |
+| SEC-01 | Phase 50 | Pending |
+| SEC-02 | Phase 50 | Pending |
+| SEC-03 | Phase 50 | Pending |
+| SEC-04 | Phase 50 | Pending |
+| HOST-01 | Phase 49 | Pending |
+| HOST-02 | Phase 52 | Pending |
+| HOST-03 | Phase 49 | Pending |
+| HOST-04 | Phase 49 | Pending |
+| DOM-01 | Phase 51 | Pending |
+| DOM-02 | Phase 51 | Pending |
+| DOM-03 | Phase 51 | Pending |
+| DOM-04 | Phase 52 | Pending |
+| VER-01 | Phase 53 | Pending |
+| VER-02 | Phase 53 | Pending |
+| VER-03 | Phase 53 | Pending |
+| VER-04 | Phase 53 | Pending |
 
 **Coverage:**
 - v2.0 requirements: 16 total
-- Mapped to phases: 0
-- Unmapped: 16 (pending roadmap creation)
+- Mapped to phases: 16
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-02-09*
-*Last updated: 2026-02-09 after initial definition*
+*Last updated: 2026-02-09 — traceability table populated (all 16 requirements mapped to phases 49-53)*

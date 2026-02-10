@@ -2,25 +2,25 @@
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-02-08)
+See: .planning/PROJECT.md (updated 2026-02-09)
 
 **Core value:** Business analysts reduce time spent on requirement documentation while improving completeness through AI-assisted discovery conversations that systematically explore edge cases and generate production-ready artifacts.
 
-**Current focus:** v2.0 — Security Audit & Deployment
+**Current focus:** v2.0 Phase 49 — Backend Deployment Foundation
 
 ## Current Position
 
 Milestone: v2.0 Security Audit & Deployment
-Phase: Not started (defining requirements)
+Phase: 49 of 53 (Backend Deployment Foundation)
 Plan: —
-Status: Defining requirements
-Last activity: 2026-02-09 — Milestone v2.0 started
+Status: Ready to plan
+Last activity: 2026-02-09 — Roadmap created for v2.0
 
 Progress:
 ```
 v1.0-v1.9.5: [##########] 48 phases, 114 plans, 11 milestones SHIPPED
 
-v2.0:        [          ] 0/? phases (defining requirements)
+v2.0:        [          ] 0/5 phases (ready to plan phase 49)
 ```
 
 ## Performance Metrics
@@ -44,6 +44,7 @@ v2.0:        [          ] 0/? phases (defining requirements)
 | Doc & Nav v1.9.3 | 37-39 | 3/3 | SHIPPED 2026-02-04 |
 | Dedup v1.9.4 | 40-42 | 5/5 | SHIPPED 2026-02-05 |
 | Logging v1.9.5 | 43-48 | 8/8 | SHIPPED 2026-02-08 |
+| Security v2.0 | 49-53 | 0/TBD | In progress |
 
 **Total:** 114 plans shipped across 48 phases
 
@@ -51,13 +52,11 @@ v2.0:        [          ] 0/? phases (defining requirements)
 
 ### Decisions
 
-Milestone decisions archived in .planning/milestones/
-
-Recent key decisions (full archive in MILESTONES.md and milestone archives):
-- v1.9.5: QueueHandler pattern for async-safe logging
-- v1.9.5: structlog for JSON output
-- v1.9.5: X-Correlation-ID for request tracing
-- v1.9.5: ApiClient singleton for shared Dio interceptor
+Recent key decisions (full archive in MILESTONES.md):
+- v2.0: Railway (backend) + Cloudflare Pages (frontend) for PaaS deployment
+- v2.0: secure.py for security headers middleware (zero dependencies)
+- v2.0: bandit + pip-audit for security scanning (Python-native, free)
+- v2.0: Cloudflare DNS for CNAME flattening at apex domain
 
 ### Pending Todos
 
@@ -71,18 +70,17 @@ Recent key decisions (full archive in MILESTONES.md and milestone archives):
 ## Session Continuity
 
 Last session: 2026-02-09
-Stopped at: v2.0 milestone started — defining requirements
+Stopped at: v2.0 roadmap created — 5 phases, 16 requirements mapped
 Resume file: None
-Next action: Research → Requirements → Roadmap
+Next action: Plan phase 49 (Backend Deployment Foundation)
 
 **Context for Next Session:**
-- 11 milestones shipped (v1.0 through v1.9.5)
-- 48 phases, 114 plans completed
-- ~88,000 LOC (75,852 Python + 12,220 Dart)
-- v2.0 focus: Security audit + first deployment with custom domain
-- Target: Small pilot group (< 10 BAs)
-- First-time deployer — needs full handholding
+- v2.0 roadmap finalized: 5 phases (49-53), 16 requirements
+- Phase 49 first: Railway setup, env config, persistent disk, backup
+- Research confidence HIGH — all tools and platforms vetted
+- Critical pitfall: SQLite on ephemeral filesystem = data loss (must use persistent disk)
+- Critical pitfall: OAuth redirect URI misconfiguration is #1 deployment blocker
 
 ---
 
-*State updated: 2026-02-09 (v2.0 milestone started)*
+*State updated: 2026-02-09 (v2.0 roadmap created)*

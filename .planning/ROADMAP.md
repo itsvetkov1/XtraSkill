@@ -125,12 +125,12 @@ Plans:
   6. Uploaded rich documents appear in existing full-text search results
   7. Excel data types are preserved (leading zeros in "00123", dates display as formatted, large numbers don't convert to scientific notation)
 
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 54-01: TBD
-- [ ] 54-02: TBD
-- [ ] 54-03: TBD
+- [ ] 54-01-PLAN.md — Parser infrastructure + file security validator (dependencies, base class, factory, 5 parsers, file_validator)
+- [ ] 54-02-PLAN.md — Schema migration + encryption (Document model columns, FTS5 unicode61 upgrade, binary encryption)
+- [ ] 54-03-PLAN.md — Route integration (upload/list/get/download endpoints, security validation, dual-column storage, FTS5 indexing)
 
 #### Phase 55: Frontend Display & AI Context Integration
 
@@ -244,7 +244,7 @@ No orphaned requirements. No duplicate mappings.
 | 51. Custom Domain & SSL | v2.0 | 0/TBD | Not started | - |
 | 52. Frontend Deployment | v2.0 | 0/TBD | Not started | - |
 | 53. Verification & Documentation | v2.0 | 0/TBD | Not started | - |
-| 54. Backend Foundation | v2.1 | 0/TBD | Not started | - |
+| 54. Backend Foundation | v2.1 | 0/3 | Planning complete | - |
 | 55. Frontend Display & AI Context | v2.1 | 0/TBD | Not started | - |
 | 56. Export Features | v2.1 | 0/TBD | Not started | - |
 

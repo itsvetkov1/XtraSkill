@@ -173,6 +173,7 @@ class _DocumentViewerScreenState extends State<DocumentViewerScreen> {
       return ExcelTableViewer(
         content: content,
         metadata: metadata,
+        documentId: doc.id,
       );
     }
 

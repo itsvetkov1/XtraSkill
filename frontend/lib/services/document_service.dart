@@ -1,4 +1,7 @@
+import 'dart:typed_data';
+
 import 'package:dio/dio.dart';
+import 'package:file_saver/file_saver.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import '../models/document.dart';
@@ -137,6 +140,48 @@ class DocumentService {
       ),
     );
     return response.data as List<int>;
+  }
+
+  /// Export document data to Excel or CSV format.
+  ///
+  /// [documentId] - ID of the document to export
+  /// [format] - Export format: 'xlsx' or 'csv'
+  ///
+  /// Downloads the generated file and saves it using FileSaver.
+  Future<void> exportDocument(String documentId, String format) async {
+    final endpoint = '/api/documents/$documentId/export/$format';
+
+    // Download binary from backend
+    final response = await _dio.get(
+      endpoint,
+      options: Options(
+        responseType: ResponseType.bytes,
+        headers: (await _getAuthHeaders()).headers,
+      ),
+    );
+
+    // Extract filename from Content-Disposition header
+    String filename = 'export.$format';
+    final contentDisposition = response.headers.value('content-disposition');
+    if (contentDisposition != null) {
+      final filenameMatch = RegExp(r'filename="(.+)"').firstMatch(contentDisposition);
+      if (filenameMatch != null) {
+        filename = filenameMatch.group(1)!;
+      }
+    }
+
+    // Determine MIME type and extension
+    final mimeType = format == 'xlsx' ? MimeType.microsoftExcel : MimeType.csv;
+    final nameWithoutExt = filename.replaceAll(RegExp(r'\.[^.]+$'), '');
+    final ext = format == 'xlsx' ? 'xlsx' : 'csv';
+
+    // Save file using FileSaver (cross-platform download)
+    await FileSaver.instance.saveFile(
+      name: nameWithoutExt,
+      bytes: Uint8List.fromList(response.data as List<int>),
+      ext: ext,
+      mimeType: mimeType,
+    );
   }
 }
 

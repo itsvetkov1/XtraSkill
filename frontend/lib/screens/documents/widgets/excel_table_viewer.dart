@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:pluto_grid/pluto_grid.dart';
 
+import '../../../services/document_service.dart';
+
 /// Widget for displaying Excel/CSV content as an interactive table grid.
 ///
 /// Features:
@@ -10,11 +12,13 @@ import 'package:pluto_grid/pluto_grid.dart';
 class ExcelTableViewer extends StatefulWidget {
   final String content;
   final Map<String, dynamic> metadata;
+  final String documentId;
 
   const ExcelTableViewer({
     super.key,
     required this.content,
     required this.metadata,
+    required this.documentId,
   });
 
   @override
@@ -24,6 +28,7 @@ class ExcelTableViewer extends StatefulWidget {
 class _ExcelTableViewerState extends State<ExcelTableViewer> {
   PlutoGridStateManager? stateManager;
   bool _isLoading = true;
+  bool _isExporting = false;
   String? _error;
   List<PlutoColumn> _columns = [];
   List<PlutoRow> _rows = [];
@@ -92,6 +97,69 @@ class _ExcelTableViewerState extends State<ExcelTableViewer> {
     }
   }
 
+  Future<void> _handleExport(BuildContext context, String format) async {
+    setState(() => _isExporting = true);
+
+    // Show loading snackbar
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            const SizedBox(
+              width: 16,
+              height: 16,
+              child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+            ),
+            const SizedBox(width: 12),
+            Text('Exporting to ${format.toUpperCase()}...'),
+          ],
+        ),
+        duration: const Duration(seconds: 30),
+      ),
+    );
+
+    try {
+      final service = DocumentService();
+      await service.exportDocument(widget.documentId, format);
+
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Row(
+            children: [
+              const Icon(Icons.check_circle, color: Colors.white),
+              const SizedBox(width: 12),
+              Text('Exported to ${format.toUpperCase()} successfully'),
+            ],
+          ),
+          backgroundColor: Colors.green,
+          duration: const Duration(seconds: 3),
+        ),
+      );
+    } catch (e) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Row(
+            children: [
+              const Icon(Icons.error, color: Colors.white),
+              const SizedBox(width: 12),
+              Expanded(child: Text('Export failed: $e')),
+            ],
+          ),
+          backgroundColor: Colors.red,
+          duration: const Duration(seconds: 4),
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() => _isExporting = false);
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
@@ -146,6 +214,39 @@ class _ExcelTableViewerState extends State<ExcelTableViewer> {
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
               ],
+              const Spacer(),
+              // Export menu
+              PopupMenuButton<String>(
+                icon: Icon(
+                  Icons.download_rounded,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+                tooltip: 'Export original data',
+                enabled: !_isExporting,
+                onSelected: (format) => _handleExport(context, format),
+                itemBuilder: (context) => [
+                  const PopupMenuItem(
+                    value: 'xlsx',
+                    child: Row(
+                      children: [
+                        Icon(Icons.table_chart, size: 20),
+                        SizedBox(width: 12),
+                        Text('Export to Excel (.xlsx)'),
+                      ],
+                    ),
+                  ),
+                  const PopupMenuItem(
+                    value: 'csv',
+                    child: Row(
+                      children: [
+                        Icon(Icons.insert_drive_file, size: 20),
+                        SizedBox(width: 12),
+                        Text('Export to CSV'),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ],
           ),
         ),

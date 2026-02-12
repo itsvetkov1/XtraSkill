@@ -20,8 +20,8 @@ class DocumentUploadScreen extends StatefulWidget {
 class _DocumentUploadScreenState extends State<DocumentUploadScreen> {
   bool _uploading = false;
 
-  /// Maximum file size in bytes (1MB)
-  static const int _maxFileSizeBytes = 1024 * 1024;
+  /// Maximum file size in bytes (10MB)
+  static const int _maxFileSizeBytes = 10 * 1024 * 1024;
 
   /// Formats file size in human-readable format
   String _formatFileSize(int bytes) {
@@ -67,10 +67,10 @@ class _DocumentUploadScreenState extends State<DocumentUploadScreen> {
     // Get provider reference BEFORE async gap
     final provider = context.read<DocumentProvider>();
 
-    // Pick file with type filter (only .txt and .md)
+    // Pick file with type filter (all supported formats)
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
-      allowedExtensions: ['txt', 'md'],
+      allowedExtensions: ['txt', 'md', 'xlsx', 'csv', 'pdf', 'docx'],
     );
 
     if (result == null) return;

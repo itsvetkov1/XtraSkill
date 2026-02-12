@@ -4,12 +4,17 @@ library;
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:excel/excel.dart';
 
 /// Dialog that shows a preview of a file before upload.
 ///
-/// Displays filename, file size, and first 20 lines of content.
+/// Displays filename, file size, and format-specific preview:
+/// - Excel/CSV: Table preview with first 10 rows and sheet selector
+/// - Text/Markdown: First 20 lines of content
+/// - PDF/Word: File icon and info message
+///
 /// Returns true if user confirms upload, false if cancelled.
-class DocumentPreviewDialog extends StatelessWidget {
+class DocumentPreviewDialog extends StatefulWidget {
   /// The file to preview
   final PlatformFile file;
 
@@ -27,6 +32,105 @@ class DocumentPreviewDialog extends StatelessWidget {
     return result ?? false;
   }
 
+  @override
+  State<DocumentPreviewDialog> createState() => _DocumentPreviewDialogState();
+}
+
+class _DocumentPreviewDialogState extends State<DocumentPreviewDialog> {
+  /// Currently selected sheet (for Excel files with multiple sheets)
+  String? _selectedSheet;
+
+  /// Parsed preview data for table formats
+  Map<String, dynamic>? _tablePreview;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadPreview();
+  }
+
+  /// Load preview based on file format
+  void _loadPreview() {
+    final ext = _getFileExtension(widget.file.name);
+    if (_isExcelFile(ext)) {
+      _tablePreview = _parseExcelPreview(widget.file.bytes ?? []);
+      if (_tablePreview != null) {
+        final sheetNames = _tablePreview!['sheet_names'] as List<String>;
+        _selectedSheet = sheetNames.isNotEmpty ? sheetNames.first : null;
+      }
+    } else if (_isCsvFile(ext)) {
+      _tablePreview = _parseCsvPreview(widget.file.bytes ?? []);
+    }
+  }
+
+  /// Extract file extension from filename
+  String _getFileExtension(String filename) {
+    final dotIndex = filename.lastIndexOf('.');
+    return dotIndex >= 0 ? filename.substring(dotIndex + 1).toLowerCase() : '';
+  }
+
+  /// Check if file is Excel format
+  bool _isExcelFile(String ext) => ext == 'xlsx';
+
+  /// Check if file is CSV format
+  bool _isCsvFile(String ext) => ext == 'csv';
+
+  /// Check if file is table format (Excel or CSV)
+  bool _isTableFile(String ext) => ext == 'xlsx' || ext == 'csv';
+
+  /// Check if file is text format
+  bool _isTextFile(String ext) => ext == 'txt' || ext == 'md';
+
+  /// Check if file is binary format (PDF or Word)
+  bool _isBinaryFile(String ext) => ext == 'pdf' || ext == 'docx';
+
+  /// Parse Excel file for preview
+  Map<String, dynamic>? _parseExcelPreview(List<int> bytes) {
+    try {
+      final excel = Excel.decodeBytes(bytes);
+      final sheetNames = excel.tables.keys.toList();
+      if (sheetNames.isEmpty) return null;
+
+      // Get first sheet (or selected sheet)
+      final sheetName = _selectedSheet ?? sheetNames.first;
+      final sheet = excel.tables[sheetName];
+      if (sheet == null) return null;
+
+      final allRows = sheet.rows.map((row) =>
+        row.map((cell) => cell?.value?.toString() ?? '').toList()
+      ).toList();
+
+      return {
+        'sheet_names': sheetNames,
+        'headers': allRows.isNotEmpty ? allRows[0] : <String>[],
+        'preview_rows': allRows.skip(1).take(10).toList(),
+        'total_rows': allRows.length,
+      };
+    } catch (e) {
+      return null;
+    }
+  }
+
+  /// Parse CSV file for preview
+  Map<String, dynamic>? _parseCsvPreview(List<int> bytes) {
+    try {
+      final content = utf8.decode(bytes, allowMalformed: true);
+      final lines = content.split('\n').where((l) => l.trim().isNotEmpty).toList();
+      if (lines.isEmpty) return null;
+
+      final headers = lines[0].split(',');
+      final previewRows = lines.skip(1).take(10).map((l) => l.split(',')).toList();
+
+      return {
+        'headers': headers,
+        'preview_rows': previewRows,
+        'total_rows': lines.length,
+      };
+    } catch (e) {
+      return null;
+    }
+  }
+
   /// Formats file size in human-readable format (B/KB/MB)
   String _formatFileSize(int bytes) {
     if (bytes < 1024) {
@@ -38,7 +142,7 @@ class DocumentPreviewDialog extends StatelessWidget {
     }
   }
 
-  /// Extracts preview content from file bytes.
+  /// Extracts preview content from file bytes (for text files).
   ///
   /// Returns first [maxLines] lines with truncation indicator if more exist.
   String _getPreviewContent(List<int> bytes, {int maxLines = 20}) {
@@ -54,14 +158,147 @@ class DocumentPreviewDialog extends StatelessWidget {
     return previewLines.join('\n');
   }
 
+  /// Build sheet selector dropdown (for Excel files with multiple sheets)
+  Widget _buildSheetSelector(List<String> sheetNames) {
+    if (sheetNames.length <= 1) return const SizedBox.shrink();
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12.0),
+      child: Row(
+        children: [
+          const Text('Sheet: ', style: TextStyle(fontWeight: FontWeight.w500)),
+          DropdownButton<String>(
+            value: _selectedSheet,
+            items: sheetNames.map((name) => DropdownMenuItem(
+              value: name,
+              child: Text(name),
+            )).toList(),
+            onChanged: (newSheet) {
+              setState(() {
+                _selectedSheet = newSheet;
+                if (_isExcelFile(_getFileExtension(widget.file.name))) {
+                  _tablePreview = _parseExcelPreview(widget.file.bytes ?? []);
+                }
+              });
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Build table preview for Excel/CSV files
+  Widget _buildTablePreview(Map<String, dynamic> preview) {
+    final headers = preview['headers'] as List<dynamic>;
+    final previewRows = preview['preview_rows'] as List<dynamic>;
+    final totalRows = preview['total_rows'] as int;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Sheet selector (Excel only)
+        if (preview.containsKey('sheet_names'))
+          _buildSheetSelector(preview['sheet_names'] as List<String>),
+
+        // Table preview
+        ConstrainedBox(
+          constraints: const BoxConstraints(maxHeight: 400),
+          child: SingleChildScrollView(
+            scrollDirection: Axis.vertical,
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: DataTable(
+                headingRowColor: WidgetStateProperty.all(
+                  Theme.of(context).colorScheme.surfaceContainerHighest,
+                ),
+                columns: headers.map((h) => DataColumn(
+                  label: Text(
+                    h.toString(),
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                )).toList(),
+                rows: previewRows.map<DataRow>((row) {
+                  final cells = row as List<dynamic>;
+                  return DataRow(
+                    cells: cells.map((cell) => DataCell(
+                      Text(cell.toString()),
+                    )).toList(),
+                  );
+                }).toList(),
+              ),
+            ),
+          ),
+        ),
+
+        const SizedBox(height: 12),
+
+        // Row count footer
+        Text(
+          'Showing first ${previewRows.length} of ${totalRows - 1} data rows',
+          style: TextStyle(
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+            fontStyle: FontStyle.italic,
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// Build text preview for .txt and .md files
+  Widget _buildTextPreview(List<int> bytes) {
+    final previewContent = _getPreviewContent(bytes);
+
+    return ConstrainedBox(
+      constraints: const BoxConstraints(maxHeight: 300),
+      child: SingleChildScrollView(
+        child: SelectableText(
+          previewContent,
+          style: const TextStyle(
+            fontFamily: 'monospace',
+            fontSize: 14,
+            height: 1.5,
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Build info message for binary files (PDF/Word)
+  Widget _buildBinaryInfo() {
+    return Column(
+      children: [
+        Icon(
+          Icons.description_outlined,
+          size: 64,
+          color: Theme.of(context).colorScheme.primary,
+        ),
+        const SizedBox(height: 16),
+        Text(
+          'Preview not available for this file type.',
+          style: TextStyle(
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+            fontSize: 16,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          'Content will be extracted after upload.',
+          style: TextStyle(
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final bytes = file.bytes ?? <int>[];
-    final previewContent = _getPreviewContent(bytes);
+    final bytes = widget.file.bytes ?? <int>[];
     final fileSize = _formatFileSize(bytes.length);
+    final ext = _getFileExtension(widget.file.name);
 
     // Truncate filename if too long (keep extension visible)
-    String displayName = file.name;
+    String displayName = widget.file.name;
     if (displayName.length > 40) {
       final extension = displayName.contains('.')
           ? '.${displayName.split('.').last}'
@@ -76,36 +313,34 @@ class DocumentPreviewDialog extends StatelessWidget {
 
     return AlertDialog(
       title: Text('Preview: $displayName'),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // File metadata
-          Text(
-            'Size: $fileSize',
-            style: TextStyle(
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-            ),
-          ),
-          const SizedBox(height: 12),
-          const Divider(),
-          const SizedBox(height: 12),
-
-          // Preview content with constrained height and scroll
-          ConstrainedBox(
-            constraints: const BoxConstraints(maxHeight: 300),
-            child: SingleChildScrollView(
-              child: SelectableText(
-                previewContent,
-                style: const TextStyle(
-                  fontFamily: 'monospace',
-                  fontSize: 14,
-                  height: 1.5,
-                ),
+      content: SizedBox(
+        width: _isTableFile(ext) ? 600 : 400,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // File metadata
+            Text(
+              'Size: $fileSize',
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             ),
-          ),
-        ],
+            const SizedBox(height: 12),
+            const Divider(),
+            const SizedBox(height: 12),
+
+            // Format-specific preview
+            if (_isTableFile(ext) && _tablePreview != null)
+              _buildTablePreview(_tablePreview!)
+            else if (_isTextFile(ext))
+              _buildTextPreview(bytes)
+            else if (_isBinaryFile(ext))
+              _buildBinaryInfo()
+            else
+              const Text('Unknown file format'),
+          ],
+        ),
       ),
       actions: [
         TextButton(

@@ -124,6 +124,20 @@ class DocumentService {
       throw Exception('Failed to delete document: ${e.message}');
     }
   }
+
+  /// Download document binary content by ID.
+  ///
+  /// Returns raw file bytes for binary documents (Excel, PDF, Word, etc).
+  Future<List<int>> downloadDocument(String documentId) async {
+    final response = await _dio.get(
+      '/api/documents/$documentId/download',
+      options: Options(
+        responseType: ResponseType.bytes,
+        headers: (await _getAuthHeaders()).headers,
+      ),
+    );
+    return response.data as List<int>;
+  }
 }
 
 /// Document search result with snippet and relevance score.

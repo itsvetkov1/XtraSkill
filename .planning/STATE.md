@@ -55,6 +55,9 @@ v2.1:        [#####     ] 5/9 plans (Phase 54 complete, 55-01 and 55-03 complete
 ### Decisions
 
 Recent key decisions (full archive in PROJECT.md):
+- v2.1 (55-03): Search results limited to 3 chunks (max_chunks=3) for token budget management
+- v2.1 (55-03): Format-specific source attribution chips with different icons per content type
+- v2.1 (55-03): Excel sources show sheet name in label, PDF sources show page count
 - v2.1 (55-01): Client-side Excel parsing for instant preview (excel package)
 - v2.1 (55-01): DataTable preview limited to 10 rows for dialog UX
 - v2.1 (55-01): PDF/Word preview deferred to post-upload (info message only)
@@ -103,20 +106,22 @@ Recent key decisions (full archive in PROJECT.md):
 ## Session Continuity
 
 Last session: 2026-02-12
-Stopped at: Completed 55-01-PLAN.md (frontend rich document upload UI)
+Stopped at: Completed 55-03-PLAN.md (AI context integration with metadata) — Phase 55 plan 03 complete
 Resume file: None
-Next action: Continue Phase 55 (55-02: Document display rendering)
+Next action: Continue Phase 55 (check for remaining plans) or move to Phase 56
 
 **Context for Next Session:**
-- v2.1 roadmap: 3 phases (54: Backend ✅, 55: Frontend Display & AI [1/3 plans], 56: Export)
-- Phase 55 progress: 1/3 plans complete (upload UI ✅, display pending, AI context pending)
-- Build order: backend parsers ✅ → schema ✅ → routes ✅ → frontend upload ✅ → display → AI → export
-- 55-01 complete: Upload accepts 6 file types, preview shows tables/sheets, model parses contentType/metadata
-- Next: 55-02 will add document display with table rendering (pluto_grid for Excel/CSV)
+- v2.1 roadmap: 3 phases (54: Backend Foundation ✅, 55: Frontend Display & AI (2/3 complete), 56: Export)
+- 24/24 requirements mapped to phases (100% coverage)
+- Phase 54 progress: 3/3 plans complete (parsers ✅, schema ✅, routes ✅)
+- Phase 55 progress: 2/3 plans complete (55-01: upload preview ✅, 55-03: AI context ✅)
+- Build order: schema ✅ → parsers ✅ → routes ✅ → upload preview ✅ → AI context ✅ → export
+- AI integration complete: Search with metadata, token budget limiting, format-specific source chips
+- Next: Check Phase 55 for plan 02 (if exists) or proceed to Phase 56
 
 ---
 
-*State updated: 2026-02-12 (Completed 55-01: frontend rich document upload UI)*
+*State updated: 2026-02-12 (Completed 55-03: AI context integration with metadata — Phase 55 plan 03 complete)*
 
 ## Recent Performance (v2.1)
 
@@ -125,4 +130,6 @@ Next action: Continue Phase 55 (55-02: Document display rendering)
 | 54-01 | 3min 32sec | 2 | 9 | Document parser infrastructure |
 | 54-02 | 1min 24sec | 2 | 3 | Database schema extension |
 | 54-03 | 2min 24sec | 2 | 1 | Upload routes integration |
+| 55-01 | 2min 46sec | 2 | 5 | Frontend rich document upload UI |
+| 55-03 | 2min 19sec | 2 | 4 | AI context integration with metadata |
 | 55-01 | 2min 46sec | 2 | 5 | Frontend upload UI with rich formats |

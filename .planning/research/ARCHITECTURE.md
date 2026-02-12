@@ -1,649 +1,518 @@
-# Architecture: Artifact Deduplication & Silent Generation (v1.9.4)
+# Architecture Patterns: Rich Document Support
 
-**Domain:** Bug fix — Artifact generation multiplies on repeated requests
-**Researched:** 2026-02-04
-**Confidence:** HIGH (based on direct codebase analysis of all affected files)
-
----
+**Domain:** Document parsing integration for BA Assistant
+**Researched:** 2026-02-12
 
 ## Executive Summary
 
-The artifact multiplication bug (BUG-016) is caused by an architectural gap: conversation
-history is loaded unfiltered, and the LLM has no prompt-level or structural signal to
-distinguish fulfilled requests from new ones. The fix is a 4-layer defense-in-depth strategy
-that modifies 6 existing files across backend and frontend. No new files are needed for
-layers 1-3. Layer 4 (silent generation) adds frontend state and a loading widget.
+Rich document support (Excel, CSV, PDF, Word) integrates into the existing text-only document pipeline through a **dual-column storage pattern**: binary documents are stored encrypted in `content_encrypted` (existing), while extracted text is stored in a new `content_text` column for FTS5 indexing and AI context. This approach preserves the existing architecture while cleanly extending it for binary formats.
 
-**Critical finding during research:** BUG-019 references an `ARTIFACT_CREATED:{json}|`
-marker that exists ONLY in the dead code path (`agent_service.py:174`). The active code
-path (`ai_service.py:733`) uses `"Artifact saved successfully: '{title}' (ID: {id})"` as
-the tool result string. The detection strategy in `build_conversation_context()` must use
-the correct marker from the active code path, or query the artifacts table directly.
+The architecture introduces **format-specific parser adapters** (Excel/CSV/PDF/Word) that extract text for search and structured data for preview, **content-type routing** to select parsers, and **metadata extraction** to support visual table previews in the frontend. All existing components (encryption, FTS5, AI tools, upload routes) remain functional with minimal modification.
 
----
+**Critical insight:** The existing encryption and FTS5 infrastructure expects text. Binary documents need the same encryption (for compliance) and searchability (for AI context), but require an extraction step between upload and storage. The dual-column pattern solves this cleanly without architectural disruption.
 
-## Current Architecture (Pre-Fix)
+## Recommended Architecture
 
-### System Overview
+### High-Level Data Flow
 
 ```
-+-------------------+    HTTP/SSE     +---------------------+    Anthropic API    +-----------+
-|   Flutter App     | -------------> |   FastAPI Backend    | -----------------> | Claude    |
-|                   | <------------- |                      | <----------------- | Sonnet    |
-|                   |   SSE events   |                      |   Streaming        |           |
-+-------------------+                +---------------------+                    +-----------+
-        |                                     |
-        |                                     v
-        |                            +------------------+
-        |                            |     SQLite       |
-        |                            |  - messages      |
-        |                            |  - artifacts     |
-        |                            |  - threads       |
-        |                            +------------------+
-        |
-        v
-  [User sees chat bubbles
-   + artifact cards]
+User uploads file → FastAPI route validates content type → Parser extracts text + metadata →
+Encrypt original binary → Store encrypted binary + extracted text → Index text in FTS5 →
+AI tool searches FTS5 → Returns extracted text to LLM → Frontend displays with format-aware preview
 ```
 
-### Current Data Flow: Artifact Generation
+**Key principle:** Binary documents follow the same security/search path as text documents, with parsing inserted before encryption.
+
+### Component Architecture
 
 ```
-Step 1: User clicks "Generate User Stories" button
-        |
-        v
-Step 2: conversation_screen.dart:_showArtifactTypePicker()
-        Returns ArtifactTypeSelection
-        |
-        v
-Step 3: conversation_screen.dart:214
-        provider.sendMessage("Generate User Stories from this conversation.")
-        |
-        v
-Step 4: conversation_provider.dart:sendMessage()
-        - Adds optimistic user message to _messages list
-        - Sets _isStreaming = true
-        - Calls _aiService.streamChat(threadId, content)
-        |
-        v
-Step 5: Frontend ai_service.dart:streamChat()
-        POST /api/threads/{id}/chat  body: {"content": "Generate User Stories..."}
-        SSE connection opened
-        |
-        v
-Step 6: Backend conversations.py:stream_chat()
-        - save_message(db, thread_id, "user", body.content)  <-- SAVED TO DB
-        - build_conversation_context(db, thread_id)           <-- LOADS ALL MESSAGES
-        - AIService(provider).stream_chat(conversation, ...)
-        |
-        v
-Step 7: Backend conversation_service.py:build_conversation_context()
-        - SELECT * FROM messages WHERE thread_id = ? ORDER BY created_at
-        - Converts to [{role: "user", content: "..."}, {role: "assistant", content: "..."}]
-        - NO filtering of fulfilled artifact requests
-        |
-        v
-Step 8: Backend ai_service.py:stream_chat()
-        - Sends SYSTEM_PROMPT + conversation + tools to Claude
-        - Claude sees ALL prior "Generate X" messages in history
-        - Claude calls save_artifact for EACH one it deems actionable
-        - Tool loop continues until no more tool_use blocks
-        |
-        v
-Step 9: Backend conversations.py:event_generator()
-        - Accumulates text_delta events
-        - Yields tool_executing, artifact_created, text_delta events
-        - save_message(db, thread_id, "assistant", accumulated_text)  <-- SAVED TO DB
-        |
-        v
-Step 10: Frontend conversation_provider.dart:sendMessage()
-         - Processes TextDeltaEvent, ToolExecutingEvent, ArtifactCreatedEvent, MessageCompleteEvent
-         - Adds assistant message to _messages
-         - Adds artifact to _artifacts
+┌─────────────────────────────────────────────────────────────┐
+│ Frontend (Flutter Web)                                       │
+│  - DocumentUploadScreen: file picker (multi-format)         │
+│  - DocumentViewer: format-aware rendering                   │
+│    - TextRenderer (existing .txt/.md)                       │
+│    - TableRenderer (NEW: Excel/CSV with data_table widget)  │
+│    - PDFRenderer (NEW: display extracted text + metadata)   │
+│    - WordRenderer (NEW: structured content display)         │
+└─────────────────────────────────────────────────────────────┘
+                              ↓ HTTP multipart upload
+┌─────────────────────────────────────────────────────────────┐
+│ Backend Routes (routes/documents.py)                        │
+│  - POST /api/projects/{id}/documents                        │
+│    ├─ Validate content_type (EXTENDED content type list)    │
+│    ├─ Validate file size (INCREASED to 10MB for Excel/PDF)  │
+│    ├─ Route to parser based on content_type                 │
+│    └─ Call document_service.create_document()               │
+│  - GET /api/documents/{id}                                  │
+│    ├─ Return content_text for text preview                  │
+│    └─ NEW: Return metadata JSON for table structure         │
+│  - NEW: GET /api/documents/{id}/preview                     │
+│    └─ Return structured preview data (table rows/cols)      │
+└─────────────────────────────────────────────────────────────┘
+                              ↓
+┌─────────────────────────────────────────────────────────────┐
+│ Document Service (NEW: services/document_parsing.py)        │
+│                                                              │
+│  DocumentParser (Abstract Base)                             │
+│   - parse(file_bytes) → ParsedDocument                      │
+│                                                              │
+│  ParsedDocument (dataclass)                                 │
+│   - text_content: str (for FTS5 + AI)                       │
+│   - metadata: dict (format-specific)                        │
+│   - preview_data: dict (for frontend rendering)             │
+│                                                              │
+│  Concrete Parsers:                                          │
+│   - ExcelParser(openpyxl): all sheets → text + table data   │
+│   - CSVParser(csv stdlib): rows → text + preview            │
+│   - PDFParser(PyMuPDF): pages → text (no OCR MVP)           │
+│   - WordParser(python-docx): paragraphs → text + structure  │
+└─────────────────────────────────────────────────────────────┘
+                              ↓
+┌─────────────────────────────────────────────────────────────┐
+│ Database Layer (models.py)                                  │
+│                                                              │
+│  Document Model (MODIFIED):                                 │
+│   - id: str (UUID, existing)                                │
+│   - project_id: str (FK, existing)                          │
+│   - filename: str (existing)                                │
+│   - content_type: str (NEW: MIME type)                      │
+│   - content_encrypted: bytes (existing, stores binary)      │
+│   - content_text: bytes (NEW: encrypted extracted text)     │
+│   - metadata_json: str (NEW: JSON with table structure)     │
+│   - created_at: datetime (existing)                         │
+│                                                              │
+│  Migration:                                                 │
+│   - Add content_type column (nullable, default text/plain)  │
+│   - Add content_text column (nullable, backfill existing)   │
+│   - Add metadata_json column (nullable)                     │
+└─────────────────────────────────────────────────────────────┘
+                              ↓
+┌─────────────────────────────────────────────────────────────┐
+│ Search & Encryption (existing, MINIMAL changes)             │
+│                                                              │
+│  FTS5 (document_fts table):                                 │
+│   - Index content_text instead of decrypted content         │
+│   - No structural changes to FTS5 table                     │
+│                                                              │
+│  Encryption Service (services/encryption.py):               │
+│   - encrypt_document(bytes) → bytes (CHANGE signature)      │
+│   - decrypt_document(bytes) → bytes (CHANGE signature)      │
+│   - Add: encrypt_text(str) → bytes (for content_text)       │
+│   - Add: decrypt_text(bytes) → str (for content_text)       │
+└─────────────────────────────────────────────────────────────┘
+                              ↓
+┌─────────────────────────────────────────────────────────────┐
+│ AI Integration (services/ai_service.py)                     │
+│                                                              │
+│  search_documents tool (UNCHANGED behavior):                │
+│   - Searches FTS5 using content_text                        │
+│   - Returns text snippets to LLM                            │
+│   - Format-agnostic: LLM receives extracted text regardless │
+│     of original format (Excel/PDF/Word all → text)          │
+└─────────────────────────────────────────────────────────────┘
 ```
 
-### The Bug: Why N Requests Create N Artifacts
+## Component Boundaries
+
+### New Components
+
+| Component | Responsibility | Dependencies |
+|-----------|---------------|--------------|
+| **DocumentParser (Base)** | Define parsing interface | None (ABC) |
+| **ExcelParser** | Extract text + table data from .xlsx | openpyxl |
+| **CSVParser** | Extract text + table data from .csv | csv (stdlib) |
+| **PDFParser** | Extract text from PDF pages | PyMuPDF (fitz) |
+| **WordParser** | Extract structured text from .docx | python-docx (existing) |
+| **ParserFactory** | Route content_type → parser | All parsers |
+| **TableRenderer (Flutter)** | Display Excel/CSV as data table | data_table package |
+| **GET /documents/{id}/preview** | Return structured preview data | DocumentService |
+
+### Modified Components
+
+| Component | Current State | Required Changes |
+|-----------|--------------|------------------|
+| **Document model** | Stores encrypted text, filename | Add: content_type, content_text, metadata_json columns |
+| **routes/documents.py** | Validates text/plain, text/markdown | Extend ALLOWED_CONTENT_TYPES, increase MAX_FILE_SIZE, route to parser |
+| **document_search.index_document()** | Accepts plaintext string | Accept extracted text (string) instead of original content |
+| **encryption.py** | encrypt_document(str) → bytes | Change to encrypt_document(bytes) → bytes for binary |
+| **DocumentViewer (Flutter)** | Renders text in monospace | Add format detection + specialized renderers |
+| **Document.fromJson (Flutter)** | Expects content field | Add content_type, metadata fields |
+
+### Unchanged Components
+
+| Component | Why Unchanged |
+|-----------|--------------|
+| **FTS5 table (document_fts)** | Still indexes text; source column changes but schema doesn't |
+| **search_documents service** | Searches FTS5, returns text snippets (format-agnostic) |
+| **AI service search_documents tool** | Receives extracted text regardless of format |
+| **Encryption key management** | Same Fernet key encrypts binary and text |
+| **Project/Thread/Message models** | No relationship to document format |
+| **OAuth authentication** | Orthogonal to document handling |
+
+## Data Flow Changes
+
+### Current Flow (Text Documents)
 
 ```
-Turn 1: User sends "Generate User Stories"
-        History: [user: "Generate User Stories"]
-        Claude sees 1 generation request -> generates 1 artifact
-
-Turn 2: User sends "Generate BRD"
-        History: [user: "Generate User Stories",
-                  assistant: "Done! I've created User Stories...",
-                  user: "Generate BRD"]
-        Claude sees 2 generation-related messages -> generates 1 or 2 artifacts
-
-Turn 3: User sends "Generate Requirements Doc"
-        History: [user: "Generate User Stories",
-                  assistant: "Done! ...",
-                  user: "Generate BRD",
-                  assistant: "Done! ...",
-                  user: "Generate Requirements Doc"]
-        Claude sees 3 generation requests -> generates up to 3 artifacts
+1. User uploads .txt file → FastAPI receives multipart
+2. Validate content_type = text/plain
+3. Read file → decode UTF-8 → plaintext string
+4. Encrypt plaintext → encrypted bytes
+5. Create Document(content_encrypted=encrypted)
+6. Index plaintext in FTS5
+7. Commit to DB
 ```
 
-The root cause is the combination of:
-1. No prompt rule saying "only act on latest request"
-2. Tool description saying "You may call this tool multiple times"
-3. No structural marking of fulfilled requests in history
-4. Every generation request entering the permanent message history
-
----
-
-## Fix Architecture: 4-Layer Defense in Depth
-
-### Layer Diagram
+### New Flow (Binary Documents: Excel Example)
 
 ```
-+------------------------------------------------------------------+
-|                      Layer 1: Prompt Engineering                  |
-|  File: ai_service.py SYSTEM_PROMPT                               |
-|  What: Add ARTIFACT DEDUPLICATION critical rule (priority 2)     |
-|  Effect: Model instructed to only act on MOST RECENT request     |
-+------------------------------------------------------------------+
-                              |
-+------------------------------------------------------------------+
-|                      Layer 2: Tool Definition                    |
-|  File: ai_service.py SAVE_ARTIFACT_TOOL                         |
-|  What: Replace "may call multiple times" with single-call rule   |
-|  Effect: Model instructed to call tool ONCE per user request     |
-+------------------------------------------------------------------+
-                              |
-+------------------------------------------------------------------+
-|                      Layer 3: Structural History Filtering       |
-|  File: conversation_service.py build_conversation_context()      |
-|  What: Annotate fulfilled artifact requests with prefix          |
-|  Effect: Context itself signals which requests are complete      |
-+------------------------------------------------------------------+
-                              |
-+------------------------------------------------------------------+
-|                      Layer 4: UX (Silent Generation)             |
-|  Files: conversations.py, conversation_provider.dart,            |
-|         conversation_screen.dart, ai_service.dart                |
-|  What: Button-triggered artifacts skip message history entirely  |
-|  Effect: Zero accumulation for button-triggered requests         |
-+------------------------------------------------------------------+
+1. User uploads .xlsx file → FastAPI receives multipart
+2. Validate content_type = application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+3. Read file → bytes (NO decode)
+4. Route to ExcelParser.parse(bytes)
+5. Parser extracts:
+   - text_content: "Sheet1: Name, Age, Email\nAlice, 30, alice@example.com\n..."
+   - metadata: {"sheets": ["Sheet1"], "rows": 100, "cols": 3}
+   - preview_data: {"headers": ["Name", "Age", "Email"], "rows": [...]}
+6. Encrypt original bytes → encrypted_binary
+7. Encrypt text_content → encrypted_text (NEW)
+8. Create Document(
+     content_encrypted=encrypted_binary,
+     content_text=encrypted_text,
+     content_type="application/vnd...",
+     metadata_json=json.dumps(metadata)
+   )
+9. Index text_content in FTS5 (same as before, different source)
+10. Commit to DB
 ```
 
-### Why 4 Layers (Defense in Depth)
-
-Each layer addresses a different failure mode:
-
-| Layer | What It Prevents | Failure Mode If Only Layer |
-|-------|------------------|---------------------------|
-| 1. Prompt rule | Model re-triggering old requests | Model may ignore prompt in long contexts |
-| 2. Tool description | Multiple tool calls per turn | Doesn't prevent across-turn accumulation |
-| 3. History annotation | Structural ambiguity in context | Model may not interpret annotation correctly |
-| 4. Silent generation | Messages entering history at all | Only covers button-triggered, not typed requests |
-
-Layers 1+2+3 together handle **typed** artifact requests (user types "generate BRD").
-Layer 4 handles **button-triggered** artifact requests (user clicks sparkle button).
-All 4 together provide complete coverage.
-
----
-
-## Component Boundaries and Responsibilities
-
-### Files to Modify (No New Files for Layers 1-3)
-
-| # | File | Layer | Change Type | Scope |
-|---|------|-------|-------------|-------|
-| 1 | `backend/app/services/ai_service.py` | 1+2 | Modify constants | SYSTEM_PROMPT XML, SAVE_ARTIFACT_TOOL dict |
-| 2 | `backend/app/services/conversation_service.py` | 3 | Modify function | build_conversation_context() |
-| 3 | `backend/app/routes/conversations.py` | 4 | Modify model + endpoint | ChatRequest, stream_chat(), event_generator() |
-| 4 | `frontend/lib/services/ai_service.dart` | 4 | Modify method | streamChat() signature and body payload |
-| 5 | `frontend/lib/providers/conversation_provider.dart` | 4 | Add method + state | generateArtifact(), _isGeneratingArtifact |
-| 6 | `frontend/lib/screens/conversation/conversation_screen.dart` | 4 | Modify handler | _showArtifactTypePicker() |
-
-### New Widgets (Layer 4 only)
-
-| Widget | Purpose | Location |
-|--------|---------|----------|
-| GeneratingIndicator | Inline loading animation during silent generation | `frontend/lib/screens/conversation/widgets/generating_indicator.dart` |
-
----
-
-## Detailed Data Flow Per Layer
-
-### Layer 1: System Prompt Deduplication Rule
-
-**Change location:** `ai_service.py` lines ~120-126, inside `<critical_rules>` XML block
-
-**Data flow (no change to flow, change to content):**
+### Retrieval Flow (Binary Documents)
 
 ```
-SYSTEM_PROMPT string constant
-    |
-    v
-ai_service.py:stream_chat() -> self.adapter.stream_chat(system_prompt=SYSTEM_PROMPT)
-    |
-    v
-Anthropic API receives system prompt with new rule at priority 2
+GET /api/documents/{id}:
+  - Decrypt content_text → return text for display
+  - Return content_type, metadata_json for frontend rendering
+
+GET /api/documents/{id}/preview:
+  - Decrypt metadata_json → parse JSON
+  - Return structured preview (table rows/headers)
+  - Frontend uses TableRenderer with data_table widget
+
+AI search (search_documents tool):
+  - FTS5 search → content_text snippets
+  - Return to LLM (format-agnostic: Excel → "Name: Alice, Age: 30")
 ```
 
-**What changes:** The SYSTEM_PROMPT XML gets a new `<rule priority="2">` inserted and
-existing rules 2-5 renumbered to 3-6. This is a string constant modification only.
+## Build Order (Dependency-Aware)
 
-**No runtime flow changes.** The system prompt is already passed on every request.
+### Phase 1: Database & Model Foundation
+**Why first:** All other components depend on schema changes.
 
-### Layer 2: Tool Description Single-Call
+1. Create Alembic migration (add columns)
+2. Run migration on dev database
+3. Update Document SQLAlchemy model
+4. Update encryption service signatures (bytes instead of str)
+5. Backfill existing documents (content_type, content_text)
+6. **Verification:** Existing text uploads still work
 
-**Change location:** `ai_service.py` lines ~649-683, SAVE_ARTIFACT_TOOL dict
+### Phase 2: Parser Infrastructure
+**Why second:** Backend routes need parsers before accepting new formats.
 
-**Data flow (no change to flow, change to content):**
+1. Create DocumentParser base class + ParsedDocument dataclass
+2. Implement TextParser (wrap existing logic)
+3. Implement CSVParser (stdlib csv, no dependencies)
+4. Implement ExcelParser (openpyxl)
+5. Implement PDFParser (PyMuPDF)
+6. Implement WordParser (python-docx, already installed)
+7. Create ParserFactory
+8. **Verification:** Unit tests for each parser with fixture files
 
-```
-SAVE_ARTIFACT_TOOL dict constant
-    |
-    v
-AIService.__init__() -> self.tools = [DOCUMENT_SEARCH_TOOL, SAVE_ARTIFACT_TOOL]
-    |
-    v
-ai_service.py:stream_chat() -> self.adapter.stream_chat(tools=self.tools)
-    |
-    v
-Anthropic API receives tool definition with updated description
-```
+### Phase 3: Backend Upload Integration
+**Why third:** Now that parsers exist, wire them into upload route.
 
-**What changes:** Line 663's `"You may call this tool multiple times to create multiple
-artifacts."` is replaced with single-call enforcement text. This is a dict constant
-modification only.
+1. Update ALLOWED_CONTENT_TYPES in routes/documents.py
+2. Increase MAX_FILE_SIZE to 10MB
+3. Modify upload endpoint to route content_type → parser
+4. Update document_search.index_document() to use content_text
+5. Modify GET /documents/{id} to return content_type + metadata
+6. Add GET /documents/{id}/preview endpoint
+7. **Verification:** Upload Excel file → stored + searchable
 
-**No runtime flow changes.** Tools are already passed on every request.
+### Phase 4: Frontend Model & Service
+**Why fourth:** Backend is ready, update Flutter side to consume new fields.
 
-### Layer 3: History Annotation in build_conversation_context()
+1. Update Document model (add contentType, metadata fields)
+2. Update DocumentService.getDocumentContent() to parse new fields
+3. Add DocumentService.getDocumentPreview() method
+4. **Verification:** Fetch document with contentType field
 
-**Change location:** `conversation_service.py` lines 77-117
+### Phase 5: Frontend Rendering
+**Why fifth:** All data flows work, add specialized UI.
 
-**Current data flow:**
+1. Install data_table_2 package
+2. Create TableRenderer widget (Excel/CSV)
+3. Create PDFRenderer widget (text display with page numbers)
+4. Create WordRenderer widget (structured paragraphs)
+5. Update DocumentViewerScreen with format routing
+6. **Verification:** View Excel file shows table, PDF shows pages
 
-```
-DB: messages table
-    |  SELECT * FROM messages WHERE thread_id = ? ORDER BY created_at
-    v
-[msg1, msg2, msg3, msg4, msg5, ...]
-    |  Convert each to {role, content}
-    v
-[{role:"user", content:"..."}, {role:"assistant", content:"..."}, ...]
-    |  (optional truncation)
-    v
-Returned to caller (conversations.py:stream_chat)
-```
+### Phase 6: Export Feature (Optional)
+**Why last:** Everything works, export is value-add.
 
-**New data flow:**
+1. Add GET /documents/{id}/export?format=csv endpoint
+2. Backend converts preview_data back to CSV/Excel bytes
+3. Frontend download button with format picker
+4. **Verification:** Download Excel as CSV
 
-```
-DB: messages table
-    |  SELECT * FROM messages WHERE thread_id = ? ORDER BY created_at
-    v
-[msg1, msg2, msg3, msg4, msg5, ...]
-    |  Convert each to {role, content}
-    |
-    |  NEW: For each assistant message, check if it contains
-    |       "Artifact saved successfully" (the marker from ai_service.py:733)
-    |       If yes, prefix the PRECEDING user message with
-    |       "[ALREADY FULFILLED - artifact was generated] "
-    v
-[{role:"user", content:"[ALREADY FULFILLED...] Generate User Stories..."},
- {role:"assistant", content:"Done! I've created..."},
- {role:"user", content:"Generate BRD from this conversation."}]
-    |  (optional truncation)
-    v
-Returned to caller
-```
+## Patterns to Follow
 
-**CRITICAL CORRECTION from BUG-019:** The user story references `ARTIFACT_CREATED:`
-marker from dead code (`agent_service.py:174`). The actual marker in the active code path
-is the string `"Artifact saved successfully"` at `ai_service.py:733`. However, this
-string is the tool RESULT returned to Claude during the tool loop -- it is NOT saved
-to the database as the assistant message.
+### Pattern 1: Dual-Column Storage (Binary + Text)
 
-What IS saved to the database is `accumulated_text` (conversations.py:183), which is the
-model's TEXT output only (not tool results). The model typically responds with something
-like `"Done! I've created Business Requirements Document..."` after receiving the tool
-result.
+**What:** Store original binary in `content_encrypted`, extracted text in `content_text`.
 
-**Detection strategies (ranked by reliability):**
+**When:** Any time a document format requires parsing to extract searchable content.
 
-1. **Best: Query artifacts table** -- Check if there are artifacts in the thread that
-   were created between consecutive messages. This is a structural guarantee with zero
-   false positives.
+**Why:**
+- Preserves original document for download/export
+- Enables full-text search without re-parsing
+- Separates concerns (storage vs search)
 
-2. **Good: Check for artifact_created SSE event pattern** -- Not available in stored
-   messages.
-
-3. **Acceptable: Heuristic on assistant text** -- Look for phrases like
-   "I've created", "saved successfully", "artifact", "generated". Fragile, depends on
-   model's exact phrasing.
-
-4. **Alternative: Store a metadata flag on messages** -- Add an `artifact_fulfilled`
-   boolean column to the messages table. Set it when `save_message()` is called for
-   assistant messages after an artifact was created. Most reliable but requires a schema
-   migration.
-
-**Recommendation:** Use option 1 (query artifacts table) as primary detection, falling
-back to heuristic text matching. The artifacts table has `created_at` timestamps that can
-be correlated with message timestamps.
-
-Simplified implementation:
-
+**Example:**
 ```python
-# After loading messages, load artifact creation timestamps for the thread
-artifact_stmt = select(Artifact.created_at).where(Artifact.thread_id == thread_id)
-artifact_result = await db.execute(artifact_stmt)
-artifact_times = [r[0] for r in artifact_result.all()]
-
-# For each user message, check if an artifact was created AFTER it
-# (meaning the request was fulfilled)
-for i, msg in enumerate(messages):
-    if msg.role == "user":
-        # Check if any artifact was created between this message and the next user message
-        msg_time = msg.created_at
-        next_user_time = find_next_user_time(messages, i)
-        if any(msg_time <= at <= next_user_time for at in artifact_times):
-            # This user message triggered an artifact generation
-            conversation[i]["content"] = "[ALREADY FULFILLED] " + conversation[i]["content"]
-```
-
-However, the simpler heuristic from BUG-019 (checking the assistant message text) is also
-viable if the detection string is corrected. The assistant text will contain phrases like
-"created", "generated", "saved" when artifacts were produced. This may have false positives
-for conversations about artifacts without actually generating them, but in practice the
-system prompt is highly structured.
-
-**Recommended approach for v1.9.4:** Use the assistant text heuristic with the corrected
-marker string, as it avoids schema changes and extra DB queries. The text to detect should
-be `"Artifact saved successfully"` OR phrases like tool result confirmation patterns.
-
-Actually, there is an even simpler and more reliable approach: **Check if the assistant
-message content block in the Anthropic API format includes a `tool_use` block with
-`name: "save_artifact"`.** But this information is lost -- the assistant message is saved
-as plain text (only `accumulated_text`), not as structured content blocks.
-
-**Final recommendation:** The simplest reliable approach is to search assistant messages
-for the confirmation phrase the model produces after calling `save_artifact`. The model
-consistently says something about creating/generating the artifact in its follow-up text.
-But since we cannot guarantee exact phrasing, the **artifacts table query** (option 1) is
-the most robust.
-
-### Layer 4: Silent Generation (New Frontend/Backend Flow)
-
-**Current flow (button click):**
-
-```
-User clicks sparkle -> ArtifactTypePicker -> "Generate User Stories"
-    |
-    v
-conversation_provider.sendMessage("Generate User Stories from this conversation.")
-    |
-    v
-[User bubble appears in chat]
-    |
-    v
-POST /api/threads/{id}/chat  body: {"content": "Generate User Stories..."}
-    |
-    v
-Backend: save_message(user) -> build_context -> stream_chat -> save_message(assistant)
-    |
-    v
-[text_delta events -> streaming text in UI]
-[artifact_created event -> artifact card in UI]
-[message_complete -> assistant bubble in UI]
-```
-
-**New flow (button click with artifact_generation flag):**
-
-```
-User clicks sparkle -> ArtifactTypePicker -> "Generate User Stories"
-    |
-    v
-conversation_provider.generateArtifact("Generate User Stories from this conversation.")
-    |  (NEW method, separate from sendMessage)
-    |
-    v
-[Loading indicator appears in chat area, NO user bubble]
-    |
-    v
-POST /api/threads/{id}/chat  body: {"content": "Generate User Stories...",
-                                     "artifact_generation": true}
-    |
-    v
-Backend: NO save_message(user)
-         build_context(db, thread_id) as before
-         Append ephemeral instruction to context (NOT saved to DB):
-           "Generate the artifact silently. Only call save_artifact and stop."
-         stream_chat(conversation, ...) as before
-    |
-    v
-SSE stream:
-  - text_delta events: SUPPRESSED (not yielded to client)
-  - tool_executing events: yielded normally
-  - artifact_created events: yielded normally
-  - message_complete events: yielded (for cleanup), BUT no save_message(assistant)
-    |
-    v
-Frontend:
-  - On artifact_created: add to _artifacts list, dismiss loading indicator
-  - On message_complete: clear generating state
-  - On error: clear generating state, show error
-  - NO user message added to _messages
-  - NO assistant message added to _messages
-```
-
-**Key architectural decisions for Layer 4:**
-
-1. **Ephemeral context message:** The generation prompt is appended to the conversation
-   context array sent to Claude but NOT saved to the messages table. This means it cannot
-   accumulate across turns.
-
-2. **Server-side text suppression:** The backend filters `text_delta` events when
-   `artifact_generation=true`. This is a safety net -- even if Claude generates text
-   despite the silent instruction, the frontend never receives it.
-
-3. **Token tracking still works:** The `message_complete` event still carries `usage`
-   data. Token tracking in `event_generator()` still fires. Only message persistence
-   is skipped.
-
-4. **Thread summary skipped:** Since no messages are saved, `maybe_update_summary()` can
-   be skipped for silent requests (or called but will no-op since message count hasn't
-   changed).
-
----
-
-## Dependency Graph and Build Order
-
-```
-Layer 1 (Prompt Rule)  ----+
-                            |
-Layer 2 (Tool Desc)    ----+----> All backend prompt/tool changes
-                            |     can be done in one commit
-Layer 3 (History Filter)---+     (no interdependencies)
-
-Layer 4 (Silent Gen)   --------> Depends on nothing above, but
-                                  should be built last since it's
-                                  the most complex (frontend + backend)
-```
-
-### Recommended Build Order
-
-| Phase | Layer | Files | Rationale |
-|-------|-------|-------|-----------|
-| Phase 1 | Layers 1+2 | `ai_service.py` | Pure string constant changes. Zero risk. Immediate partial fix for typed requests. Can be tested together. |
-| Phase 2 | Layer 3 | `conversation_service.py` | Single function modification. Unit-testable in isolation. Completes the typed-request fix. |
-| Phase 3 | Layer 4 | `conversations.py`, `conversation_provider.dart`, `conversation_screen.dart`, `ai_service.dart`, new `generating_indicator.dart` | Most complex. Touches both frontend and backend. Should be built after layers 1-3 provide the safety net. |
-
-**Why this order:**
-- Layers 1+2 together provide immediate improvement for the most common case
-- Layer 3 provides structural guarantee regardless of model behavior
-- Layer 4 is an enhancement that eliminates the problem for button-triggered requests
-  but is the highest-risk change (more files, new API contract, frontend state)
-- If Layer 4 has issues, Layers 1+2+3 still prevent the bug for all paths
-
-### Dependency Details
-
-```
-Phase 1 (Layers 1+2):
-  ai_service.py SYSTEM_PROMPT  <- modify string constant (lines ~120-126)
-  ai_service.py SAVE_ARTIFACT_TOOL <- modify dict constant (line ~663)
-  Dependencies: NONE
-  Risk: LOW (prompt-only changes)
-
-Phase 2 (Layer 3):
-  conversation_service.py build_conversation_context() <- modify function
-  Dependencies: NONE (complements but does not depend on Phase 1)
-  Risk: LOW-MEDIUM (need to choose correct detection strategy)
-
-  NOTE: If using artifacts table query, needs:
-    - Import Artifact model
-    - Additional DB query in build_conversation_context()
-    - Be aware of async session scope
-
-Phase 3 (Layer 4):
-  Backend:
-    conversations.py ChatRequest <- add artifact_generation field
-    conversations.py stream_chat() <- conditional save/suppress logic
-    conversations.py event_generator() <- filter text_delta events
-  Frontend:
-    ai_service.dart streamChat() <- add artifactGeneration parameter
-    conversation_provider.dart <- add generateArtifact() method, _isGeneratingArtifact state
-    conversation_screen.dart <- modify _showArtifactTypePicker handler
-    NEW: generating_indicator.dart <- loading animation widget
-  Dependencies:
-    - Backend changes must deploy before frontend changes (new API field)
-    - Frontend ai_service.dart must send new field before provider uses it
-  Risk: MEDIUM (API contract change, new frontend state, new widget)
-```
-
----
-
-## Integration Points and Risks
-
-### Risk 1: Marker Detection in Layer 3
-
-**Problem:** BUG-019 references `ARTIFACT_CREATED:` which is dead code. The active path
-saves only the model's text response, which varies.
-
-**Mitigation:** Use artifacts table query instead of text heuristic. The artifacts table
-has reliable data about which artifacts exist and when they were created.
-
-**Alternative mitigation:** Add a deterministic marker to the tool result that gets
-reflected in the model's response. For example, change the tool result string in
-`execute_tool()` to include a parseable tag:
-
-```python
-return (
-    f"[ARTIFACT_SAVED] Artifact saved successfully: '{artifact.title}' (ID: {artifact.id}). "
-    "User can now export as PDF, Word, or Markdown from the artifacts list.",
-    event_data
+# Upload Excel file
+parsed = excel_parser.parse(file_bytes, filename)
+doc = Document(
+    content_encrypted=encrypt_binary(file_bytes),  # Original Excel
+    content_text=encrypt_text(parsed.text_content),  # "Sheet1: A, B, C..."
+    metadata_json=json.dumps(parsed.metadata)
 )
 ```
 
-Then the model's follow-up text will likely echo or reference `[ARTIFACT_SAVED]`. However,
-this is still not guaranteed since the tool result goes to Claude (not saved to DB) and
-Claude's text response is what gets saved.
+### Pattern 2: Parser Adapter with Factory
 
-**Best approach:** Query the artifacts table. It is the single source of truth.
+**What:** Abstract parser interface + factory routing.
 
-### Risk 2: Backward Compatibility of ChatRequest
+**When:** Multiple input formats require different processing logic.
 
-**Problem:** Adding `artifact_generation: bool = Field(default=False)` to ChatRequest.
-Old frontend versions won't send this field.
+**Why:**
+- Single responsibility: each parser handles one format
+- Easy to add formats (new parser + factory registration)
+- Testable in isolation
 
-**Mitigation:** Default value of `False` means old clients work exactly as before. This
-is a non-breaking change. The `Field(default=False)` makes the field optional.
-
-### Risk 3: Token Tracking for Silent Requests
-
-**Problem:** When `artifact_generation=true`, the `accumulated_text` is empty (text_delta
-suppressed). But `message_complete` still carries usage data.
-
-**Mitigation:** Token tracking uses `usage_data` from `message_complete`, not
-`accumulated_text`. It will work correctly. Verify that the `if usage_data:` block at
-conversations.py:186-193 still fires for silent requests.
-
-### Risk 4: Thread Summary for Silent Requests
-
-**Problem:** `maybe_update_summary()` at conversations.py:197 is called after every chat.
-For silent requests, no new messages were saved, so the summary update is wasted work.
-
-**Mitigation:** Skip the call when `artifact_generation=true`:
+**Example:**
 ```python
-if not body.artifact_generation:
-    await maybe_update_summary(db, thread_id, current_user["user_id"])
+parser = ParserFactory.get_parser(content_type)
+parsed = parser.parse(file_bytes, filename)
 ```
 
-### Risk 5: Error Handling in Silent Mode
+### Pattern 3: Metadata-Driven Rendering
 
-**Problem:** If artifact generation fails (Claude returns error, tool execution fails, or
-network drops), the frontend needs to clear the loading state and show an error.
+**What:** Store structured metadata JSON, frontend reads to decide rendering.
 
-**Mitigation:** The `generateArtifact()` method in conversation_provider must handle:
-- `ErrorEvent` -> set error, clear _isGeneratingArtifact
-- Stream exception -> set error, clear _isGeneratingArtifact
-- `message_complete` without preceding `artifact_created` -> this means Claude didn't
-  call the tool. Should be treated as a soft failure with user-visible message.
+**When:** Different formats need different preview UIs (table vs text vs pages).
 
-### Risk 6: Multi-Provider Support
+**Why:**
+- Backend describes structure, frontend interprets
+- No backend changes when adding preview features
+- Format-agnostic API (GET /documents/{id} same for all)
 
-**Problem:** The system uses an LLM adapter pattern with Anthropic, Gemini, and DeepSeek
-adapters. Prompt changes (Layers 1+2) go through the adapter's `stream_chat()` method.
+**Example:**
+```dart
+final metadata = jsonDecode(document.metadata);
+if (metadata['format'] == 'xlsx') {
+  return TableRenderer(sheets: metadata['sheets']);
+}
+```
 
-**Mitigation:** The SYSTEM_PROMPT and tools are passed identically to all adapters. The
-new rules are provider-agnostic natural language. All providers should respect them.
-Layer 3 (history annotation) is provider-agnostic by design.
+### Pattern 4: Progressive Extraction (Preview Limits)
 
----
+**What:** Extract limited rows/pages for preview, full text for search.
 
-## Testing Strategy Per Layer
+**When:** Large documents (1000-row Excel, 100-page PDF) would overwhelm frontend.
 
-| Layer | Test Type | What to Test |
-|-------|-----------|-------------|
-| 1 | Unit | SYSTEM_PROMPT contains deduplication rule at priority 2 |
-| 1 | Unit | Rule priorities renumbered correctly (1-6) |
-| 2 | Unit | SAVE_ARTIFACT_TOOL description contains "ONCE per user request" |
-| 2 | Unit | SAVE_ARTIFACT_TOOL description does NOT contain "multiple times" |
-| 3 | Unit | build_conversation_context marks fulfilled requests |
-| 3 | Unit | Unfulfilled requests are NOT marked |
-| 3 | Unit | Failed generation attempts are NOT marked |
-| 3 | Integration | Two sequential generation requests produce 1 artifact each |
-| 4 | Unit | ChatRequest accepts artifact_generation field (defaults False) |
-| 4 | Unit | text_delta events suppressed when artifact_generation=true |
-| 4 | Unit | User message NOT saved when artifact_generation=true |
-| 4 | Unit | Assistant message NOT saved when artifact_generation=true |
-| 4 | Unit | artifact_created event still emitted in silent mode |
-| 4 | Integration | Button-triggered generation shows only artifact card |
-| 4 | E2E | Full flow: button -> loading -> artifact card, no chat bubbles |
+**Why:**
+- Prevents UI lag from rendering massive tables
+- Reduces API response size
+- Search still covers full document
 
----
+**Example:**
+```python
+MAX_PREVIEW_ROWS = 100
+preview_data = {"rows": rows[:MAX_PREVIEW_ROWS]}  # Frontend sees 100
+text_content = "\n".join(all_rows)  # FTS5 indexes all
+```
 
-## Summary of Architectural Decisions
+## Anti-Patterns to Avoid
 
-| Decision | Rationale |
-|----------|-----------|
-| 4 layers not 1 | Defense in depth; each layer catches what others miss |
-| Prompt + structural fixes | Prompt alone is unreliable for long contexts |
-| Silent generation as separate code path | Clean separation; existing sendMessage untouched |
-| Artifacts table for detection (Layer 3) | Most reliable; single source of truth |
-| Server-side text suppression | Safety net; model may ignore silent instruction |
-| Optional API field with default | Backward-compatible; old clients unaffected |
-| Ephemeral context message | Generation prompt never enters DB; cannot accumulate |
+### Anti-Pattern 1: Re-Parsing on Every Request
 
----
+**What goes wrong:** Parse Excel file on every GET /documents/{id} call.
+
+**Why bad:**
+- Parsing is CPU-expensive (openpyxl, PyMuPDF)
+- 10MB Excel file = 2-5 seconds to parse
+- Same document parsed repeatedly
+
+**Instead:**
+```python
+# GOOD: Parse once at upload
+parsed = parser.parse(file_bytes, filename)
+doc.content_text = parsed.text_content  # Store extracted text
+doc.metadata_json = json.dumps(parsed.preview_data)  # Store preview
+
+# GOOD: Retrieve from DB
+content = doc.content_text  # No re-parsing
+preview = json.loads(doc.metadata_json)
+```
+
+### Anti-Pattern 2: Storing Parsed Data Unencrypted
+
+**What goes wrong:** Store `content_text` as plaintext string.
+
+**Why bad:**
+- Violates existing encryption policy (content_encrypted is encrypted)
+- Compliance risk: extracted text may contain PII
+- Inconsistent: binary encrypted, text not
+
+**Instead:**
+```python
+# GOOD: Encrypt both binary and text
+doc.content_encrypted = encrypt_binary(file_bytes)
+doc.content_text = encrypt_text(parsed.text_content)  # Also encrypted
+```
+
+### Anti-Pattern 3: Format Detection by Filename Extension
+
+**What goes wrong:** Use `.xlsx` extension to route parser.
+
+**Why bad:**
+- Filename can be spoofed (upload malware as `file.xlsx`)
+- Content-Type header is validated by FastAPI UploadFile
+- Extension may be wrong (Excel file renamed to .csv)
+
+**Instead:**
+```python
+# BAD
+if filename.endswith('.xlsx'):
+    parser = ExcelParser()
+
+# GOOD
+parser = ParserFactory.get_parser(file.content_type)  # Validated MIME type
+```
+
+### Anti-Pattern 4: Single Unified Renderer
+
+**What goes wrong:** One frontend component tries to render all formats.
+
+**Why bad:**
+- Conditional logic explosion (if excel... elif pdf... elif word...)
+- Excel needs DataTable, PDF needs page view, Word needs rich text
+- Hard to maintain, test
+
+**Instead:**
+```dart
+// GOOD: Dedicated renderers per format
+switch (doc.contentType) {
+  case 'text/csv': return TableRenderer(doc);
+  case 'application/pdf': return PDFRenderer(doc);
+  default: return TextRenderer(doc);
+}
+```
+
+## Scalability Considerations
+
+### At 100 Users (MVP Scale)
+
+| Concern | Approach |
+|---------|----------|
+| Document storage | SQLite LargeBinary column (10MB limit OK for 100 users * 10 docs = 10GB max) |
+| FTS5 index size | Extracted text only (not binary), 1-10KB per doc → 1MB index |
+| Upload parsing time | Synchronous parsing acceptable (5s for 10MB Excel = tolerable) |
+| Preview rendering | Client-side table rendering (100 rows = instant on modern browsers) |
+
+### At 10K Users (Growth Scale)
+
+| Concern | Approach |
+|---------|----------|
+| Document storage | Migrate to PostgreSQL with separate blob storage (S3/R2) for binaries |
+| FTS5 index size | PostgreSQL full-text search or Elasticsearch if FTS5 insufficient |
+| Upload parsing time | Background job queue (Celery) for async parsing (upload returns immediately) |
+| Preview rendering | Server-side pagination (return 50 rows at a time with "Load more") |
+
+### At 1M Users (Enterprise Scale)
+
+| Concern | Approach |
+|---------|----------|
+| Document storage | S3/R2 for binaries, PostgreSQL for metadata + extracted text |
+| FTS5 index size | Elasticsearch cluster with dedicated document search nodes |
+| Upload parsing time | Distributed task queue (Celery + Redis) with autoscaling workers |
+| Preview rendering | Server-side rendering + CDN caching for static previews |
+
+## Integration Points Summary
+
+### Existing Code That Changes
+
+| File | Current | Change Required |
+|------|---------|-----------------|
+| `backend/app/models.py` | Document model with content_encrypted | Add: content_type, content_text, metadata_json |
+| `backend/app/routes/documents.py` | ALLOWED_CONTENT_TYPES = ["text/plain", "text/markdown"] | Extend list, increase MAX_FILE_SIZE, route to parser |
+| `backend/app/services/encryption.py` | encrypt_document(str) → bytes | Add: encrypt_binary(bytes), encrypt_text(str) |
+| `backend/app/services/document_search.py` | index_document(doc_id, filename, content: str) | Change to accept extracted text parameter |
+| `frontend/lib/models/document.dart` | Document(id, filename, content, createdAt) | Add: contentType, metadata fields |
+| `frontend/lib/screens/documents/document_viewer_screen.dart` | Single SelectableText widget | Add format routing logic |
+
+### New Code to Create
+
+| File | Purpose |
+|------|---------|
+| `backend/app/services/document_parsing.py` | Parser base + concrete parsers + factory |
+| `backend/app/services/document_preview.py` | Preview data extraction (separate from parsing) |
+| `backend/app/routes/documents.py` | GET /documents/{id}/preview endpoint |
+| `backend/alembic/versions/XXX_add_rich_doc_columns.py` | Database migration |
+| `frontend/lib/widgets/table_renderer.dart` | Excel/CSV table display |
+| `frontend/lib/widgets/pdf_renderer.dart` | PDF page-based display |
+| `frontend/lib/widgets/word_renderer.dart` | Word structured content display |
+
+### Unchanged Code (Zero Modifications)
+
+| Component | Why Unchanged |
+|-----------|--------------|
+| `backend/app/services/ai_service.py` (search_documents tool) | Receives extracted text (format-agnostic) |
+| `backend/app/services/document_search.py` (search_documents function) | FTS5 queries same, source column different |
+| `backend/app/models.py` (Project, Thread, Message, Artifact) | No relationship to document format |
+| `frontend/lib/providers/document_provider.dart` | Fetches documents same way, model changes only |
+| All OAuth/authentication code | Orthogonal to document handling |
 
 ## Sources
 
-All findings from direct codebase analysis:
-- `backend/app/services/ai_service.py` (lines 114-882) -- SYSTEM_PROMPT, tools, stream_chat
-- `backend/app/services/conversation_service.py` (lines 77-117) -- build_conversation_context
-- `backend/app/routes/conversations.py` (lines 34-211) -- ChatRequest, stream_chat endpoint
-- `frontend/lib/providers/conversation_provider.dart` (lines 134-209) -- sendMessage
-- `frontend/lib/services/ai_service.dart` (lines 111-179) -- streamChat SSE handling
-- `frontend/lib/screens/conversation/conversation_screen.dart` (lines 198-216) -- artifact picker
-- `backend/app/services/agent_service.py` (dead code, for marker comparison only)
-- `user_stories/BUG-016_artifact-generation-multiplies.md` -- Root cause analysis
-- `user_stories/BUG-017_prompt-deduplication-rule.md` -- Layer 1 spec
-- `user_stories/BUG-018_tool-description-single-call.md` -- Layer 2 spec
-- `user_stories/BUG-019_history-filtering-fulfilled-requests.md` -- Layer 3 spec
-- `user_stories/THREAD-011_silent-artifact-generation.md` -- Layer 4 spec
+### High Confidence (Official Documentation)
+
+- [FastAPI Request Files](https://fastapi.tiangolo.com/tutorial/request-files/) — UploadFile and multipart handling
+- [SQLite FTS5 Extension](https://sqlite.org/fts5.html) — Full-text search capabilities
+- [python-docx Documentation](https://python-docx.readthedocs.io/) — Word document parsing
+- [PyMuPDF Features Comparison](https://pymupdf.readthedocs.io/en/latest/about.html) — PDF parsing capabilities
+- [Flutter Data Table Package](https://fluttergems.dev/table/) — Table rendering options
+
+### Medium Confidence (Technical Comparisons & Best Practices)
+
+- [The Ultimate Guide to Intelligent Document Parsing](https://medium.com/@surajkhaitan16/the-ultimate-guide-to-intelligent-document-parsing-building-a-universal-file-reader-system-2fe285fca319) — BaseReader architecture pattern (2025)
+- [Best Python PDF to Text Parser Libraries: A 2026 Evaluation](https://unstract.com/blog/evaluating-python-pdf-to-text-libraries/) — PyMuPDF vs pypdf comparison
+- [I Tested 7 Python PDF Extractors (2025 Edition)](https://onlyoneaman.medium.com/i-tested-7-python-pdf-extractors-so-you-dont-have-to-2025-edition-c88013922257) — Performance benchmarks
+- [How to Create and Secure PDFs in Python with FastAPI](https://davidmuraya.com/blog/fastapi-create-secure-pdf/) — FastAPI + WeasyPrint integration
+- [Technical Comparison — Python Libraries for Document Parsing](https://medium.com/@hchenna/technical-comparison-python-libraries-for-document-parsing-318d2c89c44e) — openpyxl, PyPDF2, python-docx comparison
+
+### Supporting Resources
+
+- [Column Level Encryption - Wikipedia](https://en.wikipedia.org/wiki/Column_level_encryption) — Encryption design patterns
+- [Syncfusion Flutter DataGrid](https://www.syncfusion.com/blogs/post/introducing-excel-library-for-flutter) — Excel rendering for Flutter
+- [universal_file_viewer Flutter package](https://pub.dev/packages/universal_file_viewer) — Multi-format preview package
+- [SQLite Full-Text Search (FTS5) in Practice](https://thelinuxcode.com/sqlite-full-text-search-fts5-in-practice-fast-search-ranking-and-real-world-patterns/) — FTS5 indexing patterns
+
+---
+
+**Confidence Assessment:** HIGH
+
+- Stack choices verified with official documentation (PyMuPDF, python-docx, openpyxl)
+- Architecture patterns validated against 2025-2026 sources
+- Integration points confirmed via existing codebase analysis
+- Build order follows proven dependency management practices

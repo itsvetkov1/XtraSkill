@@ -7,6 +7,10 @@ import 'package:provider/provider.dart';
 
 import '../../models/document.dart';
 import '../../providers/document_provider.dart';
+import '../../services/document_service.dart';
+import 'widgets/excel_table_viewer.dart';
+import 'widgets/pdf_text_viewer.dart';
+import 'widgets/word_text_viewer.dart';
 
 /// Screen for viewing document content.
 ///
@@ -40,25 +44,50 @@ class _DocumentViewerScreenState extends State<DocumentViewerScreen> {
 
   /// Download the document to user's device
   Future<void> _downloadDocument(Document doc) async {
-    if (doc.content == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Document content not loaded')),
-      );
-      return;
-    }
-
     try {
-      final bytes = Uint8List.fromList(utf8.encode(doc.content!));
       final extension = doc.filename.contains('.')
           ? doc.filename.split('.').last
           : 'txt';
       final nameWithoutExt = doc.filename.replaceAll(RegExp(r'\.[^.]+$'), '');
 
+      Uint8List bytes;
+      MimeType mimeType;
+
+      if (doc.isRichFormat) {
+        // Rich format: download original binary via download endpoint
+        final service = DocumentService();
+        final downloadedBytes = await service.downloadDocument(doc.id);
+        bytes = Uint8List.fromList(downloadedBytes);
+
+        // Determine MIME type based on extension
+        if (extension == 'xlsx') {
+          mimeType = MimeType.microsoftExcel;
+        } else if (extension == 'csv') {
+          mimeType = MimeType.csv;
+        } else if (extension == 'pdf') {
+          mimeType = MimeType.pdf;
+        } else if (extension == 'docx') {
+          mimeType = MimeType.microsoftWord;
+        } else {
+          mimeType = MimeType.other;
+        }
+      } else {
+        // Text format: encode content to bytes
+        if (doc.content == null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Document content not loaded')),
+          );
+          return;
+        }
+        bytes = Uint8List.fromList(utf8.encode(doc.content!));
+        mimeType = MimeType.text;
+      }
+
       await FileSaver.instance.saveFile(
         name: nameWithoutExt,
         bytes: bytes,
         ext: extension,
-        mimeType: MimeType.text,
+        mimeType: mimeType,
       );
 
       if (mounted) {
@@ -131,8 +160,39 @@ class _DocumentViewerScreenState extends State<DocumentViewerScreen> {
       return const Center(child: Text('No document selected'));
     }
 
-    final content = provider.selectedDocument!.content ?? '';
+    return _buildDocumentContent(provider.selectedDocument!);
+  }
 
+  Widget _buildDocumentContent(Document doc) {
+    final contentType = doc.contentType ?? 'text/plain';
+    final content = doc.content ?? '';
+    final metadata = doc.metadata ?? {};
+
+    // Excel/CSV: table viewer with PlutoGrid
+    if (contentType.contains('spreadsheet') || contentType == 'text/csv') {
+      return ExcelTableViewer(
+        content: content,
+        metadata: metadata,
+      );
+    }
+
+    // PDF: text viewer with page markers
+    if (contentType == 'application/pdf') {
+      return PdfTextViewer(
+        content: content,
+        metadata: metadata,
+      );
+    }
+
+    // Word: structured paragraph viewer
+    if (contentType.contains('wordprocessing')) {
+      return WordTextViewer(
+        content: content,
+        metadata: metadata,
+      );
+    }
+
+    // Default: plain text (existing behavior for .txt, .md)
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16.0),
       child: SelectableText(

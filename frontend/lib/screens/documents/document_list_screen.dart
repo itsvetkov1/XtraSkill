@@ -9,6 +9,7 @@ import 'package:skeletonizer/skeletonizer.dart';
 
 import '../../models/document.dart';
 import '../../providers/document_provider.dart';
+import '../../services/document_service.dart';
 import '../../utils/date_formatter.dart';
 import '../../widgets/delete_confirmation_dialog.dart';
 import '../../widgets/empty_state.dart';
@@ -44,6 +45,37 @@ class _DocumentListScreenState extends State<DocumentListScreen> {
       filename: 'Loading document name.txt',
       createdAt: DateTime.now(),
     );
+  }
+
+  /// Get format-specific icon for document
+  IconData _getDocumentIcon(Document doc) {
+    final ct = doc.contentType ?? 'text/plain';
+    if (ct.contains('spreadsheet') || ct == 'text/csv') return Icons.table_chart;
+    if (ct == 'application/pdf') return Icons.picture_as_pdf;
+    if (ct.contains('wordprocessing')) return Icons.article;
+    return Icons.description;
+  }
+
+  /// Get format-specific subtitle hint
+  String _getDocumentSubtitle(Document doc) {
+    final dateStr = 'Uploaded ${DateFormatter.format(doc.createdAt)}';
+    final metadata = doc.metadata;
+
+    if (metadata != null) {
+      if (doc.isTableFormat) {
+        final rowCount = metadata['total_rows'] ?? metadata['row_count'];
+        if (rowCount != null) {
+          return '$dateStr • $rowCount rows';
+        }
+      } else if (doc.contentType == 'application/pdf') {
+        final pageCount = metadata['page_count'];
+        if (pageCount != null) {
+          return '$dateStr • $pageCount pages';
+        }
+      }
+    }
+
+    return dateStr;
   }
 
   @override
@@ -107,10 +139,10 @@ class _DocumentListScreenState extends State<DocumentListScreen> {
                 return Card(
                   margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   child: ListTile(
-                    leading: const Icon(Icons.description, size: 40),
+                    leading: Icon(_getDocumentIcon(doc), size: 40),
                     title: Text(doc.filename),
                     subtitle: Text(
-                      'Uploaded ${DateFormatter.format(doc.createdAt)}',
+                      _getDocumentSubtitle(doc),
                       style: const TextStyle(fontSize: 12),
                     ),
                     trailing: provider.isLoading
@@ -191,8 +223,6 @@ class _DocumentListScreenState extends State<DocumentListScreen> {
 
   /// Download document - fetches content first if needed
   Future<void> _downloadDocument(BuildContext context, Document doc) async {
-    final provider = context.read<DocumentProvider>();
-
     try {
       // Show loading indicator
       ScaffoldMessenger.of(context).showSnackBar(
@@ -212,43 +242,67 @@ class _DocumentListScreenState extends State<DocumentListScreen> {
         ),
       );
 
-      // Fetch content (documents in list don't have content loaded)
-      await provider.selectDocument(doc.id);
-
-      if (!mounted) return;
-
-      final loadedDoc = provider.selectedDocument;
-      if (loadedDoc == null || loadedDoc.content == null) {
-        ScaffoldMessenger.of(context).clearSnackBars();
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Failed to load document content')),
-        );
-        return;
-      }
-
-      // Download the file
-      final bytes = Uint8List.fromList(utf8.encode(loadedDoc.content!));
-      final extension = loadedDoc.filename.contains('.')
-          ? loadedDoc.filename.split('.').last
+      final extension = doc.filename.contains('.')
+          ? doc.filename.split('.').last
           : 'txt';
-      final nameWithoutExt =
-          loadedDoc.filename.replaceAll(RegExp(r'\.[^.]+$'), '');
+      final nameWithoutExt = doc.filename.replaceAll(RegExp(r'\.[^.]+$'), '');
+
+      Uint8List bytes;
+      MimeType mimeType;
+
+      if (doc.isRichFormat) {
+        // Rich format: download original binary via download endpoint
+        final service = DocumentService();
+        final downloadedBytes = await service.downloadDocument(doc.id);
+        bytes = Uint8List.fromList(downloadedBytes);
+
+        // Determine MIME type based on extension
+        if (extension == 'xlsx') {
+          mimeType = MimeType.microsoftExcel;
+        } else if (extension == 'csv') {
+          mimeType = MimeType.csv;
+        } else if (extension == 'pdf') {
+          mimeType = MimeType.pdf;
+        } else if (extension == 'docx') {
+          mimeType = MimeType.microsoftWord;
+        } else {
+          mimeType = MimeType.other;
+        }
+      } else {
+        // Text format: fetch content first
+        final provider = context.read<DocumentProvider>();
+        await provider.selectDocument(doc.id);
+
+        if (!mounted) return;
+
+        final loadedDoc = provider.selectedDocument;
+        if (loadedDoc == null || loadedDoc.content == null) {
+          ScaffoldMessenger.of(context).clearSnackBars();
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Failed to load document content')),
+          );
+          return;
+        }
+
+        bytes = Uint8List.fromList(utf8.encode(loadedDoc.content!));
+        mimeType = MimeType.text;
+
+        // Clear the selected document (we just needed it for download)
+        provider.clearSelectedDocument();
+      }
 
       await FileSaver.instance.saveFile(
         name: nameWithoutExt,
         bytes: bytes,
         ext: extension,
-        mimeType: MimeType.text,
+        mimeType: mimeType,
       );
-
-      // Clear the selected document (we just needed it for download)
-      provider.clearSelectedDocument();
 
       if (mounted) {
         ScaffoldMessenger.of(context).clearSnackBars();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Downloaded ${loadedDoc.filename}'),
+            content: Text('Downloaded ${doc.filename}'),
             action: SnackBarAction(label: 'OK', onPressed: () {}),
           ),
         );

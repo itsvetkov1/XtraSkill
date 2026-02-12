@@ -12,22 +12,22 @@ See: /Users/a1testingmac/projects/XtraSkill/.planning/PROJECT.md (updated 2026-0
 
 Milestone: v2.1 Rich Document Support
 Phase: 56 of 56 (Export Features)
-Plan: 1 of 1 complete
-Status: Phase 56 Plan 01 complete
-Last activity: 2026-02-12 — Phase 56 Plan 01 complete (export endpoints added)
+Plan: 2 of 2 complete
+Status: Phase 56 Plan 02 complete — v2.1 milestone COMPLETE
+Last activity: 2026-02-12 — Phase 56 Plan 02 complete (export UI integration)
 
 Progress:
 ```
 v1.0-v1.9.5: [##########] 48 phases, 115 plans, 11 milestones SHIPPED
 
 v2.0:        [#         ] 1/5 phases (49-01 complete, paused for v2.1)
-v2.1:        [##########] 7/7 plans (Phase 54 ✅, Phase 55 ✅, Phase 56 ✅)
+v2.1:        [##########] 8/8 plans (Phase 54 ✅, Phase 55 ✅, Phase 56 ✅) COMPLETE
 ```
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 121 (across 11 milestones + v2.1 in progress)
+- Total plans completed: 123 (across 11 milestones + v2.1 complete)
 - Average duration: ~1-3 minutes per plan
 
 **By Milestone:**
@@ -46,9 +46,9 @@ v2.1:        [##########] 7/7 plans (Phase 54 ✅, Phase 55 ✅, Phase 56 ✅)
 | Dedup v1.9.4 | 40-42 | 5/5 | SHIPPED 2026-02-05 |
 | Logging v1.9.5 | 43-48 | 8/8 | SHIPPED 2026-02-08 |
 | Security v2.0 | 49-53 | 1/TBD | Paused after 49-01 |
-| Rich Docs v2.1 | 54-56 | 7/7 | COMPLETE (Phase 54 ✅, Phase 55 ✅, Phase 56 ✅) |
+| Rich Docs v2.1 | 54-56 | 8/8 | COMPLETE (Phase 54 ✅, Phase 55 ✅, Phase 56 ✅) |
 
-**Total:** 122 plans shipped across 48 phases, 7 plans complete in v2.1
+**Total:** 123 plans shipped across 48 phases, 8 plans complete in v2.1
 
 ## Accumulated Context
 
@@ -72,6 +72,9 @@ Recent key decisions (full archive in PROJECT.md):
 - v2.0: Railway (backend) + Cloudflare Pages (frontend) for PaaS deployment
 - [Phase 56-01]: openpyxl write_only=True mode for memory-efficient Excel generation
 - [Phase 56-01]: UTF-8 BOM encoding (utf-8-sig) for CSV to ensure Excel compatibility
+- [Phase 56-02]: FileSaver package used for cross-platform export file downloads
+- [Phase 56-02]: PopupMenuButton provides export format selection (xlsx/csv)
+- [Phase 56-02]: Export button disabled during export to prevent double-clicks
 
 ### Pending Todos
 
@@ -90,12 +93,16 @@ Recent key decisions (full archive in PROJECT.md):
 - ✅ AI search returns metadata, token budget limiting, format-specific source chips
 
 **v2.1 Phase 56 (Export Features):**
-- ✅ COMPLETE - Plan 01 finished (Excel and CSV export endpoints)
+- ✅ COMPLETE - All 2 plans finished (backend endpoints + frontend UI)
+- ✅ Plan 01: Excel and CSV export endpoints with memory-efficient generation
+- ✅ Plan 02: Export UI in ExcelTableViewer with xlsx/csv format selection
 - ✅ Memory-efficient Excel generation with openpyxl write_only mode
 - ✅ CSV export with UTF-8 BOM for Excel compatibility
 - ✅ Tabular format validation (rejects non-spreadsheet documents)
 - ✅ Ownership verification for all export operations
-- v2.1 milestone COMPLETE - all phases shipped
+- ✅ Cross-platform file downloads with FileSaver package
+- ✅ Loading, success, and error feedback via snackbars
+- v2.1 milestone COMPLETE - all 8 plans shipped
 
 **v2.0 Deployment:**
 - Paused at Phase 49-02 (Railway deployment checkpoint)
@@ -104,21 +111,21 @@ Recent key decisions (full archive in PROJECT.md):
 ## Session Continuity
 
 Last session: 2026-02-12
-Stopped at: Phase 56 Plan 01 complete — v2.1 milestone COMPLETE
+Stopped at: Phase 56 Plan 02 complete — v2.1 milestone COMPLETE
 Resume file: None
-Next action: Frontend integration for export buttons (if required) or v2.0 Security milestone
+Next action: Resume v2.0 Security milestone at Phase 49-02 or plan new features
 
 **Context for Next Session:**
-- v2.1 milestone COMPLETE: All 7 plans shipped across Phases 54, 55, 56
+- v2.1 milestone COMPLETE: All 8 plans shipped across Phases 54, 55, 56
 - Backend complete: Parsers, storage, routes, export endpoints
-- Frontend complete: Upload UI, format viewers, AI integration
-- Export endpoints ready for frontend button integration
-- Full round-trip flow: upload → parse → store → view → search → export
+- Frontend complete: Upload UI, format viewers, AI integration, export buttons
+- Full round-trip flow verified: upload → parse → store → view → search → export
+- Export feature complete: Backend generates files, frontend downloads with format selection
 - Next milestone: Resume v2.0 Security at Phase 49-02 or plan new features
 
 ---
 
-*State updated: 2026-02-12 (Phase 56 Plan 01 complete — v2.1 milestone COMPLETE)*
+*State updated: 2026-02-12 (Phase 56 Plan 02 complete — v2.1 milestone COMPLETE)*
 
 ## Recent Performance (v2.1)
 
@@ -131,3 +138,4 @@ Next action: Frontend integration for export buttons (if required) or v2.0 Secur
 | 55-02 | 3min 05sec | 2 | 5 | Format-aware Document Viewer |
 | 55-03 | 2min 19sec | 2 | 4 | AI context integration with metadata |
 | 56-01 | 1min 33sec | 2 | 1 | Excel and CSV export endpoints |
+| 56-02 | 2min 13sec | 2 | 3 | Export UI with xlsx/csv format selection |

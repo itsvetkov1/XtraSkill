@@ -6,29 +6,29 @@ See: /Users/a1testingmac/projects/XtraSkill/.planning/PROJECT.md (updated 2026-0
 
 **Core value:** Business analysts reduce time spent on requirement documentation while improving completeness through AI-assisted discovery conversations that systematically explore edge cases and generate production-ready artifacts.
 
-**Current focus:** v2.1 Rich Document Support - Phase 54 (Backend Foundation)
+**Current focus:** v2.1 Rich Document Support - Phase 55 (Frontend Display & AI Integration)
 
 ## Current Position
 
 Milestone: v2.1 Rich Document Support
-Phase: 54 of 56 (Backend Foundation - Document Parsing & Security)
-Plan: 3 of 3 complete
-Status: Phase 54 complete
-Last activity: 2026-02-12 — Completed 54-03: Upload routes integration
+Phase: 55 of 56 (Frontend Display & AI Integration)
+Plan: 2 of 3 complete
+Status: Phase 55 in progress
+Last activity: 2026-02-12 — Completed 55-03: AI context integration with metadata
 
 Progress:
 ```
 v1.0-v1.9.5: [##########] 48 phases, 115 plans, 11 milestones SHIPPED
 
 v2.0:        [#         ] 1/5 phases (49-01 complete, paused for v2.1)
-v2.1:        [###       ] 3/9 plans (Phase 54 complete: parsers, schema, routes)
+v2.1:        [#####     ] 5/9 plans (Phase 54 complete, 55-01 and 55-03 complete)
 ```
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 118 (across 11 milestones + v2.1 in progress)
-- Average duration: ~1-18 minutes per plan
+- Total plans completed: 120 (across 11 milestones + v2.1 in progress)
+- Average duration: ~1-3 minutes per plan
 
 **By Milestone:**
 
@@ -46,15 +46,18 @@ v2.1:        [###       ] 3/9 plans (Phase 54 complete: parsers, schema, routes)
 | Dedup v1.9.4 | 40-42 | 5/5 | SHIPPED 2026-02-05 |
 | Logging v1.9.5 | 43-48 | 8/8 | SHIPPED 2026-02-08 |
 | Security v2.0 | 49-53 | 1/TBD | Paused after 49-01 |
-| Rich Docs v2.1 | 54-56 | 3/TBD | In progress (Phase 54 complete) |
+| Rich Docs v2.1 | 54-56 | 5/TBD | In progress (Phase 54 complete, 55-01 and 55-03 complete) |
 
-**Total:** 115 plans shipped across 48 phases, 3 plans in progress (v2.1)
+**Total:** 115 plans shipped across 48 phases, 5 plans in progress (v2.1)
 
 ## Accumulated Context
 
 ### Decisions
 
 Recent key decisions (full archive in PROJECT.md):
+- v2.1 (55-01): Client-side Excel parsing for instant preview (excel package)
+- v2.1 (55-01): DataTable preview limited to 10 rows for dialog UX
+- v2.1 (55-01): PDF/Word preview deferred to post-upload (info message only)
 - v2.1 (54-03): Upload security validation order: file_validator → parser.validate_security → parse
 - v2.1 (54-03): Rich documents use encrypt_binary(), text documents use encrypt_document() (backward compat)
 - v2.1 (54-03): Get endpoint returns extracted text (content_text), download endpoint returns original binary
@@ -84,7 +87,14 @@ Recent key decisions (full archive in PROJECT.md):
 - ✅ Download endpoint serves original binary files
 - ✅ FTS5 indexing works for all formats (Excel, CSV, PDF, Word, text, markdown)
 - ✅ Dual-column storage implemented (content_encrypted + content_text)
-- Next: Phase 55 (Frontend Display & AI Integration)
+
+**v2.1 Phase 55 (Frontend Display & AI Integration):**
+- ✅ 55-01 COMPLETE - Frontend upload UI with rich format support
+- ✅ Document model parses contentType and metadata from backend
+- ✅ Upload accepts 6 file types with 10MB limit
+- ✅ Preview dialog shows format-specific UI (table, text, info)
+- ✅ Excel preview includes sheet selector for multi-sheet workbooks
+- Next: 55-02 (Document display with table rendering)
 
 **v2.0 Deployment:**
 - Paused at Phase 49-02 (Railway deployment checkpoint)
@@ -93,21 +103,20 @@ Recent key decisions (full archive in PROJECT.md):
 ## Session Continuity
 
 Last session: 2026-02-12
-Stopped at: Completed 54-03-PLAN.md (upload routes integration) — Phase 54 complete
+Stopped at: Completed 55-01-PLAN.md (frontend rich document upload UI)
 Resume file: None
-Next action: Begin Phase 55 (Frontend Display & AI Integration)
+Next action: Continue Phase 55 (55-02: Document display rendering)
 
 **Context for Next Session:**
-- v2.1 roadmap: 3 phases (54: Backend Foundation ✅, 55: Frontend Display & AI, 56: Export)
-- 24/24 requirements mapped to phases (100% coverage)
-- Phase 54 progress: 3/3 plans complete (parsers ✅, schema ✅, routes ✅)
-- Build order: schema ✅ → parsers ✅ → routes ✅ → frontend models → renderers → export
-- Backend foundation complete: All 6 content types working end-to-end with security validation, FTS5 search, and dual-column storage
-- Next: Phase 55 will add frontend document display, table rendering, and AI integration
+- v2.1 roadmap: 3 phases (54: Backend ✅, 55: Frontend Display & AI [1/3 plans], 56: Export)
+- Phase 55 progress: 1/3 plans complete (upload UI ✅, display pending, AI context pending)
+- Build order: backend parsers ✅ → schema ✅ → routes ✅ → frontend upload ✅ → display → AI → export
+- 55-01 complete: Upload accepts 6 file types, preview shows tables/sheets, model parses contentType/metadata
+- Next: 55-02 will add document display with table rendering (pluto_grid for Excel/CSV)
 
 ---
 
-*State updated: 2026-02-12 (Completed 54-03: upload routes integration — Phase 54 complete)*
+*State updated: 2026-02-12 (Completed 55-01: frontend rich document upload UI)*
 
 ## Recent Performance (v2.1)
 
@@ -116,3 +125,4 @@ Next action: Begin Phase 55 (Frontend Display & AI Integration)
 | 54-01 | 3min 32sec | 2 | 9 | Document parser infrastructure |
 | 54-02 | 1min 24sec | 2 | 3 | Database schema extension |
 | 54-03 | 2min 24sec | 2 | 1 | Upload routes integration |
+| 55-01 | 2min 46sec | 2 | 5 | Frontend upload UI with rich formats |

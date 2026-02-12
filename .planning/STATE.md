@@ -11,17 +11,17 @@ See: /Users/a1testingmac/projects/XtraSkill/.planning/PROJECT.md (updated 2026-0
 ## Current Position
 
 Milestone: v2.1 Rich Document Support
-Phase: 55 of 56 (Frontend Display & AI Integration)
-Plan: 3 of 3 complete
-Status: Phase 55 complete
-Last activity: 2026-02-12 — Phase 55 complete (all 3 plans executed and verified)
+Phase: 56 of 56 (Export Features)
+Plan: 1 of 1 complete
+Status: Phase 56 Plan 01 complete
+Last activity: 2026-02-12 — Phase 56 Plan 01 complete (export endpoints added)
 
 Progress:
 ```
 v1.0-v1.9.5: [##########] 48 phases, 115 plans, 11 milestones SHIPPED
 
 v2.0:        [#         ] 1/5 phases (49-01 complete, paused for v2.1)
-v2.1:        [########  ] 6/9 plans (Phase 54 ✅, Phase 55 ✅, Phase 56 remaining)
+v2.1:        [##########] 7/7 plans (Phase 54 ✅, Phase 55 ✅, Phase 56 ✅)
 ```
 
 ## Performance Metrics
@@ -46,9 +46,9 @@ v2.1:        [########  ] 6/9 plans (Phase 54 ✅, Phase 55 ✅, Phase 56 remain
 | Dedup v1.9.4 | 40-42 | 5/5 | SHIPPED 2026-02-05 |
 | Logging v1.9.5 | 43-48 | 8/8 | SHIPPED 2026-02-08 |
 | Security v2.0 | 49-53 | 1/TBD | Paused after 49-01 |
-| Rich Docs v2.1 | 54-56 | 6/TBD | In progress (Phase 54 ✅, Phase 55 ✅) |
+| Rich Docs v2.1 | 54-56 | 7/7 | COMPLETE (Phase 54 ✅, Phase 55 ✅, Phase 56 ✅) |
 
-**Total:** 121 plans shipped across 48 phases, 6 plans complete in v2.1
+**Total:** 122 plans shipped across 48 phases, 7 plans complete in v2.1
 
 ## Accumulated Context
 
@@ -70,6 +70,8 @@ Recent key decisions (full archive in PROJECT.md):
 - v2.1: Parser adapter pattern with factory routing (DocumentParser base + format-specific adapters)
 - v2.1: pluto_grid for Flutter table rendering (handles 1000+ rows with virtualization)
 - v2.0: Railway (backend) + Cloudflare Pages (frontend) for PaaS deployment
+- [Phase 56-01]: openpyxl write_only=True mode for memory-efficient Excel generation
+- [Phase 56-01]: UTF-8 BOM encoding (utf-8-sig) for CSV to ensure Excel compatibility
 
 ### Pending Todos
 
@@ -86,7 +88,14 @@ Recent key decisions (full archive in PROJECT.md):
 - ✅ Upload accepts 6 file types with 10MB limit, preview dialog with table/sheet selector
 - ✅ PlutoGrid viewer for Excel/CSV, PDF/Word text viewers, conditional rendering
 - ✅ AI search returns metadata, token budget limiting, format-specific source chips
-- Next: Phase 56 (Export Features)
+
+**v2.1 Phase 56 (Export Features):**
+- ✅ COMPLETE - Plan 01 finished (Excel and CSV export endpoints)
+- ✅ Memory-efficient Excel generation with openpyxl write_only mode
+- ✅ CSV export with UTF-8 BOM for Excel compatibility
+- ✅ Tabular format validation (rejects non-spreadsheet documents)
+- ✅ Ownership verification for all export operations
+- v2.1 milestone COMPLETE - all phases shipped
 
 **v2.0 Deployment:**
 - Paused at Phase 49-02 (Railway deployment checkpoint)
@@ -95,20 +104,21 @@ Recent key decisions (full archive in PROJECT.md):
 ## Session Continuity
 
 Last session: 2026-02-12
-Stopped at: Phase 55 complete — all 3 plans executed and verified (8/8 must-haves passed)
+Stopped at: Phase 56 Plan 01 complete — v2.1 milestone COMPLETE
 Resume file: None
-Next action: Plan and execute Phase 56 (Export Features)
+Next action: Frontend integration for export buttons (if required) or v2.0 Security milestone
 
 **Context for Next Session:**
-- v2.1 roadmap: 3 phases (54: Backend ✅, 55: Frontend & AI ✅, 56: Export)
-- Phase 56 is the final phase of v2.1 milestone
-- Phase 56 goal: Excel and CSV export for parsed document data
-- Requirements: EXP-01 (export to Excel), EXP-02 (export to CSV)
-- Build order complete up to export: parsers ✅ → schema ✅ → routes ✅ → upload ✅ → viewer ✅ → AI ✅ → export next
+- v2.1 milestone COMPLETE: All 7 plans shipped across Phases 54, 55, 56
+- Backend complete: Parsers, storage, routes, export endpoints
+- Frontend complete: Upload UI, format viewers, AI integration
+- Export endpoints ready for frontend button integration
+- Full round-trip flow: upload → parse → store → view → search → export
+- Next milestone: Resume v2.0 Security at Phase 49-02 or plan new features
 
 ---
 
-*State updated: 2026-02-12 (Phase 55 complete — all plans executed and verified)*
+*State updated: 2026-02-12 (Phase 56 Plan 01 complete — v2.1 milestone COMPLETE)*
 
 ## Recent Performance (v2.1)
 
@@ -120,3 +130,4 @@ Next action: Plan and execute Phase 56 (Export Features)
 | 55-01 | 2min 46sec | 2 | 5 | Frontend rich document upload UI |
 | 55-02 | 3min 05sec | 2 | 5 | Format-aware Document Viewer |
 | 55-03 | 2min 19sec | 2 | 4 | AI context integration with metadata |
+| 56-01 | 1min 33sec | 2 | 1 | Excel and CSV export endpoints |

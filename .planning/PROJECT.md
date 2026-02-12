@@ -2,35 +2,25 @@
 
 ## What This Is
 
-A hybrid mobile and web application that augments business analysts during feature discovery meetings. The system provides AI-powered conversational assistance to explore requirements, proactively identify edge cases, and generate structured business documentation (user stories, acceptance criteria, requirements documents) on demand. Users upload project context documents, conduct multiple conversation threads per project, and export professional artifacts in multiple formats.
+A hybrid mobile and web application that augments business analysts during feature discovery meetings. The system provides AI-powered conversational assistance to explore requirements, proactively identify edge cases, and generate structured business documentation (user stories, acceptance criteria, requirements documents) on demand. Users upload project context documents in multiple formats (Excel, CSV, PDF, Word, text), conduct multiple conversation threads per project, and export professional artifacts in multiple formats. Rich document data can be exported back to Excel or CSV for round-trip workflows.
 
 ## Core Value
 
 Business analysts reduce time spent on requirement documentation while improving completeness through AI-assisted discovery conversations that systematically explore edge cases and generate production-ready artifacts.
 
-## Current Milestone: v2.1 Rich Document Support
-
-**Goal:** Replace text-only document uploads with full document parsing supporting Excel, CSV, PDF, and Word files — with AI context integration, visual previews, and export capabilities
-
-**Target features:**
-- Excel (.xlsx) and CSV parsing with sheet/table detection and text extraction for AI context
-- PDF parsing with text extraction, page handling, and layout preservation
-- Word (.docx) parsing with heading/paragraph structure preservation
-- Visual table preview in Document Viewer for spreadsheet data
-- Document content searchable via existing FTS5 full-text search
-- Export parsed data back to original format (Excel/CSV) or cross-format
-
 ## Current State
 
-**Shipped:** v1.9.5 Pilot Logging Infrastructure (2026-02-08)
+**Shipped:** v2.1 Rich Document Support (2026-02-12)
 
 **Delivered:**
-- Backend LoggingService with async-safe QueueHandler pattern, structlog JSON formatting, and 7-day rolling retention
-- Admin API endpoints for log listing, download, and frontend log ingestion with role-based access control
-- Frontend LoggingService with 1000-entry buffer, session ID grouping, and NavigatorObserver for route tracking
-- ApiClient singleton with X-Correlation-ID header injection linking frontend requests to backend logs
-- Settings toggle for logging enable/disable with SharedPreferences persistence and privacy-first buffer clearing
-- Lifecycle-aware flush with 5-minute Timer.periodic, AppLifecycleListener (pause/detach), and pre-logout capture
+- Document parser infrastructure with 5 format-specific parsers and factory routing
+- Upload security: magic number verification, XXE protection, zip bomb detection, 10MB limit
+- Dual-column storage (encrypted binary + extracted text) with FTS5 unicode61 search
+- Rich upload UI with table preview for Excel/CSV, sheet selector for multi-sheet workbooks
+- Format-aware Document Viewer: PlutoGrid for Excel/CSV, text viewers for PDF/Word
+- AI document search with metadata, token budget limiting, format-specific source attribution
+- Excel/CSV export endpoints with memory-efficient generation and UTF-8 BOM encoding
+- Frontend export UI with PopupMenuButton and FileSaver download
 
 **Next:** v2.0 — Security Audit & Deployment
 
@@ -80,11 +70,11 @@ Previous features (v1.5):
 - Deletion with 10-second undo for all resources
 - Professional empty states across all list screens
 
-**Codebase:** ~88,000 lines of Python/Dart across FastAPI backend and Flutter frontend (75,852 Python + 12,220 Dart).
+**Codebase:** ~95,000 lines of Python/Dart across FastAPI backend and Flutter frontend.
 
 ## Future Vision
 
-**v2.1 — Search, Previews & Integrations** (after deployment)
+**v2.2 — Search, Previews & Integrations** (after deployment)
 
 - Global search across projects and threads
 - Thread preview text in list view
@@ -214,6 +204,31 @@ Previous features (v1.5):
 - ✓ Frontend buffer size is configurable (default: 1000 entries) — v1.9.5
 - ✓ Frontend flush interval is configurable (default: 5 minutes) — v1.9.5
 
+- ✓ User can upload Excel (.xlsx) files with text extracted for AI context and search — v2.1
+- ✓ User can upload CSV files with text extracted for AI context and search — v2.1
+- ✓ User can upload PDF files with text extracted for AI context and search — v2.1
+- ✓ User can upload Word (.docx) files with text extracted for AI context and search — v2.1
+- ✓ Excel parsing preserves data types (leading zeros, dates, large numbers stored as strings) — v2.1
+- ✓ CSV parsing auto-detects encoding (UTF-8, Windows-1252, UTF-8-BOM) — v2.1
+- ✓ Server validates file type via content-type and magic number verification — v2.1
+- ✓ Maximum file size 10MB for rich document formats — v2.1
+- ✓ XLSX/DOCX uploads protected against XXE attacks (defusedxml) — v2.1
+- ✓ XLSX/DOCX uploads protected against zip bombs (uncompressed size validation) — v2.1
+- ✓ Malformed files rejected with clear error message — v2.1
+- ✓ Original binary files stored encrypted alongside extracted text (dual-column storage) — v2.1
+- ✓ Extracted text indexed in FTS5 for full-text search across all document formats — v2.1
+- ✓ Document metadata stored (sheet names, row count, column headers, page count) — v2.1
+- ✓ Visual table preview shows first rows for Excel/CSV in upload confirmation dialog — v2.1
+- ✓ Sheet selector allows choosing which Excel sheets to parse — v2.1
+- ✓ Document Viewer renders format-appropriate display (table grid for Excel/CSV, text for PDF/Word) — v2.1
+- ✓ Document metadata displayed in Document Viewer (format type, row/page count, sheet names) — v2.1
+- ✓ Table renderer supports sorting and handles large datasets with virtualization — v2.1
+- ✓ AI document_search tool returns extracted text from all 4 rich document formats — v2.1
+- ✓ Token budget management limits document context to prevent context window overflow — v2.1
+- ✓ Source attribution chips show format-specific info (sheet name for Excel references) — v2.1
+- ✓ User can export parsed document data to Excel (.xlsx) format — v2.1
+- ✓ User can export parsed document data to CSV format — v2.1
+
 ### Active
 
 **v2.0 — Security Audit & Deployment** (in progress)
@@ -225,15 +240,6 @@ Previous features (v1.5):
 - [ ] OAuth production redirect URIs (Google + Microsoft)
 - [ ] End-to-end deployment guide for first-time deployer
 
-**v2.1 — Rich Document Support** (planned)
-
-- [ ] Excel (.xlsx) file upload and parsing with AI context integration
-- [ ] CSV file upload and parsing with AI context integration
-- [ ] PDF file upload and text extraction with AI context integration
-- [ ] Word (.docx) file upload and structured parsing with AI context integration
-- [ ] Visual table preview in Document Viewer for spreadsheet data
-- [ ] Document export to original or cross-format (Excel/CSV)
-
 ### Deferred
 
 - [ ] Thread list items show preview of last message (deferred from Beta v1.5 - requires backend API)
@@ -241,8 +247,7 @@ Previous features (v1.5):
 
 ### Out of Scope
 
-- **Search functionality** — Deferred to v2.0; users browse manually (acceptable for <20 projects per user)
-- ~~PDF/Word document parsing~~ — **Moved to v2.1** (was: text-only uploads; now full parsing planned)
+- **Search functionality** — Deferred to v2.2+; users browse manually (acceptable for <20 projects per user)
 - **Message editing** — Users can delete but not edit individual messages; editing introduces conversation coherence complexity
 - **Multi-user collaboration** — Single-user per account; no project sharing or team workspaces until v2.0+
 - **Notifications** — No push or email notifications; not needed for single-user workflow
@@ -280,7 +285,7 @@ BAs prepare for meetings by uploading existing requirements or stakeholder notes
 - **AI API Costs**: Monitor token usage closely; estimated $50-100/month, must not exceed budget without user validation
 - **Cross-Platform**: Single codebase must support web, Android, and iOS simultaneously
 - **PaaS Hosting**: Deployment limited to Railway/Render capabilities; no custom infrastructure or Kubernetes
-- **Text-Only Documents**: Accepts plain text uploads only (no PDF/Word parsing) to reduce complexity
+- **Rich Document Parsing**: Supports Excel, CSV, PDF, Word, and text uploads with format-specific parsing and AI context integration (v2.1)
 
 ## Key Decisions
 
@@ -348,7 +353,16 @@ BAs prepare for meetings by uploading existing requirements or stakeholder notes
 | Default logging enabled for pilot | Maximizes diagnostic data collection during pilot testing | ✓ Implemented (Phase 47) |
 | Clear buffer when logging disabled | Privacy protection - no stale logs remain after user disables | ✓ Implemented (Phase 47) |
 | Copy buffer before POST in flush | Prevents mutation during async operation if new logs added | ✓ Implemented (Phase 48) |
+| Parser adapter pattern with factory routing | DocumentParser base class + format-specific adapters (Excel, CSV, PDF, Word, Text) | ✓ Implemented (Phase 54) |
+| Dual-column storage (binary + text) | content_encrypted for original binary, content_text for extracted text; backward compatible | ✓ Implemented (Phase 54) |
+| defusedxml for XXE protection | Prevents XML External Entity attacks in XLSX/DOCX files | ✓ Implemented (Phase 54) |
+| PlutoGrid for table rendering | Handles 1000+ rows with virtualization; v8.1.0 used (v8.7.0 unavailable) | ✓ Implemented (Phase 55) |
+| Client-side Excel preview | excel package for instant preview in upload dialog; limited to 10 rows | ✓ Implemented (Phase 55) |
+| Token budget limiting (3 chunks) | Prevents context window overflow for large documents | ✓ Implemented (Phase 55) |
+| openpyxl write_only mode for export | Memory-efficient Excel generation; avoids loading entire workbook in memory | ✓ Implemented (Phase 56) |
+| UTF-8 BOM for CSV export | encode('utf-8-sig') ensures Excel opens CSV files correctly | ✓ Implemented (Phase 56) |
+| FileSaver for cross-platform download | Works on web and desktop for export file delivery | ✓ Implemented (Phase 56) |
 | debugPrint for flush errors | Avoids infinite loop if logError triggers another flush attempt | ✓ Implemented (Phase 48) |
 
 ---
-*Last updated: 2026-02-12 after v2.1 milestone started — Rich Document Support*
+*Last updated: 2026-02-12 after v2.1 milestone complete — Rich Document Support shipped*

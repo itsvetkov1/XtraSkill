@@ -1,5 +1,35 @@
 # Project Milestones: Business Analyst Assistant
 
+## v2.1 Rich Document Support (Shipped: 2026-02-12)
+
+**Delivered:** Full document parsing pipeline replacing text-only uploads with Excel, CSV, PDF, and Word support — including security validation, format-aware rendering, AI context integration, and round-trip export capabilities.
+
+**Phases completed:** 54-56 (8 plans total)
+
+**Key accomplishments:**
+
+- Document parser infrastructure with 5 format-specific parsers (Excel, CSV, PDF, Word, Text) and factory routing
+- Upload security validation pipeline: magic number verification, XXE protection (defusedxml), zip bomb detection, 10MB file size limit
+- Dual-column storage (encrypted binary + extracted text) with FTS5 unicode61 full-text search
+- Rich upload UI with table preview for Excel/CSV, sheet selector for multi-sheet workbooks
+- Format-aware Document Viewer: PlutoGrid for Excel/CSV with virtualization, text viewers for PDF/Word
+- AI document search with metadata, token budget limiting (3 chunks max), and format-specific source attribution chips
+- Excel/CSV export endpoints with memory-efficient openpyxl write_only mode and UTF-8 BOM CSV encoding
+- Frontend export UI with PopupMenuButton, FileSaver download, and loading/success/error feedback
+
+**Stats:**
+
+- 45 files modified, +6,973 / -193 lines
+- 3 phases, 8 plans
+- 24/24 requirements satisfied
+- 1 day from start to ship (2026-02-12)
+
+**Git range:** `7705f78` → `b5a3547`
+
+**What's next:** v2.0 — Security Audit & Deployment
+
+---
+
 ## v1.9.5 Pilot Logging Infrastructure (Shipped: 2026-02-08)
 
 **Delivered:** Comprehensive logging infrastructure for AI-powered debugging during pilot testing — structured JSON logging with correlation IDs linking frontend and backend, admin API for log access, settings toggle for privacy control, and lifecycle-aware flush to centralized storage.
@@ -314,4 +344,4 @@
 
 ---
 
-*Last updated: 2026-02-05 (v1.9.4 complete)*
+*Last updated: 2026-02-12 (v2.1 complete)*

@@ -42,6 +42,30 @@ class EncryptionService:
         """
         return self.fernet.decrypt(ciphertext).decode('utf-8')
 
+    def encrypt_binary(self, data: bytes) -> bytes:
+        """
+        Encrypt binary file content (for rich documents like PDF, XLSX, DOCX).
+
+        Args:
+            data: Raw file bytes
+
+        Returns:
+            Encrypted content as bytes
+        """
+        return self.fernet.encrypt(data)
+
+    def decrypt_binary(self, ciphertext: bytes) -> bytes:
+        """
+        Decrypt binary file content.
+
+        Args:
+            ciphertext: Encrypted content as bytes
+
+        Returns:
+            Original raw file bytes
+        """
+        return self.fernet.decrypt(ciphertext)
+
 
 # Singleton pattern to avoid initializing at import time
 _encryption_service_instance = None

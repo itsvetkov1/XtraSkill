@@ -202,7 +202,7 @@ class Document(Base):
     Document attached to a project for AI context.
 
     Content is encrypted at rest using Fernet symmetric encryption.
-    Text-only files (.txt, .md) in MVP; max 1MB.
+    Supports text files (.txt, .md) and rich documents (.xlsx, .csv, .pdf, .docx); max 10MB.
     """
 
     __tablename__ = "documents"
@@ -227,6 +227,19 @@ class Document(Base):
 
     # Encrypted content (Fernet encryption)
     content_encrypted: Mapped[bytes] = mapped_column(LargeBinary, nullable=False)
+
+    # Content type for format routing (e.g., "application/pdf", "text/plain")
+    content_type: Mapped[Optional[str]] = mapped_column(
+        String(100), nullable=True, default="text/plain"
+    )
+
+    # Extracted plaintext content (for FTS5 indexing and AI context)
+    # NULL for legacy documents that haven't been backfilled
+    content_text: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+
+    # Format-specific metadata as JSON string
+    # e.g., {"sheet_names": [...], "page_count": 5, "row_count": 100}
+    metadata_json: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
 
     # Timestamp
     created_at: Mapped[datetime] = mapped_column(

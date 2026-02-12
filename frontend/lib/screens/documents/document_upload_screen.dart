@@ -43,7 +43,7 @@ class _DocumentUploadScreenState extends State<DocumentUploadScreen> {
         title: const Text('File too large'),
         content: Text(
           'The selected file is ${_formatFileSize(actualSize)}.\n\n'
-          'Maximum file size is 1MB.\n\n'
+          'Maximum file size is 10MB.\n\n'
           'Please select a smaller file.',
         ),
         actions: [
@@ -185,7 +185,7 @@ class _DocumentUploadScreenState extends State<DocumentUploadScreen> {
                         ),
                         const SizedBox(width: 8),
                         Text(
-                          'Maximum file size: 1MB',
+                          'Maximum file size: 10MB',
                           style: TextStyle(
                             color: Theme.of(context).colorScheme.onSurfaceVariant,
                             fontWeight: FontWeight.w500,

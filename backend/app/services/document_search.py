@@ -54,7 +54,13 @@ async def search_documents(
     if not project_id or not query or not query.strip():
         return []
 
-    result = await db.execute(
+    # Sanitize query: bare '*' is invalid FTS5 syntax
+    cleaned = query.strip()
+    if cleaned == '*' or cleaned == '**':
+        return []
+
+    try:
+        result = await db.execute(
         text("""
             SELECT d.id, d.filename,
                    snippet(document_fts, 2, '<mark>', '</mark>', '...', 20) as snippet,
@@ -66,6 +72,9 @@ async def search_documents(
             ORDER BY score
             LIMIT 20
         """),
-        {"project_id": project_id, "query": query}
-    )
-    return [(row[0], row[1], row[2], row[3]) for row in result.fetchall()]
+            {"project_id": project_id, "query": cleaned}
+        )
+        return [(row[0], row[1], row[2], row[3]) for row in result.fetchall()]
+    except Exception:
+        # Invalid FTS5 query syntax — return empty rather than crash
+        return []

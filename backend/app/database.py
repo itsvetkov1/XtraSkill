@@ -248,6 +248,20 @@ async def _run_migrations():
             # Re-enable foreign keys
             await conn.execute(text("PRAGMA foreign_keys=ON"))
 
+        # Ensure FTS5 virtual table exists for document search
+        result = await conn.execute(
+            text("SELECT name FROM sqlite_master WHERE type='table' AND name='document_fts'")
+        )
+        if not result.scalar():
+            await conn.execute(text("""
+                CREATE VIRTUAL TABLE document_fts USING fts5(
+                    document_id UNINDEXED,
+                    filename,
+                    content,
+                    tokenize = 'porter ascii'
+                )
+            """))
+
 
 async def close_db():
     """

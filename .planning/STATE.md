@@ -2,25 +2,26 @@
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-02-09)
+See: .planning/PROJECT.md (updated 2026-02-12)
 
 **Core value:** Business analysts reduce time spent on requirement documentation while improving completeness through AI-assisted discovery conversations that systematically explore edge cases and generate production-ready artifacts.
 
-**Current focus:** v2.0 Phase 49 — Backend Deployment Foundation
+**Current focus:** v2.1 — Rich Document Support (defining requirements)
 
 ## Current Position
 
-Milestone: v2.0 Security Audit & Deployment
-Phase: 49 of 53 (Backend Deployment Foundation)
-Plan: 1/1 complete
-Status: Phase 49 plan 01 complete
-Last activity: 2026-02-10 — Completed 49-01: Railway health check config
+Milestone: v2.1 Rich Document Support
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-02-12 — Milestone v2.1 started
 
 Progress:
 ```
 v1.0-v1.9.5: [##########] 48 phases, 114 plans, 11 milestones SHIPPED
 
-v2.0:        [#         ] 1/5 phases (49-01 complete)
+v2.0:        [#         ] 1/5 phases (49-01 complete, paused for v2.1)
+v2.1:        [          ] 0/TBD phases (defining requirements)
 ```
 
 ## Performance Metrics
@@ -70,19 +71,17 @@ Recent key decisions (full archive in MILESTONES.md):
 
 ## Session Continuity
 
-Last session: 2026-02-10
-Stopped at: Completed phase 49 plan 01 — Railway health check and production database config
+Last session: 2026-02-12
+Stopped at: Started v2.1 Rich Document Support milestone
 Resume file: None
-Next action: Continue phase 49 (Backend Deployment Foundation)
+Next action: Define requirements for v2.1
 
 **Context for Next Session:**
-- Phase 49-01 complete: Railway health check config and environment-aware database settings
-- Backend now deployment-ready at code level
-- Next: Environment variable documentation, database persistence, backup strategy
-- Research confidence HIGH — all tools and platforms vetted
-- Critical pitfall: SQLite on ephemeral filesystem = data loss (must use persistent disk)
-- Critical pitfall: OAuth redirect URI misconfiguration is #1 deployment blocker
+- v2.0 paused at phase 49-02 (Railway deployment checkpoint — env vars pending)
+- v2.1 milestone: Excel, CSV, PDF, Word parsing with AI context, preview, and export
+- Bug fixes shipped: FTS5 auto-creation, invalid FTS5 query handling, PDF export (WeasyPrint)
+- Key constraint: Text-Only Documents constraint being removed in v2.1
 
 ---
 
-*State updated: 2026-02-10 (Phase 49-01 complete)*
+*State updated: 2026-02-12 (v2.1 milestone started)*

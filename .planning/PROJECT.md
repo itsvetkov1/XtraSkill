@@ -8,17 +8,17 @@ A hybrid mobile and web application that augments business analysts during featu
 
 Business analysts reduce time spent on requirement documentation while improving completeness through AI-assisted discovery conversations that systematically explore edge cases and generate production-ready artifacts.
 
-## Current Milestone: v2.0 Security Audit & Deployment
+## Current Milestone: v2.1 Rich Document Support
 
-**Goal:** Harden the application for production and deploy to live environment with custom domain for pilot group
+**Goal:** Replace text-only document uploads with full document parsing supporting Excel, CSV, PDF, and Word files — with AI context integration, visual previews, and export capabilities
 
 **Target features:**
-- OWASP-aligned security audit and hardening (auth, input validation, secrets, API security)
-- Production environment configuration (environment variables, CORS, HTTPS)
-- Hosting platform setup with step-by-step deployment guide
-- Custom domain purchase and DNS configuration
-- OAuth redirect URI updates for production (Google Cloud Console + Azure AD)
-- First-time deployer handholding from zero to live
+- Excel (.xlsx) and CSV parsing with sheet/table detection and text extraction for AI context
+- PDF parsing with text extraction, page handling, and layout preservation
+- Word (.docx) parsing with heading/paragraph structure preservation
+- Visual table preview in Document Viewer for spreadsheet data
+- Document content searchable via existing FTS5 full-text search
+- Export parsed data back to original format (Excel/CSV) or cross-format
 
 ## Current State
 
@@ -216,7 +216,7 @@ Previous features (v1.5):
 
 ### Active
 
-**v2.0 — Security Audit & Deployment** (planned)
+**v2.0 — Security Audit & Deployment** (in progress)
 
 - [ ] OWASP-aligned security audit and hardening
 - [ ] Production environment configuration
@@ -224,6 +224,15 @@ Previous features (v1.5):
 - [ ] Custom domain with DNS setup
 - [ ] OAuth production redirect URIs (Google + Microsoft)
 - [ ] End-to-end deployment guide for first-time deployer
+
+**v2.1 — Rich Document Support** (planned)
+
+- [ ] Excel (.xlsx) file upload and parsing with AI context integration
+- [ ] CSV file upload and parsing with AI context integration
+- [ ] PDF file upload and text extraction with AI context integration
+- [ ] Word (.docx) file upload and structured parsing with AI context integration
+- [ ] Visual table preview in Document Viewer for spreadsheet data
+- [ ] Document export to original or cross-format (Excel/CSV)
 
 ### Deferred
 
@@ -233,7 +242,7 @@ Previous features (v1.5):
 ### Out of Scope
 
 - **Search functionality** — Deferred to v2.0; users browse manually (acceptable for <20 projects per user)
-- **PDF/Word document parsing** — Accepts text-only uploads; users must copy-paste content from PDFs/Word docs (reduces complexity, validates document usefulness first)
+- ~~PDF/Word document parsing~~ — **Moved to v2.1** (was: text-only uploads; now full parsing planned)
 - **Message editing** — Users can delete but not edit individual messages; editing introduces conversation coherence complexity
 - **Multi-user collaboration** — Single-user per account; no project sharing or team workspaces until v2.0+
 - **Notifications** — No push or email notifications; not needed for single-user workflow
@@ -342,4 +351,4 @@ BAs prepare for meetings by uploading existing requirements or stakeholder notes
 | debugPrint for flush errors | Avoids infinite loop if logError triggers another flush attempt | ✓ Implemented (Phase 48) |
 
 ---
-*Last updated: 2026-02-09 after v2.0 milestone started — Security Audit & Deployment*
+*Last updated: 2026-02-12 after v2.1 milestone started — Rich Document Support*

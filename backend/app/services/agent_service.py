@@ -81,17 +81,33 @@ async def search_documents_tool(args: Dict[str, Any]) -> Dict[str, Any]:
         }
 
     formatted = []
-    for doc_id, filename, snippet, score in results[:5]:
+    for doc_id, filename, snippet, score, content_type, metadata_json in results[:3]:
         # Clean up snippet HTML markers for readability
         clean_snippet = snippet.replace("<mark>", "**").replace("</mark>", "**")
-        formatted.append(f"**{filename}**:\n{clean_snippet}")
+
+        # Add format-specific context prefix
+        metadata = json.loads(metadata_json) if metadata_json else {}
+        if metadata.get('sheet_names'):
+            prefix = f"[Sheet: {metadata['sheet_names'][0]}] "
+        elif metadata.get('page_count'):
+            prefix = ""  # Page markers already in content from PDF parser
+        else:
+            prefix = ""
+
+        formatted.append(f"**{filename}**: {prefix}\n{clean_snippet}")
 
     # Track documents used for source attribution (PITFALL-05)
     try:
         docs_used = _documents_used_context.get()
-        for doc_id, filename, snippet, score in results[:5]:
+        for doc_id, filename, snippet, score, content_type, metadata_json in results[:3]:
             if not any(d['id'] == doc_id for d in docs_used):  # Avoid duplicates
-                docs_used.append({'id': doc_id, 'filename': filename})
+                metadata = json.loads(metadata_json) if metadata_json else {}
+                docs_used.append({
+                    'id': doc_id,
+                    'filename': filename,
+                    'content_type': content_type or 'text/plain',
+                    'metadata': metadata,
+                })
         _documents_used_context.set(docs_used)
     except LookupError:
         pass  # Context not available, skip tracking

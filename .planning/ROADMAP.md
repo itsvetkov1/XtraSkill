@@ -14,7 +14,7 @@
 - ✅ **v1.9.4 Artifact Deduplication** - Phases 40-42 (shipped 2026-02-05)
 - ✅ **v1.9.5 Pilot Logging Infrastructure** - Phases 43-48 (shipped 2026-02-08)
 - 📋 **v2.0 Security Audit & Deployment** - Phases 49-53 (planned)
-- 🚧 **v2.1 Rich Document Support** - Phases 54-56 (in progress)
+- ✅ **v2.1 Rich Document Support** - Phases 54-56 (shipped 2026-02-12)
 
 ## Phases
 
@@ -100,13 +100,13 @@ Plans:
 - [ ] 53-01: TBD
 - [ ] 53-02: TBD
 
-### 🚧 v2.1 Rich Document Support (In Progress)
+### ✅ v2.1 Rich Document Support (Shipped 2026-02-12)
 
 **Milestone Goal:** Replace text-only document uploads with full document parsing supporting Excel, CSV, PDF, and Word files — with AI context integration, visual previews, and export capabilities
 
 - [x] **Phase 54: Backend Foundation** - Document parsing infrastructure with security validation (completed 2026-02-12)
 - [x] **Phase 55: Frontend Display & AI Context** - Format-aware rendering and AI integration (completed 2026-02-12)
-- [ ] **Phase 56: Export Features** - Excel and CSV export capabilities
+- [x] **Phase 56: Export Features** - Excel and CSV export capabilities (completed 2026-02-12)
 
 #### Phase 54: Backend Foundation - Document Parsing & Security
 
@@ -173,8 +173,8 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 56-01-PLAN.md -- Backend Excel and CSV export endpoints (openpyxl write_only, csv.writer with UTF-8 BOM)
-- [ ] 56-02-PLAN.md -- Frontend export UI (DocumentService.exportDocument, PopupMenuButton in ExcelTableViewer)
+- [x] 56-01-PLAN.md -- Backend Excel and CSV export endpoints (openpyxl write_only, csv.writer with UTF-8 BOM)
+- [x] 56-02-PLAN.md -- Frontend export UI (DocumentService.exportDocument, PopupMenuButton in ExcelTableViewer)
 
 ## Coverage
 
@@ -247,7 +247,7 @@ No orphaned requirements. No duplicate mappings.
 | 53. Verification & Documentation | v2.0 | 0/TBD | Not started | - |
 | 54. Backend Foundation | v2.1 | 3/3 | Complete | 2026-02-12 |
 | 55. Frontend Display & AI Context | v2.1 | 3/3 | Complete | 2026-02-12 |
-| 56. Export Features | v2.1 | 0/TBD | Not started | - |
+| 56. Export Features | v2.1 | 2/2 | Complete | 2026-02-12 |
 
 ---
 

@@ -2,26 +2,26 @@
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-02-12)
+See: /Users/a1testingmac/projects/XtraSkill/.planning/PROJECT.md (updated 2026-02-12)
 
 **Core value:** Business analysts reduce time spent on requirement documentation while improving completeness through AI-assisted discovery conversations that systematically explore edge cases and generate production-ready artifacts.
 
-**Current focus:** v2.1 — Rich Document Support (defining requirements)
+**Current focus:** v2.1 Rich Document Support - Phase 54 (Backend Foundation)
 
 ## Current Position
 
 Milestone: v2.1 Rich Document Support
-Phase: Not started (defining requirements)
-Plan: —
-Status: Defining requirements
-Last activity: 2026-02-12 — Milestone v2.1 started
+Phase: 54 of 56 (Backend Foundation - Document Parsing & Security)
+Plan: Ready to plan
+Status: Not started
+Last activity: 2026-02-12 — v2.1 roadmap created with 3 phases
 
 Progress:
 ```
 v1.0-v1.9.5: [##########] 48 phases, 114 plans, 11 milestones SHIPPED
 
 v2.0:        [#         ] 1/5 phases (49-01 complete, paused for v2.1)
-v2.1:        [          ] 0/TBD phases (defining requirements)
+v2.1:        [          ] 0/3 phases (roadmap created, ready to plan Phase 54)
 ```
 
 ## Performance Metrics
@@ -45,7 +45,8 @@ v2.1:        [          ] 0/TBD phases (defining requirements)
 | Doc & Nav v1.9.3 | 37-39 | 3/3 | SHIPPED 2026-02-04 |
 | Dedup v1.9.4 | 40-42 | 5/5 | SHIPPED 2026-02-05 |
 | Logging v1.9.5 | 43-48 | 8/8 | SHIPPED 2026-02-08 |
-| Security v2.0 | 49-53 | 1/TBD | In progress |
+| Security v2.0 | 49-53 | 1/TBD | Paused after 49-01 |
+| Rich Docs v2.1 | 54-56 | 0/TBD | Roadmap created |
 
 **Total:** 115 plans shipped across 48 phases
 
@@ -53,12 +54,13 @@ v2.1:        [          ] 0/TBD phases (defining requirements)
 
 ### Decisions
 
-Recent key decisions (full archive in MILESTONES.md):
+Recent key decisions (full archive in PROJECT.md):
+- v2.1: Dual-column storage (content_encrypted for binary, content_text for extracted text)
+- v2.1: Parser adapter pattern with factory routing (DocumentParser base + format-specific adapters)
+- v2.1: openpyxl (Excel), pdfplumber (PDF), chardet (CSV encoding), python-docx (Word)
+- v2.1: pluto_grid for Flutter table rendering (handles 1000+ rows with virtualization)
+- v2.1: defusedxml for XXE protection, zip bomb validation for XLSX/DOCX
 - v2.0: Railway (backend) + Cloudflare Pages (frontend) for PaaS deployment
-- v2.0: secure.py for security headers middleware (zero dependencies)
-- v2.0: bandit + pip-audit for security scanning (Python-native, free)
-- v2.0: Cloudflare DNS for CNAME flattening at apex domain
-- Phase 49-01: Environment-aware SQL echo (disabled in production) to prevent log flooding
 
 ### Pending Todos
 
@@ -67,33 +69,32 @@ Recent key decisions (full archive in MILESTONES.md):
 
 ### Blockers/Concerns
 
-**No current blockers**
+**v2.1 Phase 54 (Backend Foundation):**
+- Database migration required (content_type, content_text, metadata_json columns)
+- Security validation critical (XXE attacks, zip bombs, data type preservation)
+- Research flags: openpyxl API for read-only mode and data type preservation, pdfplumber table extraction
+- Token budget explosion prevention via 5k-char summary strategy (full text for FTS5, summary for AI)
+
+**v2.0 Deployment:**
+- Paused at Phase 49-02 (Railway deployment checkpoint)
+- No blocking dependencies for v2.1 work
 
 ## Session Continuity
 
 Last session: 2026-02-12
-Stopped at: v2.1 milestone initialized — PROJECT.md and STATE.md updated, ready for research
+Stopped at: v2.1 roadmap creation complete
 Resume file: None
-Next action: Run research for v2.1 (4 parallel researchers), then define requirements, then create roadmap
+Next action: Run `/gsd:plan-phase 54` to begin Phase 54 planning
 
 **Context for Next Session:**
-- v2.0 paused at phase 49-02 (Railway deployment checkpoint — env vars still need to be configured)
-- v2.1 milestone started: Rich Document Support
-- Scope confirmed: Excel (.xlsx), CSV, PDF, Word (.docx) — all 4 formats
-- Features confirmed: AI context integration + visual table preview + export back to formats
-- PROJECT.md updated with v2.1 Current Milestone section and Active requirements
-- Out of Scope "PDF/Word document parsing" constraint marked as moved to v2.1
-- Research NOT yet run — next step is to run 4 parallel researchers (Stack, Features, Architecture, Pitfalls)
-- Then: define REQUIREMENTS.md → create ROADMAP.md → plan first phase
-- Existing document infrastructure: upload at POST /api/projects/{id}/documents, encrypted storage, FTS5 search
-- Current allowed types: text/plain, text/markdown only (ALLOWED_CONTENT_TYPES in routes/documents.py)
-- Max file size: 1MB (MAX_FILE_SIZE in routes/documents.py)
-- Bug fixes shipped this session: FTS5 auto-creation, invalid FTS5 query handling, PDF export (WeasyPrint+Pango)
-- Models: researcher=sonnet, synthesizer=sonnet, roadmapper=sonnet
-- config.json: workflow.research = true
-
-**Resume command:** `/gsd:new-milestone` with context "continue v2.1 — run research, then requirements, then roadmap"
+- v2.1 roadmap: 3 phases (54: Backend Foundation, 55: Frontend Display & AI, 56: Export)
+- 24/24 requirements mapped to phases (100% coverage)
+- Research complete (HIGH confidence) — stack, features, architecture, pitfalls validated
+- Depth setting: quick (3-5 phases)
+- Phase 54: 14 requirements (PARSE + SEC + STOR categories)
+- Critical pitfalls: binary storage migration, token budget explosion, XXE/zip bombs, Excel data types
+- Build order: schema → parsers → routes → frontend models → renderers → export
 
 ---
 
-*State updated: 2026-02-12 (v2.1 milestone initialized, research pending)*
+*State updated: 2026-02-12 (v2.1 roadmap created, ready for Phase 54 planning)*

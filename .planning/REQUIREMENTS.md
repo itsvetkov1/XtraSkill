@@ -81,40 +81,46 @@ Deferred to v2.2+. Tracked but not in current roadmap.
 
 ## Traceability
 
-Which phases cover which requirements. Updated during roadmap creation.
+Which phases cover which requirements.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| PARSE-01 | TBD | Pending |
-| PARSE-02 | TBD | Pending |
-| PARSE-03 | TBD | Pending |
-| PARSE-04 | TBD | Pending |
-| PARSE-05 | TBD | Pending |
-| PARSE-06 | TBD | Pending |
-| SEC-01 | TBD | Pending |
-| SEC-02 | TBD | Pending |
-| SEC-03 | TBD | Pending |
-| SEC-04 | TBD | Pending |
-| SEC-05 | TBD | Pending |
-| STOR-01 | TBD | Pending |
-| STOR-02 | TBD | Pending |
-| STOR-03 | TBD | Pending |
-| DISP-01 | TBD | Pending |
-| DISP-02 | TBD | Pending |
-| DISP-03 | TBD | Pending |
-| DISP-04 | TBD | Pending |
-| DISP-05 | TBD | Pending |
-| AI-01 | TBD | Pending |
-| AI-02 | TBD | Pending |
-| AI-03 | TBD | Pending |
-| EXP-01 | TBD | Pending |
-| EXP-02 | TBD | Pending |
+| PARSE-01 | Phase 54 | Pending |
+| PARSE-02 | Phase 54 | Pending |
+| PARSE-03 | Phase 54 | Pending |
+| PARSE-04 | Phase 54 | Pending |
+| PARSE-05 | Phase 54 | Pending |
+| PARSE-06 | Phase 54 | Pending |
+| SEC-01 | Phase 54 | Pending |
+| SEC-02 | Phase 54 | Pending |
+| SEC-03 | Phase 54 | Pending |
+| SEC-04 | Phase 54 | Pending |
+| SEC-05 | Phase 54 | Pending |
+| STOR-01 | Phase 54 | Pending |
+| STOR-02 | Phase 54 | Pending |
+| STOR-03 | Phase 54 | Pending |
+| DISP-01 | Phase 55 | Pending |
+| DISP-02 | Phase 55 | Pending |
+| DISP-03 | Phase 55 | Pending |
+| DISP-04 | Phase 55 | Pending |
+| DISP-05 | Phase 55 | Pending |
+| AI-01 | Phase 55 | Pending |
+| AI-02 | Phase 55 | Pending |
+| AI-03 | Phase 55 | Pending |
+| EXP-01 | Phase 56 | Pending |
+| EXP-02 | Phase 56 | Pending |
 
 **Coverage:**
 - v2.1 requirements: 24 total
-- Mapped to phases: 0
-- Unmapped: 24 (pending roadmap creation)
+- Mapped to phases: 24
+- Unmapped: 0
+- Coverage: 100%
+
+**Phase breakdown:**
+- Phase 54 (Backend Foundation): 14 requirements (PARSE + SEC + STOR)
+- Phase 55 (Frontend Display & AI): 8 requirements (DISP + AI)
+- Phase 56 (Export Features): 2 requirements (EXP)
 
 ---
 *Requirements defined: 2026-02-12*
-*Last updated: 2026-02-12 after research synthesis*
+*Traceability updated: 2026-02-12 after roadmap creation*

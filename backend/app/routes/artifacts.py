@@ -218,7 +218,13 @@ async def export_artifact(
         else:
             raise HTTPException(status_code=400, detail=f"Unsupported format: {format}")
     except ImportError as e:
-        # PDF export may fail on Windows without GTK
+        # PDF export may fail without GTK/Pango system libraries
+        raise HTTPException(
+            status_code=500,
+            detail=f"Export failed: {str(e)}"
+        )
+    except Exception as e:
+        # Catch rendering errors (template issues, WeasyPrint crashes, etc.)
         raise HTTPException(
             status_code=500,
             detail=f"Export failed: {str(e)}"

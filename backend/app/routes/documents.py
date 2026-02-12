@@ -4,11 +4,14 @@ Document management routes.
 Handles file upload, listing, viewing, and search for project documents.
 """
 
+import csv
 import json
+from io import BytesIO, StringIO
 from typing import List, Optional
 from fastapi import APIRouter, Depends, File, HTTPException, Response, status, UploadFile
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+import openpyxl
 
 from app.database import get_db
 from app.models import Document, Project, User
@@ -23,6 +26,12 @@ router = APIRouter()
 
 # File upload constraints — rich documents up to 10MB
 ALLOWED_CONTENT_TYPES = ParserFactory.ALL_CONTENT_TYPES
+
+# Tabular formats that support export
+TABULAR_CONTENT_TYPES = [
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    "text/csv",
+]
 
 
 @router.post("/projects/{project_id}/documents", status_code=201)
@@ -230,6 +239,139 @@ async def download_document(
                 "Content-Disposition": f'attachment; filename="{doc.filename}"'
             }
         )
+
+
+async def _get_tabular_document(
+    document_id: str,
+    current_user: dict,
+    db: AsyncSession
+) -> Document:
+    """
+    Helper function to get a document and verify it's tabular format.
+
+    Args:
+        document_id: Document UUID
+        current_user: Authenticated user
+        db: Database session
+
+    Returns:
+        Document object if found and tabular
+
+    Raises:
+        404: Document not found or not owned by user
+        400: Document is not tabular format or has no data
+    """
+    # Get document with project join to verify ownership
+    stmt = select(Document).join(Project).where(
+        Document.id == document_id,
+        Project.user_id == current_user["user_id"]
+    )
+    doc = (await db.execute(stmt)).scalar_one_or_none()
+    if not doc:
+        raise HTTPException(status_code=404, detail="Document not found")
+
+    # Check if tabular format
+    if doc.content_type not in TABULAR_CONTENT_TYPES:
+        raise HTTPException(
+            status_code=400,
+            detail="Export is only available for spreadsheet documents"
+        )
+
+    # Check if content exists
+    if not doc.content_text:
+        raise HTTPException(
+            status_code=400,
+            detail="No data available for export"
+        )
+
+    return doc
+
+
+@router.get("/documents/{document_id}/export/xlsx")
+async def export_document_xlsx(
+    document_id: str,
+    current_user: dict = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Export document as Excel (.xlsx) file.
+
+    Only available for spreadsheet documents (Excel, CSV).
+    Returns in-memory generated Excel file with proper headers for browser download.
+    """
+    # Get and validate document
+    doc = await _get_tabular_document(document_id, current_user, db)
+
+    # Parse metadata for sheet name
+    metadata = json.loads(doc.metadata_json) if doc.metadata_json else {}
+    sheet_name = metadata.get('sheet_names', ['Sheet1'])[0]
+
+    # Generate Excel in memory
+    output = BytesIO()
+    wb = openpyxl.Workbook(write_only=True)
+    ws = wb.create_sheet(title=sheet_name)
+
+    # Parse content_text (tab-separated) and write rows
+    for line in doc.content_text.split('\n'):
+        if line.strip():  # Skip empty lines
+            cells = line.split('\t')
+            ws.append(cells)
+
+    wb.save(output)
+    output.seek(0)
+
+    # Generate filename
+    base_name = doc.filename.rsplit('.', 1)[0] if '.' in doc.filename else doc.filename
+    export_filename = f"{base_name}_export.xlsx"
+
+    return Response(
+        content=output.getvalue(),
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        headers={
+            "Content-Disposition": f'attachment; filename="{export_filename}"'
+        }
+    )
+
+
+@router.get("/documents/{document_id}/export/csv")
+async def export_document_csv(
+    document_id: str,
+    current_user: dict = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Export document as CSV file.
+
+    Only available for spreadsheet documents (Excel, CSV).
+    Returns in-memory generated CSV with UTF-8 BOM for Excel compatibility.
+    """
+    # Get and validate document
+    doc = await _get_tabular_document(document_id, current_user, db)
+
+    # Generate CSV in memory
+    output = StringIO()
+    writer = csv.writer(output, quoting=csv.QUOTE_MINIMAL)
+
+    # Parse content_text (tab-separated) and write rows
+    for line in doc.content_text.split('\n'):
+        if line.strip():  # Skip empty lines
+            cells = line.split('\t')
+            writer.writerow(cells)
+
+    # Encode with UTF-8 BOM for Excel compatibility
+    csv_bytes = output.getvalue().encode('utf-8-sig')
+
+    # Generate filename
+    base_name = doc.filename.rsplit('.', 1)[0] if '.' in doc.filename else doc.filename
+    export_filename = f"{base_name}_export.csv"
+
+    return Response(
+        content=csv_bytes,
+        media_type="text/csv; charset=utf-8",
+        headers={
+            "Content-Disposition": f'attachment; filename="{export_filename}"'
+        }
+    )
 
 
 @router.get("/projects/{project_id}/documents/search")

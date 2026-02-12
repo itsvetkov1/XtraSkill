@@ -150,12 +150,12 @@ Plans:
   7. AI source attribution chips show format-specific information (sheet name for Excel references)
   8. Large documents don't cause "context limit exceeded" errors (token budget allocation working)
 
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 55-01: TBD
-- [ ] 55-02: TBD
-- [ ] 55-03: TBD
+- [ ] 55-01-PLAN.md — Document model + upload flow for rich formats with table preview and sheet selector (DISP-01, DISP-02)
+- [ ] 55-02-PLAN.md — Format-aware Document Viewer with PlutoGrid, metadata display, and format icons (DISP-03, DISP-04, DISP-05)
+- [ ] 55-03-PLAN.md — AI document search with metadata, token budget limit, and format-specific source attribution (AI-01, AI-02, AI-03)
 
 #### Phase 56: Export Features
 

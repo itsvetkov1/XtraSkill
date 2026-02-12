@@ -170,10 +170,11 @@ Plans:
   2. User can export parsed Excel/CSV data to .csv format via Document Viewer
   3. Exported files preserve column structure and data types from original upload
 
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 56-01: TBD
+- [ ] 56-01-PLAN.md -- Backend Excel and CSV export endpoints (openpyxl write_only, csv.writer with UTF-8 BOM)
+- [ ] 56-02-PLAN.md -- Frontend export UI (DocumentService.exportDocument, PopupMenuButton in ExcelTableViewer)
 
 ## Coverage
 

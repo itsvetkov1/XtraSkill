@@ -72,16 +72,28 @@ Recent key decisions (full archive in MILESTONES.md):
 ## Session Continuity
 
 Last session: 2026-02-12
-Stopped at: Started v2.1 Rich Document Support milestone
+Stopped at: v2.1 milestone initialized — PROJECT.md and STATE.md updated, ready for research
 Resume file: None
-Next action: Define requirements for v2.1
+Next action: Run research for v2.1 (4 parallel researchers), then define requirements, then create roadmap
 
 **Context for Next Session:**
-- v2.0 paused at phase 49-02 (Railway deployment checkpoint — env vars pending)
-- v2.1 milestone: Excel, CSV, PDF, Word parsing with AI context, preview, and export
-- Bug fixes shipped: FTS5 auto-creation, invalid FTS5 query handling, PDF export (WeasyPrint)
-- Key constraint: Text-Only Documents constraint being removed in v2.1
+- v2.0 paused at phase 49-02 (Railway deployment checkpoint — env vars still need to be configured)
+- v2.1 milestone started: Rich Document Support
+- Scope confirmed: Excel (.xlsx), CSV, PDF, Word (.docx) — all 4 formats
+- Features confirmed: AI context integration + visual table preview + export back to formats
+- PROJECT.md updated with v2.1 Current Milestone section and Active requirements
+- Out of Scope "PDF/Word document parsing" constraint marked as moved to v2.1
+- Research NOT yet run — next step is to run 4 parallel researchers (Stack, Features, Architecture, Pitfalls)
+- Then: define REQUIREMENTS.md → create ROADMAP.md → plan first phase
+- Existing document infrastructure: upload at POST /api/projects/{id}/documents, encrypted storage, FTS5 search
+- Current allowed types: text/plain, text/markdown only (ALLOWED_CONTENT_TYPES in routes/documents.py)
+- Max file size: 1MB (MAX_FILE_SIZE in routes/documents.py)
+- Bug fixes shipped this session: FTS5 auto-creation, invalid FTS5 query handling, PDF export (WeasyPrint+Pango)
+- Models: researcher=sonnet, synthesizer=sonnet, roadmapper=sonnet
+- config.json: workflow.research = true
+
+**Resume command:** `/gsd:new-milestone` with context "continue v2.1 — run research, then requirements, then roadmap"
 
 ---
 
-*State updated: 2026-02-12 (v2.1 milestone started)*
+*State updated: 2026-02-12 (v2.1 milestone initialized, research pending)*

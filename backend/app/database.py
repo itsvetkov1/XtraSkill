@@ -248,18 +248,63 @@ async def _run_migrations():
             # Re-enable foreign keys
             await conn.execute(text("PRAGMA foreign_keys=ON"))
 
-        # Ensure FTS5 virtual table exists for document search
+        # --- Document schema migration for rich document support ---
+        result = await conn.execute(text("PRAGMA table_info(documents)"))
+        doc_columns = [row[1] for row in result]
+
+        if "content_type" not in doc_columns:
+            await conn.execute(text(
+                "ALTER TABLE documents ADD COLUMN content_type VARCHAR(100) DEFAULT 'text/plain'"
+            ))
+
+        if "content_text" not in doc_columns:
+            await conn.execute(text(
+                "ALTER TABLE documents ADD COLUMN content_text TEXT"
+            ))
+
+        if "metadata_json" not in doc_columns:
+            await conn.execute(text(
+                "ALTER TABLE documents ADD COLUMN metadata_json TEXT"
+            ))
+
+        # Ensure FTS5 virtual table exists with unicode61 tokenizer for international text
         result = await conn.execute(
-            text("SELECT name FROM sqlite_master WHERE type='table' AND name='document_fts'")
+            text("SELECT sql FROM sqlite_master WHERE type='table' AND name='document_fts'")
         )
-        if not result.scalar():
+        fts_sql = result.scalar()
+
+        if fts_sql is None:
+            # FTS5 doesn't exist — create with unicode61 tokenizer
             await conn.execute(text("""
                 CREATE VIRTUAL TABLE document_fts USING fts5(
                     document_id UNINDEXED,
                     filename,
                     content,
-                    tokenize = 'porter ascii'
+                    tokenize = 'porter unicode61'
                 )
+            """))
+        elif 'unicode61' not in (fts_sql or ''):
+            # FTS5 exists but uses old ascii tokenizer — upgrade to unicode61
+            # Must drop and recreate (SQLite FTS5 doesn't support ALTER)
+            await conn.execute(text("DROP TABLE document_fts"))
+            await conn.execute(text("""
+                CREATE VIRTUAL TABLE document_fts USING fts5(
+                    document_id UNINDEXED,
+                    filename,
+                    content,
+                    tokenize = 'porter unicode61'
+                )
+            """))
+            # Re-index existing documents
+            # For existing text documents, content_text may be NULL (not yet backfilled)
+            # Re-index from content_text where available, otherwise we can't re-index
+            # (legacy encrypted content can't be decrypted in migration context)
+            # This means old documents lose FTS until accessed and backfilled
+            await conn.execute(text("""
+                INSERT INTO document_fts(document_id, filename, content)
+                SELECT d.id, d.filename, d.content_text
+                FROM documents d
+                WHERE d.content_text IS NOT NULL
             """))
 
 

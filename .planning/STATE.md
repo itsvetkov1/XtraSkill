@@ -12,22 +12,22 @@ See: /Users/a1testingmac/projects/XtraSkill/.planning/PROJECT.md (updated 2026-0
 
 Milestone: v2.1 Rich Document Support
 Phase: 54 of 56 (Backend Foundation - Document Parsing & Security)
-Plan: 2 of 3 complete
-Status: In progress
-Last activity: 2026-02-12 — Completed 54-02: Database schema extension
+Plan: 3 of 3 complete
+Status: Phase 54 complete
+Last activity: 2026-02-12 — Completed 54-03: Upload routes integration
 
 Progress:
 ```
 v1.0-v1.9.5: [##########] 48 phases, 115 plans, 11 milestones SHIPPED
 
 v2.0:        [#         ] 1/5 phases (49-01 complete, paused for v2.1)
-v2.1:        [##        ] 2/9 plans (54-01, 54-02 complete, Phase 54 in progress)
+v2.1:        [###       ] 3/9 plans (Phase 54 complete: parsers, schema, routes)
 ```
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 117 (across 11 milestones + v2.1 in progress)
+- Total plans completed: 118 (across 11 milestones + v2.1 in progress)
 - Average duration: ~1-18 minutes per plan
 
 **By Milestone:**
@@ -46,24 +46,24 @@ v2.1:        [##        ] 2/9 plans (54-01, 54-02 complete, Phase 54 in progress
 | Dedup v1.9.4 | 40-42 | 5/5 | SHIPPED 2026-02-05 |
 | Logging v1.9.5 | 43-48 | 8/8 | SHIPPED 2026-02-08 |
 | Security v2.0 | 49-53 | 1/TBD | Paused after 49-01 |
-| Rich Docs v2.1 | 54-56 | 2/TBD | In progress (54-01, 54-02 complete) |
+| Rich Docs v2.1 | 54-56 | 3/TBD | In progress (Phase 54 complete) |
 
-**Total:** 115 plans shipped across 48 phases, 2 plans in progress (v2.1)
+**Total:** 115 plans shipped across 48 phases, 3 plans in progress (v2.1)
 
 ## Accumulated Context
 
 ### Decisions
 
 Recent key decisions (full archive in PROJECT.md):
+- v2.1 (54-03): Upload security validation order: file_validator → parser.validate_security → parse
+- v2.1 (54-03): Rich documents use encrypt_binary(), text documents use encrypt_document() (backward compat)
+- v2.1 (54-03): Get endpoint returns extracted text (content_text), download endpoint returns original binary
+- v2.1 (54-03): List endpoint includes content_type and metadata for all documents
 - v2.1 (54-02): content_text NULL for legacy documents (lazy backfill on first access)
 - v2.1 (54-02): FTS5 tokenizer upgrade drops/recreates table (SQLite doesn't support ALTER for virtual tables)
 - v2.1 (54-02): Binary encryption separate from text methods (no UTF-8 encoding/decoding)
-- v2.1 (54-02): All new Document columns nullable for backward compatibility
 - v2.1 (54-01): str(cell.value) preserves Excel data types (leading zeros, dates, large numbers)
 - v2.1 (54-01): 5000-char AI summary limit prevents token explosion (full text for FTS5)
-- v2.1 (54-01): defusedxml monkey-patch via sys.modules before openpyxl/docx import
-- v2.1 (54-01): 100:1 compression ratio threshold for zip bomb detection
-- v2.1 (54-01): Magic number validation skipped for text formats (no reliable magic bytes)
 - v2.1: Dual-column storage (content_encrypted for binary, content_text for extracted text)
 - v2.1: Parser adapter pattern with factory routing (DocumentParser base + format-specific adapters)
 - v2.1: openpyxl (Excel), pdfplumber (PDF), chardet (CSV encoding), python-docx (Word)
@@ -79,10 +79,12 @@ Recent key decisions (full archive in PROJECT.md):
 ### Blockers/Concerns
 
 **v2.1 Phase 54 (Backend Foundation):**
-- ✅ Database migration complete (content_type, content_text, metadata_json columns added)
-- ✅ FTS5 upgraded to unicode61 tokenizer for international text
-- ✅ Binary encryption methods ready (encrypt_binary, decrypt_binary)
-- Next: Upload routes integration (54-03) to connect parsers with database
+- ✅ COMPLETE - All 3 plans finished (parsers, schema, routes)
+- ✅ Upload endpoint accepts all 6 content types with security validation
+- ✅ Download endpoint serves original binary files
+- ✅ FTS5 indexing works for all formats (Excel, CSV, PDF, Word, text, markdown)
+- ✅ Dual-column storage implemented (content_encrypted + content_text)
+- Next: Phase 55 (Frontend Display & AI Integration)
 
 **v2.0 Deployment:**
 - Paused at Phase 49-02 (Railway deployment checkpoint)
@@ -91,17 +93,26 @@ Recent key decisions (full archive in PROJECT.md):
 ## Session Continuity
 
 Last session: 2026-02-12
-Stopped at: Completed 54-02-PLAN.md (database schema extension)
+Stopped at: Completed 54-03-PLAN.md (upload routes integration) — Phase 54 complete
 Resume file: None
-Next action: Continue Phase 54 with plan 54-03 (upload routes integration)
+Next action: Begin Phase 55 (Frontend Display & AI Integration)
 
 **Context for Next Session:**
-- v2.1 roadmap: 3 phases (54: Backend Foundation, 55: Frontend Display & AI, 56: Export)
+- v2.1 roadmap: 3 phases (54: Backend Foundation ✅, 55: Frontend Display & AI, 56: Export)
 - 24/24 requirements mapped to phases (100% coverage)
-- Phase 54 progress: 2/3 plans complete (parsers ✅, schema ✅, routes pending)
-- Build order: schema ✅ → parsers ✅ → routes → frontend models → renderers → export
-- Next: 54-03 will integrate parsers with upload/download routes
+- Phase 54 progress: 3/3 plans complete (parsers ✅, schema ✅, routes ✅)
+- Build order: schema ✅ → parsers ✅ → routes ✅ → frontend models → renderers → export
+- Backend foundation complete: All 6 content types working end-to-end with security validation, FTS5 search, and dual-column storage
+- Next: Phase 55 will add frontend document display, table rendering, and AI integration
 
 ---
 
-*State updated: 2026-02-12 (Completed 54-02: database schema extension)*
+*State updated: 2026-02-12 (Completed 54-03: upload routes integration — Phase 54 complete)*
+
+## Recent Performance (v2.1)
+
+| Plan | Duration | Tasks | Files | Description |
+|------|----------|-------|-------|-------------|
+| 54-01 | 3min 32sec | 2 | 9 | Document parser infrastructure |
+| 54-02 | 1min 24sec | 2 | 3 | Database schema extension |
+| 54-03 | 2min 24sec | 2 | 1 | Upload routes integration |

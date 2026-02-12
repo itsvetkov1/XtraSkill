@@ -91,18 +91,18 @@ class _SourceChipsState extends State<SourceChips> {
           for (final source in visibleSources)
             ActionChip(
               avatar: Icon(
-                Icons.description_outlined,
+                _getSourceIcon(source),
                 size: 16,
                 color: theme.colorScheme.onSecondaryContainer,
               ),
               label: Text(
-                _truncateFilename(source.filename),
+                _getChipLabel(source),
                 style: TextStyle(
                   fontSize: 12,
                   color: theme.colorScheme.onSecondaryContainer,
                 ),
               ),
-              tooltip: source.filename, // Full name on hover
+              tooltip: _getTooltip(source),
               backgroundColor:
                   theme.colorScheme.secondaryContainer.withValues(alpha: 0.5),
               side: BorderSide(
@@ -114,6 +114,54 @@ class _SourceChipsState extends State<SourceChips> {
         ],
       ),
     );
+  }
+
+  IconData _getSourceIcon(DocumentSource source) {
+    final ct = source.contentType ?? 'text/plain';
+    if (ct.contains('spreadsheet') || ct == 'text/csv') return Icons.table_chart;
+    if (ct == 'application/pdf') return Icons.picture_as_pdf;
+    if (ct.contains('wordprocessing')) return Icons.article;
+    return Icons.description_outlined;
+  }
+
+  String _getChipLabel(DocumentSource source) {
+    final name = _truncateFilename(source.filename);
+    final metadata = source.metadata;
+    if (metadata == null) return name;
+
+    // Excel: show sheet name
+    final sheetNames = metadata['sheet_names'] as List?;
+    if (sheetNames != null && sheetNames.isNotEmpty) {
+      return '$name (${sheetNames[0]})';
+    }
+
+    // PDF: show page count
+    final pageCount = metadata['page_count'];
+    if (pageCount != null) {
+      return '$name ($pageCount pg)';
+    }
+
+    return name;
+  }
+
+  String _getTooltip(DocumentSource source) {
+    final metadata = source.metadata;
+    if (metadata == null) return source.filename;
+
+    // Build richer tooltip with metadata
+    final parts = [source.filename];
+
+    final sheetNames = metadata['sheet_names'] as List?;
+    if (sheetNames != null && sheetNames.isNotEmpty) {
+      parts.add('Sheet: ${sheetNames[0]}');
+    }
+
+    final pageCount = metadata['page_count'];
+    if (pageCount != null) {
+      parts.add('$pageCount pages');
+    }
+
+    return parts.join(' • ');
   }
 
   String _truncateFilename(String filename) {

@@ -61,12 +61,22 @@ class ArtifactCreatedEvent extends ChatEvent {
 class DocumentSource {
   final String id;
   final String filename;
-  DocumentSource({required this.id, required this.filename});
+  final String? contentType;
+  final Map<String, dynamic>? metadata;
+
+  DocumentSource({
+    required this.id,
+    required this.filename,
+    this.contentType,
+    this.metadata,
+  });
 
   factory DocumentSource.fromJson(Map<String, dynamic> json) {
     return DocumentSource(
       id: json['id'] as String,
       filename: json['filename'] as String,
+      contentType: json['content_type'] as String?,
+      metadata: json['metadata'] as Map<String, dynamic>?,
     );
   }
 }

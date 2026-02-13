@@ -36,7 +36,7 @@ Full details: `.planning/milestones/v2.1-ROADMAP.md`
 
 **Branch:** `feature/claude-code-backend` (experiment isolated from master, Phase 61 gates merge)
 
-- [ ] **Phase 57: Foundation** - Shared infrastructure for both adapters
+- [x] **Phase 57: Foundation** - Shared infrastructure for both adapters (completed 2026-02-13)
 - [ ] **Phase 58: Agent SDK Adapter** - Primary integration via Python SDK
 - [ ] **Phase 59: CLI Subprocess Adapter** - Experimental CLI subprocess integration
 - [ ] **Phase 60: Frontend Integration** - Provider selection and streaming UI
@@ -54,8 +54,8 @@ Full details: `.planning/milestones/v2.1-ROADMAP.md`
 **Plans:** 2 plans
 
 Plans:
-- [ ] 57-01-PLAN.md — Upgrade SDK to v0.1.35+ and extract MCP tools to shared module
-- [ ] 57-02-PLAN.md — Register claude-code-sdk and claude-code-cli providers in LLMFactory with adapter stubs
+- [x] 57-01-PLAN.md — Upgrade SDK to v0.1.35+ and extract MCP tools to shared module
+- [x] 57-02-PLAN.md — Register claude-code-sdk and claude-code-cli providers in LLMFactory with adapter stubs
 
 #### Phase 58: Agent SDK Adapter
 **Goal**: Claude Agent SDK integrated as production-viable provider via LLMAdapter pattern
@@ -154,7 +154,7 @@ Plans:
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
-| 57. Foundation | v0.1-claude-code | 0/2 | Planned | - |
+| 57. Foundation | v0.1-claude-code | 2/2 | Complete | 2026-02-13 |
 | 58. Agent SDK Adapter | v0.1-claude-code | 0/TBD | Not started | - |
 | 59. CLI Subprocess Adapter | v0.1-claude-code | 0/TBD | Not started | - |
 | 60. Frontend Integration | v0.1-claude-code | 0/TBD | Not started | - |
@@ -196,3 +196,4 @@ Plans:
 *v2.0 backlogged: 2026-02-13 — paused for Claude Code experiment*
 *v0.1-claude-code activated: 2026-02-13 — 5 phases, research complete*
 *Phase 57 planned: 2026-02-13 — 2 plans in 2 waves*
+*Phase 57 completed: 2026-02-13 — SDK v0.1.35+, shared MCP tools, factory registration with adapter stubs*

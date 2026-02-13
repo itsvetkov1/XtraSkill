@@ -1,126 +1,96 @@
-# Requirements: BA Assistant v2.1 Rich Document Support
+# Requirements: Claude Code as AI Backend Experiment
 
-**Defined:** 2026-02-12
-**Core Value:** Business analysts reduce time spent on requirement documentation while improving completeness through AI-assisted discovery conversations that systematically explore edge cases and generate production-ready artifacts.
+**Defined:** 2026-02-13
+**Core Value:** Determine if Claude Code's agent capabilities produce measurably better business analysis artifacts than the current direct API approach
 
-## v2.1 Requirements
+## v1 Requirements
 
-Requirements for Rich Document Support milestone. Each maps to roadmap phases.
+Requirements for this experiment. Each maps to roadmap phases.
 
-### Document Parsing
+### Foundation
 
-- [ ] **PARSE-01**: User can upload Excel (.xlsx) files with text extracted for AI context and search
-- [ ] **PARSE-02**: User can upload CSV files with text extracted for AI context and search
-- [ ] **PARSE-03**: User can upload PDF files with text extracted for AI context and search
-- [ ] **PARSE-04**: User can upload Word (.docx) files with text extracted for AI context and search
-- [ ] **PARSE-05**: Excel parsing preserves data types (leading zeros, dates, large numbers stored as strings)
-- [ ] **PARSE-06**: CSV parsing auto-detects encoding (UTF-8, Windows-1252, UTF-8-BOM)
+- [ ] **FOUND-01**: Developer can install claude-agent-sdk and verify CLI bundled
+- [ ] **FOUND-02**: MCP tools (search_documents, save_artifact) extracted to shared reusable module
+- [ ] **FOUND-03**: New provider `claude-code-sdk` registered in LLMFactory
+- [ ] **FOUND-04**: New provider `claude-code-cli` registered in LLMFactory
 
-### Upload Validation & Security
+### Agent SDK Adapter
 
-- [ ] **SEC-01**: Server validates file type via content-type and magic number verification (not just extension)
-- [ ] **SEC-02**: Maximum file size increased to 10MB for rich document formats
-- [ ] **SEC-03**: XLSX/DOCX uploads protected against XXE attacks (defusedxml)
-- [ ] **SEC-04**: XLSX/DOCX uploads protected against zip bombs (uncompressed size validation)
-- [ ] **SEC-05**: Malformed files rejected with clear error message to user
+- [ ] **SDK-01**: ClaudeAgentAdapter implements LLMAdapter ABC with stream_chat()
+- [ ] **SDK-02**: SDK events translated to StreamChunk format (text, thinking, tool_use, complete, error)
+- [ ] **SDK-03**: MCP server integrates search_documents and save_artifact tools
+- [ ] **SDK-04**: Streaming responses work via existing SSE endpoint
+- [ ] **SDK-05**: Error handling maps SDK errors to StreamChunk error chunks
 
-### Storage & Search
+### CLI Subprocess Adapter
 
-- [ ] **STOR-01**: Original binary files stored encrypted alongside extracted text (dual-column storage)
-- [ ] **STOR-02**: Extracted text indexed in FTS5 for full-text search across all document formats
-- [ ] **STOR-03**: Document metadata stored (sheet names, row count, column headers, page count as applicable)
+- [ ] **CLI-01**: ClaudeCLIAdapter implements LLMAdapter ABC with stream_chat()
+- [ ] **CLI-02**: CLI subprocess spawned with JSON output mode and proper lifecycle management
+- [ ] **CLI-03**: JSON stream parsed into StreamChunk format
+- [ ] **CLI-04**: Tool integration via MCP server or prompt-based approach
+- [ ] **CLI-05**: Subprocess cleanup prevents zombie processes and memory leaks
 
-### Frontend Display
+### Frontend Integration
 
-- [ ] **DISP-01**: Visual table preview shows first rows for Excel/CSV in upload confirmation dialog
-- [ ] **DISP-02**: Sheet selector allows choosing which Excel sheets to parse for multi-sheet workbooks
-- [ ] **DISP-03**: Document Viewer renders format-appropriate display (table grid for Excel/CSV, text for PDF/Word)
-- [ ] **DISP-04**: Document metadata displayed in Document Viewer (format type, row/page count, sheet names)
-- [ ] **DISP-05**: Table renderer supports sorting and handles large datasets without browser freeze (virtualization)
+- [ ] **UI-01**: "Claude Code (SDK)" appears in provider settings dropdown
+- [ ] **UI-02**: "Claude Code (CLI)" appears in provider settings dropdown
+- [ ] **UI-03**: New threads can be created with claude-code providers
+- [ ] **UI-04**: Chat streaming works end-to-end with new providers
 
-### AI Context Integration
+### Quality Comparison
 
-- [ ] **AI-01**: AI document_search tool returns extracted text from all 4 rich document formats
-- [ ] **AI-02**: Token budget management limits document context to prevent context window overflow
-- [ ] **AI-03**: Source attribution chips show format-specific info (sheet name for Excel references)
-
-### Export
-
-- [ ] **EXP-01**: User can export parsed document data to Excel (.xlsx) format
-- [ ] **EXP-02**: User can export parsed document data to CSV format
-
-## Future Requirements
-
-Deferred to v2.2+. Tracked but not in current roadmap.
-
-### Advanced Parsing
-
-- **ADV-01**: Table structure preservation for columnar data (AI understands column relationships)
-- **ADV-02**: Word document order parsing (paragraphs and tables interspersed in original order)
-- **ADV-03**: Multi-sheet context stitching (unified context with clear sheet separators)
-- **ADV-04**: PDF table extraction with vision LLM for complex layouts (93% vs 67% accuracy)
-
-### UX Enhancements
-
-- **UX-01**: Drag-and-drop file upload
-- **UX-02**: Batch upload for multiple files at once
-- **UX-03**: Real-time upload progress indicator
-- **UX-04**: Excel export for generated artifacts (requirements matrices)
+- [ ] **QUAL-01**: 5+ BRDs generated with direct API baseline (control)
+- [ ] **QUAL-02**: 5+ BRDs generated with Agent SDK adapter
+- [ ] **QUAL-03**: 5+ BRDs generated with CLI subprocess adapter
+- [ ] **QUAL-04**: Quality metrics defined and scored (completeness, AC quality, consistency, error coverage)
+- [ ] **QUAL-05**: Comparison report with go/no-go recommendation
 
 ## Out of Scope
 
 | Feature | Reason |
 |---------|--------|
-| OCR for scanned PDFs | Tesseract dependency, low accuracy on complex layouts, text-based PDFs only for v2.1 |
-| Real-time collaborative editing | Massive OT/CRDT complexity, single-user app |
-| Excel calculation engine | Impossible to reimplement 30+ years of features; extract displayed values only |
-| PDF editing/annotation | Out of scope for BA tool focused on AI context |
-| Document version control | Complex conflict resolution; download-edit-reupload sufficient |
-| Excel macro execution | Security risk, irrelevant for AI context extraction |
-| Inline document editor | Feature creep; focus on AI-generated artifacts |
+| Production deployment | This is an experiment branch — deployment only if quality proven |
+| Multi-pass direct API enhancement | Interesting alternative but separate experiment |
+| Session resumption / multi-turn agent sessions | SDK supports it but unnecessary for document generation comparison |
+| Docker sandboxing per user | Over-engineering for experiment; evaluate if approach adopted |
+| Cost optimization | Track costs during comparison but don't optimize yet |
+| Frontend provider-specific UI | Use existing provider dropdown pattern, no custom UI per provider |
 
 ## Traceability
 
-Which phases cover which requirements.
+Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| PARSE-01 | Phase 54 | Pending |
-| PARSE-02 | Phase 54 | Pending |
-| PARSE-03 | Phase 54 | Pending |
-| PARSE-04 | Phase 54 | Pending |
-| PARSE-05 | Phase 54 | Pending |
-| PARSE-06 | Phase 54 | Pending |
-| SEC-01 | Phase 54 | Pending |
-| SEC-02 | Phase 54 | Pending |
-| SEC-03 | Phase 54 | Pending |
-| SEC-04 | Phase 54 | Pending |
-| SEC-05 | Phase 54 | Pending |
-| STOR-01 | Phase 54 | Pending |
-| STOR-02 | Phase 54 | Pending |
-| STOR-03 | Phase 54 | Pending |
-| DISP-01 | Phase 55 | Pending |
-| DISP-02 | Phase 55 | Pending |
-| DISP-03 | Phase 55 | Pending |
-| DISP-04 | Phase 55 | Pending |
-| DISP-05 | Phase 55 | Pending |
-| AI-01 | Phase 55 | Pending |
-| AI-02 | Phase 55 | Pending |
-| AI-03 | Phase 55 | Pending |
-| EXP-01 | Phase 56 | Pending |
-| EXP-02 | Phase 56 | Pending |
+| FOUND-01 | Phase 57 | Pending |
+| FOUND-02 | Phase 57 | Pending |
+| FOUND-03 | Phase 57 | Pending |
+| FOUND-04 | Phase 57 | Pending |
+| SDK-01 | Phase 58 | Pending |
+| SDK-02 | Phase 58 | Pending |
+| SDK-03 | Phase 58 | Pending |
+| SDK-04 | Phase 58 | Pending |
+| SDK-05 | Phase 58 | Pending |
+| CLI-01 | Phase 59 | Pending |
+| CLI-02 | Phase 59 | Pending |
+| CLI-03 | Phase 59 | Pending |
+| CLI-04 | Phase 59 | Pending |
+| CLI-05 | Phase 59 | Pending |
+| UI-01 | Phase 60 | Pending |
+| UI-02 | Phase 60 | Pending |
+| UI-03 | Phase 60 | Pending |
+| UI-04 | Phase 60 | Pending |
+| QUAL-01 | Phase 61 | Pending |
+| QUAL-02 | Phase 61 | Pending |
+| QUAL-03 | Phase 61 | Pending |
+| QUAL-04 | Phase 61 | Pending |
+| QUAL-05 | Phase 61 | Pending |
 
 **Coverage:**
-- v2.1 requirements: 24 total
-- Mapped to phases: 24
-- Unmapped: 0
-- Coverage: 100%
-
-**Phase breakdown:**
-- Phase 54 (Backend Foundation): 14 requirements (PARSE + SEC + STOR)
-- Phase 55 (Frontend Display & AI): 8 requirements (DISP + AI)
-- Phase 56 (Export Features): 2 requirements (EXP)
+- v1 requirements: 19 total
+- Mapped to phases: 19
+- Unmapped: 0 ✓
 
 ---
-*Requirements defined: 2026-02-12*
-*Traceability updated: 2026-02-12 after roadmap creation*
+*Requirements defined: 2026-02-13*
+*Last updated: 2026-02-13 after initial definition*

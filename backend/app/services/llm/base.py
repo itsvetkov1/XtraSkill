@@ -23,6 +23,8 @@ class LLMProvider(str, Enum):
     ANTHROPIC = "anthropic"
     GOOGLE = "google"
     DEEPSEEK = "deepseek"
+    CLAUDE_CODE_SDK = "claude-code-sdk"
+    CLAUDE_CODE_CLI = "claude-code-cli"
 
 
 @dataclass

@@ -14,7 +14,8 @@
 - ✅ **v1.9.4 Artifact Deduplication** - Phases 40-42 (shipped 2026-02-05)
 - ✅ **v1.9.5 Pilot Logging Infrastructure** - Phases 43-48 (shipped 2026-02-08)
 - ✅ **v2.1 Rich Document Support** - Phases 54-56 (shipped 2026-02-12)
-- 📋 **v2.0 Security Audit & Deployment** - Phases 49-53 (planned)
+- 📋 **v0.1-claude-code: Claude Code as AI Backend** - Phases 57-61 (active)
+- 🗄️ **v2.0 Security Audit & Deployment** - Phases 49-53 (backlogged)
 
 ## Phases
 
@@ -29,127 +30,169 @@ Full details: `.planning/milestones/v2.1-ROADMAP.md`
 
 </details>
 
-### 📋 v2.0 Security Audit & Deployment (Planned)
+### 📋 v0.1-claude-code: Claude Code as AI Backend (Active)
 
-**Milestone Goal:** Harden the application for production and deploy to live environment with custom domain for pilot group.
+**Milestone Goal:** Determine if Claude Code's agent capabilities (via Python SDK or CLI subprocess) produce measurably better business analysis artifacts than the current direct API approach, and if so, build a production-viable adapter.
 
-- [ ] **Phase 49: Backend Deployment Foundation** - Railway deployment with persistent disk and production environment
-- [ ] **Phase 50: Security Hardening** - OWASP-aligned security audit with headers, scanning, and environment-aware OAuth
-- [ ] **Phase 51: Custom Domain & SSL** - Domain registration, DNS configuration, SSL, and production OAuth apps
-- [ ] **Phase 52: Frontend Deployment** - Flutter production build on Cloudflare Pages with uptime monitoring
-- [ ] **Phase 53: Verification & Documentation** - Post-deployment verification, user flow testing, deployment guide, rollback plan
+**Branch:** `feature/claude-code-backend` (experiment isolated from master, Phase 61 gates merge)
 
-#### Phase 49: Backend Deployment Foundation
-**Goal**: Backend is running in production on Railway with persistent data and proper environment configuration
-**Depends on**: Nothing (first phase of v2.0)
-**Requirements**: HOST-01, HOST-03, HOST-04
+- [ ] **Phase 57: Foundation** - Shared infrastructure for both adapters
+- [ ] **Phase 58: Agent SDK Adapter** - Primary integration via Python SDK
+- [ ] **Phase 59: CLI Subprocess Adapter** - Experimental CLI subprocess integration
+- [ ] **Phase 60: Frontend Integration** - Provider selection and streaming UI
+- [ ] **Phase 61: Quality Comparison & Decision** - Measure quality and decide go/no-go
+
+#### Phase 57: Foundation
+**Goal**: Shared infrastructure ready for both SDK and CLI adapter implementations
+**Depends on**: Nothing (experiment start)
+**Requirements**: FOUND-01, FOUND-02, FOUND-03, FOUND-04
 **Success Criteria** (what must be TRUE):
-  1. Backend API responds to health check requests at the Railway-provided URL
-  2. SQLite database persists across Railway deployments (data survives redeploy)
-  3. All secrets (SECRET_KEY, API keys) are configured via environment variables with no hardcoded values
-  4. Database backup mechanism is operational and has produced at least one successful backup
-**Plans**: 2 plans
+  1. Developer can verify claude-agent-sdk v0.1.35+ installed with bundled CLI
+  2. MCP tools (search_documents, save_artifact) extracted to shared reusable module
+  3. LLMFactory recognizes "claude-code-sdk" provider and can route to adapter stub
+  4. LLMFactory recognizes "claude-code-cli" provider and can route to adapter stub
+**Plans:** 2 plans
 
 Plans:
-- [ ] 49-01-PLAN.md — Code preparation (railway.json health check config, production-aware database settings)
-- [ ] 49-02-PLAN.md — Railway deployment (project creation, env vars, persistent volume, backup, verification)
+- [ ] 57-01-PLAN.md — Upgrade SDK to v0.1.35+ and extract MCP tools to shared module
+- [ ] 57-02-PLAN.md — Register claude-code-sdk and claude-code-cli providers in LLMFactory with adapter stubs
 
-#### Phase 50: Security Hardening
-**Goal**: Application passes automated security scans and serves proper security headers in production
-**Depends on**: Phase 49 (backend must be deployed to validate headers and scan deployed code)
-**Requirements**: SEC-01, SEC-02, SEC-03, SEC-04
+#### Phase 58: Agent SDK Adapter
+**Goal**: Claude Agent SDK integrated as production-viable provider via LLMAdapter pattern
+**Depends on**: Phase 57 (shared tools and factory registration)
+**Requirements**: SDK-01, SDK-02, SDK-03, SDK-04, SDK-05
 **Success Criteria** (what must be TRUE):
-  1. Browser receives HSTS, CSP, X-Frame-Options, and X-Content-Type-Options headers on every response
-  2. Bandit static analysis reports zero high-severity findings
-  3. pip-audit dependency scan reports zero known CVEs in production dependencies
-  4. OAuth redirect URIs are read from environment variables (BACKEND_URL/FRONTEND_URL), not hardcoded to localhost
+  1. ClaudeAgentAdapter implements LLMAdapter.stream_chat() and yields StreamChunk events
+  2. SDK agent loop events translate to StreamChunk format without data loss (text, thinking, tool_use, complete, error)
+  3. MCP server integrates search_documents and save_artifact tools with proper context propagation
+  4. User can create thread with claude-code-sdk provider and receive streaming responses via existing SSE endpoint
+  5. SDK errors map to StreamChunk error chunks with user-friendly messages
 **Plans**: TBD
 
 Plans:
-- [ ] 50-01: TBD
-- [ ] 50-02: TBD
+- [ ] 58-01: TBD
 
-#### Phase 51: Custom Domain & SSL
-**Goal**: Application is accessible via custom domain with HTTPS and production OAuth apps configured
-**Depends on**: Phase 50 (OAuth apps need environment-aware config; security must be hardened before public domain)
-**Requirements**: DOM-01, DOM-02, DOM-03
+#### Phase 59: CLI Subprocess Adapter
+**Goal**: Claude Code CLI integrated as experimental provider for quality comparison
+**Depends on**: Phase 57 (shared tools and factory registration)
+**Requirements**: CLI-01, CLI-02, CLI-03, CLI-04, CLI-05
 **Success Criteria** (what must be TRUE):
-  1. Custom domain resolves to the application (both backend API and frontend)
-  2. SSL certificate is valid and HTTPS works end-to-end (no mixed content warnings)
-  3. Google OAuth login completes successfully using production OAuth app with HTTPS redirect URI
-  4. Microsoft OAuth login completes successfully using production OAuth app with HTTPS redirect URI
+  1. ClaudeCLIAdapter implements LLMAdapter.stream_chat() and spawns CLI subprocess per request
+  2. CLI subprocess lifecycle managed properly (spawn with flags, cleanup prevents zombies, timeout handling)
+  3. JSON stream from CLI stdout parsed into StreamChunk events with proper event boundaries
+  4. Tools work via MCP server or prompt-based approach (document search and artifact save functional)
+  5. Subprocess cleanup prevents memory leaks and orphaned processes in async FastAPI context
 **Plans**: TBD
 
 Plans:
-- [ ] 51-01: TBD
+- [ ] 59-01: TBD
 
-#### Phase 52: Frontend Deployment
-**Goal**: Flutter web frontend is deployed to Cloudflare Pages and monitored for availability
-**Depends on**: Phase 51 (frontend build requires final backend API URL; custom domain must be configured for CORS)
-**Requirements**: HOST-02, DOM-04
+#### Phase 60: Frontend Integration
+**Goal**: Users can select Claude Code providers and use them for conversations
+**Depends on**: Phase 58 (SDK adapter) and Phase 59 (CLI adapter)
+**Requirements**: UI-01, UI-02, UI-03, UI-04
 **Success Criteria** (what must be TRUE):
-  1. Flutter web app loads at the Cloudflare Pages URL (or custom domain) with production API URL compiled in
-  2. Frontend communicates with backend API without CORS errors
-  3. External uptime monitor is checking the application health endpoint and would alert on downtime
+  1. Settings page provider dropdown shows "Claude Code (SDK)" option
+  2. Settings page provider dropdown shows "Claude Code (CLI)" option
+  3. User can create new thread with claude-code-sdk or claude-code-cli provider
+  4. Chat streaming works end-to-end with new providers (messages sent, AI responses stream, thinking displays, tools execute)
 **Plans**: TBD
 
 Plans:
-- [ ] 52-01: TBD
+- [ ] 60-01: TBD
 
-#### Phase 53: Verification & Documentation
-**Goal**: Full stack is verified working in production with documented deployment process and rollback plan
-**Depends on**: Phase 52 (full stack must be deployed before end-to-end verification)
-**Requirements**: VER-01, VER-02, VER-03, VER-04
+#### Phase 61: Quality Comparison & Decision
+**Goal**: Measurable quality comparison with clear go/no-go recommendation
+**Depends on**: Phase 60 (both adapters functional in UI)
+**Requirements**: QUAL-01, QUAL-02, QUAL-03, QUAL-04, QUAL-05
 **Success Criteria** (what must be TRUE):
-  1. Security verification passes: headers present, SSL valid, CORS correctly restricted, error pages don't leak stack traces
-  2. Complete user flow works in production: OAuth login, create project, upload document, create thread, send message, generate artifact, export
-  3. Deployment guide exists that a first-time deployer can follow from zero to live without external help
-  4. Rollback plan is documented and has been tested (can revert to previous deployment)
+  1. 5+ BRDs generated with direct API (anthropic provider baseline) with quality metrics recorded
+  2. 5+ BRDs generated with Agent SDK adapter (claude-code-sdk) with quality metrics recorded
+  3. 5+ BRDs generated with CLI subprocess adapter (claude-code-cli) with quality metrics recorded
+  4. Quality metrics defined and scored across all samples (completeness, AC quality, consistency, error coverage)
+  5. Comparison report written with recommendation (adopt SDK, adopt CLI, stay with direct API, or enhance direct API with multi-pass)
 **Plans**: TBD
 
 Plans:
-- [ ] 53-01: TBD
-- [ ] 53-02: TBD
+- [ ] 61-01: TBD
 
 ## Coverage
 
-### v2.0 Security Audit & Deployment
+### v0.1-claude-code: Claude Code as AI Backend
 
-**Requirements mapped: 16/16**
+**Requirements mapped: 19/19**
 
 | Requirement | Phase | Description |
 |-------------|-------|-------------|
-| SEC-01 | 50 | Security headers middleware |
-| SEC-02 | 50 | Static code security scan (bandit) |
-| SEC-03 | 50 | Dependency vulnerability scan (pip-audit) |
-| SEC-04 | 50 | Environment-aware OAuth redirect URIs |
-| HOST-01 | 49 | Backend deployed to Railway with persistent disk |
-| HOST-02 | 52 | Frontend deployed to Cloudflare Pages |
-| HOST-03 | 49 | Production environment configured |
-| HOST-04 | 49 | Database backup strategy implemented |
-| DOM-01 | 51 | Custom domain registered and DNS configured |
-| DOM-02 | 51 | SSL/HTTPS verified on custom domain |
-| DOM-03 | 51 | Production OAuth apps (Google + Microsoft) |
-| DOM-04 | 52 | Uptime monitoring configured |
-| VER-01 | 53 | End-to-end deployment guide |
-| VER-02 | 53 | Post-deployment security verification |
-| VER-03 | 53 | Full user flow tested in production |
-| VER-04 | 53 | Rollback plan documented and tested |
+| FOUND-01 | 57 | Install claude-agent-sdk with bundled CLI |
+| FOUND-02 | 57 | Extract MCP tools to shared module |
+| FOUND-03 | 57 | Register claude-code-sdk in LLMFactory |
+| FOUND-04 | 57 | Register claude-code-cli in LLMFactory |
+| SDK-01 | 58 | ClaudeAgentAdapter implements LLMAdapter |
+| SDK-02 | 58 | Event translation to StreamChunk format |
+| SDK-03 | 58 | MCP server with search/artifact tools |
+| SDK-04 | 58 | SSE streaming via existing endpoint |
+| SDK-05 | 58 | Error handling and mapping |
+| CLI-01 | 59 | ClaudeCLIAdapter implements LLMAdapter |
+| CLI-02 | 59 | Subprocess lifecycle management |
+| CLI-03 | 59 | JSON stream parsing to StreamChunk |
+| CLI-04 | 59 | Tool integration via MCP |
+| CLI-05 | 59 | Subprocess cleanup and memory safety |
+| UI-01 | 60 | SDK option in provider dropdown |
+| UI-02 | 60 | CLI option in provider dropdown |
+| UI-03 | 60 | Thread creation with new providers |
+| UI-04 | 60 | End-to-end chat streaming |
+| QUAL-01 | 61 | Baseline BRD generation |
+| QUAL-02 | 61 | SDK BRD generation |
+| QUAL-03 | 61 | CLI BRD generation |
+| QUAL-04 | 61 | Quality metrics scoring |
+| QUAL-05 | 61 | Comparison report with recommendation |
 
 ## Progress
 
-**Execution Order:** 49 → 50 → 51 → 52 → 53
+**Execution Order:** 57 → 58 → 59 → 60 → 61
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
-| 49. Backend Deployment Foundation | v2.0 | 0/2 | Planning complete | - |
-| 50. Security Hardening | v2.0 | 0/TBD | Not started | - |
-| 51. Custom Domain & SSL | v2.0 | 0/TBD | Not started | - |
-| 52. Frontend Deployment | v2.0 | 0/TBD | Not started | - |
-| 53. Verification & Documentation | v2.0 | 0/TBD | Not started | - |
+| 57. Foundation | v0.1-claude-code | 0/2 | Planned | - |
+| 58. Agent SDK Adapter | v0.1-claude-code | 0/TBD | Not started | - |
+| 59. CLI Subprocess Adapter | v0.1-claude-code | 0/TBD | Not started | - |
+| 60. Frontend Integration | v0.1-claude-code | 0/TBD | Not started | - |
+| 61. Quality Comparison & Decision | v0.1-claude-code | 0/TBD | Not started | - |
+
+---
+
+## Backlog
+
+<details>
+<summary>🗄️ v2.0 Security Audit & Deployment (Backlogged 2026-02-13)</summary>
+
+**Milestone Goal:** Harden the application for production and deploy to live environment with custom domain for pilot group.
+
+**Status at time of backlog:**
+- Phase 49-01 planned (code preparation) — plan exists but not executed
+- Phase 49-02 planned (Railway deployment checkpoint) — plan exists but not executed
+- Phases 50-53 not yet planned
+- All plan files preserved in `.planning/phases/49-*`
+
+**Requirements: 16 total (SEC-01..04, HOST-01..04, DOM-01..04, VER-01..04)**
+
+| Phase | Name | Plans | Status |
+|-------|------|-------|--------|
+| 49 | Backend Deployment Foundation | 2 planned | Not executed |
+| 50 | Security Hardening | TBD | Not started |
+| 51 | Custom Domain & SSL | TBD | Not started |
+| 52 | Frontend Deployment | TBD | Not started |
+| 53 | Verification & Documentation | TBD | Not started |
+
+**To resume:** Move back to active section and continue from Phase 49.
+
+</details>
 
 ---
 
 *Roadmap created: 2026-02-09*
-*Phase 49 planned: 2026-02-10*
 *v2.1 archived: 2026-02-12 — 3 phases, 8 plans, 24/24 requirements shipped*
+*v2.0 backlogged: 2026-02-13 — paused for Claude Code experiment*
+*v0.1-claude-code activated: 2026-02-13 — 5 phases, research complete*
+*Phase 57 planned: 2026-02-13 — 2 plans in 2 waves*

@@ -1,7 +1,7 @@
 """Unit tests for ClaudeCLIAdapter.
 
-Tests verify adapter stub behavior without making real API calls.
-The stub raises NotImplementedError until Phase 59 implements stream_chat.
+Tests verify adapter initialization and integration without making real subprocess calls.
+Phase 59 implements full subprocess-based stream_chat functionality.
 """
 
 import pytest
@@ -15,20 +15,23 @@ from app.services.llm import LLMFactory
 class TestClaudeCLIAdapterInit:
     """Tests for ClaudeCLIAdapter initialization."""
 
-    def test_initializes_with_api_key(self):
+    @patch('shutil.which', return_value='/usr/bin/claude')
+    def test_initializes_with_api_key(self, mock_which):
         """API key is stored in adapter instance."""
         adapter = ClaudeCLIAdapter(api_key="test-api-key")
 
         assert adapter._api_key == "test-api-key"
 
-    def test_uses_default_model(self):
+    @patch('shutil.which', return_value='/usr/bin/claude')
+    def test_uses_default_model(self, mock_which):
         """DEFAULT_MODEL is used when no model specified."""
         adapter = ClaudeCLIAdapter(api_key="test-key")
 
         assert adapter.model == DEFAULT_MODEL
         assert adapter.model == "claude-sonnet-4-5-20250929"
 
-    def test_uses_custom_model(self):
+    @patch('shutil.which', return_value='/usr/bin/claude')
+    def test_uses_custom_model(self, mock_which):
         """Custom model parameter is respected."""
         adapter = ClaudeCLIAdapter(
             api_key="test-key",
@@ -37,28 +40,34 @@ class TestClaudeCLIAdapterInit:
 
         assert adapter.model == "claude-opus-4-20250514"
 
-    def test_provider_returns_claude_code_cli(self):
+    @patch('shutil.which', return_value='/usr/bin/claude')
+    def test_provider_returns_claude_code_cli(self, mock_which):
         """Provider property returns LLMProvider.CLAUDE_CODE_CLI."""
         adapter = ClaudeCLIAdapter(api_key="test-key")
 
         assert adapter.provider == LLMProvider.CLAUDE_CODE_CLI
         assert adapter.provider.value == "claude-code-cli"
 
+    @patch('shutil.which', return_value=None)
+    def test_raises_runtime_error_when_cli_not_found(self, mock_which):
+        """Raises RuntimeError with install instructions when CLI not in PATH."""
+        with pytest.raises(RuntimeError, match="Claude Code CLI not found"):
+            ClaudeCLIAdapter(api_key="test-key")
 
-class TestClaudeCLIAdapterStreamChat:
-    """Tests for ClaudeCLIAdapter.stream_chat method."""
-
-    @pytest.mark.asyncio
-    async def test_stream_chat_raises_not_implemented(self):
-        """stream_chat raises NotImplementedError with Phase 59 message."""
+    @patch('shutil.which', return_value='/usr/bin/claude')
+    def test_is_agent_provider_true(self, mock_which):
+        """Adapter has is_agent_provider=True for AIService routing."""
         adapter = ClaudeCLIAdapter(api_key="test-key")
 
-        with pytest.raises(NotImplementedError, match="Phase 59"):
-            async for _ in adapter.stream_chat(
-                messages=[{"role": "user", "content": "Hi"}],
-                system_prompt="You are helpful."
-            ):
-                pass
+        assert adapter.is_agent_provider is True
+
+    @patch('shutil.which', return_value='/usr/bin/claude')
+    def test_has_set_context_method(self, mock_which):
+        """Adapter has set_context method for request-scoped context."""
+        adapter = ClaudeCLIAdapter(api_key="test-key")
+
+        assert hasattr(adapter, 'set_context')
+        assert callable(adapter.set_context)
 
 
 class TestClaudeCLIAdapterFactory:

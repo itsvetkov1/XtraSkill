@@ -67,10 +67,11 @@ Plans:
   3. MCP server integrates search_documents and save_artifact tools with proper context propagation
   4. User can create thread with claude-code-sdk provider and receive streaming responses via existing SSE endpoint
   5. SDK errors map to StreamChunk error chunks with user-friendly messages
-**Plans**: TBD
+**Plans:** 2 plans
 
 Plans:
-- [ ] 58-01: TBD
+- [ ] 58-01-PLAN.md — Implement ClaudeAgentAdapter.stream_chat() with SDK event translation and AIService agent routing
+- [ ] 58-02-PLAN.md — Unit tests for adapter stream_chat and AIService agent provider routing
 
 #### Phase 59: CLI Subprocess Adapter
 **Goal**: Claude Code CLI integrated as experimental provider for quality comparison

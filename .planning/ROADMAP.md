@@ -83,10 +83,11 @@ Plans:
   3. JSON stream from CLI stdout parsed into StreamChunk events with proper event boundaries
   4. Tools work via MCP server or prompt-based approach (document search and artifact save functional)
   5. Subprocess cleanup prevents memory leaks and orphaned processes in async FastAPI context
-**Plans**: TBD
+**Plans:** 2 plans
 
 Plans:
-- [ ] 59-01: TBD
+- [ ] 59-01-PLAN.md — Implement ClaudeCLIAdapter.stream_chat() with subprocess lifecycle and JSON event translation
+- [ ] 59-02-PLAN.md — Unit tests for ClaudeCLIAdapter (subprocess mocking, event translation, cleanup verification)
 
 #### Phase 60: Frontend Integration
 **Goal**: Users can select Claude Code providers and use them for conversations

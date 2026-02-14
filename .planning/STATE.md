@@ -11,10 +11,10 @@ See: /Users/a1testingmac/projects/XtraSkill/.planning/PROJECT.md (updated 2026-0
 ## Current Position
 
 Milestone: v0.1-claude-code — Claude Code as AI Backend
-Phase: 57 of 61 (Foundation)
-Current Plan: 2 of 2 completed
-Status: Complete
-Last activity: 2026-02-13 — Completed Phase 57 Plan 02: Factory registration for Claude Code providers
+Phase: 58 of 61 (Agent SDK Adapter)
+Current Plan: 1 of TBD completed
+Status: In Progress
+Last activity: 2026-02-14 — Completed Phase 58 Plan 01: Agent SDK Adapter implementation
 
 Progress:
 ```
@@ -22,13 +22,13 @@ v1.0-v1.9.5: [##########] 48 phases, 115 plans, 11 milestones SHIPPED
 v2.1:        [##########] 8/8 plans (Phase 54-56) SHIPPED
 v2.0:        [          ] Backlogged (phases 49-53 preserved)
 
-v0.1-claude-code: [██████████] 100% — Phase 57 complete (Foundation)
+v0.1-claude-code: [████████░░] 67% — Phase 57 complete, Phase 58 in progress
 ```
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 125 (across 13 milestones)
+- Total plans completed: 126 (across 13 milestones)
 - Average duration: ~1-3 minutes per plan
 
 **Phase 57 Metrics:**
@@ -37,6 +37,12 @@ v0.1-claude-code: [██████████] 100% — Phase 57 complete (F
 |------|--------------|-------|-------|--------|
 | P01  | 13661        | 2     | 3     | ✅ Complete |
 | P02  | 235          | 2     | 7     | ✅ Complete |
+
+**Phase 58 Metrics:**
+
+| Plan | Duration (s) | Tasks | Files | Status |
+|------|--------------|-------|-------|--------|
+| P01  | 368          | 2     | 4     | ✅ Complete |
 
 **By Milestone:**
 
@@ -55,15 +61,19 @@ v0.1-claude-code: [██████████] 100% — Phase 57 complete (F
 | Logging v1.9.5 | 43-48 | 8/8 | SHIPPED 2026-02-08 |
 | Rich Docs v2.1 | 54-56 | 8/8 | SHIPPED 2026-02-12 |
 | Security v2.0 | 49-53 | 0/TBD | BACKLOGGED 2026-02-13 |
-| Claude Code v0.1 | 57-61 | 2/TBD | IN PROGRESS — Phase 57 complete |
+| Claude Code v0.1 | 57-61 | 3/TBD | IN PROGRESS — Phase 58-01 complete |
 
-**Total:** 125 plans shipped across 48 phases
+**Total:** 126 plans shipped across 48 phases
 
 ## Accumulated Context
 
 ### Decisions
 
 Recent key decisions (full archive in PROJECT.md):
+- **Phase 58-01**: POC uses in-process MCP with ContextVars (HTTP transport deferred to production hardening) (2026-02-14)
+- **Phase 58-01**: StreamChunk.metadata field added as optional to avoid breaking existing adapters (2026-02-14)
+- **Phase 58-01**: AIService routes based on is_agent_provider attribute, preserves manual tool loop for direct API (2026-02-14)
+- **Phase 58-01**: Tool status messages map MCP names to user-friendly indicators ('Generating artifact...', 'Searching project documents...') (2026-02-14)
 - **Phase 57-02**: Both Claude Code providers use ANTHROPIC_API_KEY (Claude Code uses same Anthropic key) (2026-02-13)
 - **Phase 57-02**: SDK default model claude-sonnet-4-5-20250514, CLI uses claude-sonnet-4-5-20250929 (2026-02-13)
 - **Phase 57-01**: Extracted MCP tool definitions to shared module for reuse across SDK and CLI adapters (2026-02-13)
@@ -91,27 +101,33 @@ Recent key decisions (full archive in PROJECT.md):
 
 ### Blockers/Concerns
 
-**Validation needed during Phase 58:**
-- MCP HTTP transport pattern for ContextVar boundary — no production examples found for FastAPI + SQLAlchemy AsyncSession
-- Event vocabulary completeness — extended StreamChunk format required to prevent data loss
+**Validation needed during Phase 60 (Evaluation):**
+- Multi-turn streaming correctness — does SDK respect ARTIFACT_CREATED stop marker?
+- Event vocabulary completeness — any SDK events lost in StreamChunk translation?
+- Source attribution accuracy — documents_used tracking via ContextVar
+- Token cost measurement — baseline for SDK vs CLI comparison
 
 **Measurement needed during Phase 61:**
 - Quality metrics definition — what does "20% better" mean concretely?
 - Cost-quality tradeoff — does improvement justify 35-52% cost increase?
+- HTTP transport decision — if SDK chosen, implement HTTP MCP server for production context isolation
 
 ## Session Continuity
 
-Last session: 2026-02-13
-Stopped at: Completed Phase 57 Plan 02 — Factory registration for Claude Code providers
+Last session: 2026-02-14
+Stopped at: Completed Phase 58 Plan 01 — ClaudeAgentAdapter.stream_chat() implementation
 Resume file: None
-Next action: Execute Phase 58 — Agent SDK Adapter Implementation
+Next action: Execute Phase 59 — CLI Adapter Implementation (or continue Phase 58 if more plans exist)
 
 **Context for Next Session:**
-- Phase 57 complete (2/2 plans): Foundation established for Claude Code integration
-- Plan 01: SDK v0.1.35 + shared MCP tools (mcp_tools.py)
-- Plan 02: Factory routing + adapter stubs (claude_agent_adapter.py, claude_cli_adapter.py)
-- Commits: 2d59c8f (factory registration), 854116d (unit tests)
-- Ready for Phase 58: Implement ClaudeAgentAdapter.stream_chat with multi-turn streaming
+- Phase 58-01 complete: ClaudeAgentAdapter with full stream_chat() implementation
+  - SDK event translation: StreamEvent→text, ToolUseBlock→tool_use, ToolResultBlock→artifact metadata, ResultMessage→complete
+  - AIService agent provider routing (_stream_agent_chat method)
+  - StreamChunk.metadata field for agent-specific data
+  - MCP tools with HTTP header support (backward compatible with ContextVars)
+  - In-process MCP + ContextVars for POC (HTTP transport deferred)
+- Commits: eeec4a9 (ClaudeAgentAdapter), 992657a (AIService routing)
+- Ready for Phase 59: Implement ClaudeCLIAdapter using subprocess + stdio transport
 
 ---
 

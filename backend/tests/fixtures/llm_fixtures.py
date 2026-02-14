@@ -37,6 +37,9 @@ class MockLLMAdapter(LLMAdapter):
         ])
     """
 
+    # Signal that this is NOT an agent provider (handles tools manually in AIService)
+    is_agent_provider = False
+
     def __init__(
         self,
         provider: LLMProvider = LLMProvider.ANTHROPIC,

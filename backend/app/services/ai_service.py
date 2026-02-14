@@ -820,7 +820,7 @@ class AIService:
                 return ("No relevant documents found for this query.", None)
 
             formatted = []
-            for doc_id, filename, snippet, score in results[:5]:
+            for doc_id, filename, snippet, score, content_type, metadata_json in results[:5]:
                 # Clean up snippet HTML markers for Claude
                 clean_snippet = snippet.replace("<mark>", "**").replace("</mark>", "**")
                 formatted.append(f"**{filename}**:\n{clean_snippet}")
@@ -1021,7 +1021,7 @@ class AIService:
         - error: Error occurred
         """
         # Route to agent provider path if applicable
-        if self.is_agent_provider:
+        if getattr(self, 'is_agent_provider', False):
             async for event in self._stream_agent_chat(messages, project_id, thread_id, db):
                 yield event
             return

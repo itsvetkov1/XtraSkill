@@ -37,7 +37,7 @@ Full details: `.planning/milestones/v2.1-ROADMAP.md`
 **Branch:** `feature/claude-code-backend` (experiment isolated from master, Phase 61 gates merge)
 
 - [x] **Phase 57: Foundation** - Shared infrastructure for both adapters (completed 2026-02-13)
-- [ ] **Phase 58: Agent SDK Adapter** - Primary integration via Python SDK
+- [x] **Phase 58: Agent SDK Adapter** - Primary integration via Python SDK (completed 2026-02-14)
 - [ ] **Phase 59: CLI Subprocess Adapter** - Experimental CLI subprocess integration
 - [ ] **Phase 60: Frontend Integration** - Provider selection and streaming UI
 - [ ] **Phase 61: Quality Comparison & Decision** - Measure quality and decide go/no-go
@@ -70,8 +70,8 @@ Plans:
 **Plans:** 2 plans
 
 Plans:
-- [ ] 58-01-PLAN.md — Implement ClaudeAgentAdapter.stream_chat() with SDK event translation and AIService agent routing
-- [ ] 58-02-PLAN.md — Unit tests for adapter stream_chat and AIService agent provider routing
+- [x] 58-01-PLAN.md — Implement ClaudeAgentAdapter.stream_chat() with SDK event translation and AIService agent routing
+- [x] 58-02-PLAN.md — Unit tests for adapter stream_chat and AIService agent provider routing
 
 #### Phase 59: CLI Subprocess Adapter
 **Goal**: Claude Code CLI integrated as experimental provider for quality comparison
@@ -156,7 +156,7 @@ Plans:
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
 | 57. Foundation | v0.1-claude-code | 2/2 | Complete | 2026-02-13 |
-| 58. Agent SDK Adapter | v0.1-claude-code | 0/TBD | Not started | - |
+| 58. Agent SDK Adapter | v0.1-claude-code | 2/2 | Complete | 2026-02-14 |
 | 59. CLI Subprocess Adapter | v0.1-claude-code | 0/TBD | Not started | - |
 | 60. Frontend Integration | v0.1-claude-code | 0/TBD | Not started | - |
 | 61. Quality Comparison & Decision | v0.1-claude-code | 0/TBD | Not started | - |

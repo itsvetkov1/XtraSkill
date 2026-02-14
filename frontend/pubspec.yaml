@@ -51,7 +51,6 @@ dependencies:
   logger: ^2.5.0
   uuid: ^4.5.1
   connectivity_plus: ^6.1.2
-  excel: ^4.0.6
   pluto_grid: ^8.1.0
 
 dev_dependencies:

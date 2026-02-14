@@ -12,8 +12,8 @@ MAX_UNCOMPRESSED_RATIO = 100      # Zip bomb detection threshold (SEC-04)
 # Mapping from expected content_type to filetype library MIME types
 # filetype may return slightly different MIME types than the client sends
 MAGIC_TYPE_MAP = {
-    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": ["application/zip", "application/x-zip-compressed"],
-    "application/vnd.openxmlformats-officedocument.wordprocessingml.document": ["application/zip", "application/x-zip-compressed"],
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": ["application/zip", "application/x-zip-compressed", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"],
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document": ["application/zip", "application/x-zip-compressed", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"],
     "application/pdf": ["application/pdf"],
     # CSV and plain text don't have magic numbers — validated by extension + parsing
     "text/csv": None,

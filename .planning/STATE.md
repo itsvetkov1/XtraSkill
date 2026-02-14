@@ -11,10 +11,10 @@ See: /Users/a1testingmac/projects/XtraSkill/.planning/PROJECT.md (updated 2026-0
 ## Current Position
 
 Milestone: v0.1-claude-code — Claude Code as AI Backend
-Phase: 58 of 61 (Agent SDK Adapter)
-Current Plan: 2 of 2 completed
+Phase: 59 of 61 (CLI Subprocess Adapter)
+Current Plan: 1 of 1 completed
 Status: Phase Complete
-Last activity: 2026-02-14 — Completed Phase 58 Plan 02: Agent SDK Adapter unit tests
+Last activity: 2026-02-14 — Completed Phase 59 Plan 01: CLI Subprocess Adapter implementation
 
 Progress:
 ```
@@ -22,7 +22,7 @@ v1.0-v1.9.5: [##########] 48 phases, 115 plans, 11 milestones SHIPPED
 v2.1:        [##########] 8/8 plans (Phase 54-56) SHIPPED
 v2.0:        [          ] Backlogged (phases 49-53 preserved)
 
-v0.1-claude-code: [█████████░] 80% — Phase 58 complete, ready for Phase 59
+v0.1-claude-code: [█████████░] 90% — Phase 59 complete, ready for Phase 60
 ```
 
 ## Performance Metrics
@@ -45,6 +45,12 @@ v0.1-claude-code: [█████████░] 80% — Phase 58 complete, re
 | P01  | 368          | 2     | 4     | ✅ Complete |
 | P02  | 562          | 2     | 5     | ✅ Complete |
 
+**Phase 59 Metrics:**
+
+| Plan | Duration (s) | Tasks | Files | Status |
+|------|--------------|-------|-------|--------|
+| P01  | 212          | 2     | 2     | ✅ Complete |
+
 **By Milestone:**
 
 | Milestone | Phases | Plans | Status |
@@ -62,15 +68,19 @@ v0.1-claude-code: [█████████░] 80% — Phase 58 complete, re
 | Logging v1.9.5 | 43-48 | 8/8 | SHIPPED 2026-02-08 |
 | Rich Docs v2.1 | 54-56 | 8/8 | SHIPPED 2026-02-12 |
 | Security v2.0 | 49-53 | 0/TBD | BACKLOGGED 2026-02-13 |
-| Claude Code v0.1 | 57-61 | 4/TBD | IN PROGRESS — Phase 58 complete |
+| Claude Code v0.1 | 57-61 | 5/TBD | IN PROGRESS — Phase 59 complete |
 
-**Total:** 127 plans shipped across 49 phases
+**Total:** 128 plans shipped across 50 phases
 
 ## Accumulated Context
 
 ### Decisions
 
 Recent key decisions (full archive in PROJECT.md):
+- **Phase 59-01**: Combined prompt approach (prepend system prompt to user prompt) instead of --system-prompt flag for POC (2026-02-14)
+- **Phase 59-01**: Track received_result flag to prevent duplicate completion chunks (2026-02-14)
+- **Phase 59-01**: Exclude --include-partial-messages from CLI flags (deferred to production scope) (2026-02-14)
+- **Phase 59-01**: Use ContextVars for MCP tool context (subprocess inherits context in-process for POC) (2026-02-14)
 - **Phase 58-01**: POC uses in-process MCP with ContextVars (HTTP transport deferred to production hardening) (2026-02-14)
 - **Phase 58-01**: StreamChunk.metadata field added as optional to avoid breaking existing adapters (2026-02-14)
 - **Phase 58-01**: AIService routes based on is_agent_provider attribute, preserves manual tool loop for direct API (2026-02-14)
@@ -103,33 +113,36 @@ Recent key decisions (full archive in PROJECT.md):
 ### Blockers/Concerns
 
 **Validation needed during Phase 60 (Evaluation):**
-- Multi-turn streaming correctness — does SDK respect ARTIFACT_CREATED stop marker?
-- Event vocabulary completeness — any SDK events lost in StreamChunk translation?
-- Source attribution accuracy — documents_used tracking via ContextVar
-- Token cost measurement — baseline for SDK vs CLI comparison
+- Multi-turn conversation handling (SDK vs CLI agent loops)
+- Event stream completeness (any CLI events lost in translation?)
+- Source attribution accuracy (documents_used tracking via ContextVar)
+- Token usage reporting (input/output token counts)
+- Subprocess overhead (memory usage, process cleanup verification)
 
 **Measurement needed during Phase 61:**
 - Quality metrics definition — what does "20% better" mean concretely?
 - Cost-quality tradeoff — does improvement justify 35-52% cost increase?
 - HTTP transport decision — if SDK chosen, implement HTTP MCP server for production context isolation
+- Production hardening for CLI adapter (partial messages, MCP HTTP transport, system prompt separation)
 
 ## Session Continuity
 
 Last session: 2026-02-14
-Stopped at: Completed Phase 58 Plan 02 — Agent SDK Adapter unit tests
+Stopped at: Completed Phase 59 Plan 01 — CLI Subprocess Adapter implementation
 Resume file: None
-Next action: Execute Phase 59 — CLI Adapter Implementation
+Next action: Execute Phase 60 — Quality Evaluation
 
 **Context for Next Session:**
-- Phase 58 COMPLETE: ClaudeAgentAdapter with comprehensive test coverage
-  - Phase 58-01: ClaudeAgentAdapter.stream_chat() implementation (eeec4a9, 992657a)
-  - Phase 58-02: 30 unit tests (20 adapter + 10 service routing) (115a8ac, 71c7a44)
-  - All tests use mocks, no API keys required
-  - Zero regressions - all 239 unit tests pass
-  - Test patterns established for Phase 59 CLI adapter testing
-- Ready for Phase 59: Implement ClaudeCLIAdapter using subprocess + stdio transport
-- SDK approach proven viable, ready to implement CLI approach for comparison
+- Phase 59 COMPLETE: ClaudeCLIAdapter with subprocess lifecycle management
+  - Phase 59-01: ClaudeCLIAdapter.stream_chat() implementation (7a88a3c, 112686b)
+  - AsyncIO subprocess spawning with stream-json output
+  - Robust process cleanup (terminate → kill) preventing zombie processes
+  - JSON event translation for 4 event types (stream_event, assistant_message, result, error)
+  - All tests updated, zero regressions - all 241 unit tests pass
+- Both adapters (SDK and CLI) now fully implemented
+- Ready for Phase 60: Quality evaluation comparing SDK vs CLI approaches
+- POC limitations documented for production hardening phase
 
 ---
 
-*State updated: 2026-02-14 (Phase 58 complete)*
+*State updated: 2026-02-14 (Phase 59 complete)*

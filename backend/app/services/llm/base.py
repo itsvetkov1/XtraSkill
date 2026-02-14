@@ -49,6 +49,9 @@ class StreamChunk:
         tool_call: For "tool_use" chunks: {"id": str, "name": str, "input": dict}
         usage: For "complete" chunks: {"input_tokens": int, "output_tokens": int}
         error: For "error" chunks: Error message string
+        metadata: Optional metadata for agent-specific data (artifact_created events,
+            documents_used for source attribution, tool status indicators). Used by
+            agent providers (Claude Code SDK/CLI) to carry additional event data.
     """
     chunk_type: str
     content: str = ""
@@ -56,6 +59,7 @@ class StreamChunk:
     tool_call: Optional[Dict[str, Any]] = None
     usage: Optional[Dict[str, int]] = None
     error: Optional[str] = None
+    metadata: Optional[Dict[str, Any]] = None
 
 
 class LLMAdapter(ABC):

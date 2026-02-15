@@ -39,7 +39,7 @@ Full details: `.planning/milestones/v2.1-ROADMAP.md`
 - [x] **Phase 57: Foundation** - Shared infrastructure for both adapters (completed 2026-02-13)
 - [x] **Phase 58: Agent SDK Adapter** - Primary integration via Python SDK (completed 2026-02-14)
 - [x] **Phase 59: CLI Subprocess Adapter** - Experimental CLI subprocess integration (completed 2026-02-14)
-- [ ] **Phase 60: Frontend Integration** - Provider selection and streaming UI
+- [x] **Phase 60: Frontend Integration** - Provider selection and streaming UI (completed 2026-02-15)
 - [ ] **Phase 61: Quality Comparison & Decision** - Measure quality and decide go/no-go
 
 #### Phase 57: Foundation
@@ -101,8 +101,8 @@ Plans:
 **Plans:** 2 plans
 
 Plans:
-- [ ] 60-01-PLAN.md — Register Claude Code providers across full stack (backend VALID_PROVIDERS, frontend ProviderConfig, ProviderProvider, settings dropdown with experimental badges)
-- [ ] 60-02-PLAN.md — Add thread info panel with provider display and update provider indicator for new providers
+- [x] 60-01-PLAN.md — Register Claude Code providers across full stack (backend VALID_PROVIDERS, frontend ProviderConfig, ProviderProvider, settings dropdown with experimental badges)
+- [x] 60-02-PLAN.md — Add thread info panel with provider display and update provider indicator for new providers
 
 #### Phase 61: Quality Comparison & Decision
 **Goal**: Measurable quality comparison with clear go/no-go recommendation
@@ -160,7 +160,7 @@ Plans:
 | 57. Foundation | v0.1-claude-code | 2/2 | Complete | 2026-02-13 |
 | 58. Agent SDK Adapter | v0.1-claude-code | 2/2 | Complete | 2026-02-14 |
 | 59. CLI Subprocess Adapter | v0.1-claude-code | 2/2 | Complete | 2026-02-14 |
-| 60. Frontend Integration | v0.1-claude-code | 0/TBD | Not started | - |
+| 60. Frontend Integration | v0.1-claude-code | 2/2 | Complete | 2026-02-15 |
 | 61. Quality Comparison & Decision | v0.1-claude-code | 0/TBD | Not started | - |
 
 ---

@@ -21,38 +21,37 @@
 
 ## Quality Scores by Dimension
 
-| Dimension | Baseline (anthropic) | SDK (claude-code-sdk) | CLI (claude-code-cli) | SDK Improvement | CLI Improvement |
-|-----------|---------------------|-----------------------|-----------------------|-----------------|-----------------|
+| Dimension | Baseline (anthropic) | CLI (claude-code-cli) | CLI Improvement | p-value |
+|-----------|---------------------|-----------------------|-----------------|---------|
 {% for dim in dimensions %}
-| {{ dim.name }} | {{ "%.2f"|format(dim.baseline_mean) }} | {{ "%.2f"|format(dim.sdk_mean) }} | {{ "%.2f"|format(dim.cli_mean) }} | {{ "%+.1f%%"|format(dim.sdk_improvement_pct) }}{% if dim.sdk_significant %} *{% endif %} | {{ "%+.1f%%"|format(dim.cli_improvement_pct) }}{% if dim.cli_significant %} *{% endif %} |
+| {{ dim.name }} | {{ "%.2f"|format(dim.baseline_mean) }} | {{ "%.2f"|format(dim.cli_mean) }} | {{ "%+.1f%%"|format(dim.cli_improvement_pct) }}{% if dim.cli_significant %} *{% endif %} | {{ "%.4f"|format(dim.cli_pvalue) }} |
 {% endfor %}
-| **Average** | {{ "%.2f"|format(baseline_avg) }} | {{ "%.2f"|format(sdk_avg) }} | {{ "%.2f"|format(cli_avg) }} | {{ "%+.1f%%"|format(sdk_avg_improvement) }} | {{ "%+.1f%%"|format(cli_avg_improvement) }} |
+| **Average** | {{ "%.2f"|format(baseline_avg) }} | {{ "%.2f"|format(cli_avg) }} | {{ "%+.1f%%"|format(cli_avg_improvement) }} | — |
 
 \* Statistically significant at p < 0.05
 
 ## Cost Analysis
 
-| Metric | Baseline | SDK | CLI |
-|--------|----------|-----|-----|
-| Avg cost per BRD | ${{ "%.4f"|format(cost.anthropic.avg_cost_per_brd) }} | ${{ "%.4f"|format(cost.sdk.avg_cost_per_brd) }} | ${{ "%.4f"|format(cost.cli.avg_cost_per_brd) }} |
-| Cost increase | — | {{ "%+.1f%%"|format(cost.sdk.cost_increase_pct) }} | {{ "%+.1f%%"|format(cost.cli.cost_increase_pct) }} |
-| Avg generation time | {{ "%.1f"|format(cost.anthropic.avg_generation_time_s) }}s | {{ "%.1f"|format(cost.sdk.avg_generation_time_s) }}s | {{ "%.1f"|format(cost.cli.avg_generation_time_s) }}s |
+| Metric | Baseline (anthropic) | CLI (claude-code-cli) |
+|--------|---------------------|-----------------------|
+| Avg cost per BRD | ${{ "%.4f"|format(cost.anthropic.avg_cost_per_brd) }} | ${{ "%.4f"|format(cost.cli.avg_cost_per_brd) }} |
+| Cost increase | — | {{ "%+.1f%%"|format(cost.cli.cost_increase_pct) }} |
+| Avg generation time | {{ "%.1f"|format(cost.anthropic.avg_generation_time_s) }}s | {{ "%.1f"|format(cost.cli.avg_generation_time_s) }}s |
 
 ## Cost-Quality Tradeoff
 
 | Provider | Quality Improvement | Cost Increase | Improvement per Cost % |
 |----------|--------------------|--------------|-----------------------|
-| claude-code-sdk | {{ "%+.1f%%"|format(sdk_avg_improvement) }} | {{ "%+.1f%%"|format(cost.sdk.cost_increase_pct) }} | {{ "%.2f"|format(sdk_quality_per_cost) }} |
 | claude-code-cli | {{ "%+.1f%%"|format(cli_avg_improvement) }} | {{ "%+.1f%%"|format(cost.cli.cost_increase_pct) }} | {{ "%.2f"|format(cli_quality_per_cost) }} |
 
 ## Decision Matrix
 
-| Factor | claude-code-sdk | claude-code-cli | Threshold |
-|--------|----------------|-----------------|-----------|
-| Avg quality improvement | {{ "%+.1f%%"|format(sdk_avg_improvement) }} | {{ "%+.1f%%"|format(cli_avg_improvement) }} | >20% |
-| Significant dimensions | {{ sdk_significant_dims }}/4 | {{ cli_significant_dims }}/4 | >=3/4 |
-| Cost increase | {{ "%+.1f%%"|format(cost.sdk.cost_increase_pct) }} | {{ "%+.1f%%"|format(cost.cli.cost_increase_pct) }} | <50% |
-| Implementation complexity | Medium (in-process MCP) | High (subprocess management) | — |
+| Factor | claude-code-cli | Threshold |
+|--------|-----------------|-----------|
+| Avg quality improvement | {{ "%+.1f%%"|format(cli_avg_improvement) }} | >20% |
+| Significant dimensions | {{ cli_significant_dims }}/4 | >=3/4 |
+| Cost increase | {{ "%+.1f%%"|format(cost.cli.cost_increase_pct) }} | <50% |
+| Implementation complexity | High (subprocess management) | — |
 
 ## Limitations
 
@@ -60,7 +59,8 @@
 - Results are directional insights, not definitive proof
 - Single reviewer scoring (no inter-rater reliability metric)
 - Test scenarios may not cover all production use cases
-- Provider prompts may differ slightly (combined prompt approach for CLI vs native system prompt for SDK)
+- CLI uses combined prompt approach (system + user in single prompt) vs native system prompt for direct API
+- SDK adapter excluded from comparison due to Windows command line length limitation in SDK library
 
 ## Recommendation
 

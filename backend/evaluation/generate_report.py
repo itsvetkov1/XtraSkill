@@ -1,12 +1,11 @@
 """Report generation for BRD quality comparison.
 
-This module generates a comprehensive markdown comparison report from
-the statistical analysis results, including quality scores, cost analysis,
-cost-quality tradeoff, and actionable recommendations.
+Generates a markdown comparison report from statistical analysis results,
+comparing anthropic baseline vs claude-code-cli.
 """
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, Any, List, Optional
+from typing import Optional
 
 try:
     from jinja2 import Template
@@ -26,9 +25,6 @@ def generate_comparison_report(
     """
     Generate comprehensive comparison report from quality scores.
 
-    Runs full statistical analysis pipeline and renders a markdown report
-    using the Jinja2 template.
-
     Args:
         scores_path: Path to completed scoring CSV
         mapping_path: Path to review_id mapping JSON
@@ -37,7 +33,6 @@ def generate_comparison_report(
     Returns:
         Rendered report as string
     """
-    # Run full analysis
     print("Running statistical analysis...")
     results = run_full_analysis(scores_path, mapping_path)
 
@@ -56,7 +51,7 @@ def generate_comparison_report(
 
     template = Template(template_content)
 
-    # Prepare dimension data for template
+    # Prepare dimension data
     dimension_names = ["completeness", "ac_quality", "consistency", "error_coverage"]
     dimension_display = {
         "completeness": "Completeness",
@@ -71,35 +66,23 @@ def generate_comparison_report(
         dimensions.append({
             "name": dimension_display[dim],
             "baseline_mean": dim_stats["baseline_mean"],
-            "sdk_mean": dim_stats["sdk_mean"],
             "cli_mean": dim_stats["cli_mean"],
-            "sdk_improvement_pct": dim_stats["sdk_improvement_pct"],
             "cli_improvement_pct": dim_stats["cli_improvement_pct"],
-            "sdk_significant": dim_stats["sdk_significant"],
-            "cli_significant": dim_stats["cli_significant"]
+            "cli_significant": dim_stats["cli_significant"],
+            "cli_pvalue": dim_stats["cli_vs_baseline_pvalue"]
         })
 
-    # Calculate aggregate means
+    # Aggregate means
     baseline_avg = stats["aggregate"]["anthropic"]["mean"]
-    sdk_avg = stats["aggregate"]["claude-code-sdk"]["mean"]
     cli_avg = stats["aggregate"]["claude-code-cli"]["mean"]
 
-    # Calculate aggregate improvement percentages
-    sdk_avg_improvement = recommendation["sdk_summary"]["avg_improvement_pct"]
     cli_avg_improvement = recommendation["cli_summary"]["avg_improvement_pct"]
-
-    # Calculate quality per cost
-    sdk_quality_per_cost = recommendation["sdk_summary"]["quality_per_cost"]
     cli_quality_per_cost = recommendation["cli_summary"]["quality_per_cost"]
-
-    # Count significant dimensions
-    sdk_significant_dims = recommendation["sdk_summary"]["significant_dims"]
     cli_significant_dims = recommendation["cli_summary"]["significant_dims"]
 
-    # Prepare cost data with proper nesting for template
+    # Cost data
     cost = {
         "anthropic": cost_summary["anthropic"],
-        "sdk": cost_summary["claude-code-sdk"],
         "cli": cost_summary["claude-code-cli"]
     }
 
@@ -112,13 +95,9 @@ def generate_comparison_report(
         "recommendation": recommendation,
         "dimensions": dimensions,
         "baseline_avg": baseline_avg,
-        "sdk_avg": sdk_avg,
         "cli_avg": cli_avg,
-        "sdk_avg_improvement": sdk_avg_improvement,
         "cli_avg_improvement": cli_avg_improvement,
-        "sdk_quality_per_cost": sdk_quality_per_cost,
         "cli_quality_per_cost": cli_quality_per_cost,
-        "sdk_significant_dims": sdk_significant_dims,
         "cli_significant_dims": cli_significant_dims,
         "cost": cost
     }
@@ -136,16 +115,10 @@ def generate_comparison_report(
         f.write(report)
 
     print(f"\nReport saved to: {output_file}")
-
-    # Also save raw statistics JSON (already saved by run_full_analysis)
-    stats_file = output_file.parent / "statistics.json"
-    print(f"Statistics saved to: {stats_file}")
-
     return report
 
 
 if __name__ == "__main__":
-    """Run report generation and print path."""
     try:
         report = generate_comparison_report()
         print("\n" + "="*80)
@@ -154,7 +127,6 @@ if __name__ == "__main__":
         print("\nGenerated files:")
         print("  - evaluation_results/comparison_report.md")
         print("  - evaluation_results/statistics.json")
-        print("\nOpen comparison_report.md to view the full analysis and recommendation.")
     except Exception as e:
         print(f"Error generating report: {e}")
         raise

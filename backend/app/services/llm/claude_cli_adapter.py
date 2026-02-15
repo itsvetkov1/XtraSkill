@@ -140,11 +140,10 @@ class ClaudeCLIAdapter(LLMAdapter):
         """
         Translate CLI JSON event to StreamChunk format.
 
-        Maps CLI event types to StreamChunk:
-        - type: "stream_event" with content_block_delta -> StreamChunk(chunk_type="text")
-        - type: "assistant_message" with tool_use blocks -> StreamChunk(chunk_type="tool_use")
-        - type: "result" -> StreamChunk(chunk_type="complete")
-        - type: "error" -> StreamChunk(chunk_type="error")
+        Actual CLI stream-json output format:
+        - type: "system" (init, hooks) -> ignored
+        - type: "assistant" with message.content blocks -> text/tool_use StreamChunk
+        - type: "result" with usage -> StreamChunk(chunk_type="complete")
 
         Args:
             event: Parsed JSON event from CLI stdout
@@ -154,23 +153,19 @@ class ClaudeCLIAdapter(LLMAdapter):
         """
         event_type = event.get("type")
 
-        # StreamEvent: Incremental text deltas
-        if event_type == "stream_event":
-            inner_event = event.get("event", {})
-            if inner_event.get("type") == "content_block_delta":
-                delta = inner_event.get("delta", {})
-                if delta.get("type") == "text_delta":
-                    return StreamChunk(
-                        chunk_type="text",
-                        content=delta.get("text", "")
-                    )
+        # Assistant message: contains full response content blocks
+        # Format: {"type": "assistant", "message": {"content": [{"type": "text", "text": "..."}, ...]}}
+        if event_type == "assistant":
+            message = event.get("message", {})
+            content_blocks = message.get("content", [])
 
-        # AssistantMessage: Tool use blocks
-        elif event_type == "assistant_message":
-            content = event.get("content", [])
-            for block in content:
-                if block.get("type") == "tool_use":
-                    # Emit tool use chunk
+            # Collect all text blocks into a single text chunk
+            text_parts = []
+            for block in content_blocks:
+                if block.get("type") == "text":
+                    text_parts.append(block.get("text", ""))
+                elif block.get("type") == "tool_use":
+                    # Emit tool use chunk (return first tool_use found)
                     chunk = StreamChunk(
                         chunk_type="tool_use",
                         tool_call={
@@ -179,17 +174,21 @@ class ClaudeCLIAdapter(LLMAdapter):
                             "input": block.get("input")
                         }
                     )
-
-                    # Add tool status metadata for user-friendly indicators
                     tool_name = block.get("name", "")
                     if "search_documents" in tool_name:
                         chunk.metadata = {"tool_status": "Searching project documents..."}
                     elif "save_artifact" in tool_name:
                         chunk.metadata = {"tool_status": "Generating artifact..."}
-
                     return chunk
 
-        # ResultMessage: Final completion with usage
+            if text_parts:
+                return StreamChunk(
+                    chunk_type="text",
+                    content="".join(text_parts)
+                )
+
+        # Result: final completion with usage and cost
+        # Format: {"type": "result", "subtype": "success", "usage": {...}, "result": "..."}
         elif event_type == "result":
             usage = event.get("usage", {})
             return StreamChunk(
@@ -200,6 +199,10 @@ class ClaudeCLIAdapter(LLMAdapter):
                 }
             )
 
+        # System events (init, hooks) — skip silently
+        elif event_type == "system":
+            return None
+
         # Error events
         elif event_type == "error":
             return StreamChunk(
@@ -207,7 +210,6 @@ class ClaudeCLIAdapter(LLMAdapter):
                 error=event.get("message", "Unknown CLI error")
             )
 
-        # Log unhandled event types for debugging
         logger.debug(f"Unhandled CLI event type: {event_type}")
         return None
 

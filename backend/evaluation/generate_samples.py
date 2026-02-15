@@ -190,7 +190,7 @@ async def generate_all_samples():
     scenarios_path = Path(__file__).parent / "test_scenarios.json"
     scenarios = json.loads(scenarios_path.read_text())["test_scenarios"]
 
-    providers = ["anthropic", "claude-code-sdk", "claude-code-cli"]
+    providers = ["anthropic", "claude-code-cli"]
 
     # Initialize database (needed for AI service)
     await init_db()
@@ -263,7 +263,7 @@ def anonymize_for_blind_review():
     6. Create scoring template CSV with empty score columns
     """
     base_dir = Path(__file__).parent.parent / "evaluation_data"
-    providers = ["anthropic", "claude-code-sdk", "claude-code-cli"]
+    providers = ["anthropic", "claude-code-cli"]
 
     # Create blind review directory
     blind_dir = base_dir / "blind_review"

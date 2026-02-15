@@ -135,21 +135,19 @@ class TestClaudeCLIAdapterInit:
 
 
 class TestClaudeCLIAdapterEventTranslation:
-    """Tests for _translate_event method."""
+    """Tests for _translate_event method (actual CLI stream-json format)."""
 
     @patch('app.services.llm.claude_cli_adapter.shutil.which', return_value='/usr/bin/claude')
-    def test_translates_stream_event_text_delta(self, mock_which):
-        """StreamEvent with text_delta translates to text StreamChunk."""
+    def test_translates_assistant_text_content(self, mock_which):
+        """Assistant message with text content translates to text StreamChunk."""
         adapter = ClaudeCLIAdapter(api_key="test-key")
 
         event = {
-            "type": "stream_event",
-            "event": {
-                "type": "content_block_delta",
-                "delta": {
-                    "type": "text_delta",
-                    "text": "Hello"
-                }
+            "type": "assistant",
+            "message": {
+                "content": [
+                    {"type": "text", "text": "Hello world"}
+                ]
             }
         }
 
@@ -157,23 +155,46 @@ class TestClaudeCLIAdapterEventTranslation:
 
         assert chunk is not None
         assert chunk.chunk_type == "text"
-        assert chunk.content == "Hello"
+        assert chunk.content == "Hello world"
 
     @patch('app.services.llm.claude_cli_adapter.shutil.which', return_value='/usr/bin/claude')
-    def test_translates_assistant_message_tool_use(self, mock_which):
-        """AssistantMessage with tool_use translates to tool_use StreamChunk."""
+    def test_translates_assistant_multi_text_blocks(self, mock_which):
+        """Multiple text blocks are concatenated into single text chunk."""
         adapter = ClaudeCLIAdapter(api_key="test-key")
 
         event = {
-            "type": "assistant_message",
-            "content": [
-                {
-                    "type": "tool_use",
-                    "id": "tool_123",
-                    "name": "save_artifact",
-                    "input": {"title": "BRD"}
-                }
-            ]
+            "type": "assistant",
+            "message": {
+                "content": [
+                    {"type": "text", "text": "Hello "},
+                    {"type": "text", "text": "world"}
+                ]
+            }
+        }
+
+        chunk = adapter._translate_event(event)
+
+        assert chunk is not None
+        assert chunk.chunk_type == "text"
+        assert chunk.content == "Hello world"
+
+    @patch('app.services.llm.claude_cli_adapter.shutil.which', return_value='/usr/bin/claude')
+    def test_translates_assistant_tool_use(self, mock_which):
+        """Assistant message with tool_use translates to tool_use StreamChunk."""
+        adapter = ClaudeCLIAdapter(api_key="test-key")
+
+        event = {
+            "type": "assistant",
+            "message": {
+                "content": [
+                    {
+                        "type": "tool_use",
+                        "id": "tool_123",
+                        "name": "save_artifact",
+                        "input": {"title": "BRD"}
+                    }
+                ]
+            }
         }
 
         chunk = adapter._translate_event(event)
@@ -186,11 +207,12 @@ class TestClaudeCLIAdapterEventTranslation:
 
     @patch('app.services.llm.claude_cli_adapter.shutil.which', return_value='/usr/bin/claude')
     def test_translates_result_event(self, mock_which):
-        """ResultMessage translates to complete StreamChunk with usage."""
+        """Result event translates to complete StreamChunk with usage."""
         adapter = ClaudeCLIAdapter(api_key="test-key")
 
         event = {
             "type": "result",
+            "subtype": "success",
             "usage": {
                 "input_tokens": 100,
                 "output_tokens": 200
@@ -232,13 +254,14 @@ class TestClaudeCLIAdapterEventTranslation:
         assert chunk is None
 
     @patch('app.services.llm.claude_cli_adapter.shutil.which', return_value='/usr/bin/claude')
-    def test_handles_stream_event_without_text_delta(self, mock_which):
-        """StreamEvent without text_delta returns None."""
+    def test_system_events_return_none(self, mock_which):
+        """System events (init, hooks) are silently ignored."""
         adapter = ClaudeCLIAdapter(api_key="test-key")
 
         event = {
-            "type": "stream_event",
-            "event": {"type": "other"}
+            "type": "system",
+            "subtype": "init",
+            "session_id": "abc123"
         }
 
         chunk = adapter._translate_event(event)
@@ -251,15 +274,17 @@ class TestClaudeCLIAdapterEventTranslation:
         adapter = ClaudeCLIAdapter(api_key="test-key")
 
         event = {
-            "type": "assistant_message",
-            "content": [
-                {
-                    "type": "tool_use",
-                    "id": "tool_456",
-                    "name": "mcp__ba__search_documents",
-                    "input": {"query": "test"}
-                }
-            ]
+            "type": "assistant",
+            "message": {
+                "content": [
+                    {
+                        "type": "tool_use",
+                        "id": "tool_456",
+                        "name": "mcp__ba__search_documents",
+                        "input": {"query": "test"}
+                    }
+                ]
+            }
         }
 
         chunk = adapter._translate_event(event)
@@ -274,15 +299,17 @@ class TestClaudeCLIAdapterEventTranslation:
         adapter = ClaudeCLIAdapter(api_key="test-key")
 
         event = {
-            "type": "assistant_message",
-            "content": [
-                {
-                    "type": "tool_use",
-                    "id": "tool_789",
-                    "name": "mcp__ba__save_artifact",
-                    "input": {"title": "Doc"}
-                }
-            ]
+            "type": "assistant",
+            "message": {
+                "content": [
+                    {
+                        "type": "tool_use",
+                        "id": "tool_789",
+                        "name": "mcp__ba__save_artifact",
+                        "input": {"title": "Doc"}
+                    }
+                ]
+            }
         }
 
         chunk = adapter._translate_event(event)
@@ -305,17 +332,18 @@ class TestClaudeCLIAdapterStreamChat:
     async def test_stream_chat_yields_text_chunks(self, mock_which, mock_subprocess,
                                                    mock_db_ctx, mock_proj_ctx,
                                                    mock_thread_ctx, mock_docs_ctx):
-        """stream_chat yields text chunks from stream_event deltas."""
+        """stream_chat yields text chunks from assistant messages."""
         # Mock ContextVar set operations
         mock_db_ctx.set.return_value = None
         mock_proj_ctx.set.return_value = None
         mock_thread_ctx.set.return_value = None
         mock_docs_ctx.set.return_value = None
 
-        # Mock process with text events
+        # Mock process with actual CLI format: system init, assistant message, result
         stdout_lines = [
-            '{"type": "stream_event", "event": {"type": "content_block_delta", "delta": {"type": "text_delta", "text": "Hello"}}}',
-            '{"type": "stream_event", "event": {"type": "content_block_delta", "delta": {"type": "text_delta", "text": " world"}}}'
+            '{"type": "system", "subtype": "init", "session_id": "test-123"}',
+            '{"type": "assistant", "message": {"content": [{"type": "text", "text": "Hello world"}]}}',
+            '{"type": "result", "subtype": "success", "usage": {"input_tokens": 10, "output_tokens": 5}, "result": "Hello world"}'
         ]
         mock_process = make_mock_process(stdout_lines, returncode=0)
         mock_subprocess.return_value = mock_process
@@ -330,11 +358,10 @@ class TestClaudeCLIAdapterStreamChat:
         ):
             chunks.append(chunk)
 
-        # Verify text chunks
+        # Verify text chunk from assistant message
         text_chunks = [c for c in chunks if c.chunk_type == "text"]
-        assert len(text_chunks) == 2
-        assert text_chunks[0].content == "Hello"
-        assert text_chunks[1].content == " world"
+        assert len(text_chunks) == 1
+        assert text_chunks[0].content == "Hello world"
 
     @pytest.mark.asyncio
     @patch('app.services.llm.claude_cli_adapter._documents_used_context')
@@ -355,7 +382,7 @@ class TestClaudeCLIAdapterStreamChat:
 
         # Mock process with result event
         stdout_lines = [
-            '{"type": "result", "usage": {"input_tokens": 100, "output_tokens": 50}}'
+            '{"type": "result", "subtype": "success", "usage": {"input_tokens": 100, "output_tokens": 50}}'
         ]
         mock_process = make_mock_process(stdout_lines, returncode=0)
         mock_subprocess.return_value = mock_process
@@ -453,11 +480,11 @@ class TestClaudeCLIAdapterStreamChat:
         mock_thread_ctx.set.return_value = None
         mock_docs_ctx.set.return_value = None
 
-        # Include empty lines
+        # Include empty lines between actual CLI events
         async def stdout_with_empty():
-            yield b'{"type": "stream_event", "event": {"type": "content_block_delta", "delta": {"type": "text_delta", "text": "Hello"}}}\n'
+            yield b'{"type": "assistant", "message": {"content": [{"type": "text", "text": "Hello"}]}}\n'
             yield b'\n'
-            yield b'{"type": "stream_event", "event": {"type": "content_block_delta", "delta": {"type": "text_delta", "text": " world"}}}\n'
+            yield b'{"type": "assistant", "message": {"content": [{"type": "text", "text": " world"}]}}\n'
 
         mock_process = MagicMock()
         mock_process.stdout = stdout_with_empty()
@@ -504,11 +531,11 @@ class TestClaudeCLIAdapterStreamChat:
         mock_thread_ctx.set.return_value = None
         mock_docs_ctx.set.return_value = None
 
-        # Include malformed JSON
+        # Include malformed JSON between valid CLI events
         stdout_lines = [
-            '{"type": "stream_event", "event": {"type": "content_block_delta", "delta": {"type": "text_delta", "text": "Hello"}}}',
+            '{"type": "assistant", "message": {"content": [{"type": "text", "text": "Hello"}]}}',
             'MALFORMED JSON{{{',
-            '{"type": "stream_event", "event": {"type": "content_block_delta", "delta": {"type": "text_delta", "text": " world"}}}'
+            '{"type": "assistant", "message": {"content": [{"type": "text", "text": " world"}]}}'
         ]
         mock_process = make_mock_process(stdout_lines, returncode=0)
         mock_subprocess.return_value = mock_process
@@ -677,7 +704,7 @@ class TestClaudeCLIAdapterSubprocessCleanup:
 
         # Mock process that doesn't complete normally
         async def stdout_then_hang():
-            yield b'{"type": "stream_event", "event": {"type": "content_block_delta", "delta": {"type": "text_delta", "text": "Hello"}}}\n'
+            yield b'{"type": "assistant", "message": {"content": [{"type": "text", "text": "Hello"}]}}\n'
             # Stream ends but process stays alive
 
         mock_process = MagicMock()
@@ -732,7 +759,7 @@ class TestClaudeCLIAdapterSubprocessCleanup:
 
         # Mock process that doesn't terminate gracefully
         async def stdout_then_hang():
-            yield b'{"type": "stream_event", "event": {"type": "content_block_delta", "delta": {"type": "text_delta", "text": "Hello"}}}\n'
+            yield b'{"type": "assistant", "message": {"content": [{"type": "text", "text": "Hello"}]}}\n'
 
         mock_process = MagicMock()
         mock_process.stdout = stdout_then_hang()
@@ -782,7 +809,7 @@ class TestClaudeCLIAdapterSubprocessCleanup:
 
         # Mock process that completes normally
         stdout_lines = [
-            '{"type": "stream_event", "event": {"type": "content_block_delta", "delta": {"type": "text_delta", "text": "Hello"}}}'
+            '{"type": "assistant", "message": {"content": [{"type": "text", "text": "Hello"}]}}'
         ]
         mock_process = make_mock_process(stdout_lines, returncode=0)
         mock_subprocess.return_value = mock_process

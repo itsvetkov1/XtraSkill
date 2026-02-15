@@ -1,7 +1,7 @@
 """Statistical analysis of BRD quality comparison results.
 
 This module processes human quality scores from the blind review and produces
-statistical comparisons between providers (anthropic baseline, claude-code-sdk, claude-code-cli).
+statistical comparisons between providers (anthropic baseline vs claude-code-cli).
 """
 import json
 from pathlib import Path
@@ -87,7 +87,7 @@ def load_scores(
 
 def analyze_provider_comparison(scores_df: pd.DataFrame) -> Dict[str, Dict[str, Any]]:
     """
-    Compare quality scores across providers with statistical tests.
+    Compare quality scores between anthropic baseline and claude-code-cli.
 
     Computes per-dimension statistics:
     - Mean and standard deviation for each provider
@@ -101,15 +101,11 @@ def analyze_provider_comparison(scores_df: pd.DataFrame) -> Dict[str, Dict[str, 
         Dict structured as:
         {
             dimension: {
-                baseline_mean: float,
-                sdk_mean: float,
-                cli_mean: float,
-                sdk_improvement_pct: float,
-                cli_improvement_pct: float,
-                sdk_vs_baseline_pvalue: float,
-                cli_vs_baseline_pvalue: float,
-                sdk_significant: bool,
-                cli_significant: bool
+                baseline_mean, baseline_std,
+                cli_mean, cli_std,
+                cli_improvement_pct,
+                cli_vs_baseline_pvalue,
+                cli_significant
             }
         }
     """
@@ -117,43 +113,30 @@ def analyze_provider_comparison(scores_df: pd.DataFrame) -> Dict[str, Dict[str, 
     dimensions = ["completeness", "ac_quality", "consistency", "error_coverage"]
 
     for dim in dimensions:
-        # Group by provider
         baseline = scores_df[scores_df["provider"] == "anthropic"][dim]
-        sdk = scores_df[scores_df["provider"] == "claude-code-sdk"][dim]
         cli = scores_df[scores_df["provider"] == "claude-code-cli"][dim]
 
-        # Calculate means and std dev
         baseline_mean = baseline.mean()
-        sdk_mean = sdk.mean()
         cli_mean = cli.mean()
 
-        # Calculate improvement percentages
-        sdk_improvement_pct = ((sdk_mean - baseline_mean) / baseline_mean * 100) if baseline_mean > 0 else 0
         cli_improvement_pct = ((cli_mean - baseline_mean) / baseline_mean * 100) if baseline_mean > 0 else 0
 
         # Mann-Whitney U test (non-parametric, suitable for ordinal data and small samples)
-        # Use two-sided alternative to detect both improvement and degradation
-        sdk_vs_baseline = stats.mannwhitneyu(sdk, baseline, alternative='two-sided')
         cli_vs_baseline = stats.mannwhitneyu(cli, baseline, alternative='two-sided')
 
         results[dim] = {
             "baseline_mean": baseline_mean,
             "baseline_std": baseline.std(),
-            "sdk_mean": sdk_mean,
-            "sdk_std": sdk.std(),
             "cli_mean": cli_mean,
             "cli_std": cli.std(),
-            "sdk_improvement_pct": sdk_improvement_pct,
             "cli_improvement_pct": cli_improvement_pct,
-            "sdk_vs_baseline_pvalue": sdk_vs_baseline.pvalue,
             "cli_vs_baseline_pvalue": cli_vs_baseline.pvalue,
-            "sdk_significant": sdk_vs_baseline.pvalue < 0.05,
             "cli_significant": cli_vs_baseline.pvalue < 0.05
         }
 
-    # Compute aggregate scores (mean across all 4 dimensions)
+    # Compute aggregate scores
     aggregate = {}
-    for provider in ["anthropic", "claude-code-sdk", "claude-code-cli"]:
+    for provider in ["anthropic", "claude-code-cli"]:
         provider_scores = scores_df[scores_df["provider"] == provider]
         aggregate[provider] = {
             "mean": provider_scores[dimensions].mean().mean(),
@@ -169,29 +152,15 @@ def calculate_cost_summary() -> Dict[str, Dict[str, float]]:
     """
     Calculate cost summary statistics from metadata files.
 
-    Reads evaluation_data/metadata/{provider}_{scenario_id}.json files and
-    aggregates token usage and cost per provider.
-
     Returns:
-        Dict structured as:
-        {
-            provider: {
-                total_input_tokens: int,
-                total_output_tokens: int,
-                total_cost_usd: float,
-                avg_cost_per_brd: float,
-                avg_generation_time_s: float,
-                cost_increase_pct: float  # relative to baseline (anthropic)
-            }
-        }
+        Dict with per-provider cost and timing stats.
     """
     metadata_dir = Path("evaluation_data/metadata")
     if not metadata_dir.exists():
         raise FileNotFoundError(f"Metadata directory not found: {metadata_dir}")
 
-    # Aggregate by provider
     provider_stats = {}
-    providers = ["anthropic", "claude-code-sdk", "claude-code-cli"]
+    providers = ["anthropic", "claude-code-cli"]
 
     for provider in providers:
         metadata_files = list(metadata_dir.glob(f"{provider}_*.json"))
@@ -209,14 +178,11 @@ def calculate_cost_summary() -> Dict[str, Dict[str, float]]:
             with open(metadata_file) as f:
                 metadata = json.load(f)
 
-            # Extract token usage
             usage = metadata.get("token_usage", {})
             total_input += usage.get("input_tokens", 0)
             total_output += usage.get("output_tokens", 0)
-
-            # Extract cost and time
             total_cost += metadata.get("cost_usd", 0.0)
-            total_time += metadata.get("generation_time_s", 0.0)
+            total_time += metadata.get("generation_time_seconds", metadata.get("generation_time_s", 0.0))
             count += 1
 
         provider_stats[provider] = {
@@ -227,20 +193,18 @@ def calculate_cost_summary() -> Dict[str, Dict[str, float]]:
             "avg_generation_time_s": total_time / count if count > 0 else 0.0
         }
 
-    # Calculate cost increase percentages relative to baseline
+    # Calculate cost increase relative to baseline
     baseline_cost = provider_stats["anthropic"]["avg_cost_per_brd"]
-    for provider in ["claude-code-sdk", "claude-code-cli"]:
-        provider_cost = provider_stats[provider]["avg_cost_per_brd"]
-        cost_increase_pct = ((provider_cost - baseline_cost) / baseline_cost * 100) if baseline_cost > 0 else 0
-        provider_stats[provider]["cost_increase_pct"] = cost_increase_pct
-
-    # Baseline has 0% increase by definition
+    cli_cost = provider_stats["claude-code-cli"]["avg_cost_per_brd"]
+    provider_stats["claude-code-cli"]["cost_increase_pct"] = (
+        ((cli_cost - baseline_cost) / baseline_cost * 100) if baseline_cost > 0 else 0
+    )
     provider_stats["anthropic"]["cost_increase_pct"] = 0.0
 
     return provider_stats
 
 
-def make_recommendation(stats: Dict[str, Any], cost_summary: Dict[str, Any]) -> Dict[str, Any]:
+def make_recommendation(analysis_stats: Dict[str, Any], cost_summary: Dict[str, Any]) -> Dict[str, Any]:
     """
     Generate adoption recommendation based on decision criteria.
 
@@ -248,42 +212,12 @@ def make_recommendation(stats: Dict[str, Any], cost_summary: Dict[str, Any]) -> 
     - Need >20% average quality improvement to justify adoption
     - Cost overhead threshold: 30-50% increase acceptable IF quality justifies it
     - Statistical significance: prefer 3+ dimensions with p < 0.05
-
-    Args:
-        stats: Output from analyze_provider_comparison()
-        cost_summary: Output from calculate_cost_summary()
-
-    Returns:
-        Dict with:
-        {
-            recommendation: str,  # "ADOPT [provider]", "LARGER STUDY RECOMMENDED", "STAY WITH DIRECT API"
-            confidence: str,  # "HIGH", "MEDIUM", "LOW"
-            rationale: str,
-            sdk_summary: Dict,
-            cli_summary: Dict
-        }
     """
     dimensions = ["completeness", "ac_quality", "consistency", "error_coverage"]
 
-    # Calculate average improvement across all 4 dimensions
-    sdk_avg_improvement = sum(stats[dim]["sdk_improvement_pct"] for dim in dimensions) / len(dimensions)
-    cli_avg_improvement = sum(stats[dim]["cli_improvement_pct"] for dim in dimensions) / len(dimensions)
-
-    # Count statistically significant dimensions
-    sdk_significant_dims = sum(1 for dim in dimensions if stats[dim]["sdk_significant"])
-    cli_significant_dims = sum(1 for dim in dimensions if stats[dim]["cli_significant"])
-
-    # Get cost increases
-    sdk_cost_increase = cost_summary["claude-code-sdk"]["cost_increase_pct"]
+    cli_avg_improvement = sum(analysis_stats[dim]["cli_improvement_pct"] for dim in dimensions) / len(dimensions)
+    cli_significant_dims = sum(1 for dim in dimensions if analysis_stats[dim]["cli_significant"])
     cli_cost_increase = cost_summary["claude-code-cli"]["cost_increase_pct"]
-
-    # Prepare summaries
-    sdk_summary = {
-        "avg_improvement_pct": sdk_avg_improvement,
-        "significant_dims": sdk_significant_dims,
-        "cost_increase_pct": sdk_cost_increase,
-        "quality_per_cost": sdk_avg_improvement / sdk_cost_increase if sdk_cost_increase > 0 else 0
-    }
 
     cli_summary = {
         "avg_improvement_pct": cli_avg_improvement,
@@ -293,40 +227,9 @@ def make_recommendation(stats: Dict[str, Any], cost_summary: Dict[str, Any]) -> 
     }
 
     # Decision logic
-    # Check if SDK qualifies (>20% improvement AND 3+ significant dimensions)
-    sdk_qualifies = sdk_avg_improvement >= 20 and sdk_significant_dims >= 3
-
-    # Check if CLI qualifies
     cli_qualifies = cli_avg_improvement >= 20 and cli_significant_dims >= 3
 
-    if sdk_qualifies and cli_qualifies:
-        # Both qualify - pick the better one
-        if sdk_avg_improvement > cli_avg_improvement:
-            recommendation = "ADOPT claude-code-sdk"
-            confidence = "HIGH" if sdk_significant_dims == 4 else "MEDIUM"
-            rationale = (
-                f"SDK shows {sdk_avg_improvement:.1f}% average quality improvement with statistical significance "
-                f"across {sdk_significant_dims}/4 dimensions. Cost increase of {sdk_cost_increase:.1f}% is justified "
-                f"by quality gains. SDK outperforms CLI ({cli_avg_improvement:.1f}% improvement) with lower "
-                f"implementation complexity (in-process MCP vs subprocess management)."
-            )
-        else:
-            recommendation = "ADOPT claude-code-cli"
-            confidence = "HIGH" if cli_significant_dims == 4 else "MEDIUM"
-            rationale = (
-                f"CLI shows {cli_avg_improvement:.1f}% average quality improvement with statistical significance "
-                f"across {cli_significant_dims}/4 dimensions. Cost increase of {cli_cost_increase:.1f}% is justified "
-                f"by quality gains. CLI outperforms SDK ({sdk_avg_improvement:.1f}% improvement)."
-            )
-    elif sdk_qualifies:
-        recommendation = "ADOPT claude-code-sdk"
-        confidence = "HIGH" if sdk_significant_dims == 4 else "MEDIUM"
-        rationale = (
-            f"SDK shows {sdk_avg_improvement:.1f}% average quality improvement with statistical significance "
-            f"across {sdk_significant_dims}/4 dimensions. Cost increase of {sdk_cost_increase:.1f}% is justified "
-            f"by quality gains. In-process MCP integration simpler than CLI subprocess approach."
-        )
-    elif cli_qualifies:
+    if cli_qualifies:
         recommendation = "ADOPT claude-code-cli"
         confidence = "HIGH" if cli_significant_dims == 4 else "MEDIUM"
         rationale = (
@@ -334,22 +237,20 @@ def make_recommendation(stats: Dict[str, Any], cost_summary: Dict[str, Any]) -> 
             f"across {cli_significant_dims}/4 dimensions. Cost increase of {cli_cost_increase:.1f}% is justified "
             f"by quality gains."
         )
-    elif sdk_avg_improvement >= 10 or cli_avg_improvement >= 10:
-        # Marginal improvement (10-20%)
+    elif cli_avg_improvement >= 10:
         recommendation = "LARGER STUDY RECOMMENDED"
         confidence = "LOW"
         rationale = (
-            f"Marginal improvement observed (SDK: {sdk_avg_improvement:.1f}%, CLI: {cli_avg_improvement:.1f}%) "
+            f"Marginal improvement observed (CLI: {cli_avg_improvement:.1f}%) "
             f"but below 20% decision threshold. Current sample size (n=5 per provider) limits statistical power. "
             f"Recommend expanding to n=30 per provider for higher confidence before making adoption decision."
         )
     else:
-        # No significant improvement
         recommendation = "STAY WITH DIRECT API"
         confidence = "MEDIUM"
         rationale = (
-            f"No significant quality improvement observed (SDK: {sdk_avg_improvement:.1f}%, CLI: {cli_avg_improvement:.1f}%). "
-            f"Integration complexity and cost increase ({sdk_cost_increase:.1f}% SDK, {cli_cost_increase:.1f}% CLI) "
+            f"No significant quality improvement observed (CLI: {cli_avg_improvement:.1f}%). "
+            f"Integration complexity and cost increase ({cli_cost_increase:.1f}%) "
             f"not justified by quality gains. Focus on prompt engineering improvements for direct API approach."
         )
 
@@ -357,7 +258,6 @@ def make_recommendation(stats: Dict[str, Any], cost_summary: Dict[str, Any]) -> 
         "recommendation": recommendation,
         "confidence": confidence,
         "rationale": rationale,
-        "sdk_summary": sdk_summary,
         "cli_summary": cli_summary
     }
 
@@ -367,59 +267,38 @@ def run_full_analysis(
     mapping_path: str = "evaluation_data/metadata/review_id_mapping.json",
     output_dir: str = "evaluation_results"
 ) -> Dict[str, Any]:
-    """
-    Run complete analysis pipeline and save results.
-
-    Steps:
-    1. Load scores with provider mapping
-    2. Analyze provider comparison (statistical tests)
-    3. Calculate cost summary
-    4. Generate recommendation
-
-    Args:
-        scores_path: Path to completed scoring CSV
-        mapping_path: Path to review_id mapping JSON
-        output_dir: Directory to save results
-
-    Returns:
-        Dict with all analysis results
-    """
-    # Create output directory
+    """Run complete analysis pipeline and save results."""
     output_path = Path(output_dir)
     output_path.mkdir(parents=True, exist_ok=True)
 
-    # Run analysis pipeline
     print("Loading scores...")
     scores_df = load_scores(scores_path, mapping_path)
 
     print("Analyzing provider comparison...")
-    stats = analyze_provider_comparison(scores_df)
+    analysis_stats = analyze_provider_comparison(scores_df)
 
     print("Calculating cost summary...")
     cost_summary = calculate_cost_summary()
 
     print("Generating recommendation...")
-    recommendation = make_recommendation(stats, cost_summary)
+    recommendation = make_recommendation(analysis_stats, cost_summary)
 
-    # Combine results
     results = {
-        "statistics": stats,
+        "statistics": analysis_stats,
         "cost_summary": cost_summary,
         "recommendation": recommendation,
         "metadata": {
             "total_samples": len(scores_df),
-            "samples_per_provider": len(scores_df) // 3,
-            "providers": ["anthropic", "claude-code-sdk", "claude-code-cli"]
+            "samples_per_provider": len(scores_df) // 2,
+            "providers": ["anthropic", "claude-code-cli"]
         }
     }
 
-    # Save to JSON
     output_file = output_path / "statistics.json"
     with open(output_file, "w") as f:
         json.dump(results, f, indent=2)
 
     print(f"\nResults saved to: {output_file}")
-
     return results
 
 
@@ -432,48 +311,39 @@ if __name__ == "__main__":
         print("QUALITY COMPARISON ANALYSIS SUMMARY")
         print("="*80)
 
-        stats = results["statistics"]
+        analysis_stats = results["statistics"]
         cost = results["cost_summary"]
         rec = results["recommendation"]
 
-        # Print quality scores table
         print("\nQuality Scores by Dimension:")
-        print("-" * 80)
-        print(f"{'Dimension':<20} {'Baseline':>10} {'SDK':>10} {'CLI':>10} {'SDK Δ%':>10} {'CLI Δ%':>10}")
-        print("-" * 80)
+        print("-" * 70)
+        print(f"{'Dimension':<20} {'Baseline':>10} {'CLI':>10} {'CLI Δ%':>10} {'p-value':>10}")
+        print("-" * 70)
 
         dimensions = ["completeness", "ac_quality", "consistency", "error_coverage"]
         for dim in dimensions:
-            dim_stats = stats[dim]
-            sig_sdk = " *" if dim_stats["sdk_significant"] else ""
-            sig_cli = " *" if dim_stats["cli_significant"] else ""
+            d = analysis_stats[dim]
+            sig = " *" if d["cli_significant"] else ""
             print(
-                f"{dim:<20} {dim_stats['baseline_mean']:>10.2f} "
-                f"{dim_stats['sdk_mean']:>10.2f} {dim_stats['cli_mean']:>10.2f} "
-                f"{dim_stats['sdk_improvement_pct']:>9.1f}%{sig_sdk:2} "
-                f"{dim_stats['cli_improvement_pct']:>9.1f}%{sig_cli:2}"
+                f"{dim:<20} {d['baseline_mean']:>10.2f} "
+                f"{d['cli_mean']:>10.2f} "
+                f"{d['cli_improvement_pct']:>9.1f}%{sig:2} "
+                f"{d['cli_vs_baseline_pvalue']:>10.4f}"
             )
 
         print("\n* Statistically significant at p < 0.05")
 
-        # Print cost table
         print("\n\nCost Analysis:")
-        print("-" * 80)
-        print(f"{'Provider':<20} {'Avg Cost/BRD':>15} {'Cost Increase':>15} {'Avg Time (s)':>15}")
-        print("-" * 80)
-        for provider in ["anthropic", "claude-code-sdk", "claude-code-cli"]:
-            provider_cost = cost[provider]
+        print("-" * 70)
+        for provider in ["anthropic", "claude-code-cli"]:
+            pc = cost[provider]
             print(
-                f"{provider:<20} ${provider_cost['avg_cost_per_brd']:>14.4f} "
-                f"{provider_cost['cost_increase_pct']:>14.1f}% "
-                f"{provider_cost['avg_generation_time_s']:>14.1f}"
+                f"{provider:<20} ${pc['avg_cost_per_brd']:>.4f}/BRD  "
+                f"{pc['cost_increase_pct']:>+.1f}%  "
+                f"{pc['avg_generation_time_s']:>.1f}s avg"
             )
 
-        # Print recommendation
-        print("\n\nRecommendation:")
-        print("-" * 80)
-        print(f"Decision: {rec['recommendation']}")
-        print(f"Confidence: {rec['confidence']}")
+        print(f"\n\nRecommendation: {rec['recommendation']} ({rec['confidence']} confidence)")
         print(f"\n{rec['rationale']}")
         print("="*80)
 

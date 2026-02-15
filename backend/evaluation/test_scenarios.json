@@ -1,0 +1,127 @@
+{
+  "test_scenarios": [
+    {
+      "id": "TC-01",
+      "name": "Simple Feature: User Login",
+      "complexity": "low",
+      "initial_prompt": "I need a user login feature for our mobile app. Users should be able to log in with email and password.",
+      "follow_ups": [
+        "What about password reset functionality?",
+        "Should we support social login options like Google or Facebook?",
+        "What security measures should we implement for password storage?"
+      ],
+      "final_prompt": "Please generate a comprehensive Business Requirements Document based on our discussion.",
+      "expected_sections": [
+        "executive_summary",
+        "business_objectives",
+        "user_personas",
+        "user_flows",
+        "functional_requirements",
+        "acceptance_criteria",
+        "success_metrics"
+      ],
+      "minimum_ac_count": 8
+    },
+    {
+      "id": "TC-02",
+      "name": "Medium Workflow: Expense Report Submission",
+      "complexity": "medium",
+      "initial_prompt": "We need an expense report submission and approval system. Employees submit expenses, managers approve or reject, and finance processes payments.",
+      "follow_ups": [
+        "What approval thresholds should we have? Should all expenses require approval?",
+        "How should we handle expense categories and receipt attachments?",
+        "What reporting capabilities do managers and finance teams need?",
+        "What happens if a manager is unavailable for approval?"
+      ],
+      "final_prompt": "Please generate a comprehensive Business Requirements Document based on our discussion.",
+      "expected_sections": [
+        "executive_summary",
+        "business_objectives",
+        "user_personas",
+        "user_flows",
+        "functional_requirements",
+        "business_processes",
+        "acceptance_criteria",
+        "success_metrics"
+      ],
+      "minimum_ac_count": 15
+    },
+    {
+      "id": "TC-03",
+      "name": "Complex Multi-Stakeholder: E-commerce Marketplace",
+      "complexity": "high",
+      "initial_prompt": "We're building an e-commerce marketplace platform where sellers can list products, buyers can purchase, and administrators manage the overall platform.",
+      "follow_ups": [
+        "How should seller onboarding and verification work?",
+        "What payment processing and transaction flow should we implement?",
+        "How do we handle disputes between buyers and sellers?",
+        "What commission structure and fee management should the platform support?",
+        "What analytics and reporting do sellers, buyers, and administrators need?",
+        "How should we handle product reviews and ratings?"
+      ],
+      "final_prompt": "Please generate a comprehensive Business Requirements Document based on our discussion.",
+      "expected_sections": [
+        "executive_summary",
+        "business_objectives",
+        "user_personas",
+        "user_flows",
+        "functional_requirements",
+        "business_processes",
+        "stakeholder_analysis",
+        "acceptance_criteria",
+        "success_metrics"
+      ],
+      "minimum_ac_count": 25
+    },
+    {
+      "id": "TC-04",
+      "name": "Integration Scenario: CRM Integration",
+      "complexity": "medium",
+      "initial_prompt": "We need to integrate our new customer relationship management system with existing email and calendar systems that our sales team uses daily.",
+      "follow_ups": [
+        "Which email and calendar systems do you currently use (Outlook, Gmail, etc.)?",
+        "What specific data needs to sync between the CRM and email/calendar systems?",
+        "How should conflicts be handled when the same contact exists in multiple systems?",
+        "What are the performance expectations for synchronization timing?"
+      ],
+      "final_prompt": "Please generate a comprehensive Business Requirements Document based on our discussion.",
+      "expected_sections": [
+        "executive_summary",
+        "business_objectives",
+        "user_personas",
+        "user_flows",
+        "functional_requirements",
+        "acceptance_criteria",
+        "success_metrics"
+      ],
+      "minimum_ac_count": 12
+    },
+    {
+      "id": "TC-05",
+      "name": "Regulatory Domain: Healthcare Patient Portal",
+      "complexity": "high",
+      "initial_prompt": "We need a patient portal for our healthcare practice that allows patients to view medical records, schedule appointments, and communicate with providers. This must comply with HIPAA regulations.",
+      "follow_ups": [
+        "What specific HIPAA compliance requirements must we address for data access and audit logging?",
+        "How should patient authentication and identity verification work to ensure security?",
+        "What types of medical records should patients be able to access, and are there any restrictions?",
+        "How should secure messaging between patients and providers be implemented?",
+        "What consent and authorization workflows are required for accessing medical information?",
+        "How should we handle emergency access scenarios where immediate access is critical?"
+      ],
+      "final_prompt": "Please generate a comprehensive Business Requirements Document based on our discussion.",
+      "expected_sections": [
+        "executive_summary",
+        "business_objectives",
+        "user_personas",
+        "user_flows",
+        "functional_requirements",
+        "regulatory_compliance",
+        "acceptance_criteria",
+        "success_metrics",
+        "risks_and_mitigation"
+      ],
+      "minimum_ac_count": 30
+    }
+  ]
+}

@@ -98,10 +98,11 @@ Plans:
   2. Settings page provider dropdown shows "Claude Code (CLI)" option
   3. User can create new thread with claude-code-sdk or claude-code-cli provider
   4. Chat streaming works end-to-end with new providers (messages sent, AI responses stream, thinking displays, tools execute)
-**Plans**: TBD
+**Plans:** 2 plans
 
 Plans:
-- [ ] 60-01: TBD
+- [ ] 60-01-PLAN.md — Register Claude Code providers across full stack (backend VALID_PROVIDERS, frontend ProviderConfig, ProviderProvider, settings dropdown with experimental badges)
+- [ ] 60-02-PLAN.md — Add thread info panel with provider display and update provider indicator for new providers
 
 #### Phase 61: Quality Comparison & Decision
 **Goal**: Measurable quality comparison with clear go/no-go recommendation

@@ -27,7 +27,7 @@ from app.utils.jwt import get_current_user
 router = APIRouter()
 
 # Valid LLM providers for thread binding
-VALID_PROVIDERS = ["anthropic", "google", "deepseek"]
+VALID_PROVIDERS = ["anthropic", "google", "deepseek", "claude-code-sdk", "claude-code-cli"]
 
 # Valid conversation modes for threads
 # Per PITFALL-07: Mode is a thread property, not global preference

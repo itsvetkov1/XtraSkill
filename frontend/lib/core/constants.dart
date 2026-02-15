@@ -9,12 +9,16 @@ class ProviderConfig {
   final String displayName;
   final Color color;
   final IconData icon;
+  final bool isExperimental;
+  final String? modelName;
 
   const ProviderConfig({
     required this.id,
     required this.displayName,
     required this.color,
     required this.icon,
+    this.isExperimental = false,
+    this.modelName,
   });
 }
 
@@ -46,6 +50,24 @@ class ProviderConfigs {
     icon: Icons.psychology_outlined,
   );
 
+  static const claudeCodeSdk = ProviderConfig(
+    id: 'claude-code-sdk',
+    displayName: 'Claude Code (SDK)',
+    color: Color(0xFFD97706), // Same Anthropic orange
+    icon: Icons.code_outlined,
+    isExperimental: true,
+    modelName: 'Claude Sonnet 4.5',
+  );
+
+  static const claudeCodeCli = ProviderConfig(
+    id: 'claude-code-cli',
+    displayName: 'Claude Code (CLI)',
+    color: Color(0xFFD97706), // Same Anthropic orange
+    icon: Icons.terminal_outlined,
+    isExperimental: true,
+    modelName: 'Claude Sonnet 4.5',
+  );
+
   /// Get config by provider ID, falls back to anthropic if unknown.
   static ProviderConfig getConfig(String? providerId) {
     switch (providerId) {
@@ -53,6 +75,10 @@ class ProviderConfigs {
         return google;
       case 'deepseek':
         return deepseek;
+      case 'claude-code-sdk':
+        return claudeCodeSdk;
+      case 'claude-code-cli':
+        return claudeCodeCli;
       case 'anthropic':
       default:
         return anthropic;
@@ -60,5 +86,5 @@ class ProviderConfigs {
   }
 
   /// All available providers for dropdown.
-  static const List<ProviderConfig> all = [anthropic, google, deepseek];
+  static const List<ProviderConfig> all = [anthropic, google, deepseek, claudeCodeSdk, claudeCodeCli];
 }

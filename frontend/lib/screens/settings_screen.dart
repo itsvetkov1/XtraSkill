@@ -95,7 +95,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         // Preferences Section
         _buildSectionHeader(context, 'Preferences'),
         Consumer<ProviderProvider>(
-          builder: (context, providerProvider, _) {
+          builder: (builderContext, providerProvider, _) {
             return ListTile(
               title: const Text('Default AI Provider'),
               subtitle: const Text('Provider for new conversations'),
@@ -111,6 +111,35 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         Icon(config.icon, color: config.color, size: 20),
                         const SizedBox(width: 8),
                         Text(config.displayName),
+                        // Experimental badge for Claude Code providers
+                        if (config.isExperimental) ...[
+                          const SizedBox(width: 8),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: Theme.of(builderContext).colorScheme.secondaryContainer,
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: Text(
+                              'EXPERIMENTAL',
+                              style: TextStyle(
+                                fontSize: 10,
+                                fontWeight: FontWeight.w600,
+                                color: Theme.of(builderContext).colorScheme.onSecondaryContainer,
+                              ),
+                            ),
+                          ),
+                        ],
+                        // Model name for providers with modelName set
+                        if (config.modelName != null) ...[
+                          const SizedBox(width: 8),
+                          Text(
+                            '\u2014 ${config.modelName}',
+                            style: Theme.of(builderContext).textTheme.bodySmall?.copyWith(
+                              color: Theme.of(builderContext).colorScheme.onSurfaceVariant,
+                            ),
+                          ),
+                        ],
                       ],
                     ),
                   );

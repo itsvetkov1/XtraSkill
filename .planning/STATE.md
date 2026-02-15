@@ -12,9 +12,9 @@ See: /Users/a1testingmac/projects/XtraSkill/.planning/PROJECT.md (updated 2026-0
 
 Milestone: v0.1-claude-code — Claude Code as AI Backend
 Phase: 61 of 61 (Quality Comparison & Decision)
-Current Plan: 1 of 4 completed
+Current Plan: 2 of 4 completed
 Status: In Progress
-Last activity: 2026-02-15 — Completed 61-01: Evaluation Framework
+Last activity: 2026-02-15 — Completed 61-02: Analysis Pipeline & Report Generator
 
 Progress:
 ```
@@ -22,7 +22,7 @@ v1.0-v1.9.5: [##########] 48 phases, 115 plans, 11 milestones SHIPPED
 v2.1:        [##########] 8/8 plans (Phase 54-56) SHIPPED
 v2.0:        [          ] Backlogged (phases 49-53 preserved)
 
-v0.1-claude-code: [█████████▓] 96% — Phase 61 plan 01 complete (1/4 plans)
+v0.1-claude-code: [█████████▓] 98% — Phase 61 plan 02 complete (2/4 plans)
 ```
 
 ## Performance Metrics
@@ -64,6 +64,7 @@ v0.1-claude-code: [█████████▓] 96% — Phase 61 plan 01 comp
 | Plan | Duration (s) | Tasks | Files | Status |
 |------|--------------|-------|-------|--------|
 | P01  | 191          | 2     | 4     | ✅ Complete |
+| P02  | 242          | 2     | 4     | ✅ Complete |
 
 **By Milestone:**
 
@@ -117,9 +118,10 @@ Recent key decisions (full archive in PROJECT.md):
 - [Phase 61-01]: Test scenario complexity distribution: 2 low, 2 medium, 1 high (prevents bias)
 - [Phase 61-01]: Multi-turn simulation: initial + follow-ups + final prompt (exercises full pipeline)
 - [Phase 61-01]: Cost calculation: 40% overhead for agent providers (midpoint of research 30-50%)
-- [Phase 61-01]: Test scenario complexity distribution: 2 low, 2 medium, 1 high (prevents bias)
-- [Phase 61-01]: Multi-turn simulation: initial + follow-ups + final prompt (exercises full pipeline)
-- [Phase 61-01]: Cost calculation: 40% overhead for agent providers (midpoint of research 30-50%)
+- [Phase 61-02]: Mann-Whitney U test with two-sided alternative (detects both improvement and degradation)
+- [Phase 61-02]: Decision threshold: >20% average improvement AND 3+ significant dimensions required
+- [Phase 61-02]: Cost-quality metric: improvement % / cost increase % for value comparison
+- [Phase 61-02]: Statistical significance at alpha=0.05 (p < 0.05)
 
 ### Critical Research Findings
 
@@ -153,27 +155,30 @@ Recent key decisions (full archive in PROJECT.md):
 ## Session Continuity
 
 Last session: 2026-02-15
-Stopped at: Completed 61-01-PLAN.md — Evaluation Framework
+Stopped at: Completed 61-02-PLAN.md — Analysis Pipeline & Report Generator
 Resume file: None
-Next action: Execute Plan 61-02 — Generate BRD samples
+Next action: Execute Plan 61-03 — Generate BRD samples
 
 **Context for Next Session:**
-- Phase 61-01 COMPLETE: Evaluation framework infrastructure
-  - Task 1: Test scenarios and quality rubric (45fa814)
-    - 5 standardized test scenarios (low/medium/high complexity)
-    - Multi-turn conversation structure (initial + follow-ups + final)
-    - 4-dimension quality rubric (completeness, AC quality, consistency, error coverage)
-    - ScoreLevel enum with 1-4 scale and per-level criteria
-  - Task 2: BRD generation orchestrator (1a255f5)
-    - Multi-turn conversation simulation using AIService
-    - Generates 15 BRDs (3 providers × 5 scenarios)
-    - Cost estimation with 40% agent overhead
-    - Blind review anonymization with random IDs
-    - CLI interface: generate, anonymize, all commands
+- Phase 61-01 COMPLETE: Evaluation framework infrastructure (45fa814, 1a255f5)
+  - Test scenarios, quality rubric, BRD generation orchestrator
+- Phase 61-02 COMPLETE: Analysis pipeline & report generator (7c564d4, 60d5b6c)
+  - Task 1: Statistical analysis script (7c564d4)
+    - load_scores: merge scores CSV with provider mapping
+    - analyze_provider_comparison: Mann-Whitney U tests, improvement %
+    - calculate_cost_summary: aggregate tokens/cost from metadata
+    - make_recommendation: >20% threshold, 3+ significant dimensions
+    - run_full_analysis: orchestrates pipeline, saves statistics.json
+  - Task 2: Report generator and template (60d5b6c)
+    - Jinja2 template with 8 sections (Executive Summary → Recommendation)
+    - generate_comparison_report: renders markdown from analysis results
+    - Quality scores table, cost analysis, cost-quality tradeoff, decision matrix
+    - Recommendation-specific next steps (adopt/study/stay)
+  - Added pandas and scipy to requirements.txt
   - All verification passed, no deviations
 
-- Ready for Plan 61-02: Run generation script to produce BRD samples
-- Evaluation framework complete, ready for data collection phase
+- Ready for Plan 61-03: Generate BRD samples (3 providers × 5 scenarios = 15 BRDs)
+- Analysis pipeline ready, awaiting human-scored data
 
 ---
 

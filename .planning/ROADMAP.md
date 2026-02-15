@@ -114,10 +114,13 @@ Plans:
   3. 5+ BRDs generated with CLI subprocess adapter (claude-code-cli) with quality metrics recorded
   4. Quality metrics defined and scored across all samples (completeness, AC quality, consistency, error coverage)
   5. Comparison report written with recommendation (adopt SDK, adopt CLI, stay with direct API, or enhance direct API with multi-pass)
-**Plans**: TBD
+**Plans:** 4 plans
 
 Plans:
-- [ ] 61-01: TBD
+- [ ] 61-01-PLAN.md — Build evaluation framework (test scenarios, quality rubric, generation orchestrator)
+- [ ] 61-02-PLAN.md — Create analysis pipeline and report generator (statistical analysis, Jinja2 report template)
+- [ ] 61-03-PLAN.md — Generate 15 BRDs across providers and human scoring checkpoint
+- [ ] 61-04-PLAN.md — Run analysis, generate comparison report, update project state
 
 ## Coverage
 

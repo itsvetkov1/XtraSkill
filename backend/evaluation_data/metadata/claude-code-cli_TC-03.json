@@ -1,0 +1,12 @@
+{
+  "provider": "claude-code-cli",
+  "scenario_id": "TC-03",
+  "scenario_name": "Complex Multi-Stakeholder: E-commerce Marketplace",
+  "complexity": "high",
+  "token_usage": {
+    "input_tokens": 31,
+    "output_tokens": 9845
+  },
+  "generation_time_seconds": 724.88,
+  "cost_usd": 0.2068752
+}

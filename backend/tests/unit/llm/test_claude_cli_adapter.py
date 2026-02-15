@@ -25,7 +25,7 @@ async def make_stdout_lines(lines):
 
 
 def make_mock_process(stdout_lines, returncode=0, stderr_output=b""):
-    """Create mock subprocess process with controllable stdout/stderr.
+    """Create mock subprocess process with controllable stdout/stderr/stdin.
 
     Args:
         stdout_lines: List of JSON strings to yield from stdout
@@ -33,7 +33,7 @@ def make_mock_process(stdout_lines, returncode=0, stderr_output=b""):
         stderr_output: Bytes to return from stderr.read()
 
     Returns:
-        Mock process object with async stdout iterator
+        Mock process object with async stdout iterator and stdin pipe
     """
     process = MagicMock()
     process.stdout = make_stdout_lines(stdout_lines)
@@ -42,6 +42,14 @@ def make_mock_process(stdout_lines, returncode=0, stderr_output=b""):
     stderr_mock = AsyncMock()
     stderr_mock.read = AsyncMock(return_value=stderr_output)
     process.stderr = stderr_mock
+
+    # Mock stdin (prompt delivered via stdin pipe)
+    stdin_mock = MagicMock()
+    stdin_mock.write = MagicMock()
+    stdin_mock.drain = AsyncMock()
+    stdin_mock.close = MagicMock()
+    stdin_mock.wait_closed = AsyncMock()
+    process.stdin = stdin_mock
 
     # Mock process control
     process.returncode = returncode
@@ -457,6 +465,12 @@ class TestClaudeCLIAdapterStreamChat:
         mock_process.wait = AsyncMock(return_value=0)
         mock_process.stderr = AsyncMock()
         mock_process.stderr.read = AsyncMock(return_value=b"")
+        stdin_mock = MagicMock()
+        stdin_mock.write = MagicMock()
+        stdin_mock.drain = AsyncMock()
+        stdin_mock.close = MagicMock()
+        stdin_mock.wait_closed = AsyncMock()
+        mock_process.stdin = stdin_mock
         mock_subprocess.return_value = mock_process
 
         adapter = ClaudeCLIAdapter(api_key="test-key")
@@ -549,7 +563,7 @@ class TestClaudeCLIAdapterStreamChat:
         mock_subprocess.assert_called_once()
         call_args = mock_subprocess.call_args
 
-        # Check positional args (command)
+        # Check positional args (command) — prompt NOT in args (sent via stdin)
         assert call_args[0][0] == '/usr/bin/claude'
         assert '-p' in call_args[0]
         assert '--output-format' in call_args[0]
@@ -557,6 +571,16 @@ class TestClaudeCLIAdapterStreamChat:
         assert '--verbose' in call_args[0]
         assert '--model' in call_args[0]
         assert 'claude-sonnet-4-5-20250929' in call_args[0]
+
+        # Verify stdin pipe is configured (prompt delivered via stdin)
+        call_kwargs = mock_subprocess.call_args[1]
+        assert call_kwargs.get("stdin") == asyncio.subprocess.PIPE
+
+        # Verify prompt was written to stdin
+        mock_process.stdin.write.assert_called_once()
+        written_bytes = mock_process.stdin.write.call_args[0][0]
+        assert b"[SYSTEM]:" in written_bytes
+        assert b"[USER]:" in written_bytes
 
     @pytest.mark.asyncio
     @patch('app.services.llm.claude_cli_adapter._documents_used_context')
@@ -664,6 +688,12 @@ class TestClaudeCLIAdapterSubprocessCleanup:
         mock_process.kill = MagicMock()
         mock_process.stderr = AsyncMock()
         mock_process.stderr.read = AsyncMock(return_value=b"")
+        stdin_mock = MagicMock()
+        stdin_mock.write = MagicMock()
+        stdin_mock.drain = AsyncMock()
+        stdin_mock.close = MagicMock()
+        stdin_mock.wait_closed = AsyncMock()
+        mock_process.stdin = stdin_mock
         mock_subprocess.return_value = mock_process
 
         adapter = ClaudeCLIAdapter(api_key="test-key")
@@ -712,6 +742,12 @@ class TestClaudeCLIAdapterSubprocessCleanup:
         mock_process.kill = MagicMock()
         mock_process.stderr = AsyncMock()
         mock_process.stderr.read = AsyncMock(return_value=b"")
+        stdin_mock = MagicMock()
+        stdin_mock.write = MagicMock()
+        stdin_mock.drain = AsyncMock()
+        stdin_mock.close = MagicMock()
+        stdin_mock.wait_closed = AsyncMock()
+        mock_process.stdin = stdin_mock
         mock_subprocess.return_value = mock_process
 
         adapter = ClaudeCLIAdapter(api_key="test-key")

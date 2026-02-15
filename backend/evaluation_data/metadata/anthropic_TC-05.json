@@ -1,0 +1,12 @@
+{
+  "provider": "anthropic",
+  "scenario_id": "TC-05",
+  "scenario_name": "Regulatory Domain: Healthcare Patient Portal",
+  "complexity": "high",
+  "token_usage": {
+    "input_tokens": 81355,
+    "output_tokens": 2223
+  },
+  "generation_time_seconds": 161.54,
+  "cost_usd": 0.27741
+}

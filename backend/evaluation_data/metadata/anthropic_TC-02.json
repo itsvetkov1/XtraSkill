@@ -1,0 +1,12 @@
+{
+  "provider": "anthropic",
+  "scenario_id": "TC-02",
+  "scenario_name": "Medium Workflow: Expense Report Submission",
+  "complexity": "medium",
+  "token_usage": {
+    "input_tokens": 58922,
+    "output_tokens": 1177
+  },
+  "generation_time_seconds": 139.02,
+  "cost_usd": 0.194421
+}

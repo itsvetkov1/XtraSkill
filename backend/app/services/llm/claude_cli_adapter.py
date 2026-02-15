@@ -264,26 +264,33 @@ class ClaudeCLIAdapter(LLMAdapter):
             # Build CLI command
             # NOTE: Do NOT pass --system-prompt flag, use combined prompt instead
             # NOTE: Do NOT pass --include-partial-messages (excluded from POC scope)
+            # NOTE: Prompt passed via stdin to avoid Windows 8,191 char command line limit
             cmd = [
                 self.cli_path,
-                "-p",  # Print mode (non-interactive)
+                "-p",  # Print mode (non-interactive, reads prompt from stdin)
                 "--output-format", "stream-json",
                 "--verbose",
                 "--model", self.model,
-                combined_prompt
             ]
 
             # Environment with API key
             env = {**os.environ, "ANTHROPIC_API_KEY": self._api_key}
 
-            # Create subprocess
+            # Create subprocess with stdin pipe for prompt delivery
             logger.info(f"Spawning CLI subprocess: {self.cli_path} -p ...")
             process = await asyncio.create_subprocess_exec(
                 *cmd,
+                stdin=asyncio.subprocess.PIPE,
                 stdout=asyncio.subprocess.PIPE,
                 stderr=asyncio.subprocess.PIPE,
                 env=env
             )
+
+            # Write prompt via stdin and close (avoids Windows cmd line length limit)
+            process.stdin.write(combined_prompt.encode('utf-8'))
+            await process.stdin.drain()
+            process.stdin.close()
+            await process.stdin.wait_closed()
 
             # Stream output line-by-line
             turn_count = 0

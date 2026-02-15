@@ -1,0 +1,12 @@
+{
+  "provider": "claude-code-cli",
+  "scenario_id": "TC-02",
+  "scenario_name": "Medium Workflow: Expense Report Submission",
+  "complexity": "medium",
+  "token_usage": {
+    "input_tokens": 18,
+    "output_tokens": 809
+  },
+  "generation_time_seconds": 394.5,
+  "cost_usd": 0.0170646
+}

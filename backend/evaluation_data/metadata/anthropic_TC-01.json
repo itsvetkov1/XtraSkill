@@ -1,0 +1,12 @@
+{
+  "provider": "anthropic",
+  "scenario_id": "TC-01",
+  "scenario_name": "Simple Feature: User Login",
+  "complexity": "low",
+  "token_usage": {
+    "input_tokens": 48490,
+    "output_tokens": 1305
+  },
+  "generation_time_seconds": 38.61,
+  "cost_usd": 0.165045
+}

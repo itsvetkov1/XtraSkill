@@ -11,10 +11,10 @@ See: /Users/a1testingmac/projects/XtraSkill/.planning/PROJECT.md (updated 2026-0
 ## Current Position
 
 Milestone: v0.1-claude-code — Claude Code as AI Backend
-Phase: 59 of 61 (CLI Subprocess Adapter)
-Current Plan: 2 of 2 completed
-Status: Phase Complete
-Last activity: 2026-02-14 — Completed Phase 59 Plan 02: CLI Subprocess Adapter unit tests
+Phase: 60 of 61 (Frontend Integration)
+Current Plan: 1 completed
+Status: Plan Complete
+Last activity: 2026-02-15 — Completed Phase 60 Plan 01: Claude Code Provider Registration
 
 Progress:
 ```
@@ -22,7 +22,7 @@ v1.0-v1.9.5: [##########] 48 phases, 115 plans, 11 milestones SHIPPED
 v2.1:        [##########] 8/8 plans (Phase 54-56) SHIPPED
 v2.0:        [          ] Backlogged (phases 49-53 preserved)
 
-v0.1-claude-code: [█████████░] 90% — Phase 59 complete, ready for Phase 60
+v0.1-claude-code: [█████████▓] 95% — Phase 60-01 complete, evaluation pending
 ```
 
 ## Performance Metrics
@@ -52,6 +52,12 @@ v0.1-claude-code: [█████████░] 90% — Phase 59 complete, re
 | P01  | 212          | 2     | 2     | ✅ Complete |
 | P02  | 180          | 2     | 1     | ✅ Complete |
 
+**Phase 60 Metrics:**
+
+| Plan | Duration (s) | Tasks | Files | Status |
+|------|--------------|-------|-------|--------|
+| P01  | 184          | 2     | 4     | ✅ Complete |
+
 **By Milestone:**
 
 | Milestone | Phases | Plans | Status |
@@ -69,9 +75,9 @@ v0.1-claude-code: [█████████░] 90% — Phase 59 complete, re
 | Logging v1.9.5 | 43-48 | 8/8 | SHIPPED 2026-02-08 |
 | Rich Docs v2.1 | 54-56 | 8/8 | SHIPPED 2026-02-12 |
 | Security v2.0 | 49-53 | 0/TBD | BACKLOGGED 2026-02-13 |
-| Claude Code v0.1 | 57-61 | 6/TBD | IN PROGRESS — Phase 59 complete |
+| Claude Code v0.1 | 57-61 | 7/TBD | IN PROGRESS — Phase 60-01 complete |
 
-**Total:** 129 plans shipped across 50 phases
+**Total:** 130 plans shipped across 50 phases
 
 ## Accumulated Context
 
@@ -96,6 +102,8 @@ Recent key decisions (full archive in PROJECT.md):
 - **Branch isolation**: All experiment work on `feature/claude-code-backend`, Phase 61 gates merge to master
 - **Research both approaches**: Compare SDK (Python API) and CLI (subprocess) before committing
 - **v0.1-claude-code versioning**: Clean slate, doesn't interfere with v2.x production track
+- [Phase 60-01]: Experimental badge pattern using Material 3 secondaryContainer color scheme
+- [Phase 60-01]: Model name display format using em-dash separator for clean visual separation
 
 ### Critical Research Findings
 
@@ -128,22 +136,27 @@ Recent key decisions (full archive in PROJECT.md):
 
 ## Session Continuity
 
-Last session: 2026-02-14
-Stopped at: Completed Phase 59 Plan 02 — CLI Subprocess Adapter unit tests
+Last session: 2026-02-15
+Stopped at: Completed Phase 60 Plan 01 — Claude Code Provider Registration
 Resume file: None
-Next action: Execute Phase 60 — Quality Evaluation
+Next action: Continue Phase 60 (if more plans exist) or proceed to Phase 61 — Quality Evaluation
 
 **Context for Next Session:**
-- Phase 59 COMPLETE: ClaudeCLIAdapter with comprehensive test coverage
-  - Phase 59-01: ClaudeCLIAdapter.stream_chat() implementation (7a88a3c, 112686b)
-  - Phase 59-02: 34 comprehensive unit tests (e2cea36)
-  - AsyncIO subprocess spawning with stream-json output
-  - Robust process cleanup (terminate → kill) preventing zombie processes
-  - JSON event translation for 4 event types (stream_event, assistant_message, result, error)
-  - All tests pass, zero regressions - 265 unit tests total
-- Both adapters (SDK and CLI) fully implemented and tested
-- Ready for Phase 60: Quality evaluation comparing SDK vs CLI approaches
-- POC limitations documented for production hardening phase
+- Phase 60-01 COMPLETE: Claude Code providers registered across full stack
+  - Task 1: Backend and frontend registration (3ec4f4c)
+    - Added claude-code-sdk and claude-code-cli to backend VALID_PROVIDERS
+    - Extended ProviderConfig with isExperimental and modelName fields
+    - Created claudeCodeSdk and claudeCodeCli provider configs
+    - Added providers to ProviderProvider._availableProviders
+  - Task 2: Settings dropdown UI enhancement (2c87b4d)
+    - Experimental badge display for Claude Code providers
+    - Model name display with em-dash separator
+    - Material 3 color scheme for consistent styling
+  - All tests pass: 265 backend unit tests, flutter analyze clean
+  - Users can now select Claude Code providers in settings
+  - Backend accepts Claude Code providers for thread creation
+- Ready for manual E2E testing (add to TESTING-QUEUE.md)
+- Phase 60 may have additional plans for quality evaluation/comparison
 
 ---
 

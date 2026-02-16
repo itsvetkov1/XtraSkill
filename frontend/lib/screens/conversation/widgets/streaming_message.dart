@@ -68,7 +68,7 @@ class StreamingMessage extends StatelessWidget {
               if (text.isNotEmpty) const SizedBox(height: 8),
             ],
             if (text.isNotEmpty)
-              SelectableText(
+              Text(
                 text,
                 style: TextStyle(color: theme.colorScheme.onSurface),
               )

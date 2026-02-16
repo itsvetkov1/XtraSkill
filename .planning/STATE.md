@@ -154,29 +154,23 @@ Recent key decisions (full archive in PROJECT.md):
 
 ## Session Continuity
 
-Last session: 2026-02-15
-Stopped at: Plan 61-03 partial — CLI BRDs generated, anthropic baseline blocked on API credits
+Last session: 2026-02-16
+Stopped at: Manual testing of Claude Code CLI feature — bugs found and fixed
 Resume file: None
-Next action: Top up Anthropic API credits ($5-10), then generate 5 anthropic baseline BRDs
+Next action: Continue manual testing, then generate anthropic baseline BRDs via CLI (subscription, no API credits)
 
 **Context for Next Session:**
 - Phase 61-01 COMPLETE: Evaluation framework infrastructure (45fa814, 1a255f5)
 - Phase 61-02 COMPLETE: Analysis pipeline & report generator (7c564d4, 60d5b6c)
 - Phase 61-03 IN PROGRESS: BRD generation — CLI done, anthropic pending
+- Manual testing started on macOS — 3 bugs found and fixed (see below)
 
-**Bugs fixed during 61-03 execution (dac858a):**
-- CLI stdin pipe: prompt delivered via stdin (avoids Windows 8,191-char command line limit)
-- CLI event format: rewrote _translate_event() for actual stream-json output format
-- Test scenarios: rewrote with realistic customer discovery answers (not BA questions)
-- SDK dropped: Windows command line limit in SDK library is unfixable
+**Bugs fixed during manual testing session (2026-02-16):**
+- **Broken pipe error**: CLI subprocess failed because `CLAUDECODE=1` env var triggered nested session detection. Fix: strip `CLAUDECODE` and `CLAUDE_CODE_ENTRYPOINT` from subprocess environment.
+- **Projectless chat error**: "Adapter context not set" when creating chats without a project. Fix: relaxed guard in both CLI and SDK adapters to not require `project_id` (only `db` and `thread_id` required).
+- **Text not selectable**: No visual feedback when selecting text in conversation view. Fix: wrapped message list with `SelectionArea`, converted nested `SelectableText` to `Text` in message_bubble, streaming_message, error_state_message, artifact_card.
 
-**Additional fixes (uncommitted at pause, now committed):**
-- CLI buffer limit: increased asyncio subprocess limit to 1MB (BRDs exceed 64KB default)
-- CLI auth: removed ANTHROPIC_API_KEY from subprocess env (uses subscription auth)
-- Single-call prompt: packaged full conversation into one prompt (not multi-turn simulation)
-- Prompt directive: "Output BRD directly as markdown, do NOT use tools/artifacts"
-
-**CLI BRD generation results (5/5 complete):**
+**Previous CLI BRD generation results (5/5 complete):**
 
 | Scenario | File Size | Output Tokens | Time |
 |----------|-----------|---------------|------|
@@ -188,16 +182,17 @@ Next action: Top up Anthropic API credits ($5-10), then generate 5 anthropic bas
 | **Total** | **376KB** | **78,867** | **30.5 min** |
 
 **To resume Plan 61-03:**
-1. Top up Anthropic API credits (~$5 minimum, $10 recommended)
-2. Run: `cd backend && python -c "<anthropic generation script>"` (see generate_samples.py)
-3. After all 10 BRDs exist, run anonymize: `python -m evaluation.generate_samples anonymize`
-4. Score 10 BRDs using quality rubric (human checkpoint)
-5. Then execute Plan 61-04: analysis + report
+1. Generate baseline BRDs using `claude -p` (subscription, no API credits needed)
+2. After all 10 BRDs exist, run anonymize: `python -m evaluation.generate_samples anonymize`
+3. Score 10 BRDs using quality rubric (human checkpoint)
+4. Then execute Plan 61-04: analysis + report
 
-**Comparison is now 2-provider only:** anthropic (baseline) vs claude-code-cli
+**Decision change:** Baseline BRDs will be generated via `claude -p` (print mode, subscription) instead of direct Anthropic API — avoids API credit costs while still comparing simple call vs agent pipeline.
+
+**Comparison is now 2-provider only:** anthropic (baseline via CLI print mode) vs claude-code-cli (agent pipeline)
 - SDK excluded due to Windows command line length limitation in SDK library
 - Report template and analysis scripts already updated for 2-provider comparison
 
 ---
 
-*State updated: 2026-02-15 (Phase 61-03 partial — CLI BRDs done)*
+*State updated: 2026-02-16 (Manual testing bugs fixed — broken pipe, projectless chat, text selection)*

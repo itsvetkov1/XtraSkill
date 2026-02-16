@@ -27,7 +27,7 @@ class MessageBubble extends StatelessWidget {
     final isUser = message.role == MessageRole.user;
     final theme = Theme.of(context);
 
-    final textWidget = SelectableText(
+    final textWidget = Text(
       message.content,
       style: TextStyle(
         fontSize: 15, // Explicit font size for readability

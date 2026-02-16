@@ -439,9 +439,11 @@ class _ConversationScreenState extends State<ConversationScreen> {
                   ],
                 ),
 
-              // Message list
+              // Message list — SelectionArea enables text selection across all children
               Expanded(
-                child: _buildMessageList(provider),
+                child: SelectionArea(
+                  child: _buildMessageList(provider),
+                ),
               ),
 
               // Toolbar row: Provider indicator + Add to Project button

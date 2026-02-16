@@ -69,7 +69,7 @@ class ErrorStateMessage extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             // Partial text content
-            SelectableText(
+            Text(
               partialText,
               style: TextStyle(
                 fontSize: 15,

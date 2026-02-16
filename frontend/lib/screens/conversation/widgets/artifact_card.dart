@@ -162,7 +162,7 @@ class _ArtifactCardState extends State<ArtifactCard> {
       constraints: const BoxConstraints(maxHeight: 400),
       child: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
-        child: SelectableText(
+        child: Text(
           content,
           style: theme.textTheme.bodyMedium,
         ),

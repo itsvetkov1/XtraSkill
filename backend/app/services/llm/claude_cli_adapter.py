@@ -239,7 +239,7 @@ class ClaudeCLIAdapter(LLMAdapter):
         Yields:
             StreamChunk: Normalized streaming events
         """
-        if not self.db or not self.project_id or not self.thread_id:
+        if not self.db or not self.thread_id:
             yield StreamChunk(
                 chunk_type="error",
                 error="Adapter context not set. Call set_context() before stream_chat()."
@@ -277,7 +277,9 @@ class ClaudeCLIAdapter(LLMAdapter):
 
             # Environment: let CLI use its own auth (subscription/OAuth)
             # Don't force ANTHROPIC_API_KEY — it overrides subscription auth
-            env = {k: v for k, v in os.environ.items()}
+            # Strip CLAUDECODE/CLAUDE_CODE_ENTRYPOINT to prevent nested session detection
+            env = {k: v for k, v in os.environ.items()
+                   if k not in ("CLAUDECODE", "CLAUDE_CODE_ENTRYPOINT")}
 
             # Create subprocess with stdin pipe for prompt delivery
             # Large buffer limit (1MB) needed: CLI outputs full BRD as single JSON line

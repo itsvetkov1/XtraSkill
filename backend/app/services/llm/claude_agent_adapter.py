@@ -154,7 +154,7 @@ class ClaudeAgentAdapter(LLMAdapter):
         Yields:
             StreamChunk: Normalized streaming events
         """
-        if not self.db or not self.project_id or not self.thread_id:
+        if not self.db or not self.thread_id:
             yield StreamChunk(
                 chunk_type="error",
                 error="Adapter context not set. Call set_context() before stream_chat()."

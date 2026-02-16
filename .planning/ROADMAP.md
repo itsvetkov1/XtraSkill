@@ -117,9 +117,9 @@ Plans:
 **Plans:** 4 plans
 
 Plans:
-- [ ] 61-01-PLAN.md — Build evaluation framework (test scenarios, quality rubric, generation orchestrator)
-- [ ] 61-02-PLAN.md — Create analysis pipeline and report generator (statistical analysis, Jinja2 report template)
-- [ ] 61-03-PLAN.md — Generate 15 BRDs across providers and human scoring checkpoint
+- [x] 61-01-PLAN.md — Build evaluation framework (test scenarios, quality rubric, generation orchestrator)
+- [x] 61-02-PLAN.md — Create analysis pipeline and report generator (statistical analysis, Jinja2 report template)
+- [ ] 61-03-PLAN.md — Generate 10 BRDs (2 providers × 5 scenarios) and human scoring checkpoint *(CLI 5/5 done, anthropic 0/5 — blocked on API credits)*
 - [ ] 61-04-PLAN.md — Run analysis, generate comparison report, update project state
 
 ## Coverage
@@ -164,7 +164,7 @@ Plans:
 | 58. Agent SDK Adapter | v0.1-claude-code | 2/2 | Complete | 2026-02-14 |
 | 59. CLI Subprocess Adapter | v0.1-claude-code | 2/2 | Complete | 2026-02-14 |
 | 60. Frontend Integration | v0.1-claude-code | 2/2 | Complete | 2026-02-15 |
-| 61. Quality Comparison & Decision | v0.1-claude-code | 0/TBD | Not started | - |
+| 61. Quality Comparison & Decision | v0.1-claude-code | 2/4 | In Progress | - |
 
 ---
 

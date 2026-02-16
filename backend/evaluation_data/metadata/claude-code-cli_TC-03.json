@@ -4,9 +4,9 @@
   "scenario_name": "Complex Multi-Stakeholder: E-commerce Marketplace",
   "complexity": "high",
   "token_usage": {
-    "input_tokens": 31,
-    "output_tokens": 9845
+    "input_tokens": 3,
+    "output_tokens": 16915
   },
-  "generation_time_seconds": 724.88,
-  "cost_usd": 0.2068752
+  "generation_time_seconds": 397.16,
+  "cost_usd": 0.3552275999999999
 }

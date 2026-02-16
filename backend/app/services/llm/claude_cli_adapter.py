@@ -275,17 +275,20 @@ class ClaudeCLIAdapter(LLMAdapter):
                 "--model", self.model,
             ]
 
-            # Environment with API key
-            env = {**os.environ, "ANTHROPIC_API_KEY": self._api_key}
+            # Environment: let CLI use its own auth (subscription/OAuth)
+            # Don't force ANTHROPIC_API_KEY — it overrides subscription auth
+            env = {k: v for k, v in os.environ.items()}
 
             # Create subprocess with stdin pipe for prompt delivery
+            # Large buffer limit (1MB) needed: CLI outputs full BRD as single JSON line
             logger.info(f"Spawning CLI subprocess: {self.cli_path} -p ...")
             process = await asyncio.create_subprocess_exec(
                 *cmd,
                 stdin=asyncio.subprocess.PIPE,
                 stdout=asyncio.subprocess.PIPE,
                 stderr=asyncio.subprocess.PIPE,
-                env=env
+                env=env,
+                limit=1024 * 1024  # 1MB line buffer (default 64KB too small for BRDs)
             )
 
             # Write prompt via stdin and close (avoids Windows cmd line length limit)

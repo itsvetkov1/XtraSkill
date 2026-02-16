@@ -4,9 +4,9 @@
   "scenario_name": "Medium Workflow: Expense Report Submission",
   "complexity": "medium",
   "token_usage": {
-    "input_tokens": 18,
-    "output_tokens": 809
+    "input_tokens": 3,
+    "output_tokens": 16091
   },
-  "generation_time_seconds": 394.5,
-  "cost_usd": 0.0170646
+  "generation_time_seconds": 374.46,
+  "cost_usd": 0.33792360000000005
 }

@@ -4,9 +4,9 @@
   "scenario_name": "Simple Feature: User Login",
   "complexity": "low",
   "token_usage": {
-    "input_tokens": 15,
-    "output_tokens": 773
+    "input_tokens": 3,
+    "output_tokens": 13226
   },
-  "generation_time_seconds": 346.22,
-  "cost_usd": 0.016296
+  "generation_time_seconds": 296.3,
+  "cost_usd": 0.2777586
 }

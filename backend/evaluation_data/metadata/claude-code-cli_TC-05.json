@@ -4,9 +4,9 @@
   "scenario_name": "Regulatory Domain: Healthcare Patient Portal",
   "complexity": "high",
   "token_usage": {
-    "input_tokens": 31,
-    "output_tokens": 1528
+    "input_tokens": 3,
+    "output_tokens": 19917
   },
-  "generation_time_seconds": 668.16,
-  "cost_usd": 0.032218199999999995
+  "generation_time_seconds": 485.3,
+  "cost_usd": 0.41826959999999996
 }

@@ -26,6 +26,38 @@ from app.services.ai_service import AIService
 from app.database import AsyncSessionLocal, init_db
 
 
+def _build_single_prompt(scenario: Dict[str, Any]) -> str:
+    """
+    Build a single BRD generation prompt from a test scenario.
+
+    Packages the entire discovery conversation into one prompt so that:
+    - Both providers get identical input (fair comparison)
+    - No multi-turn context loss issues with CLI subprocess
+    - The AI focuses on BRD generation, not discovery
+    """
+    parts = [
+        "Below is a complete requirements discovery conversation between a business analyst and a customer.",
+        "Generate a comprehensive Business Requirements Document (BRD) based on this conversation.",
+        "Include all standard BRD sections: Executive Summary, Business Objectives, User Personas,",
+        "Functional Requirements, Acceptance Criteria, Success Metrics, and any other relevant sections.",
+        "Do NOT ask clarifying questions — use the information provided below.",
+        "",
+        "IMPORTANT: Output the complete BRD directly as markdown text in your response.",
+        "Do NOT use any tools, save as artifacts, or call any functions.",
+        "Write the FULL BRD content inline.\n",
+        "---\n",
+        f"**Customer's initial request:**\n{scenario['initial_prompt']}\n",
+    ]
+
+    for i, follow_up in enumerate(scenario.get("follow_ups", []), 1):
+        parts.append(f"**Customer's response #{i}:**\n{follow_up}\n")
+
+    parts.append("---\n")
+    parts.append("Now generate the comprehensive BRD based on all information above. Output it directly as markdown.")
+
+    return "\n".join(parts)
+
+
 async def generate_brd_sample(
     provider: str,
     scenario: Dict[str, Any],
@@ -34,13 +66,11 @@ async def generate_brd_sample(
     """
     Generate a single BRD using specified provider and test scenario.
 
-    This simulates a multi-turn conversation:
-    1. Send initial_prompt
-    2. For each follow_up: append AI response, send follow_up
-    3. Send final_prompt to trigger BRD generation
+    Uses a single-call approach: packages the entire discovery conversation
+    into one prompt to ensure fair comparison across providers.
 
     Args:
-        provider: Provider name (anthropic, claude-code-sdk, claude-code-cli)
+        provider: Provider name (anthropic, claude-code-cli)
         scenario: Test scenario dict from test_scenarios.json
         db: Database session
 
@@ -54,22 +84,20 @@ async def generate_brd_sample(
     # Create AIService for this provider
     ai_service = AIService(provider=provider)
 
-    # Build conversation messages
-    messages = []
-    full_brd_content = ""
     total_input_tokens = 0
     total_output_tokens = 0
     start_time = time.time()
 
     # Use a temporary evaluation project and thread
-    # These don't need to persist - we're just using the streaming infrastructure
     project_id = "eval-project"
     thread_id = f"eval-{provider}-{scenario['id']}"
 
     try:
-        # Step 1: Send initial prompt
-        messages.append({"role": "user", "content": scenario["initial_prompt"]})
+        # Build single prompt with all conversation context
+        prompt = _build_single_prompt(scenario)
+        messages = [{"role": "user", "content": prompt}]
 
+        # Single API call — collect BRD output
         response_text = ""
         async for event in ai_service.stream_chat(messages, project_id, thread_id, db):
             if event["event"] == "text_delta":
@@ -80,39 +108,6 @@ async def generate_brd_sample(
                 total_input_tokens += usage.get("input_tokens", 0)
                 total_output_tokens += usage.get("output_tokens", 0)
 
-        # Add AI response to conversation
-        messages.append({"role": "assistant", "content": response_text})
-
-        # Step 2: Process follow-up questions
-        for follow_up in scenario.get("follow_ups", []):
-            messages.append({"role": "user", "content": follow_up})
-
-            response_text = ""
-            async for event in ai_service.stream_chat(messages, project_id, thread_id, db):
-                if event["event"] == "text_delta":
-                    response_text += json.loads(event["data"])["text"]
-                elif event["event"] == "message_complete":
-                    data = json.loads(event["data"])
-                    usage = data.get("usage", {})
-                    total_input_tokens += usage.get("input_tokens", 0)
-                    total_output_tokens += usage.get("output_tokens", 0)
-
-            messages.append({"role": "assistant", "content": response_text})
-
-        # Step 3: Request BRD generation
-        messages.append({"role": "user", "content": scenario["final_prompt"]})
-
-        response_text = ""
-        async for event in ai_service.stream_chat(messages, project_id, thread_id, db):
-            if event["event"] == "text_delta":
-                response_text += json.loads(event["data"])["text"]
-            elif event["event"] == "message_complete":
-                data = json.loads(event["data"])
-                usage = data.get("usage", {})
-                total_input_tokens += usage.get("input_tokens", 0)
-                total_output_tokens += usage.get("output_tokens", 0)
-
-        full_brd_content = response_text
         generation_time = time.time() - start_time
 
         # Calculate cost estimate
@@ -126,7 +121,7 @@ async def generate_brd_sample(
         return {
             "scenario_id": scenario["id"],
             "provider": provider,
-            "content": full_brd_content,
+            "content": response_text,
             "token_usage": {
                 "input_tokens": total_input_tokens,
                 "output_tokens": total_output_tokens

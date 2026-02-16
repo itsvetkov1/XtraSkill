@@ -12,9 +12,9 @@ See: /Users/a1testingmac/projects/XtraSkill/.planning/PROJECT.md (updated 2026-0
 
 Milestone: v0.1-claude-code — Claude Code as AI Backend
 Phase: 61 of 61 (Quality Comparison & Decision)
-Current Plan: 2 of 4 completed
-Status: In Progress
-Last activity: 2026-02-15 — Completed 61-02: Analysis Pipeline & Report Generator
+Current Plan: 3 of 4 in progress (CLI BRDs generated, awaiting anthropic baseline)
+Status: In Progress — Blocked on API credits
+Last activity: 2026-02-15 — Generated 5 CLI BRDs, awaiting API top-up for anthropic baseline
 
 Progress:
 ```
@@ -22,7 +22,7 @@ v1.0-v1.9.5: [##########] 48 phases, 115 plans, 11 milestones SHIPPED
 v2.1:        [##########] 8/8 plans (Phase 54-56) SHIPPED
 v2.0:        [          ] Backlogged (phases 49-53 preserved)
 
-v0.1-claude-code: [█████████▓] 98% — Phase 61 plan 02 complete (2/4 plans)
+v0.1-claude-code: [█████████▓] 98% — Phase 61 plan 03 partial (CLI done, anthropic pending)
 ```
 
 ## Performance Metrics
@@ -155,31 +155,49 @@ Recent key decisions (full archive in PROJECT.md):
 ## Session Continuity
 
 Last session: 2026-02-15
-Stopped at: Completed 61-02-PLAN.md — Analysis Pipeline & Report Generator
+Stopped at: Plan 61-03 partial — CLI BRDs generated, anthropic baseline blocked on API credits
 Resume file: None
-Next action: Execute Plan 61-03 — Generate BRD samples
+Next action: Top up Anthropic API credits ($5-10), then generate 5 anthropic baseline BRDs
 
 **Context for Next Session:**
 - Phase 61-01 COMPLETE: Evaluation framework infrastructure (45fa814, 1a255f5)
-  - Test scenarios, quality rubric, BRD generation orchestrator
 - Phase 61-02 COMPLETE: Analysis pipeline & report generator (7c564d4, 60d5b6c)
-  - Task 1: Statistical analysis script (7c564d4)
-    - load_scores: merge scores CSV with provider mapping
-    - analyze_provider_comparison: Mann-Whitney U tests, improvement %
-    - calculate_cost_summary: aggregate tokens/cost from metadata
-    - make_recommendation: >20% threshold, 3+ significant dimensions
-    - run_full_analysis: orchestrates pipeline, saves statistics.json
-  - Task 2: Report generator and template (60d5b6c)
-    - Jinja2 template with 8 sections (Executive Summary → Recommendation)
-    - generate_comparison_report: renders markdown from analysis results
-    - Quality scores table, cost analysis, cost-quality tradeoff, decision matrix
-    - Recommendation-specific next steps (adopt/study/stay)
-  - Added pandas and scipy to requirements.txt
-  - All verification passed, no deviations
+- Phase 61-03 IN PROGRESS: BRD generation — CLI done, anthropic pending
 
-- Ready for Plan 61-03: Generate BRD samples (3 providers × 5 scenarios = 15 BRDs)
-- Analysis pipeline ready, awaiting human-scored data
+**Bugs fixed during 61-03 execution (dac858a):**
+- CLI stdin pipe: prompt delivered via stdin (avoids Windows 8,191-char command line limit)
+- CLI event format: rewrote _translate_event() for actual stream-json output format
+- Test scenarios: rewrote with realistic customer discovery answers (not BA questions)
+- SDK dropped: Windows command line limit in SDK library is unfixable
+
+**Additional fixes (uncommitted at pause, now committed):**
+- CLI buffer limit: increased asyncio subprocess limit to 1MB (BRDs exceed 64KB default)
+- CLI auth: removed ANTHROPIC_API_KEY from subprocess env (uses subscription auth)
+- Single-call prompt: packaged full conversation into one prompt (not multi-turn simulation)
+- Prompt directive: "Output BRD directly as markdown, do NOT use tools/artifacts"
+
+**CLI BRD generation results (5/5 complete):**
+
+| Scenario | File Size | Output Tokens | Time |
+|----------|-----------|---------------|------|
+| TC-01 (Login, low) | 63KB | 13,226 | 296s |
+| TC-02 (Expense, medium) | 76KB | 16,091 | 375s |
+| TC-03 (Marketplace, high) | 81KB | 16,915 | 397s |
+| TC-04 (CRM, medium) | 59KB | 12,708 | 278s |
+| TC-05 (Healthcare, high) | 97KB | 19,917 | 485s |
+| **Total** | **376KB** | **78,867** | **30.5 min** |
+
+**To resume Plan 61-03:**
+1. Top up Anthropic API credits (~$5 minimum, $10 recommended)
+2. Run: `cd backend && python -c "<anthropic generation script>"` (see generate_samples.py)
+3. After all 10 BRDs exist, run anonymize: `python -m evaluation.generate_samples anonymize`
+4. Score 10 BRDs using quality rubric (human checkpoint)
+5. Then execute Plan 61-04: analysis + report
+
+**Comparison is now 2-provider only:** anthropic (baseline) vs claude-code-cli
+- SDK excluded due to Windows command line length limitation in SDK library
+- Report template and analysis scripts already updated for 2-provider comparison
 
 ---
 
-*State updated: 2026-02-14 (Phase 59 complete)*
+*State updated: 2026-02-15 (Phase 61-03 partial — CLI BRDs done)*

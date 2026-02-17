@@ -9,6 +9,7 @@ import '../../models/thread.dart';
 import '../../services/thread_service.dart';
 import '../../providers/thread_provider.dart';
 import '../../widgets/empty_state.dart';
+import 'assistant_create_dialog.dart';
 
 /// Screen displaying Assistant-type threads with create/delete functionality.
 ///
@@ -71,8 +72,16 @@ class _AssistantListScreenState extends State<AssistantListScreen> {
     });
   }
 
-  void _showCreateDialog() {
-    // Wired in Plan 63-02
+  Future<void> _showCreateDialog() async {
+    final thread = await AssistantCreateDialog.show(context);
+    if (thread != null && mounted) {
+      // Add to local list (optimistic)
+      setState(() {
+        _threads.insert(0, thread);
+      });
+      // Navigate to conversation screen
+      context.go('/assistant/${thread.id}');
+    }
   }
 
   @override

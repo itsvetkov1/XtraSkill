@@ -319,4 +319,42 @@ class ThreadService {
       throw Exception('Failed to associate thread: ${e.message}');
     }
   }
+
+  /// Create a new Assistant thread
+  ///
+  /// [title] - Required title for the thread
+  /// [description] - Optional description
+  ///
+  /// Returns created Thread object.
+  /// Always sets thread_type='assistant' and no project_id.
+  Future<Thread> createAssistantThread({
+    required String title,
+    String? description,
+  }) async {
+    try {
+      final headers = await _getAuthHeaders();
+      final data = <String, dynamic>{
+        'title': title,
+        'thread_type': 'assistant',
+      };
+      if (description != null && description.isNotEmpty) {
+        data['description'] = description;
+      }
+
+      final response = await _dio.post(
+        '/api/threads',
+        options: Options(headers: headers),
+        data: data,
+      );
+
+      return Thread.fromJson(response.data as Map<String, dynamic>);
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 401 || e.response?.statusCode == 403) {
+        throw Exception('Authentication required');
+      } else if (e.response?.statusCode == 400) {
+        throw Exception('Invalid thread data');
+      }
+      throw Exception('Failed to create assistant thread: ${e.message}');
+    }
+  }
 }

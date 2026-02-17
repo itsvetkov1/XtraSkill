@@ -13,7 +13,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.config import settings
 from app.database import close_db, init_db
 from app.middleware import LoggingMiddleware
-from app.routes import artifacts, auth, conversations, documents, logs, projects, threads
+from app.routes import artifacts, auth, conversations, documents, logs, projects, skills, threads
 from app.services.logging_service import get_logging_service
 
 logger = logging.getLogger(__name__)
@@ -79,6 +79,7 @@ app.include_router(documents.router, prefix="/api", tags=["Documents"])
 app.include_router(threads.router, prefix="/api", tags=["Threads"])
 app.include_router(conversations.router, prefix="/api", tags=["Conversations"])
 app.include_router(artifacts.router, prefix="/api", tags=["Artifacts"])
+app.include_router(skills.router, prefix="/api", tags=["Skills"])
 app.include_router(logs.router)
 
 

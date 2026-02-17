@@ -750,15 +750,26 @@ If the user sends a NEW message explicitly asking to regenerate, revise, or crea
 class AIService:
     """LLM service for streaming chat with tool use via adapter pattern."""
 
-    def __init__(self, provider: str = "anthropic"):
+    def __init__(self, provider: str = "anthropic", thread_type: str = "ba_assistant"):
         """
         Initialize AI service with specified LLM provider.
 
         Args:
             provider: LLM provider name (default: "anthropic")
+            thread_type: Type of thread ("ba_assistant" or "assistant")
         """
+        # LOGIC-03: Override provider for Assistant threads (per locked decision: hardcoded to claude-code-cli)
+        if thread_type == "assistant":
+            provider = "claude-code-cli"
+
         self.adapter = LLMFactory.create(provider)
-        self.tools = [DOCUMENT_SEARCH_TOOL, SAVE_ARTIFACT_TOOL]
+        self.thread_type = thread_type
+
+        # LOGIC-02: Conditional tool loading (per locked decision: no BA tools for Assistant)
+        if thread_type == "ba_assistant":
+            self.tools = [DOCUMENT_SEARCH_TOOL, SAVE_ARTIFACT_TOOL]
+        else:
+            self.tools = []  # No BA tools for Assistant threads
 
         # Check if adapter is an agent provider (handles tools internally)
         self.is_agent_provider = getattr(self.adapter, 'is_agent_provider', False)
@@ -894,10 +905,13 @@ class AIService:
             usage_data = {}
             artifact_created_data = None
 
+            # LOGIC-01: No system prompt for Assistant threads (per locked decision)
+            system_prompt = SYSTEM_PROMPT if self.thread_type == "ba_assistant" else ""
+
             # Stream from adapter - SDK handles tools internally
             async for chunk in self.adapter.stream_chat(
                 messages=messages,
-                system_prompt=SYSTEM_PROMPT,
+                system_prompt=system_prompt,
                 max_tokens=4096
             ):
                 if chunk.chunk_type == "text":
@@ -1047,6 +1061,9 @@ class AIService:
         )
 
         try:
+            # LOGIC-01: No system prompt for Assistant threads (per locked decision)
+            system_prompt = SYSTEM_PROMPT if self.thread_type == "ba_assistant" else ""
+
             while True:
                 accumulated_text = ""
                 tool_calls = []
@@ -1055,7 +1072,7 @@ class AIService:
                 # Stream from adapter
                 async for chunk in self.adapter.stream_chat(
                     messages=messages,
-                    system_prompt=SYSTEM_PROMPT,
+                    system_prompt=system_prompt,
                     tools=self.tools,
                     max_tokens=4096
                 ):

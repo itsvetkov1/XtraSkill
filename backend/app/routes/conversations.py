@@ -148,7 +148,7 @@ async def stream_chat(
     # Use thread's bound provider (set at creation time)
     # This ensures consistency - conversations stay with their original provider
     provider = thread.model_provider or "anthropic"
-    ai_service = AIService(provider=provider)
+    ai_service = AIService(provider=provider, thread_type=thread.thread_type or "ba_assistant")
 
     async def event_generator():
         """Generate SSE events from AI response with heartbeat during silence."""

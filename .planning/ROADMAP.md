@@ -54,7 +54,7 @@ Full details: `.planning/milestones/v2.1-ROADMAP.md`
 
 **Branch:** `feature/claude-code-backend`
 
-- [ ] **Phase 62: Backend Foundation** - Data model, service logic, and API endpoints for thread_type discrimination
+- [x] **Phase 62: Backend Foundation** - Data model, service logic, and API endpoints for thread_type discrimination (completed 2026-02-17)
 - [ ] **Phase 63: Navigation & Thread Management** - Assistant sidebar section, routes, thread list, create, and delete
 - [ ] **Phase 64: Conversation & Documents** - End-to-end chat and document upload for Assistant threads
 
@@ -106,8 +106,7 @@ Full details: `.planning/milestones/v2.1-ROADMAP.md`
 
 | Requirement | Phase | Description |
 |-------------|-------|-------------|
-| DATA-01 | 62 | Thread model has thread_type field |
-| DATA-02 | 62 | Existing threads default to ba_assistant via migration |
+| DATA-01 | 62 | Thread model has thread_type field | Complete    | 2026-02-17 | 62 | Existing threads default to ba_assistant via migration |
 | DATA-03 | 62 | Documents with nullable project_id for Assistant scope |
 | LOGIC-01 | 62 | AI service skips BA system prompt for Assistant threads |
 | LOGIC-02 | 62 | MCP tools conditionally loaded only for BA threads |

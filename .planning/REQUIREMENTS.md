@@ -76,29 +76,29 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| DATA-01 | TBD | Pending |
-| DATA-02 | TBD | Pending |
-| DATA-03 | TBD | Pending |
-| LOGIC-01 | TBD | Pending |
-| LOGIC-02 | TBD | Pending |
-| LOGIC-03 | TBD | Pending |
-| API-01 | TBD | Pending |
-| API-02 | TBD | Pending |
-| API-03 | TBD | Pending |
-| NAV-01 | TBD | Pending |
-| NAV-02 | TBD | Pending |
-| NAV-03 | TBD | Pending |
-| UI-01 | TBD | Pending |
-| UI-02 | TBD | Pending |
-| UI-03 | TBD | Pending |
-| UI-04 | TBD | Pending |
-| UI-05 | TBD | Pending |
+| DATA-01 | Phase 62 | Pending |
+| DATA-02 | Phase 62 | Pending |
+| DATA-03 | Phase 62 | Pending |
+| LOGIC-01 | Phase 62 | Pending |
+| LOGIC-02 | Phase 62 | Pending |
+| LOGIC-03 | Phase 62 | Pending |
+| API-01 | Phase 62 | Pending |
+| API-02 | Phase 62 | Pending |
+| API-03 | Phase 62 | Pending |
+| NAV-01 | Phase 63 | Pending |
+| NAV-02 | Phase 63 | Pending |
+| NAV-03 | Phase 63 | Pending |
+| UI-01 | Phase 63 | Pending |
+| UI-02 | Phase 63 | Pending |
+| UI-05 | Phase 63 | Pending |
+| UI-03 | Phase 64 | Pending |
+| UI-04 | Phase 64 | Pending |
 
 **Coverage:**
 - v3.0 requirements: 17 total
-- Mapped to phases: 0
-- Unmapped: 17
+- Mapped to phases: 17
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-02-17*
-*Last updated: 2026-02-17 after initial definition*
+*Last updated: 2026-02-17 after roadmap creation — all 17 requirements mapped to phases 62-64*

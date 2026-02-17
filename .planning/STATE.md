@@ -6,22 +6,23 @@ See: /Users/a1testingmac/projects/XtraSkill/.planning/PROJECT.md (updated 2026-0
 
 **Core value:** Business analysts reduce time spent on requirement documentation while improving completeness through AI-assisted discovery conversations that systematically explore edge cases and generate production-ready artifacts.
 
-**Current focus:** Post-experiment — CLI adapter merged to master
+**Current focus:** v3.0 — Assistant Foundation
 
 ## Current Position
 
-Milestone: v0.1-claude-code — Claude Code as AI Backend — COMPLETE
-Phase: 61 of 61 (Quality Comparison & Decision) — COMPLETE
-Status: Experiment concluded — CLI adapter adopted, merged to master
-Last activity: 2026-02-17 — Phase 61 wrapped up, branch merged to master
+Milestone: v3.0 — Assistant Foundation
+Phase: Not started (defining requirements)
+Status: Defining requirements
+Last activity: 2026-02-17 — Milestone v3.0 started
 
 Progress:
 ```
-v1.0-v1.9.5: [##########] 48 phases, 115 plans, 11 milestones SHIPPED
-v2.1:        [##########] 8/8 plans (Phase 54-56) SHIPPED
-v2.0:        [          ] Backlogged (phases 49-53 preserved)
+v1.0-v1.9.5:      [##########] 48 phases, 115 plans, 11 milestones SHIPPED
+v2.1:              [##########] 8/8 plans (Phase 54-56) SHIPPED
+v0.1-claude-code:  [##########] 11/12 plans (Phase 57-61) SHIPPED
+v2.0:              [          ] Backlogged (phases 49-53 preserved)
 
-v0.1-claude-code: [##########] 100% — COMPLETE (CLI adopted, merged to master 2026-02-17)
+v3.0:              [          ] 0% — Defining requirements
 ```
 
 ## Performance Metrics
@@ -154,18 +155,10 @@ Recent key decisions (full archive in PROJECT.md):
 ## Session Continuity
 
 Last session: 2026-02-17
-Stopped at: Phase 61 complete — experiment concluded, branch merged to master
+Stopped at: v3.0 milestone initialization — defining requirements
 Resume file: None
-Next action: Resolve known issues with CLI adapter, then continue with v2.0 or next milestone
-
-**Experiment Conclusion:**
-- v0.1-claude-code milestone COMPLETE
-- CLI adapter adopted without formal quality comparison (user decision)
-- 5 CLI BRDs generated demonstrating adapter capabilities
-- SDK excluded (Windows command line length limitation)
-- Anthropic baseline skipped (user decided to ship as-is)
-- Known issues to be resolved in future work
+Next action: Complete requirements definition and roadmap creation
 
 ---
 
-*State updated: 2026-02-17 (Phase 61 complete — CLI adopted, merged to master)*
+*State updated: 2026-02-17 (v3.0 milestone started — Assistant Foundation)*

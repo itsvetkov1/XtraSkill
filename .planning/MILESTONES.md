@@ -1,5 +1,33 @@
 # Project Milestones: Business Analyst Assistant
 
+## v0.1-claude-code: Claude Code as AI Backend (Shipped: 2026-02-17)
+
+**Delivered:** Claude Code CLI adapter integrated as a new LLM provider, enabling agent-based conversations with MCP tool access. Experiment concluded with CLI adapter adopted; formal quality comparison skipped.
+
+**Phases completed:** 57-61 (11 plans, 1 skipped)
+
+**Key accomplishments:**
+
+- Shared MCP tool infrastructure (search_documents, save_artifact) extracted to reusable module
+- Claude Agent SDK adapter with event stream translation to StreamChunk format
+- Claude CLI subprocess adapter with JSON stream parsing, lifecycle management, and zombie process prevention
+- Frontend provider integration with experimental badges and thread info panel
+- Evaluation framework with test scenarios, quality rubric, and BRD generation (5 CLI BRDs produced)
+- 3 bugs fixed during manual testing (broken pipe, projectless chat, text selection)
+
+**Stats:**
+
+- 96 files changed, +24,573 / -568 lines
+- 5 phases, 11 plans executed (1 skipped)
+- Branch: `feature/claude-code-backend` → merged to master
+- 5 days from start to ship (2026-02-13 → 2026-02-17)
+
+**Git range:** `a1c9c70` → `76d689b`
+
+**What's next:** v3.0 — Assistant Foundation
+
+---
+
 ## v2.1 Rich Document Support (Shipped: 2026-02-12)
 
 **Delivered:** Full document parsing pipeline replacing text-only uploads with Excel, CSV, PDF, and Word support — including security validation, format-aware rendering, AI context integration, and round-trip export capabilities.

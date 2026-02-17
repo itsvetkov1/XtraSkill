@@ -8,21 +8,32 @@ A hybrid mobile and web application that augments business analysts during featu
 
 Business analysts reduce time spent on requirement documentation while improving completeness through AI-assisted discovery conversations that systematically explore edge cases and generate production-ready artifacts.
 
+## Current Milestone: v3.0 Assistant Foundation
+
+**Goal:** Separate the Claude Code CLI into its own "Assistant" section with dedicated screens, clean of BA-specific logic. Foundation for building a multi-purpose AI assistant.
+
+**Target features:**
+- New "Assistant" section in sidebar navigation
+- Assistant thread list (create, view, delete)
+- Assistant conversation screen (streaming chat, no BA prompts/tools)
+- Document upload for Assistant threads
+- Always uses claude-code-cli adapter (no provider selection)
+- BA Assistant remains unchanged
+
 ## Current State
 
-**Shipped:** v2.1 Rich Document Support (2026-02-12)
+**Shipped:** v0.1-claude-code Claude Code as AI Backend (2026-02-17)
 
 **Delivered:**
-- Document parser infrastructure with 5 format-specific parsers and factory routing
-- Upload security: magic number verification, XXE protection, zip bomb detection, 10MB limit
-- Dual-column storage (encrypted binary + extracted text) with FTS5 unicode61 search
-- Rich upload UI with table preview for Excel/CSV, sheet selector for multi-sheet workbooks
-- Format-aware Document Viewer: PlutoGrid for Excel/CSV, text viewers for PDF/Word
-- AI document search with metadata, token budget limiting, format-specific source attribution
-- Excel/CSV export endpoints with memory-efficient generation and UTF-8 BOM encoding
-- Frontend export UI with PopupMenuButton and FileSaver download
+- Claude Code CLI adapter with subprocess lifecycle management
+- Agent SDK adapter with event stream translation
+- Shared MCP tool infrastructure (search_documents, save_artifact)
+- Frontend provider integration with experimental badges
+- 3 bugs fixed during manual testing
 
-**Next:** v2.0 — Security Audit & Deployment
+**Previous:** v2.1 Rich Document Support (2026-02-12)
+
+**Next:** v3.0 — Assistant Foundation
 
 Previous milestone (v1.9.2):
 - Network error resilience with partial content preservation and retry
@@ -73,6 +84,11 @@ Previous features (v1.5):
 **Codebase:** ~95,000 lines of Python/Dart across FastAPI backend and Flutter frontend.
 
 ## Future Vision
+
+**Assistant expansion** (after v3.0)
+- Custom tools and capabilities for the Assistant
+- Multi-purpose assistant flows (not just BA)
+- Provider selection in Assistant mode
 
 **v2.2 — Search, Previews & Integrations** (after deployment)
 
@@ -231,7 +247,16 @@ Previous features (v1.5):
 
 ### Active
 
-**v2.0 — Security Audit & Deployment** (in progress)
+**v3.0 — Assistant Foundation** (in progress)
+
+- [ ] New "Assistant" sidebar section with dedicated navigation
+- [ ] Assistant thread management (create, list, delete)
+- [ ] Clean conversation screen (no BA system prompts, no BA tools)
+- [ ] Document upload for Assistant threads
+- [ ] Always uses claude-code-cli adapter
+- [ ] BA Assistant flow unchanged
+
+**v2.0 — Security Audit & Deployment** (backlogged)
 
 - [ ] OWASP-aligned security audit and hardening
 - [ ] Production environment configuration
@@ -364,5 +389,7 @@ BAs prepare for meetings by uploading existing requirements or stakeholder notes
 | FileSaver for cross-platform download | Works on web and desktop for export file delivery | ✓ Implemented (Phase 56) |
 | debugPrint for flush errors | Avoids infinite loop if logError triggers another flush attempt | ✓ Implemented (Phase 48) |
 
+| Separate Assistant from BA flow | BA Assistant stays on direct API with BA prompts; Assistant section uses CLI adapter with no BA context. Two distinct user experiences in one app. | — v3.0 |
+
 ---
-*Last updated: 2026-02-12 after v2.1 milestone complete — Rich Document Support shipped*
+*Last updated: 2026-02-17 after v3.0 milestone started — Assistant Foundation*

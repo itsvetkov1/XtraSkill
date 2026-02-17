@@ -85,7 +85,9 @@ Full details: `.planning/milestones/v2.1-ROADMAP.md`
   3. User can create a new Assistant thread via a simplified dialog (no project selector, no mode selector) and it appears in the list
   4. User can delete an Assistant thread with the standard undo behavior (10-second window)
   5. Navigating directly to `/assistant` or `/assistant/:threadId` in the browser loads the correct screen, including on page refresh
-**Plans**: TBD
+**Plans**: 2 plans
+- [ ] 63-01-PLAN.md — Navigation infrastructure + sidebar + AssistantListScreen with API-filtered thread list
+- [ ] 63-02-PLAN.md — Thread creation dialog + deletion with undo and navigate-away
 
 ### Phase 64: Conversation & Documents
 **Goal**: Users can have full conversations in Assistant threads and upload documents for context, completing the end-to-end Assistant workflow
@@ -165,7 +167,7 @@ Full details: `.planning/milestones/v2.1-ROADMAP.md`
 | 60. Frontend Integration | v0.1-claude-code | 2/2 | Complete | 2026-02-15 |
 | 61. Quality Comparison & Decision | v0.1-claude-code | 3/4 (1 skipped) | Complete | 2026-02-17 |
 | 62. Backend Foundation | v3.0 | 0/3 | Planned | - |
-| 63. Navigation & Thread Management | v3.0 | 0/TBD | Not started | - |
+| 63. Navigation & Thread Management | v3.0 | 0/2 | Planned | - |
 | 64. Conversation & Documents | v3.0 | 0/TBD | Not started | - |
 
 ---

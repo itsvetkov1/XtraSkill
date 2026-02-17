@@ -1,13 +1,13 @@
 /// Screen displaying Assistant-type threads only.
 library;
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:provider/provider.dart';
 
 import '../../models/thread.dart';
 import '../../services/thread_service.dart';
-import '../../providers/thread_provider.dart';
 import '../../widgets/empty_state.dart';
 import 'assistant_create_dialog.dart';
 
@@ -28,10 +28,21 @@ class _AssistantListScreenState extends State<AssistantListScreen> {
   bool _isLoading = true;
   String? _error;
 
+  // Delete with undo support
+  Thread? _pendingDelete;
+  int _pendingDeleteIndex = 0;
+  Timer? _deleteTimer;
+
   @override
   void initState() {
     super.initState();
     _loadThreads();
+  }
+
+  @override
+  void dispose() {
+    _deleteTimer?.cancel();
+    super.dispose();
   }
 
   Future<void> _loadThreads() async {
@@ -63,13 +74,77 @@ class _AssistantListScreenState extends State<AssistantListScreen> {
     await _loadThreads();
   }
 
-  void _deleteThread(Thread thread) {
-    final threadProvider = context.read<ThreadProvider>();
-    threadProvider.deleteThread(context, thread.id);
-    // Remove from local list optimistically
+  Future<void> _deleteThread(Thread thread) async {
+    final index = _threads.indexWhere((t) => t.id == thread.id);
+    if (index == -1) return;
+
+    // Commit any previous pending delete immediately
+    if (_pendingDelete != null) {
+      await _commitPendingDelete();
+    }
+
+    // Optimistically remove from list
     setState(() {
-      _threads.removeWhere((t) => t.id == thread.id);
+      _pendingDelete = _threads[index];
+      _pendingDeleteIndex = index;
+      _threads.removeAt(index);
     });
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).clearSnackBars();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('Thread deleted'),
+          duration: const Duration(seconds: 10),
+          action: SnackBarAction(
+            label: 'Undo',
+            onPressed: _undoDelete,
+          ),
+        ),
+      );
+    }
+
+    _deleteTimer?.cancel();
+    _deleteTimer = Timer(const Duration(seconds: 10), () {
+      _commitPendingDelete();
+    });
+  }
+
+  void _undoDelete() {
+    _deleteTimer?.cancel();
+    if (_pendingDelete != null) {
+      setState(() {
+        final insertIndex = _pendingDeleteIndex.clamp(0, _threads.length);
+        _threads.insert(insertIndex, _pendingDelete!);
+        _pendingDelete = null;
+      });
+    }
+  }
+
+  Future<void> _commitPendingDelete() async {
+    if (_pendingDelete == null) return;
+    final threadToDelete = _pendingDelete!;
+    final originalIndex = _pendingDeleteIndex;
+    _pendingDelete = null;
+
+    try {
+      final threadService = ThreadService();
+      await threadService.deleteThread(threadToDelete.id);
+    } catch (e) {
+      // Rollback on failure
+      if (mounted) {
+        setState(() {
+          final insertIndex = originalIndex.clamp(0, _threads.length);
+          _threads.insert(insertIndex, threadToDelete);
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to delete thread: $e'),
+            backgroundColor: Theme.of(context).colorScheme.error,
+          ),
+        );
+      }
+    }
   }
 
   Future<void> _showCreateDialog() async {

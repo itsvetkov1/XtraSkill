@@ -2,13 +2,13 @@
 library;
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../../models/message.dart';
 import '../../providers/assistant_conversation_provider.dart';
 import '../../widgets/resource_not_found_state.dart';
+import 'widgets/assistant_chat_input.dart';
 import 'widgets/assistant_message_bubble.dart';
 import 'widgets/assistant_streaming_message.dart';
 
@@ -28,13 +28,10 @@ class AssistantChatScreen extends StatefulWidget {
 
 class _AssistantChatScreenState extends State<AssistantChatScreen> {
   final ScrollController _scrollController = ScrollController();
-  final TextEditingController _inputController = TextEditingController();
-  late final FocusNode _focusNode;
 
   @override
   void initState() {
     super.initState();
-    _focusNode = FocusNode(onKeyEvent: _handleKeyEvent);
 
     // Load thread on mount
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -45,8 +42,6 @@ class _AssistantChatScreenState extends State<AssistantChatScreen> {
   @override
   void dispose() {
     _scrollController.dispose();
-    _inputController.dispose();
-    _focusNode.dispose();
 
     // Clear conversation state when leaving
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -58,54 +53,11 @@ class _AssistantChatScreenState extends State<AssistantChatScreen> {
     super.dispose();
   }
 
-  /// Handle keyboard events for Enter to send, Shift+Enter for newline
-  KeyEventResult _handleKeyEvent(FocusNode node, KeyEvent event) {
-    if (event is! KeyDownEvent) {
-      return KeyEventResult.ignored;
-    }
-
-    if (event.logicalKey == LogicalKeyboardKey.enter) {
-      // Shift+Enter: insert newline
-      if (HardwareKeyboard.instance.isShiftPressed) {
-        _insertNewline();
-        return KeyEventResult.handled;
-      }
-
-      // Plain Enter: send message
-      if (_inputController.text.trim().isNotEmpty) {
-        _handleSend();
-        return KeyEventResult.handled;
-      }
-
-      return KeyEventResult.handled;
-    }
-
-    return KeyEventResult.ignored;
-  }
-
-  /// Insert newline at cursor position
-  void _insertNewline() {
-    final text = _inputController.text;
-    final selection = _inputController.selection;
-
-    final newText = text.replaceRange(selection.start, selection.end, '\n');
-    _inputController.text = newText;
-
-    _inputController.selection = TextSelection.collapsed(
-      offset: selection.start + 1,
-    );
-  }
-
-  void _handleSend() {
-    final text = _inputController.text.trim();
-    if (text.isEmpty) return;
-
+  void _handleSend(String text) {
     final provider = context.read<AssistantConversationProvider>();
     if (provider.isStreaming) return;
 
     provider.sendMessage(text);
-    _inputController.clear();
-    _focusNode.requestFocus();
     _scrollToBottom();
   }
 
@@ -225,8 +177,12 @@ class _AssistantChatScreenState extends State<AssistantChatScreen> {
                 ),
               ),
 
-              // Temporary chat input (will be replaced in Plan 64-04)
-              _buildChatInput(provider),
+              // Chat input with file attachment and skill selection
+              AssistantChatInput(
+                onSend: _handleSend,
+                enabled: !provider.isStreaming,
+                provider: provider,
+              ),
             ],
           ),
         );
@@ -306,58 +262,4 @@ class _AssistantChatScreenState extends State<AssistantChatScreen> {
     );
   }
 
-  Widget _buildChatInput(AssistantConversationProvider provider) {
-    final theme = Theme.of(context);
-    final inputEnabled = !provider.isStreaming;
-
-    return Container(
-      padding: const EdgeInsets.all(8),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surface,
-        border: Border(
-          top: BorderSide(color: theme.colorScheme.outlineVariant),
-        ),
-      ),
-      child: SafeArea(
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            Expanded(
-              child: TextField(
-                controller: _inputController,
-                focusNode: _focusNode,
-                enabled: inputEnabled,
-                maxLines: 4,
-                minLines: 1,
-                keyboardType: TextInputType.multiline,
-                textInputAction: TextInputAction.none,
-                textCapitalization: TextCapitalization.sentences,
-                decoration: InputDecoration(
-                  hintText: inputEnabled
-                      ? 'Type a message...'
-                      : 'Waiting for response...',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(24),
-                    borderSide: BorderSide.none,
-                  ),
-                  filled: true,
-                  fillColor: theme.colorScheme.surfaceContainerHighest,
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 10,
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(width: 8),
-            IconButton.filled(
-              onPressed: inputEnabled ? _handleSend : null,
-              icon: const Icon(Icons.send),
-              tooltip: 'Send message',
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 }

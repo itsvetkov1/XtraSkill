@@ -11,10 +11,11 @@ from typing import List, Optional
 from fastapi import APIRouter, Depends, File, HTTPException, Response, status, UploadFile
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 import openpyxl
 
 from app.database import get_db
-from app.models import Document, Project, User
+from app.models import Document, Project, Thread, User
 from app.routes.auth import get_current_user
 from app.services.encryption import get_encryption_service
 from app.services.document_search import index_document, search_documents
@@ -34,28 +35,29 @@ TABULAR_CONTENT_TYPES = [
 ]
 
 
-@router.post("/projects/{project_id}/documents", status_code=201)
-async def upload_document(
-    project_id: str,
-    file: UploadFile = File(...),
-    current_user: dict = Depends(get_current_user),
-    db: AsyncSession = Depends(get_db)
-):
+async def _process_and_store_document(
+    db: AsyncSession,
+    file: UploadFile,
+    project_id: Optional[str],
+    thread_id: Optional[str]
+) -> Document:
     """
-    Upload a document to a project.
+    Process, encrypt, and store a document.
 
-    Supports .txt, .md, .xlsx, .csv, .pdf, .docx files, max 10MB.
-    Content is encrypted at rest and indexed for full-text search.
+    Shared logic for both project and thread document uploads.
+
+    Args:
+        db: Database session
+        file: Uploaded file
+        project_id: Optional project ID (for project documents)
+        thread_id: Optional thread ID (for thread documents)
+
+    Returns:
+        Created Document record
+
+    Raises:
+        HTTPException: For validation or processing errors
     """
-    # Verify project exists and belongs to current user
-    stmt = select(Project).where(
-        Project.id == project_id,
-        Project.user_id == current_user["user_id"]
-    )
-    project = (await db.execute(stmt)).scalar_one_or_none()
-    if not project:
-        raise HTTPException(status_code=404, detail="Project not found")
-
     # Validate file type
     if file.content_type not in ALLOWED_CONTENT_TYPES:
         raise HTTPException(
@@ -95,6 +97,7 @@ async def upload_document(
     # Create document record with dual-column storage
     doc = Document(
         project_id=project_id,
+        thread_id=thread_id,
         filename=file.filename or "untitled",
         content_type=file.content_type,
         content_encrypted=encrypted,
@@ -107,13 +110,44 @@ async def upload_document(
     # Index for search (in same transaction)
     await index_document(db, doc.id, doc.filename, parsed["text"])
 
+    return doc
+
+
+@router.post("/projects/{project_id}/documents", status_code=201)
+async def upload_document(
+    project_id: str,
+    file: UploadFile = File(...),
+    current_user: dict = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Upload a document to a project.
+
+    Supports .txt, .md, .xlsx, .csv, .pdf, .docx files, max 10MB.
+    Content is encrypted at rest and indexed for full-text search.
+    """
+    # Verify project exists and belongs to current user
+    stmt = select(Project).where(
+        Project.id == project_id,
+        Project.user_id == current_user["user_id"]
+    )
+    project = (await db.execute(stmt)).scalar_one_or_none()
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+
+    # Process and store document
+    doc = await _process_and_store_document(db, file, project_id=project_id, thread_id=None)
+
     await db.commit()
+
+    # Parse metadata for response
+    metadata = json.loads(doc.metadata_json) if doc.metadata_json else None
 
     return {
         "id": doc.id,
         "filename": doc.filename,
         "content_type": doc.content_type,
-        "metadata": parsed["metadata"],
+        "metadata": metadata,
         "created_at": doc.created_at.isoformat()
     }
 
@@ -406,6 +440,136 @@ async def search_project_documents(
             "score": score
         }
         for doc_id, filename, snippet, score in results
+    ]
+
+
+@router.post("/threads/{thread_id}/documents", status_code=201)
+async def upload_thread_document(
+    thread_id: str,
+    file: UploadFile = File(...),
+    current_user: dict = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Upload a document to a thread (Assistant mode).
+
+    Supports .txt, .md, .xlsx, .csv, .pdf, .docx files, max 10MB.
+    Content is encrypted at rest and indexed for full-text search.
+    Thread documents are not associated with projects.
+
+    Args:
+        thread_id: Thread UUID
+        file: Uploaded file
+        current_user: Authenticated user from JWT
+        db: Database session
+
+    Returns:
+        201 Created with document metadata
+
+    Raises:
+        404: Thread not found or not owned by user
+        400: Invalid file type or processing error
+    """
+    user_id = current_user["user_id"]
+
+    # Get thread with project loaded for ownership check
+    stmt = (
+        select(Thread)
+        .where(Thread.id == thread_id)
+        .options(selectinload(Thread.project))
+    )
+    result = await db.execute(stmt)
+    thread = result.scalar_one_or_none()
+
+    if not thread:
+        raise HTTPException(status_code=404, detail="Thread not found")
+
+    # Validate ownership: project-less threads check user_id, project threads check project.user_id
+    if thread.project_id is None:
+        if thread.user_id != user_id:
+            raise HTTPException(status_code=404, detail="Thread not found")
+    else:
+        if thread.project.user_id != user_id:
+            raise HTTPException(status_code=404, detail="Thread not found")
+
+    # Process and store document (no project_id for thread documents)
+    doc = await _process_and_store_document(db, file, project_id=None, thread_id=thread_id)
+
+    await db.commit()
+
+    # Parse metadata for response
+    metadata = json.loads(doc.metadata_json) if doc.metadata_json else None
+
+    return {
+        "id": doc.id,
+        "filename": doc.filename,
+        "content_type": doc.content_type,
+        "metadata": metadata,
+        "created_at": doc.created_at.isoformat()
+    }
+
+
+@router.get("/threads/{thread_id}/documents")
+async def list_thread_documents(
+    thread_id: str,
+    current_user: dict = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    List all documents uploaded to a thread.
+
+    Returns metadata only (no content) ordered by creation date (newest first).
+
+    Args:
+        thread_id: Thread UUID
+        current_user: Authenticated user from JWT
+        db: Database session
+
+    Returns:
+        List of document metadata
+
+    Raises:
+        404: Thread not found or not owned by user
+    """
+    user_id = current_user["user_id"]
+
+    # Get thread with project loaded for ownership check
+    stmt = (
+        select(Thread)
+        .where(Thread.id == thread_id)
+        .options(selectinload(Thread.project))
+    )
+    result = await db.execute(stmt)
+    thread = result.scalar_one_or_none()
+
+    if not thread:
+        raise HTTPException(status_code=404, detail="Thread not found")
+
+    # Validate ownership: project-less threads check user_id, project threads check project.user_id
+    if thread.project_id is None:
+        if thread.user_id != user_id:
+            raise HTTPException(status_code=404, detail="Thread not found")
+    else:
+        if thread.project.user_id != user_id:
+            raise HTTPException(status_code=404, detail="Thread not found")
+
+    # Get documents for this thread
+    stmt = select(Document).where(
+        Document.thread_id == thread_id
+    ).order_by(Document.created_at.desc())
+
+    result = await db.execute(stmt)
+    documents = result.scalars().all()
+
+    return [
+        {
+            "id": doc.id,
+            "filename": doc.filename,
+            "content_type": doc.content_type or "text/plain",
+            "metadata": json.loads(doc.metadata_json) if doc.metadata_json else None,
+            "created_at": doc.created_at.isoformat()
+        }
+        for doc in documents
     ]
 
 

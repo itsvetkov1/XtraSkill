@@ -11,6 +11,7 @@ import 'core/theme.dart';
 import 'utils/date_formatter.dart';
 import 'utils/logging_observer.dart';
 import 'services/logging_service.dart';
+import 'services/document_service.dart';
 import 'providers/auth_provider.dart';
 import 'providers/budget_provider.dart';
 import 'providers/conversation_provider.dart';
@@ -140,7 +141,11 @@ class _MyAppState extends State<MyApp> {
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => BudgetProvider()),
         ChangeNotifierProvider(create: (_) => ConversationProvider()),
-        ChangeNotifierProvider(create: (_) => AssistantConversationProvider()),
+        ChangeNotifierProvider(
+          create: (_) => AssistantConversationProvider(
+            documentService: DocumentService(),
+          ),
+        ),
         ChangeNotifierProvider(create: (_) => ProjectProvider()),
         ChangeNotifierProvider(create: (_) => DocumentProvider()),
         ChangeNotifierProvider(create: (_) => ThreadProvider()),

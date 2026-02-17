@@ -142,6 +142,45 @@ class DocumentService {
     return response.data as List<int>;
   }
 
+  /// Upload document to an Assistant thread (not a project).
+  ///
+  /// [threadId] - ID of the thread to upload to
+  /// [filename] - Name of the file
+  /// [bytes] - File content as bytes
+  /// [contentType] - MIME type of the file
+  Future<Map<String, dynamic>> uploadThreadDocument(
+    String threadId,
+    String filename,
+    Uint8List bytes,
+    String contentType,
+  ) async {
+    final formData = FormData.fromMap({
+      'file': MultipartFile.fromBytes(
+        bytes,
+        filename: filename,
+        contentType: DioMediaType.parse(contentType),
+      ),
+    });
+
+    final response = await _dio.post(
+      '/api/threads/$threadId/documents',
+      data: formData,
+      options: await _getAuthHeaders(),
+    );
+    return response.data as Map<String, dynamic>;
+  }
+
+  /// List documents uploaded to an Assistant thread.
+  ///
+  /// [threadId] - ID of the thread
+  Future<List<Map<String, dynamic>>> getThreadDocuments(String threadId) async {
+    final response = await _dio.get(
+      '/api/threads/$threadId/documents',
+      options: await _getAuthHeaders(),
+    );
+    return List<Map<String, dynamic>>.from(response.data as List);
+  }
+
   /// Export document data to Excel or CSV format.
   ///
   /// [documentId] - ID of the document to export

@@ -50,16 +50,106 @@ class AssistantMessageBubble extends StatelessWidget {
     );
   }
 
-  /// Build user message content
+  /// Build user message content with optional attachment chips
   Widget _buildUserMessage(BuildContext context, ThemeData theme) {
-    return Text(
-      message.content,
-      style: TextStyle(
-        fontSize: 15,
-        height: 1.4,
-        color: theme.colorScheme.onPrimary,
+    // Parse attachments from message content if present
+    final attachments = _parseAttachments(message.content);
+
+    // Display message text without the attachment note
+    final displayText = message.content;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        // Message text
+        Text(
+          displayText,
+          style: TextStyle(
+            fontSize: 15,
+            height: 1.4,
+            color: theme.colorScheme.onPrimary,
+          ),
+        ),
+        // Attachment chips (if any)
+        if (attachments.isNotEmpty) ...[
+          const SizedBox(height: 8),
+          Wrap(
+            spacing: 6,
+            runSpacing: 4,
+            children: attachments.map((filename) => _buildAttachmentChip(context, theme, filename)).toList(),
+          ),
+        ],
+      ],
+    );
+  }
+
+  /// Parse attachment filenames from message content
+  List<String> _parseAttachments(String content) {
+    // Look for "[Attached files: file1.pdf, file2.xlsx]" pattern
+    final regex = RegExp(r'\[Attached files: ([^\]]+)\]');
+    final match = regex.firstMatch(content);
+    if (match != null) {
+      final fileList = match.group(1) ?? '';
+      return fileList.split(',').map((f) => f.trim()).where((f) => f.isNotEmpty).toList();
+    }
+    return [];
+  }
+
+  /// Build a small attachment chip
+  Widget _buildAttachmentChip(BuildContext context, ThemeData theme, String filename) {
+    // Choose icon based on file extension
+    final icon = _getFileIcon(filename);
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.onPrimary.withValues(alpha: 0.15),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            icon,
+            size: 14,
+            color: theme.colorScheme.onPrimary,
+          ),
+          const SizedBox(width: 4),
+          Text(
+            filename,
+            style: TextStyle(
+              fontSize: 12,
+              color: theme.colorScheme.onPrimary,
+            ),
+          ),
+        ],
       ),
     );
+  }
+
+  /// Get appropriate icon for file type
+  IconData _getFileIcon(String filename) {
+    final ext = filename.split('.').last.toLowerCase();
+    switch (ext) {
+      case 'pdf':
+        return Icons.picture_as_pdf;
+      case 'doc':
+      case 'docx':
+        return Icons.description;
+      case 'xls':
+      case 'xlsx':
+        return Icons.table_chart;
+      case 'jpg':
+      case 'jpeg':
+      case 'png':
+      case 'gif':
+        return Icons.image;
+      case 'txt':
+        return Icons.text_snippet;
+      default:
+        return Icons.insert_drive_file;
+    }
   }
 
   /// Build assistant message content with markdown and controls

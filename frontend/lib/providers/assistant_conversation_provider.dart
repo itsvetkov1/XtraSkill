@@ -11,6 +11,7 @@ import '../models/message.dart';
 import '../models/skill.dart';
 import '../models/thread.dart';
 import '../services/ai_service.dart';
+import '../services/document_service.dart';
 import '../services/thread_service.dart';
 
 /// File attached for upload with next message
@@ -35,6 +36,9 @@ class AssistantConversationProvider extends ChangeNotifier {
 
   /// Thread service for loading thread details
   final ThreadService _threadService;
+
+  /// Document service for uploading thread documents
+  final DocumentService _documentService;
 
   /// Current thread being viewed
   Thread? _thread;
@@ -81,8 +85,10 @@ class AssistantConversationProvider extends ChangeNotifier {
   AssistantConversationProvider({
     AIService? aiService,
     ThreadService? threadService,
+    DocumentService? documentService,
   })  : _aiService = aiService ?? AIService(),
-        _threadService = threadService ?? ThreadService();
+        _threadService = threadService ?? ThreadService(),
+        _documentService = documentService ?? DocumentService();
 
   /// Current thread
   Thread? get thread => _thread;
@@ -163,16 +169,39 @@ class AssistantConversationProvider extends ChangeNotifier {
     _lastFailedMessage = content;
     _hasAutoRetried = false; // Reset auto-retry flag for new send
 
-    // Prepend skill context if selected
+    // 1. Upload attached files first
+    final filesToUpload = List<AttachedFile>.from(_attachedFiles);
+    final uploadedDocNames = <String>[];
+    if (filesToUpload.isNotEmpty) {
+      for (final file in filesToUpload) {
+        try {
+          if (file.bytes != null) {
+            await _documentService.uploadThreadDocument(
+              _thread!.id,
+              file.name,
+              file.bytes!,
+              file.contentType,
+            );
+            uploadedDocNames.add(file.name);
+          }
+        } catch (e) {
+          debugPrint('Failed to upload ${file.name}: $e');
+          // Continue with other files — don't block message send
+        }
+      }
+      _attachedFiles.clear();
+      notifyListeners();
+    }
+
+    // 2. Prepend skill context if selected
     String messageContent = content;
     if (_selectedSkill != null) {
       messageContent = '[Using skill: ${_selectedSkill!.name}]\n\n$content';
     }
 
-    // Include file references if attached
-    if (_attachedFiles.isNotEmpty) {
-      final fileList = _attachedFiles.map((f) => f.name).join(', ');
-      messageContent = '$messageContent\n\n[Attached files: $fileList]';
+    // 3. If files were uploaded, append a note so the AI knows
+    if (uploadedDocNames.isNotEmpty) {
+      messageContent = '$messageContent\n\n[Attached files: ${uploadedDocNames.join(", ")}]';
     }
 
     // Add user message optimistically (will be confirmed by refresh)

@@ -83,6 +83,21 @@ class BreadcrumbBar extends StatelessWidget {
       return [const Breadcrumb('Settings')];
     }
 
+    // /assistant routes
+    if (segments.isNotEmpty && segments[0] == 'assistant') {
+      if (segments.length == 1) {
+        return [const Breadcrumb('Assistant')];
+      }
+      if (segments.length >= 2) {
+        final conversationProvider = context.read<ConversationProvider>();
+        final threadTitle = conversationProvider.thread?.title ?? 'Conversation';
+        return [
+          const Breadcrumb('Assistant', '/assistant'),
+          Breadcrumb(threadTitle),
+        ];
+      }
+    }
+
     // /chats routes (project-less threads) - NAV-02
     if (segments.isNotEmpty && segments[0] == 'chats') {
       // /chats -> Chats

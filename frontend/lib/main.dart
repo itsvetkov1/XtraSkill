@@ -34,6 +34,7 @@ import 'screens/projects/project_list_screen.dart';
 import 'screens/projects/project_detail_screen.dart';
 import 'screens/conversation/conversation_screen.dart';
 import 'screens/documents/document_viewer_screen.dart';
+import 'screens/assistant/assistant_list_screen.dart';
 import 'widgets/responsive_scaffold.dart';
 
 Future<void> main() async {
@@ -172,9 +173,10 @@ class _MyAppState extends State<MyApp> {
   /// This handles nested routes (e.g., /projects/:id highlights Projects)
   int _getSelectedIndex(String path) {
     if (path.startsWith('/home')) return 0;
-    if (path.startsWith('/chats')) return 1;
-    if (path.startsWith('/projects')) return 2;
-    if (path.startsWith('/settings')) return 3;
+    if (path.startsWith('/assistant')) return 1;
+    if (path.startsWith('/chats')) return 2;
+    if (path.startsWith('/projects')) return 3;
+    if (path.startsWith('/settings')) return 4;
     return 0; // Default to home
   }
 
@@ -275,7 +277,28 @@ class _MyAppState extends State<MyApp> {
                 ),
               ],
             ),
-            // Branch 1: Chats (global threads)
+            // Branch 1: Assistant
+            StatefulShellBranch(
+              routes: [
+                GoRoute(
+                  path: '/assistant',
+                  builder: (context, state) => const AssistantListScreen(),
+                  routes: [
+                    GoRoute(
+                      path: ':threadId',
+                      builder: (context, state) {
+                        final threadId = state.pathParameters['threadId']!;
+                        return ConversationScreen(
+                          projectId: null,
+                          threadId: threadId,
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            // Branch 2: Chats (global threads)
             StatefulShellBranch(
               routes: [
                 GoRoute(
@@ -297,7 +320,7 @@ class _MyAppState extends State<MyApp> {
                 ),
               ],
             ),
-            // Branch 2: Projects (includes nested project detail route)
+            // Branch 3: Projects (includes nested project detail route)
             StatefulShellBranch(
               routes: [
                 GoRoute(
@@ -335,7 +358,7 @@ class _MyAppState extends State<MyApp> {
                 ),
               ],
             ),
-            // Branch 3: Settings
+            // Branch 4: Settings
             StatefulShellBranch(
               routes: [
                 GoRoute(

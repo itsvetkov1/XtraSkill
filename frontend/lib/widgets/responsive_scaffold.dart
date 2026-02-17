@@ -58,6 +58,11 @@ class ResponsiveScaffold extends StatelessWidget {
       label: 'Home',
     ),
     _NavigationDestination(
+      icon: Icons.add_circle_outline,
+      selectedIcon: Icons.add_circle,
+      label: 'Assistant',
+    ),
+    _NavigationDestination(
       icon: Icons.chat_bubble_outline,
       selectedIcon: Icons.chat_bubble,
       label: 'Chats',

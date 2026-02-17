@@ -70,8 +70,13 @@ class ContextualBackButton extends StatelessWidget {
     final path = GoRouterState.of(context).uri.path;
 
     // Root pages have no back button
-    if (path == '/home' || path == '/projects' || path == '/settings') {
+    if (path == '/home' || path == '/projects' || path == '/settings' || path == '/chats' || path == '/assistant') {
       return null;
+    }
+
+    // /assistant/:threadId -> Back to Assistant
+    if (path.startsWith('/assistant/')) {
+      return 'Assistant';
     }
 
     // /projects/:id -> Back to Projects

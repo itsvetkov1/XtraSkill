@@ -6,15 +6,14 @@ See: /Users/a1testingmac/projects/XtraSkill/.planning/PROJECT.md (updated 2026-0
 
 **Core value:** Business analysts reduce time spent on requirement documentation while improving completeness through AI-assisted discovery conversations that systematically explore edge cases and generate production-ready artifacts.
 
-**Current focus:** v0.1-claude-code — Claude Code as AI Backend experiment
+**Current focus:** Post-experiment — CLI adapter merged to master
 
 ## Current Position
 
-Milestone: v0.1-claude-code — Claude Code as AI Backend
-Phase: 61 of 61 (Quality Comparison & Decision)
-Current Plan: 3 of 4 in progress (CLI BRDs generated, awaiting anthropic baseline)
-Status: In Progress — Blocked on API credits
-Last activity: 2026-02-15 — Generated 5 CLI BRDs, awaiting API top-up for anthropic baseline
+Milestone: v0.1-claude-code — Claude Code as AI Backend — COMPLETE
+Phase: 61 of 61 (Quality Comparison & Decision) — COMPLETE
+Status: Experiment concluded — CLI adapter adopted, merged to master
+Last activity: 2026-02-17 — Phase 61 wrapped up, branch merged to master
 
 Progress:
 ```
@@ -22,7 +21,7 @@ v1.0-v1.9.5: [##########] 48 phases, 115 plans, 11 milestones SHIPPED
 v2.1:        [##########] 8/8 plans (Phase 54-56) SHIPPED
 v2.0:        [          ] Backlogged (phases 49-53 preserved)
 
-v0.1-claude-code: [█████████▓] 98% — Phase 61 plan 03 partial (CLI done, anthropic pending)
+v0.1-claude-code: [##########] 100% — COMPLETE (CLI adopted, merged to master 2026-02-17)
 ```
 
 ## Performance Metrics
@@ -83,7 +82,7 @@ v0.1-claude-code: [█████████▓] 98% — Phase 61 plan 03 part
 | Logging v1.9.5 | 43-48 | 8/8 | SHIPPED 2026-02-08 |
 | Rich Docs v2.1 | 54-56 | 8/8 | SHIPPED 2026-02-12 |
 | Security v2.0 | 49-53 | 0/TBD | BACKLOGGED 2026-02-13 |
-| Claude Code v0.1 | 57-61 | 7/TBD | IN PROGRESS — Phase 60-01 complete |
+| Claude Code v0.1 | 57-61 | 11/12 (1 skipped) | SHIPPED 2026-02-17 |
 
 **Total:** 132 plans shipped across 50 phases
 | Phase 61 P01 | 191 | 2 tasks | 4 files |
@@ -154,45 +153,19 @@ Recent key decisions (full archive in PROJECT.md):
 
 ## Session Continuity
 
-Last session: 2026-02-16
-Stopped at: Manual testing of Claude Code CLI feature — bugs found and fixed
+Last session: 2026-02-17
+Stopped at: Phase 61 complete — experiment concluded, branch merged to master
 Resume file: None
-Next action: Continue manual testing, then generate anthropic baseline BRDs via CLI (subscription, no API credits)
+Next action: Resolve known issues with CLI adapter, then continue with v2.0 or next milestone
 
-**Context for Next Session:**
-- Phase 61-01 COMPLETE: Evaluation framework infrastructure (45fa814, 1a255f5)
-- Phase 61-02 COMPLETE: Analysis pipeline & report generator (7c564d4, 60d5b6c)
-- Phase 61-03 IN PROGRESS: BRD generation — CLI done, anthropic pending
-- Manual testing started on macOS — 3 bugs found and fixed (see below)
-
-**Bugs fixed during manual testing session (2026-02-16):**
-- **Broken pipe error**: CLI subprocess failed because `CLAUDECODE=1` env var triggered nested session detection. Fix: strip `CLAUDECODE` and `CLAUDE_CODE_ENTRYPOINT` from subprocess environment.
-- **Projectless chat error**: "Adapter context not set" when creating chats without a project. Fix: relaxed guard in both CLI and SDK adapters to not require `project_id` (only `db` and `thread_id` required).
-- **Text not selectable**: No visual feedback when selecting text in conversation view. Fix: wrapped message list with `SelectionArea`, converted nested `SelectableText` to `Text` in message_bubble, streaming_message, error_state_message, artifact_card.
-
-**Previous CLI BRD generation results (5/5 complete):**
-
-| Scenario | File Size | Output Tokens | Time |
-|----------|-----------|---------------|------|
-| TC-01 (Login, low) | 63KB | 13,226 | 296s |
-| TC-02 (Expense, medium) | 76KB | 16,091 | 375s |
-| TC-03 (Marketplace, high) | 81KB | 16,915 | 397s |
-| TC-04 (CRM, medium) | 59KB | 12,708 | 278s |
-| TC-05 (Healthcare, high) | 97KB | 19,917 | 485s |
-| **Total** | **376KB** | **78,867** | **30.5 min** |
-
-**To resume Plan 61-03:**
-1. Generate baseline BRDs using `claude -p` (subscription, no API credits needed)
-2. After all 10 BRDs exist, run anonymize: `python -m evaluation.generate_samples anonymize`
-3. Score 10 BRDs using quality rubric (human checkpoint)
-4. Then execute Plan 61-04: analysis + report
-
-**Decision change:** Baseline BRDs will be generated via `claude -p` (print mode, subscription) instead of direct Anthropic API — avoids API credit costs while still comparing simple call vs agent pipeline.
-
-**Comparison is now 2-provider only:** anthropic (baseline via CLI print mode) vs claude-code-cli (agent pipeline)
-- SDK excluded due to Windows command line length limitation in SDK library
-- Report template and analysis scripts already updated for 2-provider comparison
+**Experiment Conclusion:**
+- v0.1-claude-code milestone COMPLETE
+- CLI adapter adopted without formal quality comparison (user decision)
+- 5 CLI BRDs generated demonstrating adapter capabilities
+- SDK excluded (Windows command line length limitation)
+- Anthropic baseline skipped (user decided to ship as-is)
+- Known issues to be resolved in future work
 
 ---
 
-*State updated: 2026-02-16 (Manual testing bugs fixed — broken pipe, projectless chat, text selection)*
+*State updated: 2026-02-17 (Phase 61 complete — CLI adopted, merged to master)*

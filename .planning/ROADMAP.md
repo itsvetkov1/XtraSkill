@@ -14,7 +14,7 @@
 - ✅ **v1.9.4 Artifact Deduplication** - Phases 40-42 (shipped 2026-02-05)
 - ✅ **v1.9.5 Pilot Logging Infrastructure** - Phases 43-48 (shipped 2026-02-08)
 - ✅ **v2.1 Rich Document Support** - Phases 54-56 (shipped 2026-02-12)
-- 📋 **v0.1-claude-code: Claude Code as AI Backend** - Phases 57-61 (active)
+- ✅ **v0.1-claude-code: Claude Code as AI Backend** - Phases 57-61 (shipped 2026-02-17)
 - 🗄️ **v2.0 Security Audit & Deployment** - Phases 49-53 (backlogged)
 
 ## Phases
@@ -30,17 +30,19 @@ Full details: `.planning/milestones/v2.1-ROADMAP.md`
 
 </details>
 
-### 📋 v0.1-claude-code: Claude Code as AI Backend (Active)
+### ✅ v0.1-claude-code: Claude Code as AI Backend (Shipped 2026-02-17)
 
 **Milestone Goal:** Determine if Claude Code's agent capabilities (via Python SDK or CLI subprocess) produce measurably better business analysis artifacts than the current direct API approach, and if so, build a production-viable adapter.
 
-**Branch:** `feature/claude-code-backend` (experiment isolated from master, Phase 61 gates merge)
+**Outcome:** Experiment successful — CLI adapter adopted. Formal quality comparison skipped; user decided to ship based on implementation experience and CLI BRD quality.
+
+**Branch:** `feature/claude-code-backend` → merged to master
 
 - [x] **Phase 57: Foundation** - Shared infrastructure for both adapters (completed 2026-02-13)
 - [x] **Phase 58: Agent SDK Adapter** - Primary integration via Python SDK (completed 2026-02-14)
 - [x] **Phase 59: CLI Subprocess Adapter** - Experimental CLI subprocess integration (completed 2026-02-14)
 - [x] **Phase 60: Frontend Integration** - Provider selection and streaming UI (completed 2026-02-15)
-- [ ] **Phase 61: Quality Comparison & Decision** - Measure quality and decide go/no-go
+- [x] **Phase 61: Quality Comparison & Decision** - CLI adopted, formal comparison skipped (completed 2026-02-17)
 
 #### Phase 57: Foundation
 **Goal**: Shared infrastructure ready for both SDK and CLI adapter implementations
@@ -119,8 +121,8 @@ Plans:
 Plans:
 - [x] 61-01-PLAN.md — Build evaluation framework (test scenarios, quality rubric, generation orchestrator)
 - [x] 61-02-PLAN.md — Create analysis pipeline and report generator (statistical analysis, Jinja2 report template)
-- [ ] 61-03-PLAN.md — Generate 10 BRDs (2 providers × 5 scenarios) and human scoring checkpoint *(CLI 5/5 done, anthropic 0/5 — blocked on API credits)*
-- [ ] 61-04-PLAN.md — Run analysis, generate comparison report, update project state
+- [x] 61-03-PLAN.md — Generate 5 CLI BRDs (baseline skipped, experiment concluded early)
+- [~] 61-04-PLAN.md — Skipped (no baseline data for comparison; CLI adopted directly)
 
 ## Coverage
 
@@ -164,7 +166,7 @@ Plans:
 | 58. Agent SDK Adapter | v0.1-claude-code | 2/2 | Complete | 2026-02-14 |
 | 59. CLI Subprocess Adapter | v0.1-claude-code | 2/2 | Complete | 2026-02-14 |
 | 60. Frontend Integration | v0.1-claude-code | 2/2 | Complete | 2026-02-15 |
-| 61. Quality Comparison & Decision | v0.1-claude-code | 2/4 | In Progress | - |
+| 61. Quality Comparison & Decision | v0.1-claude-code | 3/4 (1 skipped) | Complete | 2026-02-17 |
 
 ---
 

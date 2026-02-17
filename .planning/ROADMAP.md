@@ -98,7 +98,12 @@ Full details: `.planning/milestones/v2.1-ROADMAP.md`
   2. Streaming works end-to-end: text appears progressively, thinking indicators display, and the response completes cleanly
   3. User can upload a document within an Assistant thread and the AI can reference its content in subsequent responses
   4. Assistant conversations use the claude-code-cli adapter regardless of the user's default provider setting
-**Plans**: TBD
+**Plans**: 5 plans
+- [ ] 64-01-PLAN.md — Backend: Skills discovery API + thread-scoped document upload/listing endpoints
+- [ ] 64-02-PLAN.md — Frontend foundation: AssistantConversationProvider + MarkdownMessage widget with syntax highlighting
+- [ ] 64-03-PLAN.md — AssistantChatScreen with message list, streaming display, copy/retry controls
+- [ ] 64-04-PLAN.md — AssistantChatInput with file attachment, skill selector, and send controls
+- [ ] 64-05-PLAN.md — Document upload: drag-and-drop, paste, backend integration, message attachment display
 
 ## Coverage
 

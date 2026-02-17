@@ -1,60 +1,74 @@
-# Requirements: Claude Code as AI Backend Experiment
+# Requirements: Assistant Foundation
 
-**Defined:** 2026-02-13
-**Core Value:** Determine if Claude Code's agent capabilities produce measurably better business analysis artifacts than the current direct API approach
+**Defined:** 2026-02-17
+**Core Value:** Separate Claude Code CLI into its own "Assistant" section with dedicated screens, clean of BA-specific logic — foundation for building a multi-purpose AI assistant.
 
-## v1 Requirements
+## v3.0 Requirements
 
-Requirements for this experiment. Each maps to roadmap phases.
+Requirements for this milestone. Each maps to roadmap phases.
 
-### Foundation
+### Data Model
 
-- [ ] **FOUND-01**: Developer can install claude-agent-sdk and verify CLI bundled
-- [ ] **FOUND-02**: MCP tools (search_documents, save_artifact) extracted to shared reusable module
-- [ ] **FOUND-03**: New provider `claude-code-sdk` registered in LLMFactory
-- [ ] **FOUND-04**: New provider `claude-code-cli` registered in LLMFactory
+- [ ] **DATA-01**: Thread model has `thread_type` field distinguishing BA Assistant vs Assistant threads
+- [ ] **DATA-02**: Existing threads default to `ba_assistant` type via backward-compatible migration
+- [ ] **DATA-03**: Documents can be associated with Assistant threads (project_id nullable for Assistant scope)
 
-### Agent SDK Adapter
+### Backend Logic
 
-- [ ] **SDK-01**: ClaudeAgentAdapter implements LLMAdapter ABC with stream_chat()
-- [ ] **SDK-02**: SDK events translated to StreamChunk format (text, thinking, tool_use, complete, error)
-- [ ] **SDK-03**: MCP server integrates search_documents and save_artifact tools
-- [ ] **SDK-04**: Streaming responses work via existing SSE endpoint
-- [ ] **SDK-05**: Error handling maps SDK errors to StreamChunk error chunks
+- [ ] **LOGIC-01**: AI service skips BA system prompt for Assistant threads (no BA tools, no BA instructions)
+- [ ] **LOGIC-02**: MCP tools (search_documents, save_artifact) conditionally loaded only for BA threads
+- [ ] **LOGIC-03**: Assistant threads always use `claude-code-cli` adapter regardless of settings
 
-### CLI Subprocess Adapter
+### API
 
-- [ ] **CLI-01**: ClaudeCLIAdapter implements LLMAdapter ABC with stream_chat()
-- [ ] **CLI-02**: CLI subprocess spawned with JSON output mode and proper lifecycle management
-- [ ] **CLI-03**: JSON stream parsed into StreamChunk format
-- [ ] **CLI-04**: Tool integration via MCP server or prompt-based approach
-- [ ] **CLI-05**: Subprocess cleanup prevents zombie processes and memory leaks
+- [ ] **API-01**: Thread creation accepts `thread_type` parameter
+- [ ] **API-02**: Thread listing supports `thread_type` filter query parameter
+- [ ] **API-03**: Assistant threads cannot have a project association (validation)
 
-### Frontend Integration
+### Navigation
 
-- [ ] **UI-01**: "Claude Code (SDK)" appears in provider settings dropdown
-- [ ] **UI-02**: "Claude Code (CLI)" appears in provider settings dropdown
-- [ ] **UI-03**: New threads can be created with claude-code providers
-- [ ] **UI-04**: Chat streaming works end-to-end with new providers
+- [ ] **NAV-01**: "Assistant" appears as its own section in sidebar navigation
+- [ ] **NAV-02**: Assistant section has dedicated routes (`/assistant`, `/assistant/:threadId`)
+- [ ] **NAV-03**: Deep links to Assistant threads work correctly on page refresh
 
-### Quality Comparison
+### UI
 
-- [ ] **QUAL-01**: 5+ BRDs generated with direct API baseline (control)
-- [ ] **QUAL-02**: 5+ BRDs generated with Agent SDK adapter
-- [ ] **QUAL-03**: 5+ BRDs generated with CLI subprocess adapter
-- [ ] **QUAL-04**: Quality metrics defined and scored (completeness, AC quality, consistency, error coverage)
-- [ ] **QUAL-05**: Comparison report with go/no-go recommendation
+- [ ] **UI-01**: Assistant thread list screen shows only Assistant-type threads
+- [ ] **UI-02**: User can create new Assistant thread (simplified dialog — no project, no mode selector)
+- [ ] **UI-03**: Assistant conversation screen works end-to-end (send message, streaming response)
+- [ ] **UI-04**: User can upload documents for context within Assistant threads
+- [ ] **UI-05**: User can delete Assistant threads with standard undo behavior
+
+## Future Requirements
+
+Deferred to future milestones. Tracked but not in current roadmap.
+
+### Search & Export
+
+- **SRCH-01**: Thread search supports filtering by thread_type (FTS5 extension)
+- **SRCH-02**: User can export Assistant conversation history as Markdown or PDF
+
+### Customization
+
+- **CUST-01**: User can define custom system prompts for Assistant mode
+- **CUST-02**: User can select different providers in Assistant mode (not just CLI)
+
+### Cross-Mode
+
+- **XMOD-01**: User can reference BA project documents from Assistant threads
+- **XMOD-02**: Shareable thread URLs work across BA and Assistant modes
 
 ## Out of Scope
 
 | Feature | Reason |
 |---------|--------|
-| Production deployment | This is an experiment branch — deployment only if quality proven |
-| Multi-pass direct API enhancement | Interesting alternative but separate experiment |
-| Session resumption / multi-turn agent sessions | SDK supports it but unnecessary for document generation comparison |
-| Docker sandboxing per user | Over-engineering for experiment; evaluate if approach adopted |
-| Cost optimization | Track costs during comparison but don't optimize yet |
-| Frontend provider-specific UI | Use existing provider dropdown pattern, no custom UI per provider |
+| Universal thread list (mixed BA + Assistant) | Context confusion — users lose track of which mode a thread uses |
+| Assistant switching mid-thread | System prompt contamination — BA context bleeds into general chat |
+| Shared document pool across modes | Context pollution — BA docs appear in Assistant search results |
+| Real-time sync between BA and Assistant | Privacy violation and context bloat |
+| Conversation templates | Premature — validate basic Assistant first |
+| Voice input | High complexity, defer to future |
+| Multi-assistant workflows | Requires validated foundation first |
 
 ## Traceability
 
@@ -62,35 +76,29 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| FOUND-01 | Phase 57 | Pending |
-| FOUND-02 | Phase 57 | Pending |
-| FOUND-03 | Phase 57 | Pending |
-| FOUND-04 | Phase 57 | Pending |
-| SDK-01 | Phase 58 | Pending |
-| SDK-02 | Phase 58 | Pending |
-| SDK-03 | Phase 58 | Pending |
-| SDK-04 | Phase 58 | Pending |
-| SDK-05 | Phase 58 | Pending |
-| CLI-01 | Phase 59 | Pending |
-| CLI-02 | Phase 59 | Pending |
-| CLI-03 | Phase 59 | Pending |
-| CLI-04 | Phase 59 | Pending |
-| CLI-05 | Phase 59 | Pending |
-| UI-01 | Phase 60 | Pending |
-| UI-02 | Phase 60 | Pending |
-| UI-03 | Phase 60 | Pending |
-| UI-04 | Phase 60 | Pending |
-| QUAL-01 | Phase 61 | Pending |
-| QUAL-02 | Phase 61 | Pending |
-| QUAL-03 | Phase 61 | Pending |
-| QUAL-04 | Phase 61 | Pending |
-| QUAL-05 | Phase 61 | Pending |
+| DATA-01 | TBD | Pending |
+| DATA-02 | TBD | Pending |
+| DATA-03 | TBD | Pending |
+| LOGIC-01 | TBD | Pending |
+| LOGIC-02 | TBD | Pending |
+| LOGIC-03 | TBD | Pending |
+| API-01 | TBD | Pending |
+| API-02 | TBD | Pending |
+| API-03 | TBD | Pending |
+| NAV-01 | TBD | Pending |
+| NAV-02 | TBD | Pending |
+| NAV-03 | TBD | Pending |
+| UI-01 | TBD | Pending |
+| UI-02 | TBD | Pending |
+| UI-03 | TBD | Pending |
+| UI-04 | TBD | Pending |
+| UI-05 | TBD | Pending |
 
 **Coverage:**
-- v1 requirements: 19 total
-- Mapped to phases: 19
-- Unmapped: 0 ✓
+- v3.0 requirements: 17 total
+- Mapped to phases: 0
+- Unmapped: 17
 
 ---
-*Requirements defined: 2026-02-13*
-*Last updated: 2026-02-13 after initial definition*
+*Requirements defined: 2026-02-17*
+*Last updated: 2026-02-17 after initial definition*

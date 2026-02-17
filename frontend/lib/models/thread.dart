@@ -14,6 +14,7 @@ class Thread {
   final List<Message>? messages; // Optional: only in detail view
   final String? modelProvider; // LLM provider used for this thread
   final String? conversationMode; // "meeting" or "document_refinement"
+  final String? threadType; // "ba_assistant" or "assistant"
 
   Thread({
     required this.id,
@@ -27,6 +28,7 @@ class Thread {
     this.messages,
     this.modelProvider,
     this.conversationMode,
+    this.threadType,
   });
 
   /// Display name for the mode
@@ -75,6 +77,7 @@ class Thread {
           : null,
       modelProvider: json['model_provider'] as String?,
       conversationMode: json['conversation_mode'] as String?,
+      threadType: json['thread_type'] as String?,
     );
   }
 
@@ -93,6 +96,7 @@ class Thread {
         'messages': messages!.map((m) => m.toJson()).toList(),
       if (modelProvider != null) 'model_provider': modelProvider,
       if (conversationMode != null) 'conversation_mode': conversationMode,
+      if (threadType != null) 'thread_type': threadType,
     };
   }
 }

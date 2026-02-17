@@ -80,6 +80,7 @@ class ThreadService {
         data: {
           if (title != null && title.isNotEmpty) 'title': title,
           if (provider != null) 'model_provider': provider,
+          'thread_type': 'ba_assistant',  // Required field - project threads are always BA
         },
       );
 
@@ -217,6 +218,7 @@ class ThreadService {
       if (title != null) data['title'] = title;
       if (projectId != null) data['project_id'] = projectId;
       if (modelProvider != null) data['model_provider'] = modelProvider;
+      data['thread_type'] = 'ba_assistant';  // Required field - default to BA for existing callers
 
       final response = await _dio.post(
         '/api/threads',

@@ -97,7 +97,7 @@ class TestSearchDocuments:
         results = await search_documents(db_session, project.id, "authentication")
 
         assert len(results) == 1
-        doc_id, filename, snippet, score = results[0]
+        doc_id, filename, snippet, score, content_type, metadata_json = results[0]
         assert doc_id == doc.id
         assert filename == "requirements.md"
         assert "authentication" in snippet.lower() or "<mark>" in snippet
@@ -154,7 +154,7 @@ class TestSearchDocuments:
         results = await search_documents(db_session, project.id, "fox")
 
         assert len(results) == 1
-        _, _, snippet, _ = results[0]
+        _, _, snippet, _, _, _ = results[0]
         # FTS5 snippet should have <mark> tags
         assert "<mark>" in snippet or "fox" in snippet
 

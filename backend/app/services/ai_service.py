@@ -760,6 +760,9 @@ class AIService:
         self.adapter = LLMFactory.create(provider)
         self.tools = [DOCUMENT_SEARCH_TOOL, SAVE_ARTIFACT_TOOL]
 
+        # Check if adapter is an agent provider (handles tools internally)
+        self.is_agent_provider = getattr(self.adapter, 'is_agent_provider', False)
+
     async def execute_tool(
         self,
         tool_name: str,
@@ -817,7 +820,7 @@ class AIService:
                 return ("No relevant documents found for this query.", None)
 
             formatted = []
-            for doc_id, filename, snippet, score in results[:5]:
+            for doc_id, filename, snippet, score, content_type, metadata_json in results[:5]:
                 # Clean up snippet HTML markers for Claude
                 clean_snippet = snippet.replace("<mark>", "**").replace("</mark>", "**")
                 formatted.append(f"**{filename}**:\n{clean_snippet}")
@@ -825,6 +828,177 @@ class AIService:
             return ("\n\n---\n\n".join(formatted), None)
 
         return (f"Unknown tool: {tool_name}", None)
+
+    def _tool_status_message(self, tool_name: str) -> str:
+        """
+        Get user-friendly status message for a tool.
+
+        Args:
+            tool_name: Tool name (may include MCP prefix like "mcp__ba__save_artifact")
+
+        Returns:
+            str: Status message to show user
+        """
+        if "save_artifact" in tool_name.lower():
+            return "Generating artifact..."
+        elif "search_documents" in tool_name.lower():
+            return "Searching project documents..."
+        else:
+            return f"Using tool: {tool_name}..."
+
+    async def _stream_agent_chat(
+        self,
+        messages: List[Dict[str, Any]],
+        project_id: str,
+        thread_id: str,
+        db
+    ) -> AsyncGenerator[Dict[str, Any], None]:
+        """
+        Stream chat for agent providers (Claude Code SDK/CLI).
+
+        Agent providers handle tool execution internally via MCP, so we just
+        forward StreamChunk events without running the manual tool loop.
+
+        Yields SSE-formatted events:
+        - text_delta: Incremental text
+        - tool_executing: Tool activity indicator
+        - artifact_created: Artifact was saved
+        - message_complete: Final message with usage and source attribution
+        - error: Error occurred
+        """
+        logging_service = get_logging_service()
+        correlation_id = get_correlation_id()
+        stream_start_time = time.perf_counter()
+        sse_event_count = 0
+
+        # Log AI stream start
+        logging_service.log(
+            'INFO',
+            'AI stream started (agent provider)',
+            'ai',
+            correlation_id=correlation_id,
+            provider=self.adapter.provider.value if hasattr(self.adapter, 'provider') else 'unknown',
+            model=self.adapter.model if hasattr(self.adapter, 'model') else 'unknown',
+            message_count=len(messages),
+            project_id=project_id,
+            thread_id=thread_id,
+            ai_event='stream_start'
+        )
+
+        try:
+            # Set context on adapter (db session, project_id, thread_id)
+            if hasattr(self.adapter, 'set_context'):
+                self.adapter.set_context(db, project_id, thread_id)
+
+            accumulated_text = ""
+            usage_data = {}
+            artifact_created_data = None
+
+            # Stream from adapter - SDK handles tools internally
+            async for chunk in self.adapter.stream_chat(
+                messages=messages,
+                system_prompt=SYSTEM_PROMPT,
+                max_tokens=4096
+            ):
+                if chunk.chunk_type == "text":
+                    accumulated_text += chunk.content
+                    sse_event_count += 1
+                    yield {
+                        "event": "text_delta",
+                        "data": json.dumps({"text": chunk.content})
+                    }
+
+                elif chunk.chunk_type == "tool_use":
+                    # Show tool activity indicator
+                    if chunk.tool_call:
+                        tool_name = chunk.tool_call.get("name", "")
+                        yield {
+                            "event": "tool_executing",
+                            "data": json.dumps({"status": self._tool_status_message(tool_name)})
+                        }
+
+                    # Check for artifact_created in metadata
+                    if chunk.metadata and "artifact_created" in chunk.metadata:
+                        artifact_created_data = chunk.metadata["artifact_created"]
+
+                elif chunk.chunk_type == "complete":
+                    usage_data = chunk.usage or {}
+
+                    # Emit artifact_created event if present (before message_complete)
+                    if artifact_created_data:
+                        yield {
+                            "event": "artifact_created",
+                            "data": json.dumps(artifact_created_data)
+                        }
+
+                    # Get documents_used from metadata for source attribution
+                    documents_used = []
+                    if chunk.metadata and "documents_used" in chunk.metadata:
+                        documents_used = chunk.metadata["documents_used"]
+
+                    # Log stream completion with timing
+                    duration_ms = (time.perf_counter() - stream_start_time) * 1000
+                    logging_service.log(
+                        'INFO',
+                        'AI stream complete (agent provider)',
+                        'ai',
+                        correlation_id=correlation_id,
+                        provider=self.adapter.provider.value if hasattr(self.adapter, 'provider') else 'unknown',
+                        model=self.adapter.model if hasattr(self.adapter, 'model') else 'unknown',
+                        sse_event_count=sse_event_count,
+                        duration_ms=round(duration_ms, 2),
+                        input_tokens=usage_data.get('input_tokens', 0),
+                        output_tokens=usage_data.get('output_tokens', 0),
+                        ai_event='stream_complete'
+                    )
+
+                    yield {
+                        "event": "message_complete",
+                        "data": json.dumps({
+                            "content": accumulated_text,
+                            "usage": usage_data,
+                            "documents_used": documents_used
+                        })
+                    }
+                    return
+
+                elif chunk.chunk_type == "error":
+                    # Log error with timing
+                    duration_ms = (time.perf_counter() - stream_start_time) * 1000
+                    logging_service.log(
+                        'ERROR',
+                        'AI stream error (agent provider)',
+                        'ai',
+                        correlation_id=correlation_id,
+                        provider=self.adapter.provider.value if hasattr(self.adapter, 'provider') else 'unknown',
+                        duration_ms=round(duration_ms, 2),
+                        error=chunk.error,
+                        ai_event='stream_error'
+                    )
+                    yield {
+                        "event": "error",
+                        "data": json.dumps({"message": chunk.error})
+                    }
+                    return
+
+        except Exception as e:
+            # Log unexpected error with timing
+            duration_ms = (time.perf_counter() - stream_start_time) * 1000
+            logging_service.log(
+                'ERROR',
+                'AI stream unexpected error (agent provider)',
+                'ai',
+                correlation_id=correlation_id,
+                provider=self.adapter.provider.value if hasattr(self.adapter, 'provider') else 'unknown',
+                duration_ms=round(duration_ms, 2),
+                error=str(e),
+                error_type=type(e).__name__,
+                ai_event='stream_error'
+            )
+            yield {
+                "event": "error",
+                "data": json.dumps({"message": f"Unexpected error: {str(e)}"})
+            }
 
     async def stream_chat(
         self,
@@ -836,6 +1010,9 @@ class AIService:
         """
         Stream chat response using LLM adapter with tool use.
 
+        Routes to agent-specific handler if adapter is an agent provider,
+        otherwise uses the manual tool loop.
+
         Yields SSE-formatted events:
         - text_delta: Incremental text from LLM
         - tool_executing: Tool is being executed
@@ -843,6 +1020,13 @@ class AIService:
         - message_complete: Final message with usage stats
         - error: Error occurred
         """
+        # Route to agent provider path if applicable
+        if getattr(self, 'is_agent_provider', False):
+            async for event in self._stream_agent_chat(messages, project_id, thread_id, db):
+                yield event
+            return
+
+        # Direct API provider path (manual tool loop)
         logging_service = get_logging_service()
         correlation_id = get_correlation_id()
         stream_start_time = time.perf_counter()

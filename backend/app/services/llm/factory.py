@@ -13,6 +13,8 @@ from .base import LLMAdapter, LLMProvider
 from .anthropic_adapter import AnthropicAdapter
 from .gemini_adapter import GeminiAdapter
 from .deepseek_adapter import DeepSeekAdapter
+from .claude_agent_adapter import ClaudeAgentAdapter
+from .claude_cli_adapter import ClaudeCLIAdapter
 from app.config import settings
 
 
@@ -36,6 +38,8 @@ class LLMFactory:
         LLMProvider.ANTHROPIC: AnthropicAdapter,
         LLMProvider.GOOGLE: GeminiAdapter,
         LLMProvider.DEEPSEEK: DeepSeekAdapter,
+        LLMProvider.CLAUDE_CODE_SDK: ClaudeAgentAdapter,
+        LLMProvider.CLAUDE_CODE_CLI: ClaudeCLIAdapter,
     }
 
     @classmethod
@@ -121,6 +125,15 @@ class LLMFactory:
                 raise ValueError(
                     "DEEPSEEK_API_KEY not configured. "
                     "Get API key from https://platform.deepseek.com/api_keys"
+                )
+            return key
+
+        if provider in (LLMProvider.CLAUDE_CODE_SDK, LLMProvider.CLAUDE_CODE_CLI):
+            key = settings.anthropic_api_key
+            if not key:
+                raise ValueError(
+                    "ANTHROPIC_API_KEY not configured. "
+                    "Claude Code providers require an Anthropic API key."
                 )
             return key
 

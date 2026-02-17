@@ -23,6 +23,8 @@ class ProviderProvider extends ChangeNotifier {
     'anthropic',
     'google',
     'deepseek',
+    'claude-code-sdk',
+    'claude-code-cli',
   ];
 
   /// Private constructor for use by load() factory

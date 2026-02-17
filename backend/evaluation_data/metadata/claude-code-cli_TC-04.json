@@ -1,0 +1,12 @@
+{
+  "provider": "claude-code-cli",
+  "scenario_id": "TC-04",
+  "scenario_name": "Integration Scenario: CRM Integration",
+  "complexity": "medium",
+  "token_usage": {
+    "input_tokens": 3,
+    "output_tokens": 12708
+  },
+  "generation_time_seconds": 277.93,
+  "cost_usd": 0.2668806
+}

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
+import '../../core/constants.dart';
 import '../../models/message.dart';
 import '../../models/project.dart';
 import '../../providers/budget_provider.dart';
@@ -196,6 +197,102 @@ class _ConversationScreenState extends State<ConversationScreen> {
     }
   }
 
+  /// Show thread info bottom sheet
+  void _showThreadInfo() {
+    final thread = context.read<ConversationProvider>().thread;
+    if (thread == null) return;
+
+    final providerConfig = ProviderConfigs.getConfig(thread.modelProvider);
+
+    showModalBottomSheet(
+      context: context,
+      builder: (sheetContext) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Header
+              Text(
+                'Thread Info',
+                style: Theme.of(sheetContext).textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(height: 16),
+              // Title
+              ListTile(
+                leading: const Icon(Icons.chat_bubble_outline),
+                title: const Text('Title'),
+                subtitle: Text(thread.title ?? 'New Conversation'),
+                dense: true,
+              ),
+              // Provider
+              ListTile(
+                leading: Icon(providerConfig.icon, color: providerConfig.color),
+                title: const Text('Provider'),
+                subtitle: Row(
+                  children: [
+                    Text(providerConfig.displayName),
+                    if (providerConfig.isExperimental) ...[
+                      const SizedBox(width: 8),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: Theme.of(sheetContext).colorScheme.secondaryContainer,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Text(
+                          'EXPERIMENTAL',
+                          style: TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w600,
+                            color: Theme.of(sheetContext).colorScheme.onSecondaryContainer,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+                dense: true,
+              ),
+              // Model name (only for providers with modelName)
+              if (providerConfig.modelName != null)
+                ListTile(
+                  leading: const Icon(Icons.memory),
+                  title: const Text('Model'),
+                  subtitle: Text(providerConfig.modelName!),
+                  dense: true,
+                ),
+              // Mode
+              ListTile(
+                leading: Icon(thread.modeIcon),
+                title: const Text('Mode'),
+                subtitle: Text(thread.modeDisplayName),
+                dense: true,
+              ),
+              // Created date
+              ListTile(
+                leading: const Icon(Icons.calendar_today),
+                title: const Text('Created'),
+                subtitle: Text(_formatDate(thread.createdAt)),
+                dense: true,
+              ),
+              const SizedBox(height: 8),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Format date for display in thread info
+  String _formatDate(DateTime date) {
+    return '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')} '
+           '${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}';
+  }
+
   /// Show artifact type picker and handle selection
   Future<void> _showArtifactTypePicker() async {
     final selection = await ArtifactTypePicker.show(context);
@@ -276,6 +373,11 @@ class _ConversationScreenState extends State<ConversationScreen> {
                   onTap: _showModeChangeDialog,
                 ),
               IconButton(
+                icon: const Icon(Icons.info_outline),
+                tooltip: 'Thread info',
+                onPressed: provider.thread != null ? _showThreadInfo : null,
+              ),
+              IconButton(
                 icon: const Icon(Icons.edit_outlined),
                 tooltip: 'Rename conversation',
                 onPressed: provider.thread != null ? _showRenameDialog : null,
@@ -337,9 +439,11 @@ class _ConversationScreenState extends State<ConversationScreen> {
                   ],
                 ),
 
-              // Message list
+              // Message list — SelectionArea enables text selection across all children
               Expanded(
-                child: _buildMessageList(provider),
+                child: SelectionArea(
+                  child: _buildMessageList(provider),
+                ),
               ),
 
               // Toolbar row: Provider indicator + Add to Project button

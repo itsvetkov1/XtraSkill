@@ -6,28 +6,64 @@ See: /Users/a1testingmac/projects/XtraSkill/.planning/PROJECT.md (updated 2026-0
 
 **Core value:** Business analysts reduce time spent on requirement documentation while improving completeness through AI-assisted discovery conversations that systematically explore edge cases and generate production-ready artifacts.
 
-**Current focus:** v2.1 shipped, v2.0 Security Audit & Deployment next
+**Current focus:** Post-experiment — CLI adapter merged to master
 
 ## Current Position
 
-Milestone: v2.1 Rich Document Support — SHIPPED
-Next milestone: v2.0 Security Audit & Deployment
-Status: v2.1 archived, ready for v2.0
-Last activity: 2026-02-12 — v2.1 milestone completed and archived
+Milestone: v0.1-claude-code — Claude Code as AI Backend — COMPLETE
+Phase: 61 of 61 (Quality Comparison & Decision) — COMPLETE
+Status: Experiment concluded — CLI adapter adopted, merged to master
+Last activity: 2026-02-17 — Phase 61 wrapped up, branch merged to master
 
 Progress:
 ```
 v1.0-v1.9.5: [##########] 48 phases, 115 plans, 11 milestones SHIPPED
+v2.1:        [##########] 8/8 plans (Phase 54-56) SHIPPED
+v2.0:        [          ] Backlogged (phases 49-53 preserved)
 
-v2.0:        [#         ] 1/5 phases (49-01 complete, paused for v2.1)
-v2.1:        [##########] 8/8 plans (Phase 54 ✅, Phase 55 ✅, Phase 56 ✅) COMPLETE
+v0.1-claude-code: [##########] 100% — COMPLETE (CLI adopted, merged to master 2026-02-17)
 ```
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 123 (across 11 milestones + v2.1 complete)
+- Total plans completed: 131 (across 13 milestones)
 - Average duration: ~1-3 minutes per plan
+
+**Phase 57 Metrics:**
+
+| Plan | Duration (s) | Tasks | Files | Status |
+|------|--------------|-------|-------|--------|
+| P01  | 13661        | 2     | 3     | ✅ Complete |
+| P02  | 235          | 2     | 7     | ✅ Complete |
+
+**Phase 58 Metrics:**
+
+| Plan | Duration (s) | Tasks | Files | Status |
+|------|--------------|-------|-------|--------|
+| P01  | 368          | 2     | 4     | ✅ Complete |
+| P02  | 562          | 2     | 5     | ✅ Complete |
+
+**Phase 59 Metrics:**
+
+| Plan | Duration (s) | Tasks | Files | Status |
+|------|--------------|-------|-------|--------|
+| P01  | 212          | 2     | 2     | ✅ Complete |
+| P02  | 180          | 2     | 1     | ✅ Complete |
+
+**Phase 60 Metrics:**
+
+| Plan | Duration (s) | Tasks | Files | Status |
+|------|--------------|-------|-------|--------|
+| P01  | 184          | 2     | 4     | ✅ Complete |
+| P02  | 109          | 2     | 2     | ✅ Complete |
+
+**Phase 61 Metrics:**
+
+| Plan | Duration (s) | Tasks | Files | Status |
+|------|--------------|-------|-------|--------|
+| P01  | 191          | 2     | 4     | ✅ Complete |
+| P02  | 242          | 2     | 4     | ✅ Complete |
 
 **By Milestone:**
 
@@ -44,36 +80,56 @@ v2.1:        [##########] 8/8 plans (Phase 54 ✅, Phase 55 ✅, Phase 56 ✅) C
 | Doc & Nav v1.9.3 | 37-39 | 3/3 | SHIPPED 2026-02-04 |
 | Dedup v1.9.4 | 40-42 | 5/5 | SHIPPED 2026-02-05 |
 | Logging v1.9.5 | 43-48 | 8/8 | SHIPPED 2026-02-08 |
-| Security v2.0 | 49-53 | 1/TBD | Paused after 49-01 |
-| Rich Docs v2.1 | 54-56 | 8/8 | COMPLETE (Phase 54 ✅, Phase 55 ✅, Phase 56 ✅) |
+| Rich Docs v2.1 | 54-56 | 8/8 | SHIPPED 2026-02-12 |
+| Security v2.0 | 49-53 | 0/TBD | BACKLOGGED 2026-02-13 |
+| Claude Code v0.1 | 57-61 | 11/12 (1 skipped) | SHIPPED 2026-02-17 |
 
-**Total:** 123 plans shipped across 48 phases, 8 plans complete in v2.1
+**Total:** 132 plans shipped across 50 phases
+| Phase 61 P01 | 191 | 2 tasks | 4 files |
 
 ## Accumulated Context
 
 ### Decisions
 
 Recent key decisions (full archive in PROJECT.md):
-- v2.1 (55-02): PlutoGrid v8.1.0 used (v8.7.0 unavailable), provides all required features
-- v2.1 (55-02): Separate widget files for each format viewer (ExcelTableViewer, PdfTextViewer, WordTextViewer)
-- v2.1 (55-02): Rich formats download original binary via DocumentService.downloadDocument()
-- v2.1 (55-03): Search results limited to 3 chunks (max_chunks=3) for token budget management
-- v2.1 (55-03): Format-specific source attribution chips with different icons per content type
-- v2.1 (55-03): Excel sources show sheet name in label, PDF sources show page count
-- v2.1 (55-01): Client-side Excel parsing for instant preview (excel package)
-- v2.1 (55-01): DataTable preview limited to 10 rows for dialog UX
-- v2.1 (55-01): PDF/Word preview deferred to post-upload (info message only)
-- v2.1 (54-03): Upload security validation order: file_validator → parser.validate_security → parse
-- v2.1 (54-03): Rich documents use encrypt_binary(), text documents use encrypt_document() (backward compat)
-- v2.1: Dual-column storage (content_encrypted for binary, content_text for extracted text)
-- v2.1: Parser adapter pattern with factory routing (DocumentParser base + format-specific adapters)
-- v2.1: pluto_grid for Flutter table rendering (handles 1000+ rows with virtualization)
-- v2.0: Railway (backend) + Cloudflare Pages (frontend) for PaaS deployment
-- [Phase 56-01]: openpyxl write_only=True mode for memory-efficient Excel generation
-- [Phase 56-01]: UTF-8 BOM encoding (utf-8-sig) for CSV to ensure Excel compatibility
-- [Phase 56-02]: FileSaver package used for cross-platform export file downloads
-- [Phase 56-02]: PopupMenuButton provides export format selection (xlsx/csv)
-- [Phase 56-02]: Export button disabled during export to prevent double-clicks
+- **Phase 59-01**: Combined prompt approach (prepend system prompt to user prompt) instead of --system-prompt flag for POC (2026-02-14)
+- **Phase 59-01**: Track received_result flag to prevent duplicate completion chunks (2026-02-14)
+- **Phase 59-01**: Exclude --include-partial-messages from CLI flags (deferred to production scope) (2026-02-14)
+- **Phase 59-01**: Use ContextVars for MCP tool context (subprocess inherits context in-process for POC) (2026-02-14)
+- **Phase 58-01**: POC uses in-process MCP with ContextVars (HTTP transport deferred to production hardening) (2026-02-14)
+- **Phase 58-01**: StreamChunk.metadata field added as optional to avoid breaking existing adapters (2026-02-14)
+- **Phase 58-01**: AIService routes based on is_agent_provider attribute, preserves manual tool loop for direct API (2026-02-14)
+- **Phase 58-01**: Tool status messages map MCP names to user-friendly indicators ('Generating artifact...', 'Searching project documents...') (2026-02-14)
+- **Phase 57-02**: Both Claude Code providers use ANTHROPIC_API_KEY (Claude Code uses same Anthropic key) (2026-02-13)
+- **Phase 57-02**: SDK default model claude-sonnet-4-5-20250514, CLI uses claude-sonnet-4-5-20250929 (2026-02-13)
+- **Phase 57-01**: Extracted MCP tool definitions to shared module for reuse across SDK and CLI adapters (2026-02-13)
+- **Phase 57-01**: Recreated venv with Python 3.12 (SDK requires 3.10+) (2026-02-13)
+- **Phase 57-01**: Used factory pattern (create_ba_mcp_server) for MCP server creation (2026-02-13)
+- **v2.0 backlogged**: Security & Deployment paused to focus on Claude Code experiment (2026-02-13)
+- **Experiment promoted**: Claude Code backend moved from `.planning/experiments/` to main `.planning/` flow
+- **Branch isolation**: All experiment work on `feature/claude-code-backend`, Phase 61 gates merge to master
+- **Research both approaches**: Compare SDK (Python API) and CLI (subprocess) before committing
+- **v0.1-claude-code versioning**: Clean slate, doesn't interfere with v2.x production track
+- [Phase 60-01]: Experimental badge pattern using Material 3 secondaryContainer color scheme
+- [Phase 60-01]: Model name display format using em-dash separator for clean visual separation
+- [Phase 60-02]: Thread info accessed via info button in AppBar (positioned before edit button)
+- [Phase 60-02]: Provider indicator two-line layout for Claude Code providers (name + model), single-line for existing providers
+- [Phase 61-01]: Test scenario complexity distribution: 2 low, 2 medium, 1 high (prevents bias)
+- [Phase 61-01]: Multi-turn simulation: initial + follow-ups + final prompt (exercises full pipeline)
+- [Phase 61-01]: Cost calculation: 40% overhead for agent providers (midpoint of research 30-50%)
+- [Phase 61-02]: Mann-Whitney U test with two-sided alternative (detects both improvement and degradation)
+- [Phase 61-02]: Decision threshold: >20% average improvement AND 3+ significant dimensions required
+- [Phase 61-02]: Cost-quality metric: improvement % / cost increase % for value comparison
+- [Phase 61-02]: Statistical significance at alpha=0.05 (p < 0.05)
+
+### Critical Research Findings
+
+**From research/SUMMARY.md:**
+- SDK bundles CLI internally (v0.1.35+) — Phase 4.1 rejection reason no longer valid
+- Event stream translation is CRITICAL pitfall — SDK's multi-turn events don't map cleanly to StreamChunk format
+- ContextVar boundary issue — subprocess loses context, requires MCP HTTP transport solution
+- Cost overhead: 30-50% increase per request (1,100+ token overhead)
+- Decision criteria: Need >20% quality improvement to justify integration complexity
 
 ### Pending Todos
 
@@ -82,57 +138,34 @@ Recent key decisions (full archive in PROJECT.md):
 
 ### Blockers/Concerns
 
-**v2.1 Phase 54 (Backend Foundation):**
-- ✅ COMPLETE - All 3 plans finished (parsers, schema, routes)
+**Validation needed during Phase 60 (Evaluation):**
+- Multi-turn conversation handling (SDK vs CLI agent loops)
+- Event stream completeness (any CLI events lost in translation?)
+- Source attribution accuracy (documents_used tracking via ContextVar)
+- Token usage reporting (input/output token counts)
+- Subprocess overhead (memory usage, process cleanup verification)
 
-**v2.1 Phase 55 (Frontend Display & AI Integration):**
-- ✅ COMPLETE - All 3 plans finished (upload UI, viewer widgets, AI context)
-- ✅ Upload accepts 6 file types with 10MB limit, preview dialog with table/sheet selector
-- ✅ PlutoGrid viewer for Excel/CSV, PDF/Word text viewers, conditional rendering
-- ✅ AI search returns metadata, token budget limiting, format-specific source chips
-
-**v2.1 Phase 56 (Export Features):**
-- ✅ COMPLETE - All 2 plans finished (backend endpoints + frontend UI)
-- ✅ Plan 01: Excel and CSV export endpoints with memory-efficient generation
-- ✅ Plan 02: Export UI in ExcelTableViewer with xlsx/csv format selection
-- ✅ Memory-efficient Excel generation with openpyxl write_only mode
-- ✅ CSV export with UTF-8 BOM for Excel compatibility
-- ✅ Tabular format validation (rejects non-spreadsheet documents)
-- ✅ Ownership verification for all export operations
-- ✅ Cross-platform file downloads with FileSaver package
-- ✅ Loading, success, and error feedback via snackbars
-- v2.1 milestone COMPLETE - all 8 plans shipped
-
-**v2.0 Deployment:**
-- Paused at Phase 49-02 (Railway deployment checkpoint)
-- No blocking dependencies for v2.1 work
+**Measurement needed during Phase 61:**
+- Quality metrics definition — what does "20% better" mean concretely?
+- Cost-quality tradeoff — does improvement justify 35-52% cost increase?
+- HTTP transport decision — if SDK chosen, implement HTTP MCP server for production context isolation
+- Production hardening for CLI adapter (partial messages, MCP HTTP transport, system prompt separation)
 
 ## Session Continuity
 
-Last session: 2026-02-12
-Stopped at: v2.1 milestone archived
+Last session: 2026-02-17
+Stopped at: Phase 61 complete — experiment concluded, branch merged to master
 Resume file: None
-Next action: Resume v2.0 Security Audit & Deployment or start new milestone
+Next action: Resolve known issues with CLI adapter, then continue with v2.0 or next milestone
 
-**Context for Next Session:**
-- v2.1 Rich Document Support SHIPPED and archived to `.planning/milestones/`
-- v2.0 Security Audit & Deployment paused at Phase 49-02 (Railway deployment checkpoint)
-- Full round-trip document flow: upload → parse → store → view → search → export
-- 123 plans shipped across 13 milestones
+**Experiment Conclusion:**
+- v0.1-claude-code milestone COMPLETE
+- CLI adapter adopted without formal quality comparison (user decision)
+- 5 CLI BRDs generated demonstrating adapter capabilities
+- SDK excluded (Windows command line length limitation)
+- Anthropic baseline skipped (user decided to ship as-is)
+- Known issues to be resolved in future work
 
 ---
 
-*State updated: 2026-02-12 (v2.1 milestone archived)*
-
-## Recent Performance (v2.1)
-
-| Plan | Duration | Tasks | Files | Description |
-|------|----------|-------|-------|-------------|
-| 54-01 | 3min 32sec | 2 | 9 | Document parser infrastructure |
-| 54-02 | 1min 24sec | 2 | 3 | Database schema extension |
-| 54-03 | 2min 24sec | 2 | 1 | Upload routes integration |
-| 55-01 | 2min 46sec | 2 | 5 | Frontend rich document upload UI |
-| 55-02 | 3min 05sec | 2 | 5 | Format-aware Document Viewer |
-| 55-03 | 2min 19sec | 2 | 4 | AI context integration with metadata |
-| 56-01 | 1min 33sec | 2 | 1 | Excel and CSV export endpoints |
-| 56-02 | 2min 13sec | 2 | 3 | Export UI with xlsx/csv format selection |
+*State updated: 2026-02-17 (Phase 61 complete — CLI adopted, merged to master)*

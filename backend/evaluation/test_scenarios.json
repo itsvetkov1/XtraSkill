@@ -1,0 +1,123 @@
+{
+  "test_scenarios": [
+    {
+      "id": "TC-01",
+      "name": "Simple Feature: User Login",
+      "complexity": "low",
+      "initial_prompt": "I need a user login feature for our mobile app. Users should be able to log in with email and password.",
+      "follow_ups": [
+        "We're a small fitness coaching company with about 200 active clients. The app is for our personal training clients to access their workout plans and track progress. Most users are between 25-45 years old and fairly tech-savvy since they already use fitness trackers.",
+        "Right now they just email us to get their plans, which is slow and error-prone. The main pain point is clients can't see their updated plans in real-time when we make changes. We want them to log in, see their current plan, and mark exercises as done.",
+        "Yes, we definitely need password reset via email since people forget passwords all the time. We don't need social login for now — email/password is fine for our client base. For security, basic encryption and session timeouts after 30 minutes of inactivity would work. We also need to handle the case where someone tries too many wrong passwords — maybe lock them out temporarily."
+      ],
+      "final_prompt": "Please generate a comprehensive Business Requirements Document based on our discussion.",
+      "expected_sections": [
+        "executive_summary",
+        "business_objectives",
+        "user_personas",
+        "functional_requirements",
+        "acceptance_criteria",
+        "success_metrics"
+      ],
+      "minimum_ac_count": 8
+    },
+    {
+      "id": "TC-02",
+      "name": "Medium Workflow: Expense Report Submission",
+      "complexity": "medium",
+      "initial_prompt": "We need an expense report submission and approval system. Employees submit expenses, managers approve or reject, and finance processes payments.",
+      "follow_ups": [
+        "We're a mid-size consulting firm with 150 employees across 3 offices. Consultants travel frequently and need to submit meal, travel, hotel, and client entertainment expenses. Currently everything is done via Excel spreadsheets emailed to managers, which takes forever and things get lost constantly.",
+        "For approval thresholds: anything under $50 should be auto-approved, $50-$500 needs direct manager approval, and over $500 needs both manager and finance director sign-off. We need receipt photos attached — no receipt means no reimbursement, that's company policy. Categories should be: meals, transportation, lodging, client entertainment, office supplies, and miscellaneous.",
+        "Managers need a dashboard showing pending approvals and monthly spend by team member. Finance needs to export approved expenses to our QuickBooks system. If a manager is on vacation, expenses should automatically route to their backup approver — HR maintains those designations. We also need to flag duplicate submissions, like if someone submits the same receipt twice.",
+        "Reimbursement should happen within 5 business days of final approval. We pay via direct deposit through our existing payroll system. Employees should get email notifications at every stage — submission confirmation, approval, rejection with reason, and payment processed. Rejected expenses should allow resubmission with corrections."
+      ],
+      "final_prompt": "Please generate a comprehensive Business Requirements Document based on our discussion.",
+      "expected_sections": [
+        "executive_summary",
+        "business_objectives",
+        "user_personas",
+        "user_flows",
+        "functional_requirements",
+        "business_processes",
+        "acceptance_criteria",
+        "success_metrics"
+      ],
+      "minimum_ac_count": 15
+    },
+    {
+      "id": "TC-03",
+      "name": "Complex Multi-Stakeholder: E-commerce Marketplace",
+      "complexity": "high",
+      "initial_prompt": "We're building an e-commerce marketplace platform where sellers can list products, buyers can purchase, and administrators manage the overall platform.",
+      "follow_ups": [
+        "We're launching a niche marketplace for handmade crafts and artisan goods — think Etsy but focused on our region in Southeast Asia. We expect to start with about 50 sellers and grow to 500 in the first year. Buyers will be both local and international. The platform needs to support multiple currencies (USD, SGD, MYR, THB) and languages (English, Malay, Thai).",
+        "Seller onboarding should require business registration documents, government ID, and bank account for payouts. We'll manually verify each seller within 48 hours. Sellers set their own prices, manage inventory, and handle shipping. We provide a shipping label integration with local carriers (J&T Express, Ninja Van) and international ones (DHL, FedEx).",
+        "For payments, we'll use Stripe for international and local payment gateways for each country. Our commission is 10% per transaction. Sellers get paid biweekly, with a 14-day hold period for dispute resolution. For disputes, buyers can open a claim within 7 days of delivery — first we try mediation, then we escalate to our team for a final decision. Refunds come from the seller's held funds.",
+        "Buyers can leave star ratings (1-5) and written reviews after confirmed delivery. Sellers can respond to reviews but can't delete them. Products with less than 3-star average after 10 reviews get flagged for quality review. We need a recommendation engine that shows related products and personalized suggestions based on browsing and purchase history.",
+        "Admin dashboard needs: seller verification queue, dispute management, platform-wide analytics (GMV, active users, conversion rates, avg order value), content moderation for listings (no prohibited items like weapons, counterfeit goods), and the ability to suspend sellers who violate policies. We also need a promotional system — platform-wide sales events, seller coupons, and featured listing spots that sellers can bid on."
+      ],
+      "final_prompt": "Please generate a comprehensive Business Requirements Document based on our discussion.",
+      "expected_sections": [
+        "executive_summary",
+        "business_objectives",
+        "user_personas",
+        "user_flows",
+        "functional_requirements",
+        "business_processes",
+        "stakeholder_analysis",
+        "acceptance_criteria",
+        "success_metrics"
+      ],
+      "minimum_ac_count": 25
+    },
+    {
+      "id": "TC-04",
+      "name": "Integration Scenario: CRM Integration",
+      "complexity": "medium",
+      "initial_prompt": "We need to integrate our new customer relationship management system with existing email and calendar systems that our sales team uses daily.",
+      "follow_ups": [
+        "Our sales team of 25 people all use Microsoft 365 — Outlook for email and calendar, Teams for internal chat. We're implementing HubSpot as our CRM. The main problem is salespeople waste 2-3 hours per day switching between tools and manually copying contact info and meeting notes between systems.",
+        "We need two-way sync for contacts — when a salesperson adds a new lead in HubSpot, it should create an Outlook contact, and vice versa. For calendar, any meeting with an external participant should auto-create a CRM activity. Email threads with contacts in the CRM should be automatically logged as CRM interactions. We use Microsoft Graph API for the M365 side.",
+        "For conflicts: CRM should be the master record for sales data (deal stage, pipeline value), but Outlook should be master for email/calendar data. If the same contact exists in both with different phone numbers, flag it for the salesperson to resolve manually — don't auto-overwrite. Sync should happen in near real-time, within 2 minutes max.",
+        "Data privacy is important — we're GDPR-compliant since we sell to EU customers. Personal data should only sync for contacts who haven't opted out. We need an audit log of all sync operations. If the sync fails, queue the changes and retry with exponential backoff. Salespeople should see a sync status indicator in both tools so they know if data is current."
+      ],
+      "final_prompt": "Please generate a comprehensive Business Requirements Document based on our discussion.",
+      "expected_sections": [
+        "executive_summary",
+        "business_objectives",
+        "user_personas",
+        "functional_requirements",
+        "acceptance_criteria",
+        "success_metrics"
+      ],
+      "minimum_ac_count": 12
+    },
+    {
+      "id": "TC-05",
+      "name": "Regulatory Domain: Healthcare Patient Portal",
+      "complexity": "high",
+      "initial_prompt": "We need a patient portal for our healthcare practice that allows patients to view medical records, schedule appointments, and communicate with providers. This must comply with HIPAA regulations.",
+      "follow_ups": [
+        "We're a multi-specialty medical group with 12 physicians, 8 nurse practitioners, and about 15,000 active patients. We have 3 office locations. Currently patients call to schedule appointments and we mail paper statements. Our EHR is Epic, and we need the portal to integrate with it for medical records. Our IT team is small — just 2 people — so we need something maintainable.",
+        "For HIPAA compliance: all data must be encrypted at rest and in transit (AES-256 and TLS 1.2+). We need role-based access control — patients see only their own records, providers see their assigned patients, and office staff has administrative access. Full audit logging of every record access is required. We need a BAA with every third-party service that touches PHI. Session timeout must be 15 minutes for the portal.",
+        "Patients should be able to view lab results, medication lists, immunization records, and visit summaries — but not provider notes or pending diagnoses that haven't been reviewed yet. For scheduling, patients pick appointment type, preferred provider and location, then see available slots. We need to handle cancellations with a 24-hour notice policy, and waitlist functionality for popular providers.",
+        "Secure messaging should work like email but within the portal — patients message their care team, nurses triage and route, providers respond. Messages with clinical content become part of the medical record. Average response time target is 24 hours for non-urgent, 4 hours for urgent (patient selects urgency). We need automated reminders for upcoming appointments via email and SMS.",
+        "For identity verification, new portal registrations require matching against our EHR — patient provides name, date of birth, and medical record number. If auto-match fails, staff manually verifies identity before granting access. We need multi-factor authentication. Emergency access: if a provider needs to access a patient's records outside their normal panel during an emergency, they can with a documented reason, and it generates an alert to compliance."
+      ],
+      "final_prompt": "Please generate a comprehensive Business Requirements Document based on our discussion.",
+      "expected_sections": [
+        "executive_summary",
+        "business_objectives",
+        "user_personas",
+        "user_flows",
+        "functional_requirements",
+        "regulatory_compliance",
+        "acceptance_criteria",
+        "success_metrics",
+        "risks_and_mitigation"
+      ],
+      "minimum_ac_count": 30
+    }
+  ]
+}

@@ -4,14 +4,12 @@ library;
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:excel/excel.dart';
-
 /// Dialog that shows a preview of a file before upload.
 ///
 /// Displays filename, file size, and format-specific preview:
-/// - Excel/CSV: Table preview with first 10 rows and sheet selector
+/// - CSV: Table preview with first 10 rows
 /// - Text/Markdown: First 20 lines of content
-/// - PDF/Word: File icon and info message
+/// - PDF/Word/Excel: File icon and info message
 ///
 /// Returns true if user confirms upload, false if cancelled.
 class DocumentPreviewDialog extends StatefulWidget {
@@ -37,9 +35,6 @@ class DocumentPreviewDialog extends StatefulWidget {
 }
 
 class _DocumentPreviewDialogState extends State<DocumentPreviewDialog> {
-  /// Currently selected sheet (for Excel files with multiple sheets)
-  String? _selectedSheet;
-
   /// Parsed preview data for table formats
   Map<String, dynamic>? _tablePreview;
 
@@ -52,13 +47,7 @@ class _DocumentPreviewDialogState extends State<DocumentPreviewDialog> {
   /// Load preview based on file format
   void _loadPreview() {
     final ext = _getFileExtension(widget.file.name);
-    if (_isExcelFile(ext)) {
-      _tablePreview = _parseExcelPreview(widget.file.bytes ?? []);
-      if (_tablePreview != null) {
-        final sheetNames = _tablePreview!['sheet_names'] as List<String>;
-        _selectedSheet = sheetNames.isNotEmpty ? sheetNames.first : null;
-      }
-    } else if (_isCsvFile(ext)) {
+    if (_isCsvFile(ext)) {
       _tablePreview = _parseCsvPreview(widget.file.bytes ?? []);
     }
   }
@@ -69,47 +58,17 @@ class _DocumentPreviewDialogState extends State<DocumentPreviewDialog> {
     return dotIndex >= 0 ? filename.substring(dotIndex + 1).toLowerCase() : '';
   }
 
-  /// Check if file is Excel format
-  bool _isExcelFile(String ext) => ext == 'xlsx';
-
   /// Check if file is CSV format
   bool _isCsvFile(String ext) => ext == 'csv';
 
-  /// Check if file is table format (Excel or CSV)
-  bool _isTableFile(String ext) => ext == 'xlsx' || ext == 'csv';
+  /// Check if file is table format (CSV only; Excel uses binary info view)
+  bool _isTableFile(String ext) => ext == 'csv';
 
   /// Check if file is text format
   bool _isTextFile(String ext) => ext == 'txt' || ext == 'md';
 
-  /// Check if file is binary format (PDF or Word)
-  bool _isBinaryFile(String ext) => ext == 'pdf' || ext == 'docx';
-
-  /// Parse Excel file for preview
-  Map<String, dynamic>? _parseExcelPreview(List<int> bytes) {
-    try {
-      final excel = Excel.decodeBytes(bytes);
-      final sheetNames = excel.tables.keys.toList();
-      if (sheetNames.isEmpty) return null;
-
-      // Get first sheet (or selected sheet)
-      final sheetName = _selectedSheet ?? sheetNames.first;
-      final sheet = excel.tables[sheetName];
-      if (sheet == null) return null;
-
-      final allRows = sheet.rows.map((row) =>
-        row.map((cell) => cell?.value?.toString() ?? '').toList()
-      ).toList();
-
-      return {
-        'sheet_names': sheetNames,
-        'headers': allRows.isNotEmpty ? allRows[0] : <String>[],
-        'preview_rows': allRows.skip(1).take(10).toList(),
-        'total_rows': allRows.length,
-      };
-    } catch (e) {
-      return null;
-    }
-  }
+  /// Check if file is binary format (PDF, Word, or Excel)
+  bool _isBinaryFile(String ext) => ext == 'pdf' || ext == 'docx' || ext == 'xlsx';
 
   /// Parse CSV file for preview
   Map<String, dynamic>? _parseCsvPreview(List<int> bytes) {
@@ -158,36 +117,7 @@ class _DocumentPreviewDialogState extends State<DocumentPreviewDialog> {
     return previewLines.join('\n');
   }
 
-  /// Build sheet selector dropdown (for Excel files with multiple sheets)
-  Widget _buildSheetSelector(List<String> sheetNames) {
-    if (sheetNames.length <= 1) return const SizedBox.shrink();
-
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12.0),
-      child: Row(
-        children: [
-          const Text('Sheet: ', style: TextStyle(fontWeight: FontWeight.w500)),
-          DropdownButton<String>(
-            value: _selectedSheet,
-            items: sheetNames.map((name) => DropdownMenuItem(
-              value: name,
-              child: Text(name),
-            )).toList(),
-            onChanged: (newSheet) {
-              setState(() {
-                _selectedSheet = newSheet;
-                if (_isExcelFile(_getFileExtension(widget.file.name))) {
-                  _tablePreview = _parseExcelPreview(widget.file.bytes ?? []);
-                }
-              });
-            },
-          ),
-        ],
-      ),
-    );
-  }
-
-  /// Build table preview for Excel/CSV files
+  /// Build table preview for CSV files
   Widget _buildTablePreview(Map<String, dynamic> preview) {
     final headers = preview['headers'] as List<dynamic>;
     final previewRows = preview['preview_rows'] as List<dynamic>;
@@ -196,10 +126,6 @@ class _DocumentPreviewDialogState extends State<DocumentPreviewDialog> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Sheet selector (Excel only)
-        if (preview.containsKey('sheet_names'))
-          _buildSheetSelector(preview['sheet_names'] as List<String>),
-
         // Table preview
         ConstrainedBox(
           constraints: const BoxConstraints(maxHeight: 400),

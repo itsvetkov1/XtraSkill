@@ -1,0 +1,12 @@
+{
+  "provider": "claude-code-cli",
+  "scenario_id": "TC-05",
+  "scenario_name": "Regulatory Domain: Healthcare Patient Portal",
+  "complexity": "high",
+  "token_usage": {
+    "input_tokens": 3,
+    "output_tokens": 19917
+  },
+  "generation_time_seconds": 485.3,
+  "cost_usd": 0.41826959999999996
+}

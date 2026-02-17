@@ -200,6 +200,31 @@ class ThreadService {
     }
   }
 
+  /// Get all Assistant-type threads for current user
+  ///
+  /// Returns threads filtered by thread_type=assistant, sorted by last_activity_at DESC.
+  /// Uses the global threads endpoint with thread_type filter.
+  Future<List<Thread>> getAssistantThreads() async {
+    try {
+      final headers = await _getAuthHeaders();
+      final response = await _dio.get(
+        '/api/threads?thread_type=assistant',
+        options: Options(headers: headers),
+      );
+      // API returns paginated response, extract threads list
+      final data = response.data as Map<String, dynamic>;
+      final threadsData = data['threads'] as List;
+      return threadsData
+          .map((json) => Thread.fromJson(json as Map<String, dynamic>))
+          .toList();
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 401 || e.response?.statusCode == 403) {
+        throw Exception('Authentication required');
+      }
+      throw Exception('Failed to load assistant threads: ${e.message}');
+    }
+  }
+
   /// Create a thread (optionally without project)
   ///
   /// [title] - Optional title for the thread

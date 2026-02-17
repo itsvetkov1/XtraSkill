@@ -55,7 +55,7 @@ Full details: `.planning/milestones/v2.1-ROADMAP.md`
 **Branch:** `feature/claude-code-backend`
 
 - [x] **Phase 62: Backend Foundation** - Data model, service logic, and API endpoints for thread_type discrimination (completed 2026-02-17)
-- [ ] **Phase 63: Navigation & Thread Management** - Assistant sidebar section, routes, thread list, create, and delete
+- [x] **Phase 63: Navigation & Thread Management** - Assistant sidebar section, routes, thread list, create, and delete (completed 2026-02-17)
 - [ ] **Phase 64: Conversation & Documents** - End-to-end chat and document upload for Assistant threads
 
 ## Phase Details
@@ -116,8 +116,7 @@ Full details: `.planning/milestones/v2.1-ROADMAP.md`
 | API-01 | 62 | Thread creation accepts thread_type parameter |
 | API-02 | 62 | Thread listing supports thread_type filter |
 | API-03 | 62 | Assistant threads cannot have project association |
-| NAV-01 | 63 | Assistant appears as own section in sidebar |
-| NAV-02 | 63 | Dedicated routes /assistant and /assistant/:threadId |
+| NAV-01 | 63 | Assistant appears as own section in sidebar | Complete    | 2026-02-17 | 63 | Dedicated routes /assistant and /assistant/:threadId |
 | NAV-03 | 63 | Deep links work correctly on page refresh |
 | UI-01 | 63 | Assistant thread list shows only Assistant threads |
 | UI-02 | 63 | Simplified thread creation dialog |

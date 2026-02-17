@@ -9,12 +9,22 @@ logger = logging.getLogger(__name__)
 MAX_FILE_SIZE = 10 * 1024 * 1024  # 10MB (SEC-02)
 MAX_UNCOMPRESSED_RATIO = 100      # Zip bomb detection threshold (SEC-04)
 
+# Assistant mode expanded content types (per locked decision: images + spreadsheets beyond BA mode)
+ASSISTANT_EXTRA_CONTENT_TYPES = [
+    "image/png",
+    "image/jpeg",
+    "image/gif",
+]
+
 # Mapping from expected content_type to filetype library MIME types
 # filetype may return slightly different MIME types than the client sends
 MAGIC_TYPE_MAP = {
     "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": ["application/zip", "application/x-zip-compressed", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"],
     "application/vnd.openxmlformats-officedocument.wordprocessingml.document": ["application/zip", "application/x-zip-compressed", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"],
     "application/pdf": ["application/pdf"],
+    "image/png": ["image/png"],
+    "image/jpeg": ["image/jpeg"],
+    "image/gif": ["image/gif"],
     # CSV and plain text don't have magic numbers — validated by extension + parsing
     "text/csv": None,
     "text/plain": None,
@@ -22,18 +32,38 @@ MAGIC_TYPE_MAP = {
 }
 
 
-def validate_file_security(file_bytes: bytes, content_type: str) -> None:
+def get_max_file_size(content_type: str, thread_type: str = "ba_assistant") -> int:
+    """Get max file size based on content type and thread type.
+
+    Assistant threads have expanded limits per user decision:
+    - Images (PNG, JPEG, GIF): 5MB (Anthropic Vision API limit)
+    - PDFs: 32MB (Anthropic PDF API limit)
+    - Other files: 10MB (same as BA mode)
+
+    BA threads always use 10MB limit.
+    """
+    if thread_type == "assistant":
+        if content_type in ["image/png", "image/jpeg", "image/gif"]:
+            return 5 * 1024 * 1024   # 5MB
+        elif content_type == "application/pdf":
+            return 32 * 1024 * 1024  # 32MB
+    # BA mode and Assistant non-image files: 10MB
+    return MAX_FILE_SIZE
+
+
+def validate_file_security(file_bytes: bytes, content_type: str, max_size: int = MAX_FILE_SIZE) -> None:
     """
     Orchestrator for security validation.
 
     Args:
         file_bytes: Raw file bytes
         content_type: Expected MIME type
+        max_size: Maximum allowed file size in bytes
 
     Raises:
         HTTPException: 413 for size/zip bomb, 400 for malformed/spoofed files
     """
-    validate_file_size(file_bytes)
+    validate_file_size(file_bytes, max_size)
     validate_magic_number(file_bytes, content_type)
 
     # Zip bomb check for XLSX/DOCX (they are zip archives)
@@ -44,17 +74,21 @@ def validate_file_security(file_bytes: bytes, content_type: str) -> None:
         validate_zip_bomb(file_bytes)
 
 
-def validate_file_size(file_bytes: bytes) -> None:
+def validate_file_size(file_bytes: bytes, max_size: int = MAX_FILE_SIZE) -> None:
     """
     Validate file doesn't exceed size limit.
 
+    Args:
+        file_bytes: Raw file bytes
+        max_size: Maximum allowed file size in bytes
+
     Raises:
-        HTTPException(413): If file exceeds MAX_FILE_SIZE
+        HTTPException(413): If file exceeds max_size
     """
-    if len(file_bytes) > MAX_FILE_SIZE:
+    if len(file_bytes) > max_size:
         raise HTTPException(
             status_code=413,
-            detail=f"File too large. Maximum size: {MAX_FILE_SIZE / (1024*1024):.1f}MB"
+            detail=f"File too large. Maximum size: {max_size / (1024*1024):.1f}MB"
         )
 
 

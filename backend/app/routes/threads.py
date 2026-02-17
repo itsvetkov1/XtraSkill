@@ -33,6 +33,9 @@ VALID_PROVIDERS = ["anthropic", "google", "deepseek", "claude-code-sdk", "claude
 # Per PITFALL-07: Mode is a thread property, not global preference
 VALID_MODES = ["meeting", "document_refinement"]
 
+# Valid thread types for thread binding
+VALID_THREAD_TYPES = ["ba_assistant", "assistant"]
+
 
 # Request/Response models
 class ThreadCreate(BaseModel):
@@ -40,6 +43,7 @@ class ThreadCreate(BaseModel):
     title: Optional[str] = Field(None, max_length=255)
     model_provider: Optional[str] = Field(None, max_length=20)
     conversation_mode: Optional[str] = Field(None, max_length=50)
+    thread_type: str = Field(default="ba_assistant", description="Thread type, defaults to ba_assistant for project-scoped threads")
 
 
 class GlobalThreadCreate(BaseModel):
@@ -48,6 +52,7 @@ class GlobalThreadCreate(BaseModel):
     project_id: Optional[str] = None  # Null = project-less thread
     model_provider: Optional[str] = Field(None, max_length=20)
     conversation_mode: Optional[str] = Field(None, max_length=50)
+    thread_type: str = Field(..., description="Required: ba_assistant or assistant")
 
 
 class ThreadUpdate(BaseModel):
@@ -75,6 +80,7 @@ class ThreadResponse(BaseModel):
     title: Optional[str]
     model_provider: Optional[str] = "anthropic"  # Default for backward compatibility
     conversation_mode: Optional[str] = None
+    thread_type: str = "ba_assistant"
     created_at: str
     updated_at: str
 
@@ -104,6 +110,7 @@ class GlobalThreadListResponse(BaseModel):
     message_count: int
     model_provider: str
     conversation_mode: Optional[str] = None
+    thread_type: str = "ba_assistant"
 
     class Config:
         from_attributes = True
@@ -126,6 +133,7 @@ class PaginatedThreadsResponse(BaseModel):
 async def list_all_threads(
     page: int = Query(1, ge=1),
     page_size: int = Query(25, ge=1, le=50),
+    thread_type: Optional[str] = Query(None, description="Filter by thread_type"),
     current_user: dict = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
@@ -137,6 +145,7 @@ async def list_all_threads(
     Args:
         page: Page number (1-indexed)
         page_size: Number of threads per page (max 50)
+        thread_type: Optional filter by thread type
         current_user: Authenticated user from JWT
         db: Database session
 
@@ -144,6 +153,13 @@ async def list_all_threads(
         Paginated list of threads with project info
     """
     user_id = current_user["user_id"]
+
+    # Validate thread_type filter if provided
+    if thread_type and thread_type not in VALID_THREAD_TYPES:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Invalid thread_type filter. Must be one of: {', '.join(VALID_THREAD_TYPES)}"
+        )
 
     # Query: threads owned directly (user_id) OR via project (project.user_id)
     base_query = (
@@ -157,12 +173,20 @@ async def list_all_threads(
         .order_by(Thread.last_activity_at.desc())
     )
 
+    # Apply thread_type filter if provided
+    if thread_type:
+        base_query = base_query.where(Thread.thread_type == thread_type)
+
     # Count total matching threads
     count_subquery = (
         select(Thread.id)
         .outerjoin(Project, Thread.project_id == Project.id)
         .where((Thread.user_id == user_id) | (Project.user_id == user_id))
-    ).subquery()
+    )
+    # Apply thread_type filter to count as well
+    if thread_type:
+        count_subquery = count_subquery.where(Thread.thread_type == thread_type)
+    count_subquery = count_subquery.subquery()
     count_stmt = select(func.count()).select_from(count_subquery)
     total_result = await db.execute(count_stmt)
     total = total_result.scalar()
@@ -186,6 +210,7 @@ async def list_all_threads(
                 message_count=len(t.messages),
                 model_provider=t.model_provider or "anthropic",
                 conversation_mode=t.conversation_mode,
+                thread_type=t.thread_type or "ba_assistant",
             )
             for t in threads
         ],
@@ -221,6 +246,17 @@ async def create_global_thread(
     """
     user_id = current_user["user_id"]
 
+    # Validate thread_type
+    if thread_data.thread_type not in VALID_THREAD_TYPES:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Invalid thread_type. Must be one of: {', '.join(VALID_THREAD_TYPES)}"
+        )
+
+    # Silent project_id ignore for Assistant threads (per locked decision)
+    if thread_data.thread_type == "assistant" and thread_data.project_id:
+        thread_data.project_id = None  # Silently ignore per user decision
+
     # Validate project if provided
     if thread_data.project_id:
         stmt = select(Project).where(
@@ -254,6 +290,7 @@ async def create_global_thread(
         title=thread_data.title or "New Chat",
         model_provider=thread_data.model_provider or "anthropic",
         conversation_mode=thread_data.conversation_mode,
+        thread_type=thread_data.thread_type,
         last_activity_at=datetime.utcnow()
     )
 
@@ -267,6 +304,7 @@ async def create_global_thread(
         title=thread.title,
         model_provider=thread.model_provider or "anthropic",
         conversation_mode=thread.conversation_mode,
+        thread_type=thread.thread_type,
         created_at=thread.created_at.isoformat(),
         updated_at=thread.updated_at.isoformat(),
     )
@@ -344,6 +382,7 @@ async def create_thread(
         title=thread_data.title,
         model_provider=thread_data.model_provider or "anthropic",
         conversation_mode=thread_data.conversation_mode,
+        thread_type=thread_data.thread_type,
         last_activity_at=datetime.utcnow()
     )
 
@@ -357,6 +396,7 @@ async def create_thread(
         title=thread.title,
         model_provider=thread.model_provider or "anthropic",
         conversation_mode=thread.conversation_mode,
+        thread_type=thread.thread_type,
         created_at=thread.created_at.isoformat(),
         updated_at=thread.updated_at.isoformat(),
     )
@@ -416,6 +456,7 @@ async def list_threads(
             title=thread.title,
             model_provider=thread.model_provider or "anthropic",
             conversation_mode=thread.conversation_mode,
+            thread_type=thread.thread_type or "ba_assistant",
             created_at=thread.created_at.isoformat(),
             updated_at=thread.updated_at.isoformat(),
             message_count=len(thread.messages),
@@ -490,6 +531,7 @@ async def get_thread(
         title=thread.title,
         model_provider=thread.model_provider or "anthropic",
         conversation_mode=thread.conversation_mode,
+        thread_type=thread.thread_type or "ba_assistant",
         created_at=thread.created_at.isoformat(),
         updated_at=thread.updated_at.isoformat(),
         messages=[
@@ -611,6 +653,7 @@ async def update_thread(
         title=thread.title,
         model_provider=thread.model_provider or "anthropic",
         conversation_mode=thread.conversation_mode,
+        thread_type=thread.thread_type or "ba_assistant",
         created_at=thread.created_at.isoformat(),
         updated_at=thread.updated_at.isoformat(),
     )

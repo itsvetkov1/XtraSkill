@@ -59,7 +59,8 @@ async def track_token_usage(
     model: str,
     input_tokens: int,
     output_tokens: int,
-    endpoint: str
+    endpoint: str,
+    thread_type: str = "ba_assistant"  # New parameter for analytics
 ) -> TokenUsage:
     """
     Record token usage for a request.
@@ -71,11 +72,17 @@ async def track_token_usage(
         input_tokens: Number of input tokens
         output_tokens: Number of output tokens
         endpoint: API endpoint that used tokens
+        thread_type: Type of thread for analytics separation
 
     Returns:
         Created TokenUsage record
     """
     total_cost = calculate_cost(model, input_tokens, output_tokens)
+
+    # Encode thread_type in endpoint for future analytics separation
+    # e.g., "/threads/xxx/chat" -> "/threads/xxx/chat [assistant]"
+    if thread_type != "ba_assistant":
+        endpoint = f"{endpoint} [{thread_type}]"
 
     usage = TokenUsage(
         user_id=user_id,

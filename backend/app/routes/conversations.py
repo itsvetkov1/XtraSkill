@@ -206,7 +206,8 @@ async def stream_chat(
                     AGENT_MODEL,
                     usage_data.get("input_tokens", 0),
                     usage_data.get("output_tokens", 0),
-                    f"/threads/{thread_id}/chat"
+                    f"/threads/{thread_id}/chat",
+                    thread_type=thread.thread_type or "ba_assistant"
                 )
 
             # Update thread summary (skip for silent generation - no new messages to summarize)

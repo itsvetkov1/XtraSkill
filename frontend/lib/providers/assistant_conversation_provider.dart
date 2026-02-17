@@ -8,38 +8,10 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 
 import '../models/message.dart';
+import '../models/skill.dart';
 import '../models/thread.dart';
 import '../services/ai_service.dart';
 import '../services/thread_service.dart';
-
-/// Skill that can be selected to prepend context to messages
-class Skill {
-  final String name;
-  final String description;
-  final String skillPath;
-
-  Skill({
-    required this.name,
-    required this.description,
-    required this.skillPath,
-  });
-
-  factory Skill.fromJson(Map<String, dynamic> json) {
-    return Skill(
-      name: json['name'] as String,
-      description: json['description'] as String,
-      skillPath: json['skill_path'] as String,
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'name': name,
-      'description': description,
-      'skill_path': skillPath,
-    };
-  }
-}
 
 /// File attached for upload with next message
 class AttachedFile {

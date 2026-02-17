@@ -56,7 +56,7 @@ Full details: `.planning/milestones/v2.1-ROADMAP.md`
 
 - [x] **Phase 62: Backend Foundation** - Data model, service logic, and API endpoints for thread_type discrimination (completed 2026-02-17)
 - [x] **Phase 63: Navigation & Thread Management** - Assistant sidebar section, routes, thread list, create, and delete (completed 2026-02-17)
-- [ ] **Phase 64: Conversation & Documents** - End-to-end chat and document upload for Assistant threads
+- [x] **Phase 64: Conversation & Documents** - End-to-end chat and document upload for Assistant threads (completed 2026-02-17)
 
 ## Phase Details
 
@@ -126,8 +126,7 @@ Full details: `.planning/milestones/v2.1-ROADMAP.md`
 | UI-01 | 63 | Assistant thread list shows only Assistant threads |
 | UI-02 | 63 | Simplified thread creation dialog |
 | UI-05 | 63 | Thread deletion with standard undo behavior |
-| UI-03 | 64 | Conversation screen works end-to-end |
-| UI-04 | 64 | Document upload within Assistant threads |
+| UI-03 | 64 | Conversation screen works end-to-end | Complete    | 2026-02-17 | 64 | Document upload within Assistant threads |
 
 ### v0.1-claude-code: Claude Code as AI Backend
 

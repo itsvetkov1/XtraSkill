@@ -14,6 +14,7 @@ import 'services/logging_service.dart';
 import 'providers/auth_provider.dart';
 import 'providers/budget_provider.dart';
 import 'providers/conversation_provider.dart';
+import 'providers/assistant_conversation_provider.dart';
 import 'providers/document_column_provider.dart';
 import 'providers/document_provider.dart';
 import 'providers/project_provider.dart';
@@ -35,6 +36,7 @@ import 'screens/projects/project_detail_screen.dart';
 import 'screens/conversation/conversation_screen.dart';
 import 'screens/documents/document_viewer_screen.dart';
 import 'screens/assistant/assistant_list_screen.dart';
+import 'screens/assistant/assistant_chat_screen.dart';
 import 'widgets/responsive_scaffold.dart';
 
 Future<void> main() async {
@@ -138,6 +140,7 @@ class _MyAppState extends State<MyApp> {
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => BudgetProvider()),
         ChangeNotifierProvider(create: (_) => ConversationProvider()),
+        ChangeNotifierProvider(create: (_) => AssistantConversationProvider()),
         ChangeNotifierProvider(create: (_) => ProjectProvider()),
         ChangeNotifierProvider(create: (_) => DocumentProvider()),
         ChangeNotifierProvider(create: (_) => ThreadProvider()),
@@ -288,8 +291,7 @@ class _MyAppState extends State<MyApp> {
                       path: ':threadId',
                       builder: (context, state) {
                         final threadId = state.pathParameters['threadId']!;
-                        return ConversationScreen(
-                          projectId: null,
+                        return AssistantChatScreen(
                           threadId: threadId,
                         );
                       },

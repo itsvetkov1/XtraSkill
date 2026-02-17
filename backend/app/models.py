@@ -26,6 +26,12 @@ class OAuthProvider(str, PyEnum):
     MICROSOFT = "microsoft"
 
 
+class ThreadType(str, PyEnum):
+    """Thread type discriminator for BA vs Assistant modes."""
+    BA_ASSISTANT = "ba_assistant"
+    ASSISTANT = "assistant"
+
+
 class User(Base):
     """User account authenticated via OAuth 2.0."""
 
@@ -214,11 +220,19 @@ class Document(Base):
         default=lambda: str(uuid.uuid4())
     )
 
-    # Foreign key to project with cascade delete
-    project_id: Mapped[str] = mapped_column(
+    # Foreign key to project with cascade delete (nullable for Assistant thread docs)
+    project_id: Mapped[Optional[str]] = mapped_column(
         String(36),
         ForeignKey("projects.id", ondelete="CASCADE"),
-        nullable=False,
+        nullable=True,
+        index=True
+    )
+
+    # Foreign key to thread for thread-scoped documents (Assistant mode)
+    thread_id: Mapped[Optional[str]] = mapped_column(
+        String(36),
+        ForeignKey("threads.id", ondelete="CASCADE"),
+        nullable=True,
         index=True
     )
 
@@ -248,8 +262,12 @@ class Document(Base):
         nullable=False
     )
 
-    # Relationship back to project
-    project: Mapped["Project"] = relationship(back_populates="documents")
+    # Relationships
+    project: Mapped[Optional["Project"]] = relationship(back_populates="documents")
+    thread: Mapped[Optional["Thread"]] = relationship(
+        back_populates="documents",
+        foreign_keys=[thread_id]
+    )
 
     def __repr__(self) -> str:
         return f"<Document(id={self.id}, filename={self.filename}, project_id={self.project_id})>"
@@ -310,6 +328,13 @@ class Thread(Base):
         default=None
     )
 
+    # Thread type discriminator (ba_assistant, assistant)
+    thread_type: Mapped[str] = mapped_column(
+        String(20),
+        nullable=False,
+        server_default="ba_assistant"
+    )
+
     # Audit timestamps
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
@@ -349,6 +374,12 @@ class Thread(Base):
         cascade="all, delete-orphan",
         passive_deletes=True,
         order_by="Artifact.created_at.desc()"  # Newest artifacts first
+    )
+    documents: Mapped[List["Document"]] = relationship(
+        back_populates="thread",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+        foreign_keys="[Document.thread_id]"
     )
 
     def __repr__(self) -> str:

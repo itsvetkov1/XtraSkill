@@ -113,10 +113,10 @@ Plans:
   2. Tapping info button shows popup with skill description and features
   3. User can dismiss popup and return to skill browser
   4. Info popup is readable on both mobile and desktop
-**Plans**: TBD
+**Plans**: 1 plan
 
 Plans:
-- [ ] 67-01: TBD
+- [ ] 67-01-PLAN.md — Add info button to SkillCard with skill details AlertDialog
 
 ---
 
@@ -156,7 +156,7 @@ Phases execute in numeric order: 65 → 66 → 67
 |-------|-----------|----------------|--------|-----------|
 | 65. Backend Skill Metadata | v3.1 | 2/2 | Complete    | 2026-02-18 |
 | 66. Skill Browser UI | v3.1 | Complete    | 2026-02-18 | - |
-| 67. Skill Info Popup | v3.1 | 0/2 | Not started | - |
+| 67. Skill Info Popup | v3.1 | 0/1 | Not started | - |
 
 ---
 *Roadmap created: 2026-02-09*

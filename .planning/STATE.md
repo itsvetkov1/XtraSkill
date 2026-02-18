@@ -31,7 +31,7 @@ v3.0:              [##########] 100% — All phases complete
 v3.1:              [#######   ] 67% — Phase 66 complete
   Phase 65: Backend Skill Metadata     [##] 2/2 plans COMPLETE
   Phase 66: Skill Browser UI           [##] 2/2 plans COMPLETE
-  Phase 67: Skill Info Popup           [ ] 0/2 plans
+  Phase 67: Skill Info Popup           [ ] 0/1 plans
 ```
 
 ## Performance Metrics

@@ -4,6 +4,7 @@ library;
 import 'package:flutter/material.dart';
 import '../../../models/skill.dart';
 import '../../../utils/skill_emoji.dart';
+import '../../../widgets/responsive_layout.dart';
 
 /// A card widget that displays a single skill with emoji, name, description, and features.
 ///
@@ -51,7 +52,7 @@ class SkillCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // Row 1: Emoji + Name
+                  // Row 1: Emoji + Name + Info Button
                   Row(
                     children: [
                       Text(
@@ -68,6 +69,13 @@ class SkillCard extends StatelessWidget {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.info_outline, size: 20),
+                        tooltip: 'More information',
+                        padding: const EdgeInsets.all(4),
+                        constraints: const BoxConstraints(),
+                        onPressed: () => _showSkillInfoDialog(context, skill, theme),
                       ),
                     ],
                   ),
@@ -119,4 +127,81 @@ class SkillCard extends StatelessWidget {
       ),
     );
   }
+}
+
+/// Shows a dialog with full skill information including complete description and all features.
+void _showSkillInfoDialog(BuildContext context, Skill skill, ThemeData theme) {
+  showDialog(
+    context: context,
+    barrierDismissible: true,
+    builder: (BuildContext dialogContext) {
+      return AlertDialog(
+        title: Row(
+          children: [
+            Text(getSkillEmoji(skill.name), style: const TextStyle(fontSize: 24)),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                skill.name,
+                style: theme.textTheme.titleLarge,
+              ),
+            ),
+          ],
+        ),
+        content: SizedBox(
+          width: context.isDesktop ? 500 : (context.isTablet ? 450 : 400),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Full description (no line limit unlike card's 2-line truncation)
+                Text(
+                  skill.description,
+                  style: theme.textTheme.bodyMedium,
+                ),
+
+                // ALL features (not limited to 3 like the card)
+                if (skill.features.isNotEmpty) ...[
+                  const SizedBox(height: 16),
+                  const Divider(),
+                  const SizedBox(height: 12),
+                  Text(
+                    'Features',
+                    style: theme.textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  ...skill.features.map((feature) {
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 4),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('• ', style: theme.textTheme.bodyMedium),
+                          Expanded(
+                            child: Text(
+                              feature,
+                              style: theme.textTheme.bodyMedium,
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  }),
+                ],
+              ],
+            ),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: const Text('Close'),
+          ),
+        ],
+      );
+    },
+  );
 }

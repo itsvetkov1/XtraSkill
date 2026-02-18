@@ -20,11 +20,11 @@
 
 | Priority | Total | Open | Done | Wont Do |
 |----------|-------|------|------|---------|
-| Critical | 17 | 5 | 12 | 0 |
+| Critical | 18 | 6 | 12 | 0 |
 | High | 19 | 12 | 6 | 1 |
 | Medium | 10 | 7 | 1 | 2 |
 | Low | 4 | 3 | 1 | 0 |
-| **Total** | **50** | **27** | **20** | **3** |
+| **Total** | **51** | **28** | **20** | **3** |
 
 ---
 
@@ -39,6 +39,7 @@
 | [BUG-018](BUG-018_tool-description-single-call.md) | Tool description single-call enforcement | Backend / AI Service | BUG-016 fix layer 2 — tool description |
 | [BUG-019](BUG-019_history-filtering-fulfilled-requests.md) | History filtering for fulfilled requests | Backend / Conversation Service | BUG-016 fix layer 3 — structural fix |
 | [BUG-020](BUG-020_deepseek-cannot-read-documents.md) | DeepSeek Reasoner cannot read uploaded documents | Backend / AI Service / LLM Adapters | Documents invisible when provider lacks tool support |
+| [BUG-023](BUG-023_cli-adapter-drops-conversation-history.md) | Claude CLI adapter drops conversation history | Backend / LLM Adapters / Claude CLI | Only sends last message, discards full thread history |
 
 ### High Priority (Open)
 
@@ -173,4 +174,4 @@ Ideas beyond current scope. See [BACKLOG.md](BACKLOG.md) for details.
 
 ---
 
-*Last updated: 2026-02-08 — added BUG-020 (DeepSeek doc access), BUG-021 (PDF export), BUG-022 (token model mismatch)*
+*Last updated: 2026-02-18 — added BUG-023 (CLI adapter drops conversation history)*

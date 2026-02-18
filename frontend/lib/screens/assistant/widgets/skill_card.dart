@@ -47,41 +47,48 @@ class SkillCard extends StatelessWidget {
           child: InkWell(
             onTap: onTap,
             child: Padding(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(12),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   // Row 1: Emoji + Name + Info Button
                   Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         getSkillEmoji(skill.name),
-                        style: const TextStyle(fontSize: 28),
+                        style: const TextStyle(fontSize: 24),
                       ),
-                      const SizedBox(width: 12),
+                      const SizedBox(width: 8),
                       Expanded(
                         child: Text(
                           skill.name,
-                          style: theme.textTheme.titleMedium?.copyWith(
+                          style: theme.textTheme.titleSmall?.copyWith(
                             fontWeight: FontWeight.bold,
                           ),
-                          maxLines: 1,
+                          maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
-                      IconButton(
-                        icon: const Icon(Icons.info_outline, size: 20),
-                        tooltip: 'More information',
-                        padding: const EdgeInsets.all(4),
-                        constraints: const BoxConstraints(),
-                        onPressed: () => _showSkillInfoDialog(context, skill, theme),
+                      const SizedBox(width: 4),
+                      GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onTap: () => _showSkillInfoDialog(context, skill, theme),
+                        child: Padding(
+                          padding: const EdgeInsets.all(4),
+                          child: Icon(
+                            Icons.info_outline,
+                            size: 18,
+                            color: theme.colorScheme.onSurfaceVariant,
+                          ),
+                        ),
                       ),
                     ],
                   ),
 
                   // Row 2: Description
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 6),
                   Text(
                     skill.description,
                     style: theme.textTheme.bodySmall?.copyWith(
@@ -90,35 +97,6 @@ class SkillCard extends StatelessWidget {
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
-
-                  // Row 3: Features (first 3 only)
-                  if (skill.features.isNotEmpty) ...[
-                    const SizedBox(height: 8),
-                    ...skill.features.take(3).map((feature) {
-                      final featureStyle = theme.textTheme.bodySmall?.copyWith(
-                        color: theme.colorScheme.onSurfaceVariant,
-                        fontSize: 11,
-                      );
-
-                      return Padding(
-                        padding: const EdgeInsets.only(bottom: 2),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text('• ', style: featureStyle),
-                            Expanded(
-                              child: Text(
-                                feature,
-                                style: featureStyle,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                          ],
-                        ),
-                      );
-                    }),
-                  ],
                 ],
               ),
             ),

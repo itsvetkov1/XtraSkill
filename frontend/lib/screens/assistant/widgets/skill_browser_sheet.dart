@@ -15,7 +15,7 @@ import 'skill_card.dart';
 /// - Loading state: Skeleton cards
 /// - Error state: Friendly message + retry button
 /// - Empty state: "No skills available"
-/// - Success state: Responsive grid of skill cards (3/2/1 columns)
+/// - Success state: Responsive wrapped layout of skill cards
 class SkillBrowserSheet extends StatefulWidget {
   const SkillBrowserSheet({super.key});
 
@@ -94,7 +94,7 @@ class _SkillBrowserSheetState extends State<SkillBrowserSheet> {
   @override
   Widget build(BuildContext context) {
     return DraggableScrollableSheet(
-      initialChildSize: 0.5,
+      initialChildSize: 0.6,
       minChildSize: 0.3,
       maxChildSize: 0.9,
       expand: false,
@@ -162,25 +162,21 @@ class _SkillBrowserSheetState extends State<SkillBrowserSheet> {
       return _buildEmptyState(context);
     }
 
-    return _buildGrid(_skills!, scrollController);
+    return _buildSkillList(_skills!, scrollController);
   }
 
   /// Build loading state with skeleton cards
   Widget _buildLoadingState(ScrollController scrollController) {
     final dummySkill = Skill(
-      name: 'Loading Skill',
-      description: 'Loading description text for the skill card',
-      features: [
-        'Feature one',
-        'Feature two',
-        'Feature three',
-      ],
+      name: 'Loading Skill Name',
+      description: 'Loading description text for the skill card preview',
+      features: [],
       skillPath: '',
     );
 
     return Skeletonizer(
       enabled: true,
-      child: _buildGrid(
+      child: _buildSkillList(
         List.generate(6, (_) => dummySkill),
         scrollController,
       ),
@@ -245,23 +241,36 @@ class _SkillBrowserSheetState extends State<SkillBrowserSheet> {
     );
   }
 
-  /// Build responsive grid of skill cards
-  Widget _buildGrid(List<Skill> skills, ScrollController scrollController) {
-    return GridView.builder(
-      controller: scrollController,
-      padding: const EdgeInsets.all(16),
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: _getColumnCount(context),
-        crossAxisSpacing: 12,
-        mainAxisSpacing: 12,
-        childAspectRatio: _getAspectRatio(context),
-      ),
-      itemCount: skills.length,
-      itemBuilder: (context, index) {
-        return SkillCard(
-          skill: skills[index],
-          isSelected: _selectedIndex == index,
-          onTap: () => _handleSelection(skills[index], index),
+  /// Build responsive skill list using Wrap for multi-column layout
+  ///
+  /// Uses Wrap instead of GridView to allow cards to have intrinsic heights,
+  /// preventing overflow issues from fixed aspect ratios.
+  Widget _buildSkillList(List<Skill> skills, ScrollController scrollController) {
+    final columns = _getColumnCount(context);
+    final spacing = 12.0;
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final availableWidth = constraints.maxWidth - 32; // 16px padding each side
+        final cardWidth = (availableWidth - (spacing * (columns - 1))) / columns;
+
+        return SingleChildScrollView(
+          controller: scrollController,
+          padding: const EdgeInsets.all(16),
+          child: Wrap(
+            spacing: spacing,
+            runSpacing: spacing,
+            children: List.generate(skills.length, (index) {
+              return SizedBox(
+                width: cardWidth,
+                child: SkillCard(
+                  skill: skills[index],
+                  isSelected: _selectedIndex == index,
+                  onTap: () => _handleSelection(skills[index], index),
+                ),
+              );
+            }),
+          ),
         );
       },
     );
@@ -272,16 +281,5 @@ class _SkillBrowserSheetState extends State<SkillBrowserSheet> {
     if (context.isDesktop) return 3;
     if (context.isTablet) return 2;
     return 1;
-  }
-
-  /// Get aspect ratio based on screen size
-  ///
-  /// Mobile (1 col): wider cards (~2.5)
-  /// Tablet (2 cols): medium cards (~1.4)
-  /// Desktop (3 cols): compact cards (~1.3)
-  double _getAspectRatio(BuildContext context) {
-    if (context.isDesktop) return 1.3;
-    if (context.isTablet) return 1.4;
-    return 2.5;
   }
 }

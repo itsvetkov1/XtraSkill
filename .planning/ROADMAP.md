@@ -64,7 +64,7 @@ Full details: `.planning/milestones/v3.0-ROADMAP.md`
 
 **Milestone Goal:** Enhance the Assistant skill selector into a browsable list with descriptions, info popups, and transparent skill prepending.
 
-- [ ] **Phase 65: Backend Skill Metadata** - Parse SKILL.md frontmatter and enhance API
+- [x] **Phase 65: Backend Skill Metadata** - Parse SKILL.md frontmatter and enhance API (completed 2026-02-18)
 - [ ] **Phase 66: Skill Browser UI** - Browsable skill list with selection indicators
 - [ ] **Phase 67: Skill Info Popup** - Detailed skill information display
 
@@ -154,7 +154,7 @@ Phases execute in numeric order: 65 → 66 → 67
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
-| 65. Backend Skill Metadata | v3.1 | 0/TBD | Not started | - |
+| 65. Backend Skill Metadata | 2/2 | Complete   | 2026-02-18 | - |
 | 66. Skill Browser UI | v3.1 | 0/TBD | Not started | - |
 | 67. Skill Info Popup | v3.1 | 0/TBD | Not started | - |
 

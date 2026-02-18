@@ -12,9 +12,9 @@ See: /Users/a1testingmac/projects/XtraSkill/.planning/PROJECT.md (updated 2026-0
 
 Milestone: v3.1 — Skill Discovery & Selection
 Phase: 65 of 67 (Backend Skill Metadata)
-Plan: 0 of TBD in current phase
-Status: Ready to plan
-Last activity: 2026-02-18 — v3.1 roadmap created with 3 phases, 16 requirements
+Plan: 2 of 2 in current phase
+Status: Phase complete
+Last activity: 2026-02-18 — Completed plan 65-02 (Enhanced skills API with frontmatter parsing)
 
 Progress:
 ```
@@ -28,8 +28,8 @@ v3.0:              [##########] 100% — All phases complete
   Phase 63: Navigation & Thread Mgmt   [###] 2/2 plans COMPLETE
   Phase 64: Conversation & Documents   [###] 5/5 plans COMPLETE
 
-v3.1:              [          ] 0% — Ready to begin
-  Phase 65: Backend Skill Metadata     [ ] 0/TBD plans
+v3.1:              [###       ] 33% — Phase 65 complete
+  Phase 65: Backend Skill Metadata     [##] 2/2 plans COMPLETE
   Phase 66: Skill Browser UI           [ ] 0/TBD plans
   Phase 67: Skill Info Popup           [ ] 0/TBD plans
 ```
@@ -52,11 +52,13 @@ v3.1:              [          ] 0% — Ready to begin
 ### Decisions
 
 Recent key decisions (full archive in PROJECT.md):
+- **[Phase 65-02]**: Scan ~/.claude/ instead of project .claude/ for user-specific skills
+- **[Phase 65-02]**: Three-tier fallback pattern for missing frontmatter fields (frontmatter → transformed/extracted → default)
+- **[Phase 65-02]**: SKIP_DIRS set excludes 17+ utility directories (plugins, get-shit-done, agents, etc.)
+- **[Phase 65-01]**: 10 skills after removing ralph-prd-generator per user decision
 - **v3.1 Roadmap**: 3 phases (quick depth) — Backend metadata → Browsable UI → Info popup
 - **v3.0**: Separate Assistant from BA flow — dual thread types in one app
-- **v3.0**: AssistantConversationProvider (not reuse ConversationProvider) — BA-specific logic deeply embedded
 - [Phase 64]: Skills prepend one-time per message — transparent `/skill-name` prepending, cleared after send
-- [Phase 64]: flutter_dropzone for web drag-and-drop — web-only with kIsWeb guard
 - [Phase 62]: String(20) for thread_type field (not Enum) to match model_provider pattern
 
 ### Pending Todos
@@ -71,9 +73,9 @@ None currently. Research completed with HIGH confidence across all areas.
 ## Session Continuity
 
 Last session: 2026-02-18
-Stopped at: v3.1 roadmap created (ROADMAP.md, STATE.md, REQUIREMENTS.md updated)
+Stopped at: Completed Phase 65-02-PLAN.md (Enhanced skills API with frontmatter parsing)
 Resume file: None
-Next action: `/gsd:plan-phase 65`
+Next action: `/gsd:plan-phase 66`
 
 ---
 

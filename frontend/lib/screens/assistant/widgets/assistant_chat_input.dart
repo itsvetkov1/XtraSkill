@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../../providers/assistant_conversation_provider.dart';
+import '../../../utils/skill_emoji.dart';
 import 'document_attachment_chip.dart';
 import 'skill_selector.dart';
 
@@ -225,14 +226,24 @@ class _AssistantChatInputState extends State<AssistantChatInput> {
           // Skill chip
           if (widget.provider.selectedSkill != null)
             Chip(
-              avatar: const Icon(Icons.add_box_outlined, size: 18),
-              label: Text(
-                widget.provider.selectedSkill!.displayName,
-                style: const TextStyle(fontSize: 13),
+              avatar: Text(
+                getSkillEmoji(widget.provider.selectedSkill!.name),
+                style: const TextStyle(fontSize: 16),
               ),
-              deleteIcon: const Icon(Icons.close, size: 18),
+              label: Text(
+                widget.provider.selectedSkill!.name,
+                style: TextStyle(
+                  fontSize: 13,
+                  color: theme.colorScheme.onPrimary,
+                ),
+              ),
+              deleteIcon: Icon(
+                Icons.close,
+                size: 18,
+                color: theme.colorScheme.onPrimary,
+              ),
               onDeleted: widget.provider.clearSkill,
-              backgroundColor: theme.colorScheme.secondaryContainer,
+              backgroundColor: theme.colorScheme.primary,
               visualDensity: VisualDensity.compact,
               materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
             ),

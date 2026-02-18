@@ -1,12 +1,16 @@
 """
 Skills discovery routes.
 
-Provides endpoints for discovering available Claude Code skills from .claude/ directory.
+Provides endpoints for discovering available Claude Code skills from ~/.claude/ directory.
 """
 
 import logging
+import os
 from pathlib import Path
 from typing import List
+
+import frontmatter
+import yaml
 
 from fastapi import APIRouter, Depends
 
@@ -16,116 +20,128 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
-
-def _find_project_root() -> Path:
-    """
-    Find project root by navigating up from this file.
-
-    Returns:
-        Path to project root containing .claude/ directory
-    """
-    # From backend/app/routes/skills.py, go up 3 levels to project root
-    current_file = Path(__file__).resolve()
-    project_root = current_file.parents[2]  # Up to XtraSkill/
-
-    logger.info(f"Skills API: Using project root: {project_root}")
-
-    # Verify .claude/ exists
-    claude_dir = project_root / ".claude"
-    if not claude_dir.exists():
-        logger.warning(f"Skills API: .claude/ directory not found at {claude_dir}")
-
-    return project_root
+# Directories to skip when scanning ~/.claude/
+SKIP_DIRS = {
+    "plugins", "get-shit-done", "agents", "commands", "hooks",
+    "projects", "tasks", "todos", "cache", "downloads", "debug",
+    "file-history", "paste-cache", "plans", "session-env",
+    "shell-snapshots", "stats-cache.json", "telemetry",
+}
 
 
-def _extract_description_from_skill(skill_path: Path) -> str:
-    """
-    Extract description from SKILL.md file.
+def _get_skills_dir() -> Path:
+    """Get skills directory, defaulting to ~/.claude/."""
+    env_path = os.environ.get("SKILLS_DIR")
+    if env_path:
+        return Path(env_path)
+    return Path.home() / ".claude"
 
-    Args:
-        skill_path: Path to SKILL.md file
 
-    Returns:
-        First non-empty line after frontmatter and headers
-    """
+def _extract_frontmatter(skill_file: Path) -> dict | None:
+    """Parse YAML frontmatter from SKILL.md."""
     try:
-        with open(skill_path, 'r', encoding='utf-8') as f:
-            in_frontmatter = False
-            for line in f:
-                stripped = line.strip()
-
-                # Track frontmatter boundaries
-                if stripped == '---':
-                    in_frontmatter = not in_frontmatter
-                    continue
-
-                # Skip frontmatter and headers
-                if in_frontmatter or stripped.startswith('#'):
-                    continue
-
-                # Return first non-empty content line
-                if stripped:
-                    return stripped
-
-        return "No description available"
+        with open(skill_file, 'r', encoding='utf-8') as f:
+            post = frontmatter.load(f)
+        return {
+            'name': post.get('name'),
+            'description': post.get('description'),
+            'features': post.get('features', []),
+            'content': post.content,
+        }
+    except yaml.YAMLError as e:
+        logger.warning(f"Malformed YAML in {skill_file}: {e}")
+        return None
     except Exception as e:
-        logger.warning(f"Failed to extract description from {skill_path}: {e}")
-        return "No description available"
+        logger.warning(f"Error parsing {skill_file}: {e}")
+        return None
+
+
+def _get_skill_name(skill_dir: Path, fm: dict | None) -> str:
+    """Get name: frontmatter -> directory name transformed -> raw."""
+    if fm and fm.get('name'):
+        return fm['name']
+    return skill_dir.name.replace('-', ' ').title()
+
+
+def _get_skill_description(fm: dict | None, content: str) -> str:
+    """Get description: frontmatter -> first content line -> default."""
+    if fm and fm.get('description'):
+        return fm['description']
+    for line in content.split('\n'):
+        stripped = line.strip()
+        if stripped and not stripped.startswith('#'):
+            return stripped
+    return "No description available"
+
+
+def _get_skill_features(fm: dict | None) -> list[str]:
+    """Get features: frontmatter array -> empty array."""
+    if fm and fm.get('features'):
+        features = fm['features']
+        if isinstance(features, list) and all(isinstance(f, str) for f in features):
+            return features
+        logger.warning(f"Invalid features format: {type(features)}")
+    return []
 
 
 @router.get("/skills")
-async def list_skills(
-    current_user: dict = Depends(get_current_user)
-):
-    """
-    List available Claude Code skills discovered from .claude/ directory.
+async def list_skills(current_user: dict = Depends(get_current_user)):
+    """List available Claude Code skills from ~/.claude/."""
+    skills_dir = _get_skills_dir()
 
-    Scans .claude/ subdirectories for SKILL.md files and extracts metadata.
-
-    Args:
-        current_user: Authenticated user from JWT
-
-    Returns:
-        List of skills with name, description, and path
-    """
-    project_root = _find_project_root()
-    claude_dir = project_root / ".claude"
-
-    # Return empty list if .claude/ doesn't exist
-    if not claude_dir.exists() or not claude_dir.is_dir():
-        logger.info("Skills API: .claude/ directory not found, returning empty list")
+    if not skills_dir.exists() or not skills_dir.is_dir():
+        logger.info(f"Skills directory not found: {skills_dir}")
         return []
 
     skills = []
 
-    # Scan .claude/ subdirectories
     try:
-        for skill_dir in claude_dir.iterdir():
-            # Skip non-directories
+        for skill_dir in sorted(skills_dir.iterdir()):
             if not skill_dir.is_dir():
                 continue
 
-            # Look for SKILL.md
-            skill_file = skill_dir / "SKILL.md"
-            if not skill_file.exists():
+            if skill_dir.name in SKIP_DIRS:
+                logger.debug(f"Skipping excluded directory: {skill_dir.name}")
                 continue
 
-            # Extract metadata
-            skill_name = skill_dir.name
-            description = _extract_description_from_skill(skill_file)
-            skill_path = str(skill_file.relative_to(project_root))
+            skill_file = skill_dir / "SKILL.md"
+            if not skill_file.exists():
+                logger.debug(f"No SKILL.md in {skill_dir.name}, skipping")
+                continue
+
+            # Parse frontmatter
+            fm = _extract_frontmatter(skill_file)
+
+            # Read raw content for description fallback
+            raw_content = ""
+            if fm is None:
+                try:
+                    raw_content = skill_file.read_text(encoding='utf-8')
+                except Exception:
+                    raw_content = ""
+            else:
+                raw_content = fm.get('content', '')
+
+            # Build metadata with fallbacks
+            name = _get_skill_name(skill_dir, fm)
+            description = _get_skill_description(fm, raw_content)
+            features = _get_skill_features(fm)
+
+            # Compute skill_path relative to skills dir parent (i.e., relative to ~)
+            skill_path = str(skill_file.relative_to(skills_dir.parent))
 
             skills.append({
-                "name": skill_name,
+                "name": name,
                 "description": description,
-                "skill_path": skill_path
+                "features": features,
+                "skill_path": skill_path,
             })
 
-            logger.debug(f"Skills API: Found skill '{skill_name}' at {skill_path}")
+            logger.debug(f"Found skill: {name} ({skill_dir.name})")
 
     except Exception as e:
-        logger.error(f"Skills API: Error scanning .claude/ directory: {e}")
+        logger.error(f"Error scanning skills directory: {e}")
         return []
 
-    logger.info(f"Skills API: Discovered {len(skills)} skills")
+    logger.info(f"Discovered {len(skills)} skills")
     return skills

@@ -8,32 +8,22 @@ A hybrid mobile and web application that augments business analysts during featu
 
 Business analysts reduce time spent on requirement documentation while improving completeness through AI-assisted discovery conversations that systematically explore edge cases and generate production-ready artifacts.
 
-## Current Milestone: v3.0 Assistant Foundation
-
-**Goal:** Separate the Claude Code CLI into its own "Assistant" section with dedicated screens, clean of BA-specific logic. Foundation for building a multi-purpose AI assistant.
-
-**Target features:**
-- New "Assistant" section in sidebar navigation
-- Assistant thread list (create, view, delete)
-- Assistant conversation screen (streaming chat, no BA prompts/tools)
-- Document upload for Assistant threads
-- Always uses claude-code-cli adapter (no provider selection)
-- BA Assistant remains unchanged
-
 ## Current State
 
-**Shipped:** v0.1-claude-code Claude Code as AI Backend (2026-02-17)
+**Shipped:** v3.0 Assistant Foundation (2026-02-18)
 
 **Delivered:**
-- Claude Code CLI adapter with subprocess lifecycle management
-- Agent SDK adapter with event stream translation
-- Shared MCP tool infrastructure (search_documents, save_artifact)
-- Frontend provider integration with experimental badges
-- 3 bugs fixed during manual testing
+- Dedicated "Assistant" sidebar section with own routes and deep linking
+- Thread management: create, list, delete with 10-second undo
+- Streaming conversation UI with markdown rendering and syntax highlighting
+- Skills discovery API and skill selector in chat input
+- Thread-scoped document upload (file picker, drag-and-drop)
+- AssistantConversationProvider: auto-retry, thinking timer, skill prepending
+- BA Assistant flow completely unchanged
 
-**Previous:** v2.1 Rich Document Support (2026-02-12)
+**Previous:** v0.1-claude-code Claude Code as AI Backend (2026-02-17)
 
-**Next:** v3.0 — Assistant Foundation
+**Next:** Planning next milestone
 
 Previous milestone (v1.9.2):
 - Network error resilience with partial content preservation and retry
@@ -81,7 +71,7 @@ Previous features (v1.5):
 - Deletion with 10-second undo for all resources
 - Professional empty states across all list screens
 
-**Codebase:** ~95,000 lines of Python/Dart across FastAPI backend and Flutter frontend.
+**Codebase:** ~105,000 lines of Python/Dart across FastAPI backend and Flutter frontend.
 
 ## Future Vision
 
@@ -220,6 +210,13 @@ Previous features (v1.5):
 - ✓ Frontend buffer size is configurable (default: 1000 entries) — v1.9.5
 - ✓ Frontend flush interval is configurable (default: 5 minutes) — v1.9.5
 
+- ✓ Thread type discrimination separates Assistant from BA flow — v3.0
+- ✓ Assistant sidebar navigation with dedicated routes — v3.0
+- ✓ Assistant thread create/list/delete with undo — v3.0
+- ✓ Assistant conversation screen with streaming, markdown, copy/retry — v3.0
+- ✓ Document upload for Assistant threads (file picker, drag-and-drop) — v3.0
+- ✓ Assistant always uses claude-code-cli adapter — v3.0
+
 - ✓ User can upload Excel (.xlsx) files with text extracted for AI context and search — v2.1
 - ✓ User can upload CSV files with text extracted for AI context and search — v2.1
 - ✓ User can upload PDF files with text extracted for AI context and search — v2.1
@@ -246,15 +243,6 @@ Previous features (v1.5):
 - ✓ User can export parsed document data to CSV format — v2.1
 
 ### Active
-
-**v3.0 — Assistant Foundation** (in progress)
-
-- [ ] New "Assistant" sidebar section with dedicated navigation
-- [ ] Assistant thread management (create, list, delete)
-- [ ] Clean conversation screen (no BA system prompts, no BA tools)
-- [ ] Document upload for Assistant threads
-- [ ] Always uses claude-code-cli adapter
-- [ ] BA Assistant flow unchanged
 
 **v2.0 — Security Audit & Deployment** (backlogged)
 
@@ -389,7 +377,13 @@ BAs prepare for meetings by uploading existing requirements or stakeholder notes
 | FileSaver for cross-platform download | Works on web and desktop for export file delivery | ✓ Implemented (Phase 56) |
 | debugPrint for flush errors | Avoids infinite loop if logError triggers another flush attempt | ✓ Implemented (Phase 48) |
 
-| Separate Assistant from BA flow | BA Assistant stays on direct API with BA prompts; Assistant section uses CLI adapter with no BA context. Two distinct user experiences in one app. | — v3.0 |
+| Separate Assistant from BA flow | BA Assistant stays on direct API with BA prompts; Assistant section uses CLI adapter with no BA context. Two distinct user experiences in one app. | ✓ Implemented (v3.0) |
+| String(20) for thread_type (not Enum) | Match existing model_provider pattern; easier to add new types without migrations | ✓ Implemented (Phase 62) |
+| 3-step migration for thread_type | Nullable → backfill → NOT NULL for backward compatibility with existing data | ✓ Implemented (Phase 62) |
+| AssistantConversationProvider (not reuse ConversationProvider) | BA-specific logic deeply embedded; cleaner to build separate provider stripped of artifacts, budget, mode | ✓ Implemented (Phase 64) |
+| MarkdownMessage with flutter_markdown | AI responses render as formatted markdown with syntax highlighting, replacing raw Text() | ✓ Implemented (Phase 64) |
+| Skills prepend one-time per message | Skill context prepended transparently, cleared after send; user controls when to apply | ✓ Implemented (Phase 64) |
+| flutter_dropzone for web drag-and-drop | Web-only with kIsWeb guard; mobile falls back to file picker | ✓ Implemented (Phase 64) |
 
 ---
-*Last updated: 2026-02-17 after v3.0 milestone started — Assistant Foundation*
+*Last updated: 2026-02-18 after v3.0 milestone shipped — Assistant Foundation*

@@ -373,3 +373,36 @@
 ---
 
 *Last updated: 2026-02-12 (v2.1 complete)*
+
+## v3.0 Assistant Foundation (Shipped: 2026-02-18)
+
+**Delivered:** Dedicated Assistant section with its own sidebar navigation, thread management, streaming conversation UI with markdown rendering, skill selection, and document upload — fully separated from the BA Assistant flow. Foundation for building a multi-purpose AI assistant.
+
+**Phases completed:** 62-64 (10 plans total)
+
+**Key accomplishments:**
+
+- Thread type discrimination: `thread_type` field on Thread model with backward-compatible 3-step migration, conditional AI routing (no BA prompts/tools for Assistant), and API filtering
+- Assistant sidebar navigation with dedicated routes (`/assistant`, `/assistant/:threadId`) and deep link support on page refresh
+- Thread management: create dialog (title required, no project/mode), delete with 10-second undo, API-filtered list
+- AssistantConversationProvider: SSE streaming with auto-retry, thinking timer, skill prepending (one-time per message), file attachment tracking
+- MarkdownMessage widget: syntax-highlighted code blocks (github/vs2015 themes), copy-code buttons, formatted tables/headers/links
+- AssistantChatScreen: message list with streaming display, copy/retry controls, zero BA-specific UI elements
+- AssistantChatInput: attachment button (left), multi-line text field, skill selector + send button (right)
+- Skills discovery API: GET /api/skills scans `.claude/` directory for SKILL.md files, cached on frontend
+- Thread-scoped document upload: POST/GET `/api/threads/{id}/documents` with shared upload helper, documents available as AI context
+- Web drag-and-drop file upload via flutter_dropzone with visual overlay feedback, mobile falls back to file picker
+
+**Stats:**
+
+- 58 files changed, +9,560 / -92 lines
+- 3 phases, 10 plans, 20 tasks
+- 17/17 requirements satisfied
+- 1 day from start to ship (2026-02-17 → 2026-02-18)
+
+**Git range:** `dff0b9b` → `b51df5d`
+
+**What's next:** Planning next milestone
+
+---
+

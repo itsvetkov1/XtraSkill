@@ -98,11 +98,11 @@ Plans:
   5. User can deselect skill by tapping chip close icon
   6. Only one skill can be selected at a time
   7. Skill browser closes after selection
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 66-01: TBD
-- [ ] 66-02: TBD
+- [ ] 66-01-PLAN.md — Foundation: Skill model features field, emoji helper, SkillCard widget
+- [ ] 66-02-PLAN.md — Browser sheet & integration: DraggableScrollableSheet grid, selector rewrite, chip style
 
 ### Phase 67: Skill Info Popup
 **Goal**: Users can view detailed skill information before selecting
@@ -155,7 +155,7 @@ Phases execute in numeric order: 65 → 66 → 67
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
 | 65. Backend Skill Metadata | 2/2 | Complete    | 2026-02-18 | - |
-| 66. Skill Browser UI | v3.1 | 0/TBD | Not started | - |
+| 66. Skill Browser UI | v3.1 | 0/2 | Planned | - |
 | 67. Skill Info Popup | v3.1 | 0/TBD | Not started | - |
 
 ---

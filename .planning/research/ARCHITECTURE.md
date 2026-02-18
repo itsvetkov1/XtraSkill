@@ -1,518 +1,799 @@
-# Architecture Patterns: Rich Document Support
+# Architecture Research: Skill Discovery & Selection Integration
 
-**Domain:** Document parsing integration for BA Assistant
-**Researched:** 2026-02-12
+**Domain:** Skill selector enhancement for Assistant chat
+**Researched:** 2026-02-18
+**Confidence:** HIGH
 
-## Executive Summary
+## Current Architecture (Baseline)
 
-Rich document support (Excel, CSV, PDF, Word) integrates into the existing text-only document pipeline through a **dual-column storage pattern**: binary documents are stored encrypted in `content_encrypted` (existing), while extracted text is stored in a new `content_text` column for FTS5 indexing and AI context. This approach preserves the existing architecture while cleanly extending it for binary formats.
-
-The architecture introduces **format-specific parser adapters** (Excel/CSV/PDF/Word) that extract text for search and structured data for preview, **content-type routing** to select parsers, and **metadata extraction** to support visual table previews in the frontend. All existing components (encryption, FTS5, AI tools, upload routes) remain functional with minimal modification.
-
-**Critical insight:** The existing encryption and FTS5 infrastructure expects text. Binary documents need the same encryption (for compliance) and searchability (for AI context), but require an extraction step between upload and storage. The dual-column pattern solves this cleanly without architectural disruption.
-
-## Recommended Architecture
-
-### High-Level Data Flow
-
-```
-User uploads file → FastAPI route validates content type → Parser extracts text + metadata →
-Encrypt original binary → Store encrypted binary + extracted text → Index text in FTS5 →
-AI tool searches FTS5 → Returns extracted text to LLM → Frontend displays with format-aware preview
-```
-
-**Key principle:** Binary documents follow the same security/search path as text documents, with parsing inserted before encryption.
-
-### Component Architecture
+### System Overview
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│ Frontend (Flutter Web)                                       │
-│  - DocumentUploadScreen: file picker (multi-format)         │
-│  - DocumentViewer: format-aware rendering                   │
-│    - TextRenderer (existing .txt/.md)                       │
-│    - TableRenderer (NEW: Excel/CSV with data_table widget)  │
-│    - PDFRenderer (NEW: display extracted text + metadata)   │
-│    - WordRenderer (NEW: structured content display)         │
-└─────────────────────────────────────────────────────────────┘
-                              ↓ HTTP multipart upload
-┌─────────────────────────────────────────────────────────────┐
-│ Backend Routes (routes/documents.py)                        │
-│  - POST /api/projects/{id}/documents                        │
-│    ├─ Validate content_type (EXTENDED content type list)    │
-│    ├─ Validate file size (INCREASED to 10MB for Excel/PDF)  │
-│    ├─ Route to parser based on content_type                 │
-│    └─ Call document_service.create_document()               │
-│  - GET /api/documents/{id}                                  │
-│    ├─ Return content_text for text preview                  │
-│    └─ NEW: Return metadata JSON for table structure         │
-│  - NEW: GET /api/documents/{id}/preview                     │
-│    └─ Return structured preview data (table rows/cols)      │
-└─────────────────────────────────────────────────────────────┘
-                              ↓
-┌─────────────────────────────────────────────────────────────┐
-│ Document Service (NEW: services/document_parsing.py)        │
-│                                                              │
-│  DocumentParser (Abstract Base)                             │
-│   - parse(file_bytes) → ParsedDocument                      │
-│                                                              │
-│  ParsedDocument (dataclass)                                 │
-│   - text_content: str (for FTS5 + AI)                       │
-│   - metadata: dict (format-specific)                        │
-│   - preview_data: dict (for frontend rendering)             │
-│                                                              │
-│  Concrete Parsers:                                          │
-│   - ExcelParser(openpyxl): all sheets → text + table data   │
-│   - CSVParser(csv stdlib): rows → text + preview            │
-│   - PDFParser(PyMuPDF): pages → text (no OCR MVP)           │
-│   - WordParser(python-docx): paragraphs → text + structure  │
-└─────────────────────────────────────────────────────────────┘
-                              ↓
-┌─────────────────────────────────────────────────────────────┐
-│ Database Layer (models.py)                                  │
-│                                                              │
-│  Document Model (MODIFIED):                                 │
-│   - id: str (UUID, existing)                                │
-│   - project_id: str (FK, existing)                          │
-│   - filename: str (existing)                                │
-│   - content_type: str (NEW: MIME type)                      │
-│   - content_encrypted: bytes (existing, stores binary)      │
-│   - content_text: bytes (NEW: encrypted extracted text)     │
-│   - metadata_json: str (NEW: JSON with table structure)     │
-│   - created_at: datetime (existing)                         │
-│                                                              │
-│  Migration:                                                 │
-│   - Add content_type column (nullable, default text/plain)  │
-│   - Add content_text column (nullable, backfill existing)   │
-│   - Add metadata_json column (nullable)                     │
-└─────────────────────────────────────────────────────────────┘
-                              ↓
-┌─────────────────────────────────────────────────────────────┐
-│ Search & Encryption (existing, MINIMAL changes)             │
-│                                                              │
-│  FTS5 (document_fts table):                                 │
-│   - Index content_text instead of decrypted content         │
-│   - No structural changes to FTS5 table                     │
-│                                                              │
-│  Encryption Service (services/encryption.py):               │
-│   - encrypt_document(bytes) → bytes (CHANGE signature)      │
-│   - decrypt_document(bytes) → bytes (CHANGE signature)      │
-│   - Add: encrypt_text(str) → bytes (for content_text)       │
-│   - Add: decrypt_text(bytes) → str (for content_text)       │
-└─────────────────────────────────────────────────────────────┘
-                              ↓
-┌─────────────────────────────────────────────────────────────┐
-│ AI Integration (services/ai_service.py)                     │
-│                                                              │
-│  search_documents tool (UNCHANGED behavior):                │
-│   - Searches FTS5 using content_text                        │
-│   - Returns text snippets to LLM                            │
-│   - Format-agnostic: LLM receives extracted text regardless │
-│     of original format (Excel/PDF/Word all → text)          │
+│                    Frontend (Flutter)                        │
+├─────────────────────────────────────────────────────────────┤
+│  ┌──────────────────┐  ┌──────────────────┐                 │
+│  │ AssistantChat    │  │ SkillSelector    │                 │
+│  │ Screen           │  │ Widget           │                 │
+│  └────────┬─────────┘  └────────┬─────────┘                 │
+│           │                     │                            │
+│           ├─────────────────────┤                            │
+│           │                                                  │
+│  ┌────────▼─────────────────────────────────────┐           │
+│  │ AssistantConversationProvider                │           │
+│  │  - selectedSkill: Skill?                     │           │
+│  │  - selectSkill(Skill)                        │           │
+│  │  - clearSkill()                              │           │
+│  │  - sendMessage(text) → prepends skill        │           │
+│  └────────┬─────────────────────────────────────┘           │
+│           │                                                  │
+│  ┌────────▼────────┐                                        │
+│  │ SkillService    │                                        │
+│  │ (cached fetch)  │                                        │
+│  └────────┬────────┘                                        │
+│           │ HTTP GET /api/skills                            │
+├───────────┴─────────────────────────────────────────────────┤
+│                    Backend (FastAPI)                         │
+├─────────────────────────────────────────────────────────────┤
+│  ┌──────────────────────────────────────────┐               │
+│  │ GET /api/skills                          │               │
+│  │  - Scans .claude/ directories            │               │
+│  │  - Extracts description from SKILL.md    │               │
+│  │  - Returns: name, description, path      │               │
+│  └──────────────────────────────────────────┘               │
 └─────────────────────────────────────────────────────────────┘
 ```
 
-## Component Boundaries
+### Current Data Model
+
+**Backend (Python):**
+```python
+# Returned from GET /api/skills (inferred from routes/skills.py)
+{
+    "name": str,              # e.g., "business-analyst"
+    "description": str,       # First non-header line from SKILL.md
+    "skill_path": str         # e.g., ".claude/business-analyst/SKILL.md"
+}
+```
+
+**Frontend (Dart):**
+```dart
+class Skill {
+  final String name;        // e.g., "business-analyst"
+  final String description; // Short one-liner
+  final String skillPath;   // Relative path
+
+  String get displayName;   // e.g., "Business Analyst"
+}
+```
+
+### Current Skill Flow
+
+```
+User clicks skill button
+    ↓
+SkillSelector shows PopupMenuButton
+    ↓
+FutureBuilder → SkillService.getSkills() → GET /api/skills
+    ↓
+PopupMenuButton renders skill list (name + description)
+    ↓
+User selects skill → onSkillSelected(skill)
+    ↓
+AssistantConversationProvider.selectSkill(skill)
+    ↓
+Skill shown as chip in input area
+    ↓
+User types message → sendMessage(content)
+    ↓
+Provider prepends: "[Using skill: business-analyst]\n\n{content}"
+    ↓
+Backend receives full message with skill context
+```
+
+## Enhanced Architecture (v3.1)
 
 ### New Components
 
-| Component | Responsibility | Dependencies |
-|-----------|---------------|--------------|
-| **DocumentParser (Base)** | Define parsing interface | None (ABC) |
-| **ExcelParser** | Extract text + table data from .xlsx | openpyxl |
-| **CSVParser** | Extract text + table data from .csv | csv (stdlib) |
-| **PDFParser** | Extract text from PDF pages | PyMuPDF (fitz) |
-| **WordParser** | Extract structured text from .docx | python-docx (existing) |
-| **ParserFactory** | Route content_type → parser | All parsers |
-| **TableRenderer (Flutter)** | Display Excel/CSV as data table | data_table package |
-| **GET /documents/{id}/preview** | Return structured preview data | DocumentService |
+| Component | Type | Purpose | Integration Point |
+|-----------|------|---------|-------------------|
+| **SkillBrowserDialog** | Widget (new) | Full-screen browsable skill list with search | Opened from AssistantChatInput |
+| **SkillDetailPanel** | Widget (new) | Info popup showing full SKILL.md content | Triggered by info icon on skill cards |
+| **EnhancedSkill** | Model (enhanced) | Extended skill model with full metadata | Replaces current Skill model |
+| **SkillMetadataExtractor** | Backend utility (new) | Parses SKILL.md frontmatter + content | Used by GET /api/skills |
 
-### Modified Components
-
-| Component | Current State | Required Changes |
-|-----------|--------------|------------------|
-| **Document model** | Stores encrypted text, filename | Add: content_type, content_text, metadata_json columns |
-| **routes/documents.py** | Validates text/plain, text/markdown | Extend ALLOWED_CONTENT_TYPES, increase MAX_FILE_SIZE, route to parser |
-| **document_search.index_document()** | Accepts plaintext string | Accept extracted text (string) instead of original content |
-| **encryption.py** | encrypt_document(str) → bytes | Change to encrypt_document(bytes) → bytes for binary |
-| **DocumentViewer (Flutter)** | Renders text in monospace | Add format detection + specialized renderers |
-| **Document.fromJson (Flutter)** | Expects content field | Add content_type, metadata fields |
-
-### Unchanged Components
-
-| Component | Why Unchanged |
-|-----------|--------------|
-| **FTS5 table (document_fts)** | Still indexes text; source column changes but schema doesn't |
-| **search_documents service** | Searches FTS5, returns text snippets (format-agnostic) |
-| **AI service search_documents tool** | Receives extracted text regardless of format |
-| **Encryption key management** | Same Fernet key encrypts binary and text |
-| **Project/Thread/Message models** | No relationship to document format |
-| **OAuth authentication** | Orthogonal to document handling |
-
-## Data Flow Changes
-
-### Current Flow (Text Documents)
+### Enhanced System Overview
 
 ```
-1. User uploads .txt file → FastAPI receives multipart
-2. Validate content_type = text/plain
-3. Read file → decode UTF-8 → plaintext string
-4. Encrypt plaintext → encrypted bytes
-5. Create Document(content_encrypted=encrypted)
-6. Index plaintext in FTS5
-7. Commit to DB
+┌─────────────────────────────────────────────────────────────┐
+│                    Frontend (Flutter)                        │
+├─────────────────────────────────────────────────────────────┤
+│  ┌──────────────────────────────────────────────────────┐   │
+│  │ AssistantChatInput                                   │   │
+│  │  ┌──────────────┐  ┌──────────────┐                 │   │
+│  │  │ Old: Skill   │  │ New: Browse  │                 │   │
+│  │  │ PopupMenu    │  │ Skills Btn   │                 │   │
+│  │  └──────┬───────┘  └──────┬───────┘                 │   │
+│  └─────────┼──────────────────┼──────────────────────────┘   │
+│            │                  │                              │
+│            │        ┌─────────▼────────────┐                 │
+│            │        │ SkillBrowserDialog   │                 │
+│            │        │  - Search bar        │                 │
+│            │        │  - Skill grid/list   │                 │
+│            │        │  - Category filter   │                 │
+│            │        └─────────┬────────────┘                 │
+│            │                  │                              │
+│            │        ┌─────────▼────────────┐                 │
+│            │        │ SkillCard            │                 │
+│            │        │  - Name              │                 │
+│            │        │  - Description       │                 │
+│            │        │  - Info icon (i)     │                 │
+│            │        └─────────┬────────────┘                 │
+│            │                  │                              │
+│            │        ┌─────────▼────────────┐                 │
+│            │        │ SkillDetailPanel     │                 │
+│            │        │  - Full content      │                 │
+│            │        │  - Features list     │                 │
+│            │        │  - Quick reference   │                 │
+│            │        └──────────────────────┘                 │
+│            │                                                 │
+│  ┌─────────▼─────────────────────────────────────┐          │
+│  │ AssistantConversationProvider                 │          │
+│  │  - selectedSkill: EnhancedSkill?              │          │
+│  │  - selectSkill(EnhancedSkill)                 │          │
+│  │  - sendMessage() → prepends "/skill-name"     │          │
+│  └─────────┬─────────────────────────────────────┘          │
+│            │                                                 │
+│  ┌─────────▼─────────┐                                      │
+│  │ SkillService      │                                      │
+│  │  - getSkills()    │ (enhanced return type)               │
+│  │  - getSkillDetail(name) → full SKILL.md                  │
+│  └─────────┬─────────┘                                      │
+│            │                                                 │
+├────────────┴─────────────────────────────────────────────────┤
+│                    Backend (FastAPI)                         │
+├─────────────────────────────────────────────────────────────┤
+│  ┌──────────────────────────────────────────┐               │
+│  │ GET /api/skills (enhanced)               │               │
+│  │  - SkillMetadataExtractor                │               │
+│  │  - Parses frontmatter (YAML)             │               │
+│  │  - Extracts Quick Reference section      │               │
+│  │  - Returns enhanced metadata             │               │
+│  └──────────────────────────────────────────┘               │
+│  ┌──────────────────────────────────────────┐               │
+│  │ GET /api/skills/{name}/content (new)     │               │
+│  │  - Returns full SKILL.md markdown        │               │
+│  │  - For detail panel display              │               │
+│  └──────────────────────────────────────────┘               │
+└─────────────────────────────────────────────────────────────┘
 ```
 
-### New Flow (Binary Documents: Excel Example)
+## Enhanced Data Model
 
-```
-1. User uploads .xlsx file → FastAPI receives multipart
-2. Validate content_type = application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
-3. Read file → bytes (NO decode)
-4. Route to ExcelParser.parse(bytes)
-5. Parser extracts:
-   - text_content: "Sheet1: Name, Age, Email\nAlice, 30, alice@example.com\n..."
-   - metadata: {"sheets": ["Sheet1"], "rows": 100, "cols": 3}
-   - preview_data: {"headers": ["Name", "Age", "Email"], "rows": [...]}
-6. Encrypt original bytes → encrypted_binary
-7. Encrypt text_content → encrypted_text (NEW)
-8. Create Document(
-     content_encrypted=encrypted_binary,
-     content_text=encrypted_text,
-     content_type="application/vnd...",
-     metadata_json=json.dumps(metadata)
-   )
-9. Index text_content in FTS5 (same as before, different source)
-10. Commit to DB
-```
+### Backend Response (Enhanced GET /api/skills)
 
-### Retrieval Flow (Binary Documents)
-
-```
-GET /api/documents/{id}:
-  - Decrypt content_text → return text for display
-  - Return content_type, metadata_json for frontend rendering
-
-GET /api/documents/{id}/preview:
-  - Decrypt metadata_json → parse JSON
-  - Return structured preview (table rows/headers)
-  - Frontend uses TableRenderer with data_table widget
-
-AI search (search_documents tool):
-  - FTS5 search → content_text snippets
-  - Return to LLM (format-agnostic: Excel → "Name: Alice, Age: 30")
-```
-
-## Build Order (Dependency-Aware)
-
-### Phase 1: Database & Model Foundation
-**Why first:** All other components depend on schema changes.
-
-1. Create Alembic migration (add columns)
-2. Run migration on dev database
-3. Update Document SQLAlchemy model
-4. Update encryption service signatures (bytes instead of str)
-5. Backfill existing documents (content_type, content_text)
-6. **Verification:** Existing text uploads still work
-
-### Phase 2: Parser Infrastructure
-**Why second:** Backend routes need parsers before accepting new formats.
-
-1. Create DocumentParser base class + ParsedDocument dataclass
-2. Implement TextParser (wrap existing logic)
-3. Implement CSVParser (stdlib csv, no dependencies)
-4. Implement ExcelParser (openpyxl)
-5. Implement PDFParser (PyMuPDF)
-6. Implement WordParser (python-docx, already installed)
-7. Create ParserFactory
-8. **Verification:** Unit tests for each parser with fixture files
-
-### Phase 3: Backend Upload Integration
-**Why third:** Now that parsers exist, wire them into upload route.
-
-1. Update ALLOWED_CONTENT_TYPES in routes/documents.py
-2. Increase MAX_FILE_SIZE to 10MB
-3. Modify upload endpoint to route content_type → parser
-4. Update document_search.index_document() to use content_text
-5. Modify GET /documents/{id} to return content_type + metadata
-6. Add GET /documents/{id}/preview endpoint
-7. **Verification:** Upload Excel file → stored + searchable
-
-### Phase 4: Frontend Model & Service
-**Why fourth:** Backend is ready, update Flutter side to consume new fields.
-
-1. Update Document model (add contentType, metadata fields)
-2. Update DocumentService.getDocumentContent() to parse new fields
-3. Add DocumentService.getDocumentPreview() method
-4. **Verification:** Fetch document with contentType field
-
-### Phase 5: Frontend Rendering
-**Why fifth:** All data flows work, add specialized UI.
-
-1. Install data_table_2 package
-2. Create TableRenderer widget (Excel/CSV)
-3. Create PDFRenderer widget (text display with page numbers)
-4. Create WordRenderer widget (structured paragraphs)
-5. Update DocumentViewerScreen with format routing
-6. **Verification:** View Excel file shows table, PDF shows pages
-
-### Phase 6: Export Feature (Optional)
-**Why last:** Everything works, export is value-add.
-
-1. Add GET /documents/{id}/export?format=csv endpoint
-2. Backend converts preview_data back to CSV/Excel bytes
-3. Frontend download button with format picker
-4. **Verification:** Download Excel as CSV
-
-## Patterns to Follow
-
-### Pattern 1: Dual-Column Storage (Binary + Text)
-
-**What:** Store original binary in `content_encrypted`, extracted text in `content_text`.
-
-**When:** Any time a document format requires parsing to extract searchable content.
-
-**Why:**
-- Preserves original document for download/export
-- Enables full-text search without re-parsing
-- Separates concerns (storage vs search)
-
-**Example:**
 ```python
-# Upload Excel file
-parsed = excel_parser.parse(file_bytes, filename)
-doc = Document(
-    content_encrypted=encrypt_binary(file_bytes),  # Original Excel
-    content_text=encrypt_text(parsed.text_content),  # "Sheet1: A, B, C..."
-    metadata_json=json.dumps(parsed.metadata)
+# Enhanced response from GET /api/skills
+{
+    "name": str,                    # e.g., "business-analyst"
+    "display_name": str,            # e.g., "Business Analyst"
+    "description": str,             # Short one-liner (from frontmatter or first line)
+    "purpose": str,                 # From "Quick Reference > Purpose" section
+    "output": str,                  # From "Quick Reference > Output" section
+    "skill_path": str,              # Relative path
+    "category": str,                # Inferred or from frontmatter (e.g., "requirements", "design")
+    "icon_hint": str,               # Optional: suggest icon (e.g., "description", "code")
+}
+```
+
+### Frontend Model (Enhanced Skill)
+
+```dart
+class EnhancedSkill {
+  final String name;
+  final String displayName;
+  final String description;
+  final String? purpose;          // Optional: for detail view
+  final String? output;            // Optional: for detail view
+  final String skillPath;
+  final String? category;
+  final String? iconHint;
+
+  String get displayName;          // Already exists
+  IconData get icon;               // New: icon based on category/iconHint
+}
+```
+
+### SKILL.md Structure (Standard)
+
+```markdown
+---
+name: business-analyst
+description: Short one-liner describing what the skill does
+category: requirements
+icon_hint: description
+---
+
+# Skill Name
+
+Long-form description paragraph.
+
+## Quick Reference
+
+**Purpose**: [What this skill enables]
+
+**Output**: [What it produces]
+
+**Critical Rules**:
+- Rule 1
+- Rule 2
+
+**Boundary**: [What this skill does NOT do]
+
+## [Rest of skill content...]
+```
+
+## Architectural Patterns
+
+### Pattern 1: Dual Selection Modes
+
+**What:** Provide both quick selection (existing PopupMenu) and browsable mode (new Dialog).
+
+**When to use:** When users need both quick access (for known skills) and discovery (for exploring).
+
+**Trade-offs:**
+- **Pro:** Caters to both expert and novice users
+- **Pro:** Progressive disclosure — simple by default, powerful when needed
+- **Con:** Two code paths to maintain
+- **Con:** Slight UI complexity (two buttons or toggle)
+
+**Implementation:**
+```dart
+// AssistantChatInput widget
+Row(
+  children: [
+    // Quick selector (existing)
+    SkillSelector(onSkillSelected: provider.selectSkill),
+
+    // OR
+
+    // Browse mode button
+    IconButton(
+      icon: Icon(Icons.apps),
+      tooltip: 'Browse all skills',
+      onPressed: () => showDialog(
+        context: context,
+        builder: (_) => SkillBrowserDialog(
+          onSkillSelected: (skill) {
+            provider.selectSkill(skill);
+            Navigator.pop(context);
+          },
+        ),
+      ),
+    ),
+  ],
 )
 ```
 
-### Pattern 2: Parser Adapter with Factory
-
-**What:** Abstract parser interface + factory routing.
-
-**When:** Multiple input formats require different processing logic.
-
-**Why:**
-- Single responsibility: each parser handles one format
-- Easy to add formats (new parser + factory registration)
-- Testable in isolation
-
-**Example:**
-```python
-parser = ParserFactory.get_parser(content_type)
-parsed = parser.parse(file_bytes, filename)
-```
-
-### Pattern 3: Metadata-Driven Rendering
-
-**What:** Store structured metadata JSON, frontend reads to decide rendering.
-
-**When:** Different formats need different preview UIs (table vs text vs pages).
-
-**Why:**
-- Backend describes structure, frontend interprets
-- No backend changes when adding preview features
-- Format-agnostic API (GET /documents/{id} same for all)
-
-**Example:**
-```dart
-final metadata = jsonDecode(document.metadata);
-if (metadata['format'] == 'xlsx') {
-  return TableRenderer(sheets: metadata['sheets']);
-}
-```
-
-### Pattern 4: Progressive Extraction (Preview Limits)
-
-**What:** Extract limited rows/pages for preview, full text for search.
-
-**When:** Large documents (1000-row Excel, 100-page PDF) would overwhelm frontend.
-
-**Why:**
-- Prevents UI lag from rendering massive tables
-- Reduces API response size
-- Search still covers full document
-
-**Example:**
-```python
-MAX_PREVIEW_ROWS = 100
-preview_data = {"rows": rows[:MAX_PREVIEW_ROWS]}  # Frontend sees 100
-text_content = "\n".join(all_rows)  # FTS5 indexes all
-```
-
-## Anti-Patterns to Avoid
-
-### Anti-Pattern 1: Re-Parsing on Every Request
-
-**What goes wrong:** Parse Excel file on every GET /documents/{id} call.
-
-**Why bad:**
-- Parsing is CPU-expensive (openpyxl, PyMuPDF)
-- 10MB Excel file = 2-5 seconds to parse
-- Same document parsed repeatedly
-
-**Instead:**
-```python
-# GOOD: Parse once at upload
-parsed = parser.parse(file_bytes, filename)
-doc.content_text = parsed.text_content  # Store extracted text
-doc.metadata_json = json.dumps(parsed.preview_data)  # Store preview
-
-# GOOD: Retrieve from DB
-content = doc.content_text  # No re-parsing
-preview = json.loads(doc.metadata_json)
-```
-
-### Anti-Pattern 2: Storing Parsed Data Unencrypted
-
-**What goes wrong:** Store `content_text` as plaintext string.
-
-**Why bad:**
-- Violates existing encryption policy (content_encrypted is encrypted)
-- Compliance risk: extracted text may contain PII
-- Inconsistent: binary encrypted, text not
-
-**Instead:**
-```python
-# GOOD: Encrypt both binary and text
-doc.content_encrypted = encrypt_binary(file_bytes)
-doc.content_text = encrypt_text(parsed.text_content)  # Also encrypted
-```
-
-### Anti-Pattern 3: Format Detection by Filename Extension
-
-**What goes wrong:** Use `.xlsx` extension to route parser.
-
-**Why bad:**
-- Filename can be spoofed (upload malware as `file.xlsx`)
-- Content-Type header is validated by FastAPI UploadFile
-- Extension may be wrong (Excel file renamed to .csv)
-
-**Instead:**
-```python
-# BAD
-if filename.endswith('.xlsx'):
-    parser = ExcelParser()
-
-# GOOD
-parser = ParserFactory.get_parser(file.content_type)  # Validated MIME type
-```
-
-### Anti-Pattern 4: Single Unified Renderer
-
-**What goes wrong:** One frontend component tries to render all formats.
-
-**Why bad:**
-- Conditional logic explosion (if excel... elif pdf... elif word...)
-- Excel needs DataTable, PDF needs page view, Word needs rich text
-- Hard to maintain, test
-
-**Instead:**
-```dart
-// GOOD: Dedicated renderers per format
-switch (doc.contentType) {
-  case 'text/csv': return TableRenderer(doc);
-  case 'application/pdf': return PDFRenderer(doc);
-  default: return TextRenderer(doc);
-}
-```
-
-## Scalability Considerations
-
-### At 100 Users (MVP Scale)
-
-| Concern | Approach |
-|---------|----------|
-| Document storage | SQLite LargeBinary column (10MB limit OK for 100 users * 10 docs = 10GB max) |
-| FTS5 index size | Extracted text only (not binary), 1-10KB per doc → 1MB index |
-| Upload parsing time | Synchronous parsing acceptable (5s for 10MB Excel = tolerable) |
-| Preview rendering | Client-side table rendering (100 rows = instant on modern browsers) |
-
-### At 10K Users (Growth Scale)
-
-| Concern | Approach |
-|---------|----------|
-| Document storage | Migrate to PostgreSQL with separate blob storage (S3/R2) for binaries |
-| FTS5 index size | PostgreSQL full-text search or Elasticsearch if FTS5 insufficient |
-| Upload parsing time | Background job queue (Celery) for async parsing (upload returns immediately) |
-| Preview rendering | Server-side pagination (return 50 rows at a time with "Load more") |
-
-### At 1M Users (Enterprise Scale)
-
-| Concern | Approach |
-|---------|----------|
-| Document storage | S3/R2 for binaries, PostgreSQL for metadata + extracted text |
-| FTS5 index size | Elasticsearch cluster with dedicated document search nodes |
-| Upload parsing time | Distributed task queue (Celery + Redis) with autoscaling workers |
-| Preview rendering | Server-side rendering + CDN caching for static previews |
-
-## Integration Points Summary
-
-### Existing Code That Changes
-
-| File | Current | Change Required |
-|------|---------|-----------------|
-| `backend/app/models.py` | Document model with content_encrypted | Add: content_type, content_text, metadata_json |
-| `backend/app/routes/documents.py` | ALLOWED_CONTENT_TYPES = ["text/plain", "text/markdown"] | Extend list, increase MAX_FILE_SIZE, route to parser |
-| `backend/app/services/encryption.py` | encrypt_document(str) → bytes | Add: encrypt_binary(bytes), encrypt_text(str) |
-| `backend/app/services/document_search.py` | index_document(doc_id, filename, content: str) | Change to accept extracted text parameter |
-| `frontend/lib/models/document.dart` | Document(id, filename, content, createdAt) | Add: contentType, metadata fields |
-| `frontend/lib/screens/documents/document_viewer_screen.dart` | Single SelectableText widget | Add format routing logic |
-
-### New Code to Create
-
-| File | Purpose |
-|------|---------|
-| `backend/app/services/document_parsing.py` | Parser base + concrete parsers + factory |
-| `backend/app/services/document_preview.py` | Preview data extraction (separate from parsing) |
-| `backend/app/routes/documents.py` | GET /documents/{id}/preview endpoint |
-| `backend/alembic/versions/XXX_add_rich_doc_columns.py` | Database migration |
-| `frontend/lib/widgets/table_renderer.dart` | Excel/CSV table display |
-| `frontend/lib/widgets/pdf_renderer.dart` | PDF page-based display |
-| `frontend/lib/widgets/word_renderer.dart` | Word structured content display |
-
-### Unchanged Code (Zero Modifications)
-
-| Component | Why Unchanged |
-|-----------|--------------|
-| `backend/app/services/ai_service.py` (search_documents tool) | Receives extracted text (format-agnostic) |
-| `backend/app/services/document_search.py` (search_documents function) | FTS5 queries same, source column different |
-| `backend/app/models.py` (Project, Thread, Message, Artifact) | No relationship to document format |
-| `frontend/lib/providers/document_provider.dart` | Fetches documents same way, model changes only |
-| All OAuth/authentication code | Orthogonal to document handling |
-
-## Sources
-
-### High Confidence (Official Documentation)
-
-- [FastAPI Request Files](https://fastapi.tiangolo.com/tutorial/request-files/) — UploadFile and multipart handling
-- [SQLite FTS5 Extension](https://sqlite.org/fts5.html) — Full-text search capabilities
-- [python-docx Documentation](https://python-docx.readthedocs.io/) — Word document parsing
-- [PyMuPDF Features Comparison](https://pymupdf.readthedocs.io/en/latest/about.html) — PDF parsing capabilities
-- [Flutter Data Table Package](https://fluttergems.dev/table/) — Table rendering options
-
-### Medium Confidence (Technical Comparisons & Best Practices)
-
-- [The Ultimate Guide to Intelligent Document Parsing](https://medium.com/@surajkhaitan16/the-ultimate-guide-to-intelligent-document-parsing-building-a-universal-file-reader-system-2fe285fca319) — BaseReader architecture pattern (2025)
-- [Best Python PDF to Text Parser Libraries: A 2026 Evaluation](https://unstract.com/blog/evaluating-python-pdf-to-text-libraries/) — PyMuPDF vs pypdf comparison
-- [I Tested 7 Python PDF Extractors (2025 Edition)](https://onlyoneaman.medium.com/i-tested-7-python-pdf-extractors-so-you-dont-have-to-2025-edition-c88013922257) — Performance benchmarks
-- [How to Create and Secure PDFs in Python with FastAPI](https://davidmuraya.com/blog/fastapi-create-secure-pdf/) — FastAPI + WeasyPrint integration
-- [Technical Comparison — Python Libraries for Document Parsing](https://medium.com/@hchenna/technical-comparison-python-libraries-for-document-parsing-318d2c89c44e) — openpyxl, PyPDF2, python-docx comparison
-
-### Supporting Resources
-
-- [Column Level Encryption - Wikipedia](https://en.wikipedia.org/wiki/Column_level_encryption) — Encryption design patterns
-- [Syncfusion Flutter DataGrid](https://www.syncfusion.com/blogs/post/introducing-excel-library-for-flutter) — Excel rendering for Flutter
-- [universal_file_viewer Flutter package](https://pub.dev/packages/universal_file_viewer) — Multi-format preview package
-- [SQLite Full-Text Search (FTS5) in Practice](https://thelinuxcode.com/sqlite-full-text-search-fts5-in-practice-fast-search-ranking-and-real-world-patterns/) — FTS5 indexing patterns
+**Recommendation:** Replace PopupMenu with single "Browse Skills" button. PopupMenu pattern is limiting for rich content.
 
 ---
 
-**Confidence Assessment:** HIGH
+### Pattern 2: Progressive Content Loading
 
-- Stack choices verified with official documentation (PyMuPDF, python-docx, openpyxl)
-- Architecture patterns validated against 2025-2026 sources
-- Integration points confirmed via existing codebase analysis
-- Build order follows proven dependency management practices
+**What:** Load skill list immediately, fetch full content only when user clicks info icon.
+
+**When to use:** When detail content is large and not always needed.
+
+**Trade-offs:**
+- **Pro:** Fast initial load
+- **Pro:** Reduces API payload size
+- **Con:** Extra API call for details
+- **Con:** Loading state for detail panel
+
+**Implementation:**
+```dart
+// SkillCard widget
+class SkillCard extends StatelessWidget {
+  final EnhancedSkill skill;
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: Column(
+        children: [
+          ListTile(
+            title: Text(skill.displayName),
+            subtitle: Text(skill.description),
+            trailing: IconButton(
+              icon: Icon(Icons.info_outline),
+              onPressed: () => _showDetailPanel(context),
+            ),
+            onTap: () => widget.onSkillSelected(skill),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showDetailPanel(BuildContext context) async {
+    // Fetch full content on demand
+    final content = await SkillService().getSkillContent(skill.name);
+    showDialog(
+      context: context,
+      builder: (_) => SkillDetailPanel(skill: skill, content: content),
+    );
+  }
+}
+```
+
+**Alternative:** Embed full content in initial GET /api/skills response.
+- **Pro:** No additional API call
+- **Con:** Larger payload (may be 10-50KB per skill with full markdown)
+
+**Recommendation:** Use progressive loading (separate endpoint) if SKILL.md files exceed 5KB. Otherwise, embed in initial response.
+
+---
+
+### Pattern 3: Transparent Skill Prepending
+
+**What:** Prepend skill context invisibly to backend, show clean UI to user.
+
+**When to use:** When skill activation should be transparent and non-intrusive.
+
+**Trade-offs:**
+- **Pro:** Clean user experience (no manual "/skill-name" typing)
+- **Pro:** User can copy/share messages without skill prefix clutter
+- **Con:** User may not understand skill is active (mitigate with visible chip)
+- **Con:** Backend receives modified message (document this clearly)
+
+**Current Implementation:**
+```dart
+// AssistantConversationProvider.sendMessage()
+String messageContent = content;
+if (_selectedSkill != null) {
+  messageContent = '[Using skill: ${_selectedSkill!.name}]\n\n$content';
+}
+// Send messageContent to backend
+
+// Display in UI: original content (not modified)
+final userMessage = Message(
+  role: MessageRole.user,
+  content: content,  // Original, not modified
+);
+```
+
+**Enhancement for v3.1:**
+```dart
+// Change prepending format from "[Using skill: X]" to "/skill-name"
+if (_selectedSkill != null) {
+  messageContent = '/${_selectedSkill!.name}\n\n$content';
+}
+```
+
+**Why slash prefix:**
+- Industry standard (ChatGPT plugins, Slack commands, Discord bots)
+- More concise than `[Using skill: X]`
+- Easier to parse on backend if needed
+- Source: [Chatbot UI Best Practices 2026](https://vynta.ai/blog/chatbot-ui/)
+
+---
+
+### Pattern 4: Skill Chip Visibility
+
+**What:** Show selected skill as a removable chip above the input field.
+
+**When to use:** Always — provides feedback that skill is active.
+
+**Trade-offs:**
+- **Pro:** Clear visual feedback
+- **Pro:** Easy to remove before sending
+- **Con:** Takes vertical space (minimal)
+
+**Current Implementation:** Already exists in AssistantChatInput (skill chip with delete icon).
+
+**Enhancement:** Add tooltip on hover showing "This skill will be applied to your next message".
+
+---
+
+## Data Flow
+
+### Enhanced Skill Selection Flow
+
+```
+User opens chat
+    ↓
+Clicks "Browse Skills" button
+    ↓
+SkillBrowserDialog opens
+    ↓
+[Initial Load] → SkillService.getSkills() → GET /api/skills
+    ↓
+Renders skill grid with cards (name, description, info icon)
+    ↓
+[User searches/filters] → Local filtering on cached list
+    ↓
+User clicks skill card → onSkillSelected(skill) → Provider.selectSkill()
+    ↓
+Dialog closes, chip appears in input area
+    ↓
+User types message → sendMessage(content)
+    ↓
+Provider prepends: "/{skill-name}\n\n{content}"
+    ↓
+Backend receives modified message
+```
+
+### Skill Detail Panel Flow
+
+```
+User browsing skills in SkillBrowserDialog
+    ↓
+Clicks info icon on skill card
+    ↓
+[Option A: Progressive Loading]
+  → SkillService.getSkillContent(name) → GET /api/skills/{name}/content
+  → Returns full SKILL.md markdown
+
+[Option B: Embedded Content]
+  → Content already in EnhancedSkill model from initial load
+    ↓
+SkillDetailPanel shows as modal overlay
+    ↓
+Renders markdown content with sections:
+  - Quick Reference
+  - Core Workflow
+  - Key Features
+    ↓
+"Use This Skill" button → onSkillSelected(skill) → closes both dialogs
+```
+
+## Component Responsibilities
+
+### New Components
+
+| Component | Responsibility | Files to Create |
+|-----------|----------------|-----------------|
+| **SkillBrowserDialog** | Full-screen skill browsing UI | `frontend/lib/screens/assistant/widgets/skill_browser_dialog.dart` |
+| **SkillCard** | Individual skill card in browser | `frontend/lib/screens/assistant/widgets/skill_card.dart` |
+| **SkillDetailPanel** | Info popup with full SKILL.md | `frontend/lib/screens/assistant/widgets/skill_detail_panel.dart` |
+| **EnhancedSkill** | Extended skill model | Modify `frontend/lib/models/skill.dart` |
+| **SkillMetadataExtractor** | Parse SKILL.md frontmatter + sections | `backend/app/services/skill_metadata_extractor.py` |
+
+### Modified Components
+
+| Component | Changes Required | Impact |
+|-----------|------------------|--------|
+| **SkillSelector** | Replace PopupMenu with Dialog launcher OR keep as quick-select option | Medium (UI change) |
+| **AssistantChatInput** | Add "Browse Skills" button OR replace existing button | Low (button swap) |
+| **SkillService** | Add `getSkillContent(name)` method for detail fetching | Low (new method) |
+| **AssistantConversationProvider** | Change skill prepending from `[Using skill: X]` to `/skill-name` | Low (string change) |
+| **GET /api/skills** | Return enhanced metadata (purpose, output, category, icon_hint) | Medium (parse more fields) |
+
+## Integration Points
+
+### Backend API Changes
+
+| Endpoint | Type | Purpose | Response |
+|----------|------|---------|----------|
+| **GET /api/skills** | Enhanced | Return enhanced metadata | `List[EnhancedSkillDict]` |
+| **GET /api/skills/{name}/content** | New (optional) | Return full SKILL.md markdown | `{"content": str, "metadata": dict}` |
+
+**Decision Point:** Embed full content in GET /api/skills vs. separate endpoint?
+
+**Recommendation:**
+- If average SKILL.md < 5KB → embed in initial response
+- If average SKILL.md > 5KB → use separate endpoint
+
+**Current:** business-analyst SKILL.md is ~8KB → use separate endpoint.
+
+---
+
+### Frontend-Backend Contract
+
+**Current:**
+```json
+// GET /api/skills
+[
+  {
+    "name": "business-analyst",
+    "description": "Short one-liner",
+    "skill_path": ".claude/business-analyst/SKILL.md"
+  }
+]
+```
+
+**Enhanced:**
+```json
+// GET /api/skills
+[
+  {
+    "name": "business-analyst",
+    "display_name": "Business Analyst",
+    "description": "Enables sales teams to systematically gather requirements...",
+    "purpose": "Enable sales teams to capture complete business requirements",
+    "output": "Single comprehensive BRD",
+    "category": "requirements",
+    "icon_hint": "description",
+    "skill_path": ".claude/business-analyst/SKILL.md"
+  }
+]
+```
+
+**New Endpoint (Optional):**
+```json
+// GET /api/skills/business-analyst/content
+{
+  "name": "business-analyst",
+  "content": "# Business Analyst\n\nSpecialized assistant for...",
+  "metadata": {
+    "name": "business-analyst",
+    "description": "...",
+    "category": "requirements"
+  }
+}
+```
+
+---
+
+## Recommended Build Order
+
+### Phase 1: Backend Enhancement (Foundation)
+**Goal:** Enhance API to return richer skill metadata
+
+1. Create `SkillMetadataExtractor` utility
+   - Parse YAML frontmatter
+   - Extract Quick Reference section
+   - Return enhanced metadata dict
+2. Modify GET /api/skills to use extractor
+3. Create EnhancedSkill response model (Pydantic)
+4. Test with existing SKILL.md files
+
+**Why first:** Frontend needs enhanced data model before building UI.
+
+**Estimated effort:** 4-6 hours
+
+---
+
+### Phase 2: Frontend Model Update
+**Goal:** Update Skill model to support enhanced fields
+
+1. Add optional fields to `Skill` class (purpose, output, category, iconHint)
+2. Update `fromJson` constructor
+3. Add `icon` getter (maps category/iconHint to IconData)
+4. Backward compatibility: ensure existing code works with optional fields
+
+**Why second:** UI widgets need updated model.
+
+**Estimated effort:** 2-3 hours
+
+---
+
+### Phase 3: Skill Browser UI
+**Goal:** Build browsable skill list interface
+
+1. Create `SkillBrowserDialog` widget
+   - Search bar at top
+   - GridView or ListView of skills
+   - Category filter (optional)
+2. Create `SkillCard` widget
+   - Name, description, icon
+   - Info button (opens detail panel)
+   - Tap to select
+3. Integrate with AssistantChatInput
+   - Add "Browse Skills" button
+   - Open dialog on tap
+   - Pass onSkillSelected callback
+
+**Why third:** Core browsing experience.
+
+**Estimated effort:** 8-10 hours
+
+---
+
+### Phase 4: Skill Detail Panel
+**Goal:** Show full skill information in popup
+
+**Option A: Embedded Content (simpler, no new API)**
+1. Create `SkillDetailPanel` widget
+2. Render full markdown (use `flutter_markdown` package)
+3. Show Quick Reference section prominently
+4. "Use This Skill" button at bottom
+
+**Option B: Progressive Loading (lighter initial load)**
+1. Add GET /api/skills/{name}/content endpoint
+2. Create `SkillDetailPanel` with FutureBuilder
+3. Fetch content on demand
+4. Show loading state while fetching
+
+**Recommendation:** Start with Option A (simpler). If payload becomes issue, refactor to Option B.
+
+**Why fourth:** Detail view is nice-to-have after core browsing works.
+
+**Estimated effort:** 6-8 hours
+
+---
+
+### Phase 5: Skill Prepending Enhancement
+**Goal:** Change from `[Using skill: X]` to `/skill-name`
+
+1. Update `AssistantConversationProvider.sendMessage()`
+2. Change prepending format
+3. Update backend parsing if needed (currently backend treats it as opaque text)
+4. Update tests
+
+**Why fifth:** Independent of UI changes, can be done anytime.
+
+**Estimated effort:** 1-2 hours
+
+---
+
+### Phase 6: Polish & Refinements
+**Goal:** UX improvements and edge cases
+
+1. Add tooltips on skill chips ("Skill will be applied to next message")
+2. Search functionality in SkillBrowserDialog (filter by name/description)
+3. Category badges on skill cards
+4. Empty state ("No skills available")
+5. Error handling (API failures, missing SKILL.md)
+6. Keyboard shortcuts (Escape to close dialog)
+
+**Estimated effort:** 4-6 hours
+
+---
+
+**Total estimated effort:** 25-35 hours (3-4 full workdays or 5-7 half-days)
+
+---
+
+## Scaling Considerations
+
+| Scale | Considerations |
+|-------|----------------|
+| **1-5 skills** | Current architecture fine. Simple list works. |
+| **5-20 skills** | Grid view recommended. Search becomes useful. |
+| **20+ skills** | Category filtering essential. Consider skill tags. |
+| **50+ skills** | Fuzzy search. Lazy loading. Virtualized lists. |
+
+**Current state:** 1 skill (business-analyst)
+
+**v3.1 target:** Support 5-10 skills comfortably
+
+**Recommendation:** Build for 5-20 skill range. Grid view + search covers this scale well.
+
+---
+
+## Anti-Patterns
+
+### Anti-Pattern 1: Overloading PopupMenuButton
+
+**What people do:** Try to cram rich content (descriptions, icons, categories) into PopupMenuButton.
+
+**Why it's wrong:**
+- PopupMenuButton is designed for simple text lists
+- Adding multi-line descriptions makes it cluttered
+- Limited styling flexibility
+- Poor UX on mobile (small tap targets)
+
+**Do this instead:** Use a full Dialog or BottomSheet for browsable lists with rich content. PopupMenuButton is fine for <5 simple items only.
+
+**Source:** [Flutter Material Component Best Practices](https://docs.flutter.dev/ui/widgets/material)
+
+---
+
+### Anti-Pattern 2: Parsing Markdown on Every Render
+
+**What people do:** Re-parse SKILL.md content in widget build() method.
+
+**Why it's wrong:**
+- Markdown parsing is CPU-intensive
+- Causes jank on every rebuild
+- Especially bad with Flutter's frequent rebuilds
+
+**Do this instead:**
+- Parse markdown once when fetching skill content
+- Store parsed result in widget state
+- Use `const` constructors where possible
+- Cache parsed HTML/widget tree
+
+**Example:**
+```dart
+// BAD
+@override
+Widget build(BuildContext context) {
+  final parsed = markdown.parse(skill.content); // ❌ Parses on every build
+  return MarkdownBody(data: parsed);
+}
+
+// GOOD
+class SkillDetailPanel extends StatefulWidget {
+  final String content;
+
+  @override
+  _SkillDetailPanelState createState() => _SkillDetailPanelState();
+}
+
+class _SkillDetailPanelState extends State<SkillDetailPanel> {
+  late final String _parsedContent;
+
+  @override
+  void initState() {
+    super.initState();
+    _parsedContent = widget.content; // ✅ Parse once
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MarkdownBody(data: _parsedContent);
+  }
+}
+```
+
+---
+
+### Anti-Pattern 3: Invisible Skill Activation Without Feedback
+
+**What people do:** Prepend skill to message without showing user it's active.
+
+**Why it's wrong:**
+- User doesn't know skill is being applied
+- Leads to confusion ("Why is AI responding this way?")
+- Violates transparency principle in AI UX
+- Source: [AI Transparency in UX 2026](https://www.theknowledgeacademy.com/blog/ui-designer-skills/)
+
+**Do this instead:**
+- Show skill chip when selected
+- Add badge or indicator in chat input
+- Include tooltip explaining skill will be applied
+- Allow user to remove skill before sending
+
+**Current implementation:** ✅ Already follows best practice (skill chip visible in input area).
+
+---
+
+### Anti-Pattern 4: Hardcoding Skill Metadata in Frontend
+
+**What people do:** Define skill icons, categories, descriptions in frontend constants.
+
+**Why it's wrong:**
+- Source of truth should be SKILL.md files
+- Adding new skills requires frontend code changes
+- Inconsistent with discovery-based architecture
+
+**Do this instead:**
+- Parse all metadata from SKILL.md (frontmatter + content)
+- Backend extracts and returns metadata
+- Frontend renders dynamically
+- New skills work automatically when SKILL.md added to `.claude/`
+
+**Current implementation:** ✅ Already follows best practice (backend scans `.claude/` directory).
+
+---
+
+## Sources
+
+**Architecture Patterns:**
+- [Where should AI sit in your UI?](https://uxdesign.cc/where-should-ai-sit-in-your-ui-1710a258390e) — AI UI layout patterns 2026
+- [Frontend Design Patterns That Actually Work in 2026](https://www.netguru.com/blog/frontend-design-patterns) — Component-driven architecture, state management
+- [Creating dialogs in Flutter - LogRocket Blog](https://blog.logrocket.com/creating-dialogs-flutter/) — Dialog widget patterns
+- [ExpansionPanel in Flutter: A guide with examples](https://blog.logrocket.com/expansionpanel-flutter-guide-with-examples/) — Expandable content patterns
+
+**UI/UX Best Practices:**
+- [Best Practices for Designing Selection Controls](https://app.uxcel.com/courses/ui-components-n-patterns/selection-controls-best-practices-324) — Selection interface design
+- [Chatbot UI Best Practices for 2026](https://vynta.ai/blog/chatbot-ui/) — Transparent AI disclosure, skill prepending patterns
+- [10 UX Best Practices to Follow in 2026](https://uxpilot.ai/blogs/ux-best-practices) — Error prevention, cognitive load reduction
+
+**AI Assistant Patterns:**
+- [AI Assistant UI Guide | Adobe Experience Cloud](https://experienceleague.adobe.com/en/docs/experience-cloud-ai/experience-cloud-ai/ai-assistant/ai-assistant-ui) — Skill discovery, browsable capabilities
+- [Conversational Interfaces: the Good, the Ugly & the Billion-Dollar Opportunity](https://lg.substack.com/p/conversational-interfaces-the-good) — Delegative UI, context injection
+
+**Flutter Documentation:**
+- [Material component widgets](https://docs.flutter.dev/ui/widgets/material) — Official widget catalog
+- [Dialog class - material library](https://api.flutter.dev/flutter/material/Dialog-class.html) — Dialog widget API
+- [SimpleDialog class](https://api.flutter.dev/flutter/material/SimpleDialog-class.html) — SimpleDialog patterns
+
+---
+
+*Architecture research for: Skill Discovery & Selection Integration*
+*Researched: 2026-02-18*
+*Confidence: HIGH — Based on existing codebase analysis, official Flutter docs, and 2026 AI UX patterns*

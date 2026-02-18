@@ -65,7 +65,7 @@ Full details: `.planning/milestones/v3.0-ROADMAP.md`
 **Milestone Goal:** Enhance the Assistant skill selector into a browsable list with descriptions, info popups, and transparent skill prepending.
 
 - [x] **Phase 65: Backend Skill Metadata** - Parse SKILL.md frontmatter and enhance API (completed 2026-02-18)
-- [ ] **Phase 66: Skill Browser UI** - Browsable skill list with selection indicators
+- [x] **Phase 66: Skill Browser UI** - Browsable skill list with selection indicators (completed 2026-02-18)
 - [ ] **Phase 67: Skill Info Popup** - Detailed skill information display
 
 ## Phase Details
@@ -101,8 +101,8 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 66-01-PLAN.md — Foundation: Skill model features field, emoji helper, SkillCard widget
-- [ ] 66-02-PLAN.md — Browser sheet & integration: DraggableScrollableSheet grid, selector rewrite, chip style
+- [x] 66-01-PLAN.md — Foundation: Skill model features field, emoji helper, SkillCard widget
+- [x] 66-02-PLAN.md — Browser sheet & integration: DraggableScrollableSheet grid, selector rewrite, chip style
 
 ### Phase 67: Skill Info Popup
 **Goal**: Users can view detailed skill information before selecting

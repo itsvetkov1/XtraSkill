@@ -12,10 +12,14 @@ class Skill {
   /// Path to skill file relative to project root
   final String skillPath;
 
+  /// List of key features this skill provides
+  final List<String> features;
+
   Skill({
     required this.name,
     required this.description,
     required this.skillPath,
+    this.features = const [],
   });
 
   /// Create Skill from JSON
@@ -24,6 +28,10 @@ class Skill {
       name: json['name'] as String,
       description: json['description'] as String,
       skillPath: json['skill_path'] as String,
+      features: (json['features'] as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toList() ??
+          [],
     );
   }
 
@@ -33,6 +41,7 @@ class Skill {
       'name': name,
       'description': description,
       'skill_path': skillPath,
+      'features': features,
     };
   }
 

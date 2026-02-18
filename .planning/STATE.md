@@ -2,19 +2,19 @@
 
 ## Project Reference
 
-See: /Users/a1testingmac/projects/XtraSkill/.planning/PROJECT.md (updated 2026-02-17)
+See: /Users/a1testingmac/projects/XtraSkill/.planning/PROJECT.md (updated 2026-02-18)
 
 **Core value:** Business analysts reduce time spent on requirement documentation while improving completeness through AI-assisted discovery conversations that systematically explore edge cases and generate production-ready artifacts.
 
-**Current focus:** Planning next milestone
+**Current focus:** Phase 65 - Backend Skill Metadata
 
 ## Current Position
 
 Milestone: v3.1 — Skill Discovery & Selection
-Phase: Not started (defining requirements)
-Plan: —
-Status: Defining requirements
-Last activity: 2026-02-18 — Milestone v3.1 started
+Phase: 65 of 67 (Backend Skill Metadata)
+Plan: 0 of TBD in current phase
+Status: Ready to plan
+Last activity: 2026-02-18 — v3.1 roadmap created with 3 phases, 16 requirements
 
 Progress:
 ```
@@ -27,65 +27,37 @@ v3.0:              [##########] 100% — All phases complete
   Phase 62: Backend Foundation         [###] 3/3 plans COMPLETE
   Phase 63: Navigation & Thread Mgmt   [###] 2/2 plans COMPLETE
   Phase 64: Conversation & Documents   [###] 5/5 plans COMPLETE
+
+v3.1:              [          ] 0% — Ready to begin
+  Phase 65: Backend Skill Metadata     [ ] 0/TBD plans
+  Phase 66: Skill Browser UI           [ ] 0/TBD plans
+  Phase 67: Skill Info Popup           [ ] 0/TBD plans
 ```
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 133 (across 13 milestones)
+- Total plans completed: 143 (across 14 milestones)
 - Average duration: ~1-3 minutes per plan
 
-**By Milestone:**
+**Recent Milestones:**
+- v3.0 (Phases 62-64): 10 plans, 1 day to ship (2026-02-17 → 2026-02-18)
+- v2.1 (Phases 54-56): 8 plans, 1 day to ship (2026-02-12)
+- v0.1-claude-code (Phases 57-61): 11/12 plans, 5 days to ship (2026-02-13 → 2026-02-17)
 
-| Milestone | Phases | Plans | Status |
-|-----------|--------|-------|--------|
-| MVP v1.0 | 1-5 | 20/20 | SHIPPED 2026-01-28 |
-| Beta v1.5 | 6-10 | 15/15 | SHIPPED 2026-01-30 |
-| UX v1.6 | 11-14 | 5/5 | SHIPPED 2026-01-30 |
-| URL v1.7 | 15-18 | 8/8 | SHIPPED 2026-01-31 |
-| LLM v1.8 | 19-22 | 8/8 | SHIPPED 2026-01-31 |
-| UX v1.9 | 23-27 | 9/9 | SHIPPED 2026-02-02 |
-| Unit Tests v1.9.1 | 28-33 | 24/24 | SHIPPED 2026-02-02 |
-| Resilience v1.9.2 | 34-36 | 9/9 | SHIPPED 2026-02-04 |
-| Doc & Nav v1.9.3 | 37-39 | 3/3 | SHIPPED 2026-02-04 |
-| Dedup v1.9.4 | 40-42 | 5/5 | SHIPPED 2026-02-05 |
-| Logging v1.9.5 | 43-48 | 8/8 | SHIPPED 2026-02-08 |
-| Rich Docs v2.1 | 54-56 | 8/8 | SHIPPED 2026-02-12 |
-| Claude Code v0.1 | 57-61 | 11/12 | SHIPPED 2026-02-17 |
-| Assistant v3.0 | 62-64 | 10/10 | SHIPPED 2026-02-18 |
-| Phase 62 P01 | 155 | 2 tasks | 2 files |
-| Phase 62 P03 | 236 | 2 tasks | 4 files |
-| Phase 62 P02 | 378 | 2 tasks | 3 files |
-| Phase 63 P01 | 3 | 2 tasks | 6 files |
-| Phase 63 P02 | 134 | 2 tasks | 3 files |
-| Phase 64 P01 | 158 | 2 tasks | 3 files |
-| Phase 64 P02 | 172 | 2 tasks | 2 files |
-| Phase 64 P03 | 229 | 2 tasks | 4 files |
-| Phase 64 P04 | 293 | 2 tasks | 7 files |
-| Phase 64 P05 | 404 | 2 tasks | 7 files |
+**Recent Trend:** Stable velocity with 1-2 day milestone completion for focused enhancements
 
 ## Accumulated Context
 
 ### Decisions
 
 Recent key decisions (full archive in PROJECT.md):
-- **v3.0 Roadmap**: 3 phases (quick depth), backend-first approach — data model and API before frontend
-- **v3.0 Roadmap**: thread_type enum discriminator pattern (matches existing model_provider field pattern)
-- **v3.0 Roadmap**: No service file duplication — conditional logic in ai_service.py based on thread_type, shared LLM adapters
-- **v3.0 Roadmap**: Assistant always uses claude-code-cli adapter (no provider selection in Assistant mode)
-- [Phase 62]: Use String(20) for thread_type field (not Enum) to match model_provider pattern
-- [Phase 62]: Implement 3-step migration for backward compatibility (nullable, backfill, NOT NULL)
-- [Phase 62]: Token tracking encodes thread_type in endpoint string (no schema change) for analytics queries
-- [Phase 63]: Assistant navigation uses index 1 (between Home and Chats) with Icons.add_circle branding
-- [Phase 63]: Assistant thread creation requires title (not optional like BA threads)
-- [Phase 63]: Delete uses local undo pattern with 10-second timer (not ThreadProvider)
-- [Phase 64-02]: Skill selection is one-time per message (clears after send)
-- [Phase 64-02]: Auto-retry once on streaming error after 2-second delay
-- [Phase 64-04]: Skills display with human-readable names (business-analyst → Business Analyst)
-- [Phase 64-04]: Plus-in-square icon for skills button (Icons.add_box_outlined)
-- [Phase 64-05]: Use flutter_dropzone for web drag-and-drop, graceful mobile fallback
-- [Phase 64-05]: Parse attachments from message content string [Attached files: ...]
-- [Phase 64-05]: Upload files before sending message, not after
+- **v3.1 Roadmap**: 3 phases (quick depth) — Backend metadata → Browsable UI → Info popup
+- **v3.0**: Separate Assistant from BA flow — dual thread types in one app
+- **v3.0**: AssistantConversationProvider (not reuse ConversationProvider) — BA-specific logic deeply embedded
+- [Phase 64]: Skills prepend one-time per message — transparent `/skill-name` prepending, cleared after send
+- [Phase 64]: flutter_dropzone for web drag-and-drop — web-only with kIsWeb guard
+- [Phase 62]: String(20) for thread_type field (not Enum) to match model_provider pattern
 
 ### Pending Todos
 
@@ -99,10 +71,10 @@ None currently. Research completed with HIGH confidence across all areas.
 ## Session Continuity
 
 Last session: 2026-02-18
-Stopped at: Defining requirements for v3.1
+Stopped at: v3.1 roadmap created (ROADMAP.md, STATE.md, REQUIREMENTS.md updated)
 Resume file: None
-Next action: Complete requirements → roadmap → `/gsd:plan-phase 65`
+Next action: `/gsd:plan-phase 65`
 
 ---
 
-*State updated: 2026-02-18 (v3.0 Assistant Foundation milestone shipped — 3 phases, 10 plans, 17/17 requirements)*
+*State updated: 2026-02-18 (v3.1 roadmap created — 3 phases, 16 requirements, Skill Discovery & Selection)*

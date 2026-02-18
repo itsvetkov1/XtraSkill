@@ -69,28 +69,28 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| META-01 | — | Pending |
-| META-02 | — | Pending |
-| META-03 | — | Pending |
-| META-04 | — | Pending |
-| API-01 | — | Pending |
-| API-02 | — | Pending |
-| BROWSE-01 | — | Pending |
-| BROWSE-02 | — | Pending |
-| BROWSE-03 | — | Pending |
-| BROWSE-04 | — | Pending |
-| SEL-01 | — | Pending |
-| SEL-02 | — | Pending |
-| SEL-03 | — | Pending |
-| INFO-01 | — | Pending |
-| INFO-02 | — | Pending |
-| INFO-03 | — | Pending |
+| META-01 | Phase 65 | Pending |
+| META-02 | Phase 65 | Pending |
+| META-03 | Phase 65 | Pending |
+| META-04 | Phase 65 | Pending |
+| API-01 | Phase 65 | Pending |
+| API-02 | Phase 65 | Pending |
+| BROWSE-01 | Phase 66 | Pending |
+| BROWSE-02 | Phase 66 | Pending |
+| BROWSE-03 | Phase 66 | Pending |
+| BROWSE-04 | Phase 66 | Pending |
+| SEL-01 | Phase 66 | Pending |
+| SEL-02 | Phase 66 | Pending |
+| SEL-03 | Phase 66 | Pending |
+| INFO-01 | Phase 67 | Pending |
+| INFO-02 | Phase 67 | Pending |
+| INFO-03 | Phase 67 | Pending |
 
 **Coverage:**
 - v3.1 requirements: 16 total
-- Mapped to phases: 0
-- Unmapped: 16
+- Mapped to phases: 16
+- Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-02-18*
-*Last updated: 2026-02-18 after initial definition*
+*Last updated: 2026-02-18 after roadmap creation — 100% coverage*

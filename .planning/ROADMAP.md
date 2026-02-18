@@ -16,6 +16,7 @@
 - ✅ **v2.1 Rich Document Support** - Phases 54-56 (shipped 2026-02-12)
 - ✅ **v0.1-claude-code: Claude Code as AI Backend** - Phases 57-61 (shipped 2026-02-17)
 - ✅ **v3.0 Assistant Foundation** - Phases 62-64 (shipped 2026-02-18)
+- 🚧 **v3.1 Skill Discovery & Selection** - Phases 65-67 (in progress)
 - 🗄️ **v2.0 Security Audit & Deployment** - Phases 49-53 (backlogged)
 
 ## Phases
@@ -59,6 +60,64 @@ Full details: `.planning/milestones/v3.0-ROADMAP.md`
 
 </details>
 
+### 🚧 v3.1 Skill Discovery & Selection (In Progress)
+
+**Milestone Goal:** Enhance the Assistant skill selector into a browsable list with descriptions, info popups, and transparent skill prepending.
+
+- [ ] **Phase 65: Backend Skill Metadata** - Parse SKILL.md frontmatter and enhance API
+- [ ] **Phase 66: Skill Browser UI** - Browsable skill list with selection indicators
+- [ ] **Phase 67: Skill Info Popup** - Detailed skill information display
+
+## Phase Details
+
+### Phase 65: Backend Skill Metadata
+**Goal**: Backend provides rich skill metadata parsed from SKILL.md frontmatter
+**Depends on**: Phase 64 (v3.0 complete)
+**Requirements**: META-01, META-02, META-03, META-04, API-01, API-02
+**Success Criteria** (what must be TRUE):
+  1. Each SKILL.md file has YAML frontmatter with name, description, and features
+  2. GET /api/skills returns name, description, and features for all skills
+  3. Skills without frontmatter fall back gracefully (name from directory, no description)
+  4. Skill descriptions are concise 1-2 sentence summaries
+  5. Each skill has 3-5 key capabilities listed as features
+**Plans**: TBD
+
+Plans:
+- [ ] 65-01: TBD
+- [ ] 65-02: TBD
+
+### Phase 66: Skill Browser UI
+**Goal**: Users can browse and select skills from a rich, browsable interface
+**Depends on**: Phase 65
+**Requirements**: BROWSE-01, BROWSE-02, BROWSE-03, BROWSE-04, SEL-01, SEL-02, SEL-03
+**Success Criteria** (what must be TRUE):
+  1. User can open skill browser dialog from chat input skill button
+  2. User can see all available skills in grid/list with names and descriptions
+  3. User can select a skill by tapping/clicking it
+  4. Selected skill appears as removable chip/badge in chat input
+  5. User can deselect skill by tapping chip close icon
+  6. Only one skill can be selected at a time
+  7. Skill browser closes after selection
+**Plans**: TBD
+
+Plans:
+- [ ] 66-01: TBD
+- [ ] 66-02: TBD
+
+### Phase 67: Skill Info Popup
+**Goal**: Users can view detailed skill information before selecting
+**Depends on**: Phase 66
+**Requirements**: INFO-01, INFO-02, INFO-03
+**Success Criteria** (what must be TRUE):
+  1. Each skill card has an info icon/button
+  2. Tapping info button shows popup with skill description and features
+  3. User can dismiss popup and return to skill browser
+  4. Info popup is readable on both mobile and desktop
+**Plans**: TBD
+
+Plans:
+- [ ] 67-01: TBD
+
 ---
 
 ## Backlog
@@ -88,8 +147,18 @@ Full details: `.planning/milestones/v3.0-ROADMAP.md`
 
 </details>
 
----
+## Progress
 
+**Execution Order:**
+Phases execute in numeric order: 65 → 66 → 67
+
+| Phase | Milestone | Plans Complete | Status | Completed |
+|-------|-----------|----------------|--------|-----------|
+| 65. Backend Skill Metadata | v3.1 | 0/TBD | Not started | - |
+| 66. Skill Browser UI | v3.1 | 0/TBD | Not started | - |
+| 67. Skill Info Popup | v3.1 | 0/TBD | Not started | - |
+
+---
 *Roadmap created: 2026-02-09*
 *v2.1 archived: 2026-02-12 — 3 phases, 8 plans, 24/24 requirements shipped*
 *v2.0 backlogged: 2026-02-13 — paused for Claude Code experiment*
@@ -97,3 +166,4 @@ Full details: `.planning/milestones/v3.0-ROADMAP.md`
 *v0.1-claude-code archived: 2026-02-17 — 5 phases, 11/12 plans shipped*
 *v3.0 activated: 2026-02-17 — 3 phases, 17 requirements, Assistant Foundation*
 *v3.0 archived: 2026-02-18 — 3 phases, 10 plans, 17/17 requirements shipped*
+*v3.1 activated: 2026-02-18 — 3 phases, 16 requirements, Skill Discovery & Selection*

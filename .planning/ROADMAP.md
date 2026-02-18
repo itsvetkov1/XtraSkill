@@ -155,7 +155,7 @@ Phases execute in numeric order: 65 → 66 → 67
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
 | 65. Backend Skill Metadata | v3.1 | 2/2 | Complete    | 2026-02-18 |
-| 66. Skill Browser UI | v3.1 | 1/2 | In progress | - |
+| 66. Skill Browser UI | v3.1 | Complete    | 2026-02-18 | - |
 | 67. Skill Info Popup | v3.1 | 0/2 | Not started | - |
 
 ---

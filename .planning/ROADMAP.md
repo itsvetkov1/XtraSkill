@@ -16,7 +16,7 @@
 - ✅ **v2.1 Rich Document Support** - Phases 54-56 (shipped 2026-02-12)
 - ✅ **v0.1-claude-code: Claude Code as AI Backend** - Phases 57-61 (shipped 2026-02-17)
 - ✅ **v3.0 Assistant Foundation** - Phases 62-64 (shipped 2026-02-18)
-- 🚧 **v3.1 Skill Discovery & Selection** - Phases 65-67 (in progress)
+- ✅ **v3.1 Skill Discovery & Selection** - Phases 65-67 (shipped 2026-02-18)
 - 🗄️ **v2.0 Security Audit & Deployment** - Phases 49-53 (backlogged)
 
 ## Phases
@@ -60,13 +60,15 @@ Full details: `.planning/milestones/v3.0-ROADMAP.md`
 
 </details>
 
-### 🚧 v3.1 Skill Discovery & Selection (In Progress)
+### ✅ v3.1 Skill Discovery & Selection — SHIPPED 2026-02-18
 
 **Milestone Goal:** Enhance the Assistant skill selector into a browsable list with descriptions, info popups, and transparent skill prepending.
 
 - [x] **Phase 65: Backend Skill Metadata** - Parse SKILL.md frontmatter and enhance API (completed 2026-02-18)
 - [x] **Phase 66: Skill Browser UI** - Browsable skill list with selection indicators (completed 2026-02-18)
-- [ ] **Phase 67: Skill Info Popup** - Detailed skill information display
+- [x] **Phase 67: Skill Info Popup** - Detailed skill information display (completed 2026-02-18)
+
+Full details: `.planning/milestones/v3.1-ROADMAP.md`
 
 ## Phase Details
 
@@ -116,7 +118,7 @@ Plans:
 **Plans**: 1 plan
 
 Plans:
-- [ ] 67-01-PLAN.md — Add info button to SkillCard with skill details AlertDialog
+- [x] 67-01-PLAN.md — Add info button to SkillCard with skill details AlertDialog (completed 2026-02-18)
 
 ---
 

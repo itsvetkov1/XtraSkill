@@ -10,11 +10,11 @@ See: /Users/a1testingmac/projects/XtraSkill/.planning/PROJECT.md (updated 2026-0
 
 ## Current Position
 
-Milestone: v3.0 — Assistant Foundation (SHIPPED 2026-02-18)
-Phase: All complete
-Plan: All complete
-Status: Milestone shipped
-Last activity: 2026-02-18 — v3.0 milestone archived
+Milestone: v3.1 — Skill Discovery & Selection
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-02-18 — Milestone v3.1 started
 
 Progress:
 ```
@@ -99,9 +99,9 @@ None currently. Research completed with HIGH confidence across all areas.
 ## Session Continuity
 
 Last session: 2026-02-18
-Stopped at: v3.0 milestone archived
+Stopped at: Defining requirements for v3.1
 Resume file: None
-Next action: `/gsd:new-milestone` to start next milestone
+Next action: Complete requirements → roadmap → `/gsd:plan-phase 65`
 
 ---
 

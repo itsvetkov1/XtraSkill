@@ -6,15 +6,14 @@ See: /Users/a1testingmac/projects/XtraSkill/.planning/PROJECT.md (updated 2026-0
 
 **Core value:** Business analysts reduce time spent on requirement documentation while improving completeness through AI-assisted discovery conversations that systematically explore edge cases and generate production-ready artifacts.
 
-**Current focus:** Phase 67 - Skill Info Popup
+**Current focus:** Milestone v3.1.1 — Assistant Conversation Memory
 
 ## Current Position
 
-Milestone: v3.1 — Skill Discovery & Selection
-Phase: 67 of 67 (Skill Info Popup)
-Plan: 1 of 1 in current phase
-Status: Complete
-Last activity: 2026-02-18 — Completed plan 67-01 (Add info button and dialog to skill cards)
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-02-18 — Milestone v3.1.1 started
 
 Progress:
 ```
@@ -82,10 +81,10 @@ None currently. Research completed with HIGH confidence across all areas.
 ## Session Continuity
 
 Last session: 2026-02-18
-Stopped at: Completed 67-01-PLAN.md (Add info button and dialog to skill cards)
+Stopped at: Milestone v3.1.1 started — defining requirements
 Resume file: None
-Next action: Phase 67 complete — Milestone v3.1 (Skill Discovery & Selection) COMPLETE
+Next action: Define requirements, create roadmap
 
 ---
 
-*State updated: 2026-02-18 (Milestone v3.1 COMPLETE — Skill Discovery & Selection shipped)*
+*State updated: 2026-02-18 (Milestone v3.1.1 started — Assistant Conversation Memory)*

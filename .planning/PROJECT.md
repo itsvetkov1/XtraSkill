@@ -23,18 +23,15 @@ Business analysts reduce time spent on requirement documentation while improving
 
 **Previous:** v0.1-claude-code Claude Code as AI Backend (2026-02-17)
 
-## Current Milestone: v3.1 Skill Discovery & Selection
+## Current Milestone: v3.1.1 Assistant Conversation Memory
 
-**Goal:** Enhance the Assistant skill selector into a browsable list with descriptions, info popups, and transparent `/skill-name` prepending to messages.
+**Goal:** Fix the critical bug where the Assistant loses conversation context after 2-3 messages, and add regression tests to prevent recurrence.
 
 **Target features:**
-- Browsable skill list UI in Assistant chat input
-- Skill descriptions and feature info parsed from SKILL.md files
-- Info popup per skill showing what it does and key features
-- Selected skill shown as chip/badge, `/skill-name` prepended invisibly to backend
-- All skills from GET /api/skills available in the picker
-
-**Next:** Defining requirements
+- CLI adapter sends full conversation history (not just last message)
+- Multi-turn conversation formatting with role labels
+- Backend tests verifying conversation context is preserved
+- Frontend tests for AssistantConversationProvider message handling
 
 Previous milestone (v1.9.2):
 - Network error resilience with partial content preservation and retry
@@ -228,6 +225,12 @@ Previous features (v1.5):
 - ✓ Document upload for Assistant threads (file picker, drag-and-drop) — v3.0
 - ✓ Assistant always uses claude-code-cli adapter — v3.0
 
+- ✓ Browsable skill list with all available skills — v3.1
+- ✓ Skill info popup with description and features — v3.1
+- ✓ Selected skill chip/badge in chat input — v3.1
+- ✓ Transparent `/skill-name` prepend to backend — v3.1
+- ✓ Enhanced GET /api/skills API returning descriptions — v3.1
+
 - ✓ User can upload Excel (.xlsx) files with text extracted for AI context and search — v2.1
 - ✓ User can upload CSV files with text extracted for AI context and search — v2.1
 - ✓ User can upload PDF files with text extracted for AI context and search — v2.1
@@ -255,13 +258,11 @@ Previous features (v1.5):
 
 ### Active
 
-**v3.1 — Skill Discovery & Selection**
+**v3.1.1 — Assistant Conversation Memory**
 
-- [ ] Browsable skill list with all available skills
-- [ ] Skill info popup with description and features
-- [ ] Selected skill chip/badge in chat input
-- [ ] Transparent `/skill-name` prepend to backend
-- [ ] Enhanced GET /api/skills API returning descriptions
+- [ ] Fix CLI adapter to send full conversation history
+- [ ] Add backend tests for conversation context preservation
+- [ ] Add frontend tests for AssistantConversationProvider
 
 **v2.0 — Security Audit & Deployment** (backlogged)
 
@@ -405,4 +406,4 @@ BAs prepare for meetings by uploading existing requirements or stakeholder notes
 | flutter_dropzone for web drag-and-drop | Web-only with kIsWeb guard; mobile falls back to file picker | ✓ Implemented (Phase 64) |
 
 ---
-*Last updated: 2026-02-18 after v3.1 milestone started — Skill Discovery & Selection*
+*Last updated: 2026-02-18 after v3.1.1 milestone started — Assistant Conversation Memory*

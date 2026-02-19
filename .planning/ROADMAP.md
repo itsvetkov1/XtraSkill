@@ -17,6 +17,7 @@
 - ✅ **v0.1-claude-code: Claude Code as AI Backend** - Phases 57-61 (shipped 2026-02-17)
 - ✅ **v3.0 Assistant Foundation** - Phases 62-64 (shipped 2026-02-18)
 - ✅ **v3.1 Skill Discovery & Selection** - Phases 65-67 (shipped 2026-02-18)
+- 🚧 **v3.1.1 Assistant Conversation Memory** - Phases 68-70 (in progress)
 - 🗄️ **v2.0 Security Audit & Deployment** - Phases 49-53 (backlogged)
 
 ## Phases
@@ -60,65 +61,70 @@ Full details: `.planning/milestones/v3.0-ROADMAP.md`
 
 </details>
 
-### ✅ v3.1 Skill Discovery & Selection — SHIPPED 2026-02-18
+<details>
+<summary>✅ v3.1 Skill Discovery & Selection (Phases 65-67) — SHIPPED 2026-02-18</summary>
 
 **Milestone Goal:** Enhance the Assistant skill selector into a browsable list with descriptions, info popups, and transparent skill prepending.
 
-- [x] **Phase 65: Backend Skill Metadata** - Parse SKILL.md frontmatter and enhance API (completed 2026-02-18)
-- [x] **Phase 66: Skill Browser UI** - Browsable skill list with selection indicators (completed 2026-02-18)
-- [x] **Phase 67: Skill Info Popup** - Detailed skill information display (completed 2026-02-18)
+- [x] Phase 65: Backend Skill Metadata (2/2 plans) — completed 2026-02-18
+- [x] Phase 66: Skill Browser UI (2/2 plans) — completed 2026-02-18
+- [x] Phase 67: Skill Info Popup (1/1 plans) — completed 2026-02-18
 
 Full details: `.planning/milestones/v3.1-ROADMAP.md`
 
+</details>
+
+### 🚧 v3.1.1 Assistant Conversation Memory (In Progress)
+
+**Milestone Goal:** Fix the critical bug where the Assistant loses conversation context after 2-3 messages, add token optimization to prevent context window overflow, and baseline subprocess performance.
+
+- [ ] **Phase 68: Core Conversation Memory Fix** - Replace single-message prompting with full history formatting, validate with tests
+- [ ] **Phase 69: Token Optimization** - Filter tool_use blocks and ensure linear token growth across long conversations
+- [ ] **Phase 70: Performance Tuning** - Measure subprocess latency and implement process pooling for warm reuse
+
 ## Phase Details
 
-### Phase 65: Backend Skill Metadata
-**Goal**: Backend provides rich skill metadata parsed from SKILL.md frontmatter
-**Depends on**: Phase 64 (v3.0 complete)
-**Requirements**: META-01, META-02, META-03, META-04, API-01, API-02
+### Phase 68: Core Conversation Memory Fix
+**Goal**: Assistant conversations preserve full context across all turns
+**Depends on**: Phase 67 (v3.1 complete)
+**Requirements**: CONV-01, CONV-02, CONV-03, CONV-04, TEST-01, TEST-02, TEST-03, TEST-04, TEST-05
 **Success Criteria** (what must be TRUE):
-  1. Each SKILL.md file has YAML frontmatter with name, description, and features
-  2. GET /api/skills returns name, description, and features for all skills
-  3. Skills without frontmatter fall back gracefully (name from directory, no description)
-  4. Skill descriptions are concise 1-2 sentence summaries
-  5. Each skill has 3-5 key capabilities listed as features
+  1. User can have a 5+ turn conversation in Assistant mode where the AI correctly references information from earlier turns
+  2. Each message sent to the CLI subprocess includes the full conversation history with clear role labels
+  3. BA Assistant flow continues to work identically (no regression from CLI adapter changes)
+  4. Backend and frontend test suites pass with new conversation memory tests
 **Plans**: TBD
 
 Plans:
-- [ ] 65-01: TBD
-- [ ] 65-02: TBD
+- [ ] 68-01: TBD
+- [ ] 68-02: TBD
 
-### Phase 66: Skill Browser UI
-**Goal**: Users can browse and select skills from a rich, browsable interface
-**Depends on**: Phase 65
-**Requirements**: BROWSE-01, BROWSE-02, BROWSE-03, BROWSE-04, SEL-01, SEL-02, SEL-03
+### Phase 69: Token Optimization
+**Goal**: Long Assistant conversations with document context stay within token limits without degrading quality
+**Depends on**: Phase 68
+**Requirements**: TOKEN-01, TOKEN-02, TOKEN-03, TOKEN-04
 **Success Criteria** (what must be TRUE):
-  1. User can open skill browser dialog from chat input skill button
-  2. User can see all available skills in grid/list with names and descriptions
-  3. User can select a skill by tapping/clicking it
-  4. Selected skill appears as removable chip/badge in chat input
-  5. User can deselect skill by tapping chip close icon
-  6. Only one skill can be selected at a time
-  7. Skill browser closes after selection
-**Plans**: 2 plans
+  1. A 20+ turn conversation with document searches shows linear (not quadratic) token growth
+  2. Assistant messages sent to CLI have tool_use blocks stripped, keeping only human-readable text
+  3. Conversations exceeding 180K tokens show a clear error message instead of a silent failure
+  4. Existing 150K truncation limit continues to function correctly for the CLI adapter
+**Plans**: TBD
 
 Plans:
-- [x] 66-01-PLAN.md — Foundation: Skill model features field, emoji helper, SkillCard widget
-- [x] 66-02-PLAN.md — Browser sheet & integration: DraggableScrollableSheet grid, selector rewrite, chip style
+- [ ] 69-01: TBD
 
-### Phase 67: Skill Info Popup
-**Goal**: Users can view detailed skill information before selecting
-**Depends on**: Phase 66
-**Requirements**: INFO-01, INFO-02, INFO-03
+### Phase 70: Performance Tuning
+**Goal**: Subprocess spawn overhead is measured, documented, and reduced through process pooling
+**Depends on**: Phase 68
+**Requirements**: PERF-01, PERF-02, PERF-03
 **Success Criteria** (what must be TRUE):
-  1. Each skill card has an info icon/button
-  2. Tapping info button shows popup with skill description and features
-  3. User can dismiss popup and return to skill browser
-  4. Info popup is readable on both mobile and desktop
-**Plans**: 1 plan
+  1. Subprocess spawn latency is measured and recorded as a baseline (expected ~400ms)
+  2. Process pooling reuses warm subprocesses instead of cold-starting each message
+  3. Measured latency improvement is documented (target: under 200ms with warm pool)
+**Plans**: TBD
 
 Plans:
-- [x] 67-01-PLAN.md — Add info button to SkillCard with skill details AlertDialog (completed 2026-02-18)
+- [ ] 70-01: TBD
 
 ---
 
@@ -152,13 +158,13 @@ Plans:
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 65 → 66 → 67
+Phases execute in numeric order: 68 → 69 → 70
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
-| 65. Backend Skill Metadata | v3.1 | 2/2 | Complete    | 2026-02-18 |
-| 66. Skill Browser UI | v3.1 | Complete    | 2026-02-18 | - |
-| 67. Skill Info Popup | v3.1 | 0/1 | Not started | - |
+| 68. Core Conversation Memory Fix | v3.1.1 | 0/TBD | Not started | - |
+| 69. Token Optimization | v3.1.1 | 0/TBD | Not started | - |
+| 70. Performance Tuning | v3.1.1 | 0/TBD | Not started | - |
 
 ---
 *Roadmap created: 2026-02-09*
@@ -169,3 +175,5 @@ Phases execute in numeric order: 65 → 66 → 67
 *v3.0 activated: 2026-02-17 — 3 phases, 17 requirements, Assistant Foundation*
 *v3.0 archived: 2026-02-18 — 3 phases, 10 plans, 17/17 requirements shipped*
 *v3.1 activated: 2026-02-18 — 3 phases, 16 requirements, Skill Discovery & Selection*
+*v3.1 archived: 2026-02-18 — 3 phases, 5 plans, 16/16 requirements shipped*
+*v3.1.1 activated: 2026-02-19 — 3 phases, 16 requirements, Assistant Conversation Memory*

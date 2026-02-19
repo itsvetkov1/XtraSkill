@@ -66,28 +66,28 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| CONV-01 | TBD | Pending |
-| CONV-02 | TBD | Pending |
-| CONV-03 | TBD | Pending |
-| CONV-04 | TBD | Pending |
-| TOKEN-01 | TBD | Pending |
-| TOKEN-02 | TBD | Pending |
-| TOKEN-03 | TBD | Pending |
-| TOKEN-04 | TBD | Pending |
-| PERF-01 | TBD | Pending |
-| PERF-02 | TBD | Pending |
-| PERF-03 | TBD | Pending |
-| TEST-01 | TBD | Pending |
-| TEST-02 | TBD | Pending |
-| TEST-03 | TBD | Pending |
-| TEST-04 | TBD | Pending |
-| TEST-05 | TBD | Pending |
+| CONV-01 | Phase 68 | Pending |
+| CONV-02 | Phase 68 | Pending |
+| CONV-03 | Phase 68 | Pending |
+| CONV-04 | Phase 68 | Pending |
+| TOKEN-01 | Phase 69 | Pending |
+| TOKEN-02 | Phase 69 | Pending |
+| TOKEN-03 | Phase 69 | Pending |
+| TOKEN-04 | Phase 69 | Pending |
+| PERF-01 | Phase 70 | Pending |
+| PERF-02 | Phase 70 | Pending |
+| PERF-03 | Phase 70 | Pending |
+| TEST-01 | Phase 68 | Pending |
+| TEST-02 | Phase 68 | Pending |
+| TEST-03 | Phase 68 | Pending |
+| TEST-04 | Phase 68 | Pending |
+| TEST-05 | Phase 68 | Pending |
 
 **Coverage:**
 - v3.1.1 requirements: 16 total
-- Mapped to phases: 0
-- Unmapped: 16 ⚠️
+- Mapped to phases: 16
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-02-19*
-*Last updated: 2026-02-19 after initial definition*
+*Last updated: 2026-02-19 after roadmap creation — all 16 requirements mapped*

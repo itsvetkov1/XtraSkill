@@ -105,33 +105,110 @@ class ClaudeCLIAdapter(LLMAdapter):
 
     def _convert_messages_to_prompt(self, messages: List[Dict[str, Any]]) -> str:
         """
-        Convert message history to prompt string for CLI.
+        Convert full conversation history to multi-turn prompt string for CLI.
 
-        CLI accepts prompt via -p flag, not structured messages.
-        For POC: Extract last user message.
+        Replaces POC implementation that only used the last user message.
+        Now formats all user/assistant messages with role labels and separators
+        so the CLI subprocess receives complete conversation context.
+
+        Format:
+          Human: [user text]
+
+          ---
+
+          Assistant: [assistant text]
+
+          ---
+
+          Human: [next user text]
+
+        Rules:
+        - Role labels: Human / Assistant (Anthropic native format)
+        - Separator: '---' between turns
+        - System messages: excluded
+        - Empty assistant messages (tool_use only, no text): skipped
+        - Multi-part content: text blocks kept; tool_use replaced with annotation;
+          tool_result blocks (in user messages) skipped; thinking blocks excluded
 
         Args:
-            messages: Conversation history in standard format
+            messages: Full conversation history in standard format
 
         Returns:
-            str: Prompt text for CLI
+            str: Multi-turn prompt text for CLI stdin
         """
         if not messages:
             return ""
 
-        # For POC: Use last user message
-        # Production: Format multi-turn conversation with role labels
-        last_message = messages[-1]
-        content = last_message.get("content", "")
+        parts = []
+        prev_label = None
+        for msg in messages:
+            role = msg.get("role", "")
+            content = msg.get("content", "")
 
+            if role == "user":
+                label = "Human"
+            elif role == "assistant":
+                label = "Assistant"
+            else:
+                # Skip system messages and unknown roles
+                continue
+
+            # Warn on consecutive same-role messages (role alternation violation)
+            if prev_label is not None and label == prev_label:
+                logger.warning(
+                    f"Role alternation violation: consecutive '{role}' messages detected. "
+                    "This may cause unexpected CLI behavior."
+                )
+
+            text = self._extract_text_content(content)
+
+            # Skip empty messages (e.g., tool_use-only assistant turns)
+            if not text.strip():
+                continue
+
+            parts.append(f"{label}: {text}")
+            prev_label = label
+
+        return "\n\n---\n\n".join(parts)
+
+    def _extract_text_content(self, content: Any) -> str:
+        """
+        Extract readable text from message content.
+
+        Handles string content directly.
+        For list content, processes each block:
+        - text blocks: included as-is
+        - thinking blocks: excluded (internal reasoning, not final response)
+        - tool_use blocks: replaced with brief annotation
+        - tool_result blocks: skipped (part of user messages, not conversation text)
+
+        Args:
+            content: Message content (str or list of content blocks)
+
+        Returns:
+            str: Extracted text, empty string if nothing readable
+        """
         if isinstance(content, str):
             return content
-        elif isinstance(content, list):
-            # Handle multi-part content (text + images)
+
+        if isinstance(content, list):
             text_parts = []
             for part in content:
-                if isinstance(part, dict) and part.get("type") == "text":
+                if not isinstance(part, dict):
+                    continue
+                block_type = part.get("type", "")
+                if block_type == "text":
                     text_parts.append(part.get("text", ""))
+                elif block_type == "thinking":
+                    pass  # Exclude internal reasoning
+                elif block_type == "tool_use":
+                    tool_name = part.get("name", "")
+                    if "search_documents" in tool_name:
+                        text_parts.append("[searched documents]")
+                    else:
+                        text_parts.append("[performed an action]")
+                elif block_type == "tool_result":
+                    pass  # Skip tool results (can be very long, not conversation text)
             return "\n".join(text_parts)
 
         return str(content)
@@ -259,8 +336,12 @@ class ClaudeCLIAdapter(LLMAdapter):
             # Build prompt from messages
             prompt_text = self._convert_messages_to_prompt(messages)
 
-            # Prepend system prompt to prompt text with clear delimiter
-            # This allows CLI to interpret tool descriptions from the system prompt
+            # Prepend system prompt to prompt text with clear delimiter.
+            # This allows CLI to interpret tool descriptions from the system prompt.
+            # NOTE: For multi-turn history, prompt_text now contains the full conversation
+            # with Human:/Assistant: role labels and '---' separators between turns.
+            # The outer [USER]: wrapper is kept for backward compatibility — the CLI
+            # receives the full conversation history after the [SYSTEM]: marker.
             combined_prompt = f"[SYSTEM]: {system_prompt}\n\n[USER]: {prompt_text}"
 
             # Build CLI command

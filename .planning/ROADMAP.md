@@ -93,11 +93,11 @@ Full details: `.planning/milestones/v3.1-ROADMAP.md`
   2. Each message sent to the CLI subprocess includes the full conversation history with clear role labels
   3. BA Assistant flow continues to work identically (no regression from CLI adapter changes)
   4. Backend and frontend test suites pass with new conversation memory tests
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 68-01: TBD
-- [ ] 68-02: TBD
+- [ ] 68-01-PLAN.md — Backend fix: replace single-message prompt with multi-turn formatter + unit tests + integration test
+- [ ] 68-02-PLAN.md — Frontend tests: AssistantConversationProvider unit test coverage
 
 ### Phase 69: Token Optimization
 **Goal**: Long Assistant conversations with document context stay within token limits without degrading quality

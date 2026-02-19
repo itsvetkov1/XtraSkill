@@ -11,9 +11,9 @@ See: /Users/a1testingmac/projects/XtraSkill/.planning/PROJECT.md (updated 2026-0
 ## Current Position
 
 Phase: 68 of 70 (Core Conversation Memory Fix)
-Plan: 2 of 2 in current phase
-Status: In progress — plan 02 complete, plan 01 pending
-Last activity: 2026-02-19 — Completed 68-02: 28 AssistantConversationProvider tests
+Plan: 2 of 2 in current phase — COMPLETE
+Status: Phase 68 complete — both plans done
+Last activity: 2026-02-19 — Completed 68-01: multi-turn CLI adapter fix + 47 unit tests + integration test
 
 Progress:
 ```
@@ -25,8 +25,8 @@ v2.0:              [          ] Backlogged (phases 49-53 preserved)
 v3.0:              [##########] 100% — All phases complete
 v3.1:              [##########] 100% — All phases complete
 
-v3.1.1:            [#         ] 10% — Phase 68 in progress
-  Phase 68: Core Memory Fix + Tests  [>] 1/2 plans complete (02 done)
+v3.1.1:            [##        ] 33% — Phase 68 complete
+  Phase 68: Core Memory Fix + Tests  [X] 2/2 plans complete
   Phase 69: Token Optimization       [ ] 0/TBD plans
   Phase 70: Performance Tuning       [ ] 0/TBD plans
 ```
@@ -44,7 +44,8 @@ v3.1.1:            [#         ] 10% — Phase 68 in progress
 
 **Recent Trend:** Stable velocity with 1-2 day milestone completion for focused enhancements
 
-**Phase 68 in-progress:**
+**Phase 68 completed:**
+- 68-01: Multi-turn CLI adapter fix + 47 unit tests + integration test — 10 min (2026-02-19)
 - 68-02: AssistantConversationProvider tests — 28 tests, 7 min (2026-02-19)
 
 ## Accumulated Context
@@ -57,6 +58,9 @@ Recent key decisions (full archive in PROJECT.md):
 - **v3.1.1 Research**: stream-json input NOT recommended — known duplication bug (Issue #5034)
 - **v3.1.1 Research**: Token filtering strips tool_use blocks to prevent quadratic growth
 - [Phase 68]: Error handling tests use listener-based canRetry capture because auto-retry resets _hasAutoRetried causing infinite loop on dual-failure
+- [68-01]: Tool-use-only assistant messages produce empty text via _extract_text_content() — caller's empty-check skips them cleanly
+- [68-01]: Tool-use annotations only added when text blocks also present in same message
+- [68-01]: combined_prompt [USER]: outer wrapper kept unchanged — minimizes change surface
 
 ### Pending Todos
 
@@ -70,10 +74,10 @@ None. Research completed with HIGH confidence across all areas.
 ## Session Continuity
 
 Last session: 2026-02-19
-Stopped at: Completed 68-02-PLAN.md — 28 AssistantConversationProvider tests passing
+Stopped at: Completed 68-01-PLAN.md — multi-turn CLI adapter + 47 unit tests + integration test
 Resume file: None
-Next action: Execute 68-01-PLAN.md (backend memory fix)
+Next action: Execute Phase 69 (Token Optimization)
 
 ---
 
-*State updated: 2026-02-19 (68-02 complete — AssistantConversationProvider unit tests)*
+*State updated: 2026-02-19 (68-01 complete — core conversation memory fix, Phase 68 fully done)*

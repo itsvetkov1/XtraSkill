@@ -9,10 +9,10 @@ Requirements for v3.1.1 milestone. Each maps to roadmap phases.
 
 ### Conversation Memory
 
-- [ ] **CONV-01**: CLI adapter sends full conversation history (all messages, not just last)
-- [ ] **CONV-02**: Messages formatted with role labels (`[USER]`, `[ASSISTANT]`) matching BA flow pattern
-- [ ] **CONV-03**: Role alternation validated before sending to CLI subprocess
-- [ ] **CONV-04**: Multi-part content handled (text blocks, tool results)
+- [x] **CONV-01**: CLI adapter sends full conversation history (all messages, not just last)
+- [x] **CONV-02**: Messages formatted with role labels (`[USER]`, `[ASSISTANT]`) matching BA flow pattern
+- [x] **CONV-03**: Role alternation validated before sending to CLI subprocess
+- [x] **CONV-04**: Multi-part content handled (text blocks, tool results)
 
 ### Token Management
 
@@ -29,11 +29,11 @@ Requirements for v3.1.1 milestone. Each maps to roadmap phases.
 
 ### Testing
 
-- [ ] **TEST-01**: Backend unit tests for `_convert_messages_to_prompt()` with 1, 3, 10+ messages
-- [ ] **TEST-02**: Backend unit tests for multi-part content handling (tool results)
-- [ ] **TEST-03**: Backend regression tests verifying BA flow unchanged
+- [x] **TEST-01**: Backend unit tests for `_convert_messages_to_prompt()` with 1, 3, 10+ messages
+- [x] **TEST-02**: Backend unit tests for multi-part content handling (tool results)
+- [x] **TEST-03**: Backend regression tests verifying BA flow unchanged
 - [x] **TEST-04**: Frontend tests for AssistantConversationProvider message history handling
-- [ ] **TEST-05**: Integration test: Assistant thread with 3+ turns preserves context
+- [x] **TEST-05**: Integration test: Assistant thread with 3+ turns preserves context
 
 ## Future Requirements
 
@@ -66,10 +66,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| CONV-01 | Phase 68 | Pending |
-| CONV-02 | Phase 68 | Pending |
-| CONV-03 | Phase 68 | Pending |
-| CONV-04 | Phase 68 | Pending |
+| CONV-01 | Phase 68 | Complete |
+| CONV-02 | Phase 68 | Complete |
+| CONV-03 | Phase 68 | Complete |
+| CONV-04 | Phase 68 | Complete |
 | TOKEN-01 | Phase 69 | Pending |
 | TOKEN-02 | Phase 69 | Pending |
 | TOKEN-03 | Phase 69 | Pending |
@@ -77,11 +77,11 @@ Which phases cover which requirements. Updated during roadmap creation.
 | PERF-01 | Phase 70 | Pending |
 | PERF-02 | Phase 70 | Pending |
 | PERF-03 | Phase 70 | Pending |
-| TEST-01 | Phase 68 | Pending |
-| TEST-02 | Phase 68 | Pending |
-| TEST-03 | Phase 68 | Pending |
+| TEST-01 | Phase 68 | Complete |
+| TEST-02 | Phase 68 | Complete |
+| TEST-03 | Phase 68 | Complete |
 | TEST-04 | Phase 68 | Complete |
-| TEST-05 | Phase 68 | Pending |
+| TEST-05 | Phase 68 | Complete |
 
 **Coverage:**
 - v3.1.1 requirements: 16 total

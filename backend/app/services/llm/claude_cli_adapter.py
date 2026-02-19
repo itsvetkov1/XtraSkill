@@ -179,8 +179,12 @@ class ClaudeCLIAdapter(LLMAdapter):
         For list content, processes each block:
         - text blocks: included as-is
         - thinking blocks: excluded (internal reasoning, not final response)
-        - tool_use blocks: replaced with brief annotation
+        - tool_use blocks: replaced with brief annotation (only when text blocks also present)
         - tool_result blocks: skipped (part of user messages, not conversation text)
+
+        If a message consists ONLY of tool_use blocks (no text blocks), the result
+        will be empty — the caller's empty-check will then skip the entire message.
+        This covers silent tool-only assistant turns (e.g., save_artifact without text).
 
         Args:
             content: Message content (str or list of content blocks)
@@ -193,22 +197,31 @@ class ClaudeCLIAdapter(LLMAdapter):
 
         if isinstance(content, list):
             text_parts = []
+            tool_annotations = []
+            has_text_blocks = False
+
             for part in content:
                 if not isinstance(part, dict):
                     continue
                 block_type = part.get("type", "")
                 if block_type == "text":
                     text_parts.append(part.get("text", ""))
+                    has_text_blocks = True
                 elif block_type == "thinking":
                     pass  # Exclude internal reasoning
                 elif block_type == "tool_use":
                     tool_name = part.get("name", "")
                     if "search_documents" in tool_name:
-                        text_parts.append("[searched documents]")
+                        tool_annotations.append("[searched documents]")
                     else:
-                        text_parts.append("[performed an action]")
+                        tool_annotations.append("[performed an action]")
                 elif block_type == "tool_result":
                     pass  # Skip tool results (can be very long, not conversation text)
+
+            # Only include tool annotations when text blocks are also present.
+            # Tool-use-only messages (no text) return empty → caller skips them.
+            if has_text_blocks:
+                return "\n".join(text_parts + tool_annotations)
             return "\n".join(text_parts)
 
         return str(content)

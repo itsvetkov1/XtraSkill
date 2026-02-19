@@ -8,6 +8,7 @@ Mocks asyncio.create_subprocess_exec and shutil.which for isolated testing.
 import asyncio
 import pytest
 from unittest.mock import patch, MagicMock, AsyncMock
+import unittest.mock
 
 from app.services.llm.claude_cli_adapter import ClaudeCLIAdapter, DEFAULT_MODEL
 from app.services.llm.base import LLMProvider, StreamChunk
@@ -606,8 +607,10 @@ class TestClaudeCLIAdapterStreamChat:
         # Verify prompt was written to stdin
         mock_process.stdin.write.assert_called_once()
         written_bytes = mock_process.stdin.write.call_args[0][0]
+        # [SYSTEM]: outer wrapper is preserved (combined_prompt outer wrapper, unchanged)
         assert b"[SYSTEM]:" in written_bytes
-        assert b"[USER]:" in written_bytes
+        # Inner message now uses Human: label (multi-turn format)
+        assert b"Human:" in written_bytes
 
     @pytest.mark.asyncio
     @patch('app.services.llm.claude_cli_adapter._documents_used_context')
@@ -834,7 +837,7 @@ class TestClaudeCLIAdapterMessageConversion:
 
     @patch('app.services.llm.claude_cli_adapter.shutil.which', return_value='/usr/bin/claude')
     def test_converts_string_content(self, mock_which):
-        """String content is extracted correctly."""
+        """Single user message with string content is correctly labeled with Human: prefix."""
         adapter = ClaudeCLIAdapter(api_key="test-key")
 
         messages = [
@@ -843,11 +846,12 @@ class TestClaudeCLIAdapterMessageConversion:
 
         prompt = adapter._convert_messages_to_prompt(messages)
 
-        assert prompt == "Hello, how are you?"
+        # After fix: output is "Human: Hello, how are you?" (with role label)
+        assert "Human: Hello, how are you?" in prompt
 
     @patch('app.services.llm.claude_cli_adapter.shutil.which', return_value='/usr/bin/claude')
     def test_converts_list_content(self, mock_which):
-        """List content with text parts is extracted correctly."""
+        """List content with text parts is extracted correctly with Human: label."""
         adapter = ClaudeCLIAdapter(api_key="test-key")
 
         messages = [
@@ -862,6 +866,7 @@ class TestClaudeCLIAdapterMessageConversion:
 
         prompt = adapter._convert_messages_to_prompt(messages)
 
+        assert "Human:" in prompt
         assert "First part." in prompt
         assert "Second part." in prompt
 
@@ -873,6 +878,273 @@ class TestClaudeCLIAdapterMessageConversion:
         prompt = adapter._convert_messages_to_prompt([])
 
         assert prompt == ""
+
+    # --- NEW TESTS (TEST-01: multi-turn conversation) ---
+
+    @patch('app.services.llm.claude_cli_adapter.shutil.which', return_value='/usr/bin/claude')
+    def test_three_turn_conversation_has_all_messages(self, mock_which):
+        """3-turn conversation includes all turns in output with correct labels."""
+        adapter = ClaudeCLIAdapter(api_key="test-key")
+
+        messages = [
+            {"role": "user", "content": "Hello"},
+            {"role": "assistant", "content": "Hi there"},
+            {"role": "user", "content": "How are you?"},
+        ]
+
+        prompt = adapter._convert_messages_to_prompt(messages)
+
+        assert "Human: Hello" in prompt
+        assert "Assistant: Hi there" in prompt
+        assert "Human: How are you?" in prompt
+        assert prompt.count("---") == 2  # Two separators for three turns
+
+    @patch('app.services.llm.claude_cli_adapter.shutil.which', return_value='/usr/bin/claude')
+    def test_ten_turn_conversation_preserves_all(self, mock_which):
+        """10-turn conversation includes all turns (no truncation in formatter)."""
+        adapter = ClaudeCLIAdapter(api_key="test-key")
+
+        messages = []
+        for i in range(5):
+            messages.append({"role": "user", "content": f"User message {i}"})
+            messages.append({"role": "assistant", "content": f"Assistant message {i}"})
+
+        prompt = adapter._convert_messages_to_prompt(messages)
+
+        for i in range(5):
+            assert f"User message {i}" in prompt
+            assert f"Assistant message {i}" in prompt
+
+    @patch('app.services.llm.claude_cli_adapter.shutil.which', return_value='/usr/bin/claude')
+    def test_uses_human_assistant_labels(self, mock_which):
+        """Role labels are Human:/Assistant: (Anthropic native format), not [USER]:/[ASSISTANT]:."""
+        adapter = ClaudeCLIAdapter(api_key="test-key")
+
+        messages = [
+            {"role": "user", "content": "Hello"},
+            {"role": "assistant", "content": "Hi"},
+        ]
+
+        prompt = adapter._convert_messages_to_prompt(messages)
+
+        assert "Human:" in prompt
+        assert "Assistant:" in prompt
+        # Ensure NOT the old bracket format
+        assert "[USER]:" not in prompt
+        assert "[ASSISTANT]:" not in prompt
+
+    @patch('app.services.llm.claude_cli_adapter.shutil.which', return_value='/usr/bin/claude')
+    def test_uses_triple_dash_separator(self, mock_which):
+        """Turns are separated by '---' lines."""
+        adapter = ClaudeCLIAdapter(api_key="test-key")
+
+        messages = [
+            {"role": "user", "content": "Hello"},
+            {"role": "assistant", "content": "Hi"},
+        ]
+
+        prompt = adapter._convert_messages_to_prompt(messages)
+
+        assert "---" in prompt
+
+    @patch('app.services.llm.claude_cli_adapter.shutil.which', return_value='/usr/bin/claude')
+    def test_single_message_no_separator(self, mock_which):
+        """Single message produces no separator."""
+        adapter = ClaudeCLIAdapter(api_key="test-key")
+
+        messages = [
+            {"role": "user", "content": "Just one message"},
+        ]
+
+        prompt = adapter._convert_messages_to_prompt(messages)
+
+        assert "---" not in prompt
+        assert "Human: Just one message" in prompt
+
+    # --- NEW TESTS (TEST-02: multi-part content) ---
+
+    @patch('app.services.llm.claude_cli_adapter.shutil.which', return_value='/usr/bin/claude')
+    def test_tool_use_blocks_replaced_with_annotation(self, mock_which):
+        """tool_use blocks with search_documents are replaced with [searched documents]."""
+        adapter = ClaudeCLIAdapter(api_key="test-key")
+
+        messages = [
+            {"role": "user", "content": "Search for docs"},
+            {
+                "role": "assistant",
+                "content": [
+                    {"type": "text", "text": "Let me search."},
+                    {"type": "tool_use", "id": "t1", "name": "search_documents",
+                     "input": {"query": "test"}}
+                ]
+            },
+        ]
+
+        prompt = adapter._convert_messages_to_prompt(messages)
+
+        assert "[searched documents]" in prompt
+        assert "Let me search." in prompt
+
+    @patch('app.services.llm.claude_cli_adapter.shutil.which', return_value='/usr/bin/claude')
+    def test_generic_tool_use_annotation(self, mock_which):
+        """Non-search tool_use blocks are replaced with [performed an action]."""
+        adapter = ClaudeCLIAdapter(api_key="test-key")
+
+        messages = [
+            {"role": "user", "content": "Do something"},
+            {
+                "role": "assistant",
+                "content": [
+                    {"type": "text", "text": "Sure."},
+                    {"type": "tool_use", "id": "t2", "name": "save_artifact",
+                     "input": {"title": "BRD"}}
+                ]
+            },
+        ]
+
+        prompt = adapter._convert_messages_to_prompt(messages)
+
+        assert "[performed an action]" in prompt
+        assert "Sure." in prompt
+
+    @patch('app.services.llm.claude_cli_adapter.shutil.which', return_value='/usr/bin/claude')
+    def test_tool_use_only_assistant_messages_skipped(self, mock_which):
+        """Assistant messages with only tool_use (no text) are skipped entirely."""
+        adapter = ClaudeCLIAdapter(api_key="test-key")
+
+        messages = [
+            {"role": "user", "content": "Do something"},
+            {
+                "role": "assistant",
+                "content": [
+                    {"type": "tool_use", "id": "t1", "name": "save_artifact",
+                     "input": {"title": "Doc"}}
+                ]
+            },
+            {"role": "user", "content": "Thanks"},
+        ]
+
+        prompt = adapter._convert_messages_to_prompt(messages)
+
+        # Tool-only assistant message should not appear
+        assert "Assistant:" not in prompt
+        assert "Human: Do something" in prompt
+        assert "Human: Thanks" in prompt
+
+    @patch('app.services.llm.claude_cli_adapter.shutil.which', return_value='/usr/bin/claude')
+    def test_thinking_blocks_excluded(self, mock_which):
+        """Thinking blocks in assistant messages are excluded from output."""
+        adapter = ClaudeCLIAdapter(api_key="test-key")
+
+        messages = [
+            {"role": "user", "content": "What is 2+2?"},
+            {
+                "role": "assistant",
+                "content": [
+                    {"type": "thinking", "thinking": "Let me reason step by step..."},
+                    {"type": "text", "text": "The answer is 4."}
+                ]
+            },
+        ]
+
+        prompt = adapter._convert_messages_to_prompt(messages)
+
+        assert "The answer is 4." in prompt
+        assert "Let me reason step by step..." not in prompt
+
+    @patch('app.services.llm.claude_cli_adapter.shutil.which', return_value='/usr/bin/claude')
+    def test_tool_result_user_messages_skipped(self, mock_which):
+        """User messages containing only tool_result blocks are skipped (empty text)."""
+        adapter = ClaudeCLIAdapter(api_key="test-key")
+
+        messages = [
+            {"role": "user", "content": "Search"},
+            {
+                "role": "assistant",
+                "content": [
+                    {"type": "text", "text": "Searching."},
+                    {"type": "tool_use", "id": "t1", "name": "search_documents",
+                     "input": {"query": "test"}}
+                ]
+            },
+            {
+                "role": "user",
+                "content": [
+                    {"type": "tool_result", "tool_use_id": "t1",
+                     "content": "Result: found 3 documents"}
+                ]
+            },
+            {"role": "user", "content": "What did you find?"},
+        ]
+
+        prompt = adapter._convert_messages_to_prompt(messages)
+
+        # Tool result message (3rd message) should be skipped — text is empty
+        assert "Result: found 3 documents" not in prompt
+        assert "Human: What did you find?" in prompt
+
+    @patch('app.services.llm.claude_cli_adapter.shutil.which', return_value='/usr/bin/claude')
+    def test_system_messages_excluded(self, mock_which):
+        """System role messages are excluded from formatted output."""
+        adapter = ClaudeCLIAdapter(api_key="test-key")
+
+        messages = [
+            {"role": "system", "content": "You are helpful."},
+            {"role": "user", "content": "Hello"},
+        ]
+
+        prompt = adapter._convert_messages_to_prompt(messages)
+
+        assert "You are helpful." not in prompt
+        assert "Human: Hello" in prompt
+
+    # --- NEW TESTS (TEST-03: BA flow regression) ---
+
+    @patch('app.services.llm.claude_cli_adapter.shutil.which', return_value='/usr/bin/claude')
+    def test_ba_flow_uses_agent_service_not_cli_adapter(self, mock_which):
+        """ClaudeCLIAdapter has is_agent_provider=True and doesn't reference agent_service patterns."""
+        adapter = ClaudeCLIAdapter(api_key="test-key")
+
+        # Verify the routing flag is set correctly
+        assert adapter.is_agent_provider is True
+
+        # Verify adapter is for CLI, not agent SDK
+        from app.services.llm.base import LLMProvider
+        assert adapter.provider == LLMProvider.CLAUDE_CODE_CLI
+
+        # The adapter should have _convert_messages_to_prompt (not [USER]/[ASSISTANT] bracket format)
+        messages = [{"role": "user", "content": "test"}]
+        prompt = adapter._convert_messages_to_prompt(messages)
+
+        # CLI adapter uses Human:/Assistant: (not [USER]:/[ASSISTANT]: which is agent_service pattern)
+        assert "Human:" in prompt
+        assert "[USER]:" not in prompt
+
+    # --- NEW TESTS (CONV-03: role alternation warning) ---
+
+    @patch('app.services.llm.claude_cli_adapter.shutil.which', return_value='/usr/bin/claude')
+    def test_warns_on_consecutive_same_role_messages(self, mock_which):
+        """Consecutive same-role messages trigger a warning but are still included."""
+        adapter = ClaudeCLIAdapter(api_key="test-key")
+
+        messages = [
+            {"role": "user", "content": "First question"},
+            {"role": "user", "content": "Second question without assistant response"},
+        ]
+
+        with unittest.mock.patch(
+            'app.services.llm.claude_cli_adapter.logger'
+        ) as mock_logger:
+            prompt = adapter._convert_messages_to_prompt(messages)
+
+        # Warning should have been logged
+        mock_logger.warning.assert_called_once()
+        warning_call = mock_logger.warning.call_args[0][0]
+        assert "alternation" in warning_call.lower() or "consecutive" in warning_call.lower()
+
+        # Both messages still appear (warning, not error)
+        assert "Human: First question" in prompt
+        assert "Human: Second question without assistant response" in prompt
 
 
 class TestClaudeCLIAdapterFactory:

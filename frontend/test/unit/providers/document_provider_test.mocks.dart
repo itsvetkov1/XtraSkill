@@ -4,6 +4,7 @@
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'dart:async' as _i4;
+import 'dart:typed_data' as _i5;
 
 import 'package:frontend/models/document.dart' as _i2;
 import 'package:frontend/services/document_service.dart' as _i3;
@@ -120,6 +121,61 @@ class MockDocumentService extends _i1.Mock implements _i3.DocumentService {
   _i4.Future<void> deleteDocument(String? id) =>
       (super.noSuchMethod(
             Invocation.method(#deleteDocument, [id]),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
+          )
+          as _i4.Future<void>);
+
+  @override
+  _i4.Future<List<int>> downloadDocument(String? documentId) =>
+      (super.noSuchMethod(
+            Invocation.method(#downloadDocument, [documentId]),
+            returnValue: _i4.Future<List<int>>.value(<int>[]),
+            returnValueForMissingStub: _i4.Future<List<int>>.value(<int>[]),
+          )
+          as _i4.Future<List<int>>);
+
+  @override
+  _i4.Future<Map<String, dynamic>> uploadThreadDocument(
+    String? threadId,
+    String? filename,
+    _i5.Uint8List? bytes,
+    String? contentType,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#uploadThreadDocument, [
+              threadId,
+              filename,
+              bytes,
+              contentType,
+            ]),
+            returnValue: _i4.Future<Map<String, dynamic>>.value(
+              <String, dynamic>{},
+            ),
+            returnValueForMissingStub: _i4.Future<Map<String, dynamic>>.value(
+              <String, dynamic>{},
+            ),
+          )
+          as _i4.Future<Map<String, dynamic>>);
+
+  @override
+  _i4.Future<List<Map<String, dynamic>>> getThreadDocuments(String? threadId) =>
+      (super.noSuchMethod(
+            Invocation.method(#getThreadDocuments, [threadId]),
+            returnValue: _i4.Future<List<Map<String, dynamic>>>.value(
+              <Map<String, dynamic>>[],
+            ),
+            returnValueForMissingStub:
+                _i4.Future<List<Map<String, dynamic>>>.value(
+                  <Map<String, dynamic>>[],
+                ),
+          )
+          as _i4.Future<List<Map<String, dynamic>>>);
+
+  @override
+  _i4.Future<void> exportDocument(String? documentId, String? format) =>
+      (super.noSuchMethod(
+            Invocation.method(#exportDocument, [documentId, format]),
             returnValue: _i4.Future<void>.value(),
             returnValueForMissingStub: _i4.Future<void>.value(),
           )

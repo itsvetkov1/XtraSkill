@@ -158,6 +158,17 @@ class MockThreadService extends _i1.Mock implements _i3.ThreadService {
           as _i4.Future<_i2.PaginatedThreads>);
 
   @override
+  _i4.Future<List<_i2.Thread>> getAssistantThreads() =>
+      (super.noSuchMethod(
+            Invocation.method(#getAssistantThreads, []),
+            returnValue: _i4.Future<List<_i2.Thread>>.value(<_i2.Thread>[]),
+            returnValueForMissingStub: _i4.Future<List<_i2.Thread>>.value(
+              <_i2.Thread>[],
+            ),
+          )
+          as _i4.Future<List<_i2.Thread>>);
+
+  @override
   _i4.Future<_i2.Thread> createGlobalThread({
     String? title,
     String? projectId,
@@ -228,6 +239,37 @@ class MockThreadService extends _i1.Mock implements _i3.ThreadService {
               _FakeThread_0(
                 this,
                 Invocation.method(#associateWithProject, [threadId, projectId]),
+              ),
+            ),
+          )
+          as _i4.Future<_i2.Thread>);
+
+  @override
+  _i4.Future<_i2.Thread> createAssistantThread({
+    required String? title,
+    String? description,
+  }) =>
+      (super.noSuchMethod(
+            Invocation.method(#createAssistantThread, [], {
+              #title: title,
+              #description: description,
+            }),
+            returnValue: _i4.Future<_i2.Thread>.value(
+              _FakeThread_0(
+                this,
+                Invocation.method(#createAssistantThread, [], {
+                  #title: title,
+                  #description: description,
+                }),
+              ),
+            ),
+            returnValueForMissingStub: _i4.Future<_i2.Thread>.value(
+              _FakeThread_0(
+                this,
+                Invocation.method(#createAssistantThread, [], {
+                  #title: title,
+                  #description: description,
+                }),
               ),
             ),
           )

@@ -32,7 +32,7 @@ Requirements for v3.1.1 milestone. Each maps to roadmap phases.
 - [ ] **TEST-01**: Backend unit tests for `_convert_messages_to_prompt()` with 1, 3, 10+ messages
 - [ ] **TEST-02**: Backend unit tests for multi-part content handling (tool results)
 - [ ] **TEST-03**: Backend regression tests verifying BA flow unchanged
-- [ ] **TEST-04**: Frontend tests for AssistantConversationProvider message history handling
+- [x] **TEST-04**: Frontend tests for AssistantConversationProvider message history handling
 - [ ] **TEST-05**: Integration test: Assistant thread with 3+ turns preserves context
 
 ## Future Requirements
@@ -80,7 +80,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | TEST-01 | Phase 68 | Pending |
 | TEST-02 | Phase 68 | Pending |
 | TEST-03 | Phase 68 | Pending |
-| TEST-04 | Phase 68 | Pending |
+| TEST-04 | Phase 68 | Complete |
 | TEST-05 | Phase 68 | Pending |
 
 **Coverage:**

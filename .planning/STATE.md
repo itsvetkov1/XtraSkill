@@ -6,14 +6,14 @@ See: /Users/a1testingmac/projects/XtraSkill/.planning/PROJECT.md (updated 2026-0
 
 **Core value:** Business analysts reduce time spent on requirement documentation while improving completeness through AI-assisted discovery conversations that systematically explore edge cases and generate production-ready artifacts.
 
-**Current focus:** Phase 69 — Token Optimization
+**Current focus:** Phase 70 — Performance Tuning (COMPLETE)
 
 ## Current Position
 
-Phase: 69 of 70 (Token Optimization)
+Phase: 70 of 70 (Performance Tuning)
 Plan: 1 of 1 in current phase — COMPLETE
-Status: Phase 69 Plan 01 complete
-Last activity: 2026-02-20 — Completed 69-01: 180K emergency token limit + 7 token optimization tests
+Status: Phase 70 Plan 01 complete — v3.1.1 milestone COMPLETE
+Last activity: 2026-02-20 — Completed 70-01: ClaudeProcessPool pre-warming + 8 unit tests
 
 Progress:
 ```
@@ -25,16 +25,16 @@ v2.0:              [          ] Backlogged (phases 49-53 preserved)
 v3.0:              [##########] 100% — All phases complete
 v3.1:              [##########] 100% — All phases complete
 
-v3.1.1:            [####      ] 66% — Phase 69 complete
+v3.1.1:            [##########] 100% — All phases complete
   Phase 68: Core Memory Fix + Tests  [X] 2/2 plans complete
   Phase 69: Token Optimization       [X] 1/1 plans complete
-  Phase 70: Performance Tuning       [ ] 0/TBD plans
+  Phase 70: Performance Tuning       [X] 1/1 plans complete
 ```
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 146 (across 14 milestones)
+- Total plans completed: 147 (across 14 milestones)
 - Average duration: ~1-3 minutes per plan
 
 **Recent Milestones:**
@@ -50,6 +50,9 @@ v3.1.1:            [####      ] 66% — Phase 69 complete
 
 **Phase 69 completed:**
 - 69-01: 180K emergency token limit in _stream_agent_chat() + 7 token tests (TOKEN-01 through TOKEN-04) — 3 min (2026-02-20)
+
+**Phase 70 completed:**
+- 70-01: ClaudeProcessPool asyncio.Queue pre-warming + stream_chat() integration + FastAPI lifespan hooks + 8 unit tests (PERF-01, PERF-02, PERF-03) — 4 min (2026-02-20)
 
 ## Accumulated Context
 
@@ -67,6 +70,10 @@ Recent key decisions (full archive in PROJECT.md):
 - [69-01]: EMERGENCY_TOKEN_LIMIT placed in ai_service.py (agent-provider-specific), not conversation_service.py (general concern)
 - [69-01]: Emergency check yields SSE error event (not Python exception) — async generator streaming context requires yield
 - [69-01]: Two-tier token limit established: 150K soft truncation (conversation_service) + 180K hard stop (ai_service agent path)
+- [70-01]: ClaudeProcessPool placed in claude_cli_adapter.py (same file as sole consumer) — minimize surface area
+- [70-01]: POOL_SIZE=2 for single-user dev context; get_nowait() avoids blocking on empty pool
+- [70-01]: _build_cli_env() extracted as shared helper for pool spawn methods and cold-spawn fallback
+- [70-01]: Pool init conditional on shutil.which("claude") in FastAPI lifespan — graceful no-op when CLI not installed
 
 ### Pending Todos
 
@@ -75,15 +82,15 @@ Recent key decisions (full archive in PROJECT.md):
 
 ### Blockers/Concerns
 
-None. Research completed with HIGH confidence across all areas.
+None. v3.1.1 milestone complete.
 
 ## Session Continuity
 
 Last session: 2026-02-20
-Stopped at: Completed 69-01-PLAN.md — 180K emergency token limit + 7 token optimization tests
+Stopped at: Completed 70-01-PLAN.md — ClaudeProcessPool pre-warming pool + 8 unit tests. v3.1.1 complete.
 Resume file: None
-Next action: Execute Phase 70 (Performance Tuning)
+Next action: v3.1.1 milestone complete. Begin next planning phase.
 
 ---
 
-*State updated: 2026-02-20 (69-01 complete — token optimization, TOKEN-01 through TOKEN-04 all implemented and tested)*
+*State updated: 2026-02-20 (70-01 complete — performance tuning, PERF-01 through PERF-03 all implemented and tested)*

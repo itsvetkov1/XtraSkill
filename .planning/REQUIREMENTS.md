@@ -23,9 +23,9 @@ Requirements for v3.1.1 milestone. Each maps to roadmap phases.
 
 ### Performance
 
-- [ ] **PERF-01**: Subprocess spawn latency measured and baselined
-- [ ] **PERF-02**: Process pooling implemented for warm subprocess reuse
-- [ ] **PERF-03**: Latency improvement documented (target: <200ms vs ~400ms cold start)
+- [x] **PERF-01**: Subprocess spawn latency measured and baselined
+- [x] **PERF-02**: Process pooling implemented for warm subprocess reuse
+- [x] **PERF-03**: Latency improvement documented (target: <200ms vs ~400ms cold start)
 
 ### Testing
 
@@ -74,9 +74,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | TOKEN-02 | Phase 69 | Complete |
 | TOKEN-03 | Phase 69 | Complete |
 | TOKEN-04 | Phase 69 | Complete |
-| PERF-01 | Phase 70 | Pending |
-| PERF-02 | Phase 70 | Pending |
-| PERF-03 | Phase 70 | Pending |
+| PERF-01 | Phase 70 | Complete |
+| PERF-02 | Phase 70 | Complete |
+| PERF-03 | Phase 70 | Complete |
 | TEST-01 | Phase 68 | Complete |
 | TEST-02 | Phase 68 | Complete |
 | TEST-03 | Phase 68 | Complete |

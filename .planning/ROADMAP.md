@@ -17,7 +17,7 @@
 - ✅ **v0.1-claude-code: Claude Code as AI Backend** - Phases 57-61 (shipped 2026-02-17)
 - ✅ **v3.0 Assistant Foundation** - Phases 62-64 (shipped 2026-02-18)
 - ✅ **v3.1 Skill Discovery & Selection** - Phases 65-67 (shipped 2026-02-18)
-- 🚧 **v3.1.1 Assistant Conversation Memory** - Phases 68-70 (in progress)
+- ✅ **v3.1.1 Assistant Conversation Memory** - Phases 68-70 (shipped 2026-02-20)
 - 🗄️ **v2.0 Security Audit & Deployment** - Phases 49-53 (backlogged)
 
 ## Phases
@@ -74,13 +74,13 @@ Full details: `.planning/milestones/v3.1-ROADMAP.md`
 
 </details>
 
-### 🚧 v3.1.1 Assistant Conversation Memory (In Progress)
+### ✅ v3.1.1 Assistant Conversation Memory (SHIPPED 2026-02-20)
 
 **Milestone Goal:** Fix the critical bug where the Assistant loses conversation context after 2-3 messages, add token optimization to prevent context window overflow, and baseline subprocess performance.
 
 - [x] **Phase 68: Core Conversation Memory Fix** - Replace single-message prompting with full history formatting, validate with tests (completed 2026-02-19)
 - [x] **Phase 69: Token Optimization** - Filter tool_use blocks and ensure linear token growth across long conversations (completed 2026-02-20)
-- [ ] **Phase 70: Performance Tuning** - Measure subprocess latency and implement process pooling for warm reuse
+- [x] **Phase 70: Performance Tuning** - asyncio.Queue pre-warming pool reduces spawn latency from ~120-400ms cold to <5ms warm (completed 2026-02-20)
 
 ## Phase Details
 
@@ -124,7 +124,7 @@ Plans:
 **Plans**: 1 plan
 
 Plans:
-- [ ] 70-01-PLAN.md — Process pool implementation + FastAPI lifespan integration + latency measurement + unit tests
+- [x] 70-01-PLAN.md — Process pool implementation + FastAPI lifespan integration + latency measurement + unit tests
 
 ---
 
@@ -162,9 +162,9 @@ Phases execute in numeric order: 68 → 69 → 70
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
-| 68. Core Conversation Memory Fix | 2/2 | Complete    | 2026-02-19 | - |
-| 69. Token Optimization | 1/1 | Complete    | 2026-02-20 | - |
-| 70. Performance Tuning | v3.1.1 | 0/1 | Not started | - |
+| 68. Core Conversation Memory Fix | v3.1.1 | 2/2 | Complete | 2026-02-19 |
+| 69. Token Optimization | v3.1.1 | 1/1 | Complete | 2026-02-20 |
+| 70. Performance Tuning | v3.1.1 | 1/1 | Complete | 2026-02-20 |
 
 ---
 *Roadmap created: 2026-02-09*
@@ -177,3 +177,4 @@ Phases execute in numeric order: 68 → 69 → 70
 *v3.1 activated: 2026-02-18 — 3 phases, 16 requirements, Skill Discovery & Selection*
 *v3.1 archived: 2026-02-18 — 3 phases, 5 plans, 16/16 requirements shipped*
 *v3.1.1 activated: 2026-02-19 — 3 phases, 16 requirements, Assistant Conversation Memory*
+*v3.1.1 archived: 2026-02-20 — 3 phases, 3 plans, 16/16 requirements shipped*

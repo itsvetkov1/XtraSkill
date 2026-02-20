@@ -13,6 +13,10 @@ from app.services.llm import LLMFactory, StreamChunk
 from app.services.logging_service import get_logging_service
 from app.middleware.logging_middleware import get_correlation_id
 from app.models import Artifact, ArtifactType
+from app.services.conversation_service import estimate_messages_tokens
+
+# Emergency token ceiling for agent providers (above the 150K soft limit in conversation_service)
+EMERGENCY_TOKEN_LIMIT = 180000
 
 
 async def stream_with_heartbeat(
@@ -900,6 +904,24 @@ class AIService:
             # Set context on adapter (db session, project_id, thread_id)
             if hasattr(self.adapter, 'set_context'):
                 self.adapter.set_context(db, project_id, thread_id)
+
+            # TOKEN-03: Emergency token limit for agent providers
+            # The 150K soft limit in build_conversation_context() should have already truncated,
+            # but this catches edge cases (single huge message, estimation arithmetic drift).
+            # Formatting overhead (~75 tokens for 20-turn conversation) is negligible at this scale.
+            estimated_tokens = estimate_messages_tokens(messages)
+            if estimated_tokens > EMERGENCY_TOKEN_LIMIT:
+                yield {
+                    "event": "error",
+                    "data": json.dumps({
+                        "message": (
+                            f"This conversation has grown too long to continue "
+                            f"({estimated_tokens:,} estimated tokens). "
+                            "Please start a new conversation."
+                        )
+                    })
+                }
+                return
 
             accumulated_text = ""
             usage_data = {}

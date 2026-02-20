@@ -5,6 +5,7 @@ Provides REST API for AI-assisted requirement discovery and artifact generation.
 """
 
 import logging
+import shutil
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
@@ -25,16 +26,30 @@ async def lifespan(app: FastAPI):
     Application lifespan manager.
 
     Handles startup and shutdown events:
-    - Startup: Initialize database connection
-    - Shutdown: Close database connection and cleanup
+    - Startup: Initialize database connection, pre-warm Claude CLI process pool
+    - Shutdown: Shutdown process pool, close database connection, cleanup logging
     """
     # Startup: Initialize database
     await init_db()
     print("Database initialized")
 
+    # Startup: Initialize Claude CLI process pool (conditional on CLI availability)
+    cli_path = shutil.which("claude")
+    if cli_path:
+        from app.services.llm.claude_cli_adapter import init_process_pool, DEFAULT_MODEL
+        await init_process_pool(cli_path=cli_path, model=DEFAULT_MODEL)
+        print("Claude CLI process pool initialized")
+    else:
+        print("Claude CLI not found, process pool not initialized")
+
     yield
 
-    # Shutdown: Cleanup
+    # Shutdown: Stop Claude CLI process pool before closing database
+    from app.services.llm.claude_cli_adapter import shutdown_process_pool
+    await shutdown_process_pool()
+    print("Claude CLI process pool shutdown")
+
+    # Shutdown: Cleanup database
     await close_db()
     print("Database connection closed")
 

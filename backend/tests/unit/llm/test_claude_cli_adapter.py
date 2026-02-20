@@ -1146,6 +1146,40 @@ class TestClaudeCLIAdapterMessageConversion:
         assert "Human: First question" in prompt
         assert "Human: Second question without assistant response" in prompt
 
+    @patch('app.services.llm.claude_cli_adapter.shutil.which', return_value='/usr/bin/claude')
+    def test_tool_use_annotation_far_smaller_than_document_content(self, mock_which):
+        """TOKEN-01: [searched documents] annotation uses far fewer tokens than full document content."""
+        adapter = ClaudeCLIAdapter(api_key="test-key")
+
+        # Simulate assistant message with document search tool_use + text
+        large_doc_content = "a" * 2000  # ~500 tokens of document content
+        messages_with_doc_in_tool_use = [
+            {"role": "user", "content": "What does the spec say?"},
+            {
+                "role": "assistant",
+                "content": [
+                    {"type": "text", "text": "Based on the spec:"},
+                    {"type": "tool_use", "id": "t1", "name": "search_documents",
+                     "input": {"query": "spec", "result": large_doc_content}}
+                ]
+            }
+        ]
+
+        prompt = adapter._convert_messages_to_prompt(messages_with_doc_in_tool_use)
+
+        # The tool_use block's large content is NOT in the output
+        assert large_doc_content not in prompt
+        # The annotation is tiny (2 words vs 500 tokens)
+        assert "[searched documents]" in prompt
+        # Overall prompt is much shorter than if tool_use content were included
+        assert len(prompt) < len(large_doc_content)
+
+    @patch('app.services.llm.claude_cli_adapter.shutil.which', return_value='/usr/bin/claude')
+    def test_emergency_token_limit_constant_exists(self, mock_which):
+        """TOKEN-03: EMERGENCY_TOKEN_LIMIT constant is importable and set to 180000."""
+        from app.services.ai_service import EMERGENCY_TOKEN_LIMIT
+        assert EMERGENCY_TOKEN_LIMIT == 180000
+
 
 class TestClaudeCLIAdapterFactory:
     """Tests for LLMFactory integration with ClaudeCLIAdapter."""

@@ -242,3 +242,89 @@ class TestIdentifyFulfilledPairs:
 
         # Only assistant message filtered, no IndexError
         assert result == {"msg1"}
+
+
+class TestMaxContextTokensRegression:
+    """TOKEN-02: Regression test ensuring 150K truncation limit is preserved."""
+
+    def test_max_context_tokens_is_150000(self):
+        """MAX_CONTEXT_TOKENS must remain 150000 — changing it breaks TOKEN-02."""
+        assert MAX_CONTEXT_TOKENS == 150000, (
+            f"MAX_CONTEXT_TOKENS changed to {MAX_CONTEXT_TOKENS}. "
+            "This breaks TOKEN-02 requirement. If intentional, update this test."
+        )
+
+    def test_chars_per_token_is_4(self):
+        """CHARS_PER_TOKEN must remain 4 — consistent estimation across codebase."""
+        assert CHARS_PER_TOKEN == 4
+
+
+class TestLinearTokenGrowth:
+    """TOKEN-04: Verify token growth is linear across 20+ turn conversations with doc searches."""
+
+    def _make_conversation(self, turns: int):
+        """Build a realistic multi-turn conversation with document search annotations."""
+        messages = []
+        for i in range(turns):
+            messages.append({
+                "role": "user",
+                "content": f"Tell me about feature {i} in the project documents."
+            })
+            # Realistic assistant response: some text + doc search annotation
+            messages.append({
+                "role": "assistant",
+                "content": (
+                    f"Based on the project documentation, feature {i} works as follows. "
+                    f"[searched documents]\n"
+                    f"This feature handles the {i}-th use case with standard behavior."
+                )
+            })
+        return messages
+
+    def test_token_growth_is_linear_over_20_turns(self):
+        """Token counts grow linearly (not quadratically) across 20+ turns."""
+        token_counts = []
+        for num_turns in range(1, 22):  # 1 to 21 turns
+            messages = self._make_conversation(num_turns)
+            tokens = estimate_messages_tokens(messages)
+            token_counts.append(tokens)
+
+        # Linear growth: each additional turn adds approximately the same token count
+        # Compute first differences (turn N+1 - turn N)
+        diffs = [token_counts[i+1] - token_counts[i] for i in range(len(token_counts)-1)]
+
+        # All first differences should be approximately equal (linear = constant first diff)
+        # Allow 20% variance to handle integer truncation effects
+        avg_diff = sum(diffs) / len(diffs)
+        for d in diffs:
+            assert abs(d - avg_diff) / avg_diff < 0.20, (
+                f"Non-linear growth detected: diff={d} deviates >20% from avg={avg_diff:.1f}. "
+                f"Token counts: {token_counts}"
+            )
+
+    def test_token_growth_not_quadratic(self):
+        """Confirm token count at turn N is NOT proportional to N^2."""
+        messages_5 = self._make_conversation(5)
+        messages_10 = self._make_conversation(10)
+        messages_20 = self._make_conversation(20)
+
+        tokens_5 = estimate_messages_tokens(messages_5)
+        tokens_10 = estimate_messages_tokens(messages_10)
+        tokens_20 = estimate_messages_tokens(messages_20)
+
+        # For linear growth: tokens_20 / tokens_5 should be ~4 (20/5 = 4x)
+        # For quadratic growth: tokens_20 / tokens_5 would be ~16 (20^2/5^2 = 16x)
+        ratio_10_vs_5 = tokens_10 / tokens_5  # Should be ~2 (linear)
+        ratio_20_vs_5 = tokens_20 / tokens_5  # Should be ~4 (linear)
+
+        assert ratio_10_vs_5 < 3.0, f"Turn 10/5 ratio {ratio_10_vs_5:.2f} suggests non-linear growth"
+        assert ratio_20_vs_5 < 6.0, f"Turn 20/5 ratio {ratio_20_vs_5:.2f} suggests non-linear growth"
+
+    def test_21_turns_token_count_reasonable(self):
+        """A 21-turn conversation with doc annotations stays well under emergency limit."""
+        messages = self._make_conversation(21)
+        tokens = estimate_messages_tokens(messages)
+        # 21 turns × ~2 messages × ~30 words ≈ ~1260 words ≈ ~1680 tokens
+        # Should be well under 180K emergency limit
+        assert tokens < 10000, f"21-turn conversation uses {tokens} tokens — unexpectedly high"
+        assert tokens > 0, "Token count should be positive"

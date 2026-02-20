@@ -406,3 +406,32 @@
 
 ---
 
+
+## v3.1.1 Assistant Conversation Memory (Shipped: 2026-02-20)
+
+**Delivered:** Fixed critical conversation memory loss bug, added token optimization to prevent context window overflow, and implemented subprocess process pooling for reduced spawn latency.
+
+**Phases completed:** 68-70 (4 plans total)
+
+**Key accomplishments:**
+
+- CLI adapter now sends full conversation history with Human:/Assistant: role labels via `_convert_messages_to_prompt()`, fixing the bug where only the last message was sent
+- Multi-part content handling: `_extract_text_content()` strips tool_use blocks, excludes thinking, annotates document searches — prevents quadratic token growth
+- Two-tier token safety: 150K soft truncation (conversation_service) + 180K emergency hard stop (ai_service) with user-facing error message
+- asyncio.Queue-based ClaudeProcessPool pre-warms 2 processes at startup, reducing spawn latency from ~120-400ms cold to <5ms warm
+- FastAPI lifespan integration for pool startup/shutdown with conditional initialization (no crash without CLI)
+- 90 new tests: 47 backend unit + 28 frontend unit + 7 token optimization + 8 process pool
+
+**Stats:**
+
+- 29 files changed, +5,051 / -97 lines
+- 3 phases, 4 plans, 8 tasks
+- 16/16 requirements satisfied
+- 2 days from start to ship (2026-02-19 → 2026-02-20)
+
+**Git range:** `cab87d7` → `418b7c0`
+
+**What's next:** Planning next milestone
+
+---
+

@@ -10,28 +10,16 @@ Business analysts reduce time spent on requirement documentation while improving
 
 ## Current State
 
-**Shipped:** v3.0 Assistant Foundation (2026-02-18)
+**Shipped:** v3.1.1 Assistant Conversation Memory (2026-02-20)
 
 **Delivered:**
-- Dedicated "Assistant" sidebar section with own routes and deep linking
-- Thread management: create, list, delete with 10-second undo
-- Streaming conversation UI with markdown rendering and syntax highlighting
-- Skills discovery API and skill selector in chat input
-- Thread-scoped document upload (file picker, drag-and-drop)
-- AssistantConversationProvider: auto-retry, thinking timer, skill prepending
-- BA Assistant flow completely unchanged
+- Full conversation history via `_convert_messages_to_prompt()` with Human:/Assistant: role labels
+- Multi-part content handling: tool_use stripped, thinking excluded, document searches annotated
+- Two-tier token safety: 150K soft truncation + 180K emergency hard stop with user error message
+- asyncio.Queue-based ClaudeProcessPool: 2 warm processes, <5ms acquire vs ~120-400ms cold
+- 90 new tests (47 backend + 28 frontend + 7 token + 8 pool)
 
-**Previous:** v0.1-claude-code Claude Code as AI Backend (2026-02-17)
-
-## Current Milestone: v3.1.1 Assistant Conversation Memory
-
-**Goal:** Fix the critical bug where the Assistant loses conversation context after 2-3 messages, and add regression tests to prevent recurrence.
-
-**Target features:**
-- CLI adapter sends full conversation history (not just last message)
-- Multi-turn conversation formatting with role labels
-- Backend tests verifying conversation context is preserved
-- Frontend tests for AssistantConversationProvider message handling
+**Previous:** v3.1 Skill Discovery & Selection (2026-02-18), v3.0 Assistant Foundation (2026-02-18)
 
 Previous milestone (v1.9.2):
 - Network error resilience with partial content preservation and retry
@@ -256,13 +244,13 @@ Previous features (v1.5):
 - ✓ User can export parsed document data to Excel (.xlsx) format — v2.1
 - ✓ User can export parsed document data to CSV format — v2.1
 
+- ✓ CLI adapter sends full conversation history with role labels — v3.1.1
+- ✓ Multi-part content handled (tool_use stripped, thinking excluded) — v3.1.1
+- ✓ Token-aware truncation (150K soft + 180K emergency hard stop) — v3.1.1
+- ✓ Process pooling reduces subprocess spawn latency (<5ms warm vs ~120-400ms cold) — v3.1.1
+- ✓ 90 new tests (backend unit, frontend unit, token, process pool) — v3.1.1
+
 ### Active
-
-**v3.1.1 — Assistant Conversation Memory**
-
-- [ ] Fix CLI adapter to send full conversation history
-- [ ] Add backend tests for conversation context preservation
-- [ ] Add frontend tests for AssistantConversationProvider
 
 **v2.0 — Security Audit & Deployment** (backlogged)
 
@@ -404,6 +392,11 @@ BAs prepare for meetings by uploading existing requirements or stakeholder notes
 | MarkdownMessage with flutter_markdown | AI responses render as formatted markdown with syntax highlighting, replacing raw Text() | ✓ Implemented (Phase 64) |
 | Skills prepend one-time per message | Skill context prepended transparently, cleared after send; user controls when to apply | ✓ Implemented (Phase 64) |
 | flutter_dropzone for web drag-and-drop | Web-only with kIsWeb guard; mobile falls back to file picker | ✓ Implemented (Phase 64) |
+| Human:/Assistant: labels (not [USER]/[ASSISTANT]) | Claude CLI natively understands Anthropic's canonical format; locked in Phase 68 research | ✓ Implemented (Phase 68) |
+| EMERGENCY_TOKEN_LIMIT in ai_service.py | Agent-provider-specific concern, not general conversation_service concern; yields SSE error event | ✓ Implemented (Phase 69) |
+| Two-tier token limits (150K soft + 180K hard) | Soft truncation handles normal cases; hard stop catches edge cases with user-facing error | ✓ Implemented (Phase 69) |
+| asyncio.Queue-based process pool (not stream-json) | stream-json has known bugs (Issue #5034); pre-warming pool with --print single-shot is safer | ✓ Implemented (Phase 70) |
+| Pool in same file as ClaudeCLIAdapter | Single consumer, module-level singleton; extract to separate file only if complexity grows | ✓ Implemented (Phase 70) |
 
 ---
-*Last updated: 2026-02-18 after v3.1.1 milestone started — Assistant Conversation Memory*
+*Last updated: 2026-02-20 after v3.1.1 milestone complete — Assistant Conversation Memory shipped*

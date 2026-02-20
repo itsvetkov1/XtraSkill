@@ -121,10 +121,10 @@ Plans:
   1. Subprocess spawn latency is measured and recorded as a baseline (expected ~400ms)
   2. Process pooling reuses warm subprocesses instead of cold-starting each message
   3. Measured latency improvement is documented (target: under 200ms with warm pool)
-**Plans**: TBD
+**Plans**: 1 plan
 
 Plans:
-- [ ] 70-01: TBD
+- [ ] 70-01-PLAN.md — Process pool implementation + FastAPI lifespan integration + latency measurement + unit tests
 
 ---
 
@@ -164,7 +164,7 @@ Phases execute in numeric order: 68 → 69 → 70
 |-------|-----------|----------------|--------|-----------|
 | 68. Core Conversation Memory Fix | 2/2 | Complete    | 2026-02-19 | - |
 | 69. Token Optimization | 1/1 | Complete    | 2026-02-20 | - |
-| 70. Performance Tuning | v3.1.1 | 0/TBD | Not started | - |
+| 70. Performance Tuning | v3.1.1 | 0/1 | Not started | - |
 
 ---
 *Roadmap created: 2026-02-09*

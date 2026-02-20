@@ -108,10 +108,10 @@ Plans:
   2. Assistant messages sent to CLI have tool_use blocks stripped, keeping only human-readable text
   3. Conversations exceeding 180K tokens show a clear error message instead of a silent failure
   4. Existing 150K truncation limit continues to function correctly for the CLI adapter
-**Plans**: TBD
+**Plans**: 1 plan
 
 Plans:
-- [ ] 69-01: TBD
+- [ ] 69-01-PLAN.md — 180K emergency token limit + TOKEN-01/02/03/04 verification tests
 
 ### Phase 70: Performance Tuning
 **Goal**: Subprocess spawn overhead is measured, documented, and reduced through process pooling

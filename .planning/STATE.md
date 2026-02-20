@@ -6,14 +6,14 @@ See: /Users/a1testingmac/projects/XtraSkill/.planning/PROJECT.md (updated 2026-0
 
 **Core value:** Business analysts reduce time spent on requirement documentation while improving completeness through AI-assisted discovery conversations that systematically explore edge cases and generate production-ready artifacts.
 
-**Current focus:** Phase 68 — Core Conversation Memory Fix
+**Current focus:** Phase 69 — Token Optimization
 
 ## Current Position
 
-Phase: 68 of 70 (Core Conversation Memory Fix)
-Plan: 2 of 2 in current phase — COMPLETE
-Status: Phase 68 complete — both plans done
-Last activity: 2026-02-19 — Completed 68-01: multi-turn CLI adapter fix + 47 unit tests + integration test
+Phase: 69 of 70 (Token Optimization)
+Plan: 1 of 1 in current phase — COMPLETE
+Status: Phase 69 Plan 01 complete
+Last activity: 2026-02-20 — Completed 69-01: 180K emergency token limit + 7 token optimization tests
 
 Progress:
 ```
@@ -25,9 +25,9 @@ v2.0:              [          ] Backlogged (phases 49-53 preserved)
 v3.0:              [##########] 100% — All phases complete
 v3.1:              [##########] 100% — All phases complete
 
-v3.1.1:            [##        ] 33% — Phase 68 complete
+v3.1.1:            [####      ] 66% — Phase 69 complete
   Phase 68: Core Memory Fix + Tests  [X] 2/2 plans complete
-  Phase 69: Token Optimization       [ ] 0/TBD plans
+  Phase 69: Token Optimization       [X] 1/1 plans complete
   Phase 70: Performance Tuning       [ ] 0/TBD plans
 ```
 
@@ -48,6 +48,9 @@ v3.1.1:            [##        ] 33% — Phase 68 complete
 - 68-01: Multi-turn CLI adapter fix + 47 unit tests + integration test — 10 min (2026-02-19)
 - 68-02: AssistantConversationProvider tests — 28 tests, 7 min (2026-02-19)
 
+**Phase 69 completed:**
+- 69-01: 180K emergency token limit in _stream_agent_chat() + 7 token tests (TOKEN-01 through TOKEN-04) — 3 min (2026-02-20)
+
 ## Accumulated Context
 
 ### Decisions
@@ -61,6 +64,9 @@ Recent key decisions (full archive in PROJECT.md):
 - [68-01]: Tool-use-only assistant messages produce empty text via _extract_text_content() — caller's empty-check skips them cleanly
 - [68-01]: Tool-use annotations only added when text blocks also present in same message
 - [68-01]: combined_prompt [USER]: outer wrapper kept unchanged — minimizes change surface
+- [69-01]: EMERGENCY_TOKEN_LIMIT placed in ai_service.py (agent-provider-specific), not conversation_service.py (general concern)
+- [69-01]: Emergency check yields SSE error event (not Python exception) — async generator streaming context requires yield
+- [69-01]: Two-tier token limit established: 150K soft truncation (conversation_service) + 180K hard stop (ai_service agent path)
 
 ### Pending Todos
 
@@ -73,11 +79,11 @@ None. Research completed with HIGH confidence across all areas.
 
 ## Session Continuity
 
-Last session: 2026-02-19
-Stopped at: Completed 68-01-PLAN.md — multi-turn CLI adapter + 47 unit tests + integration test
+Last session: 2026-02-20
+Stopped at: Completed 69-01-PLAN.md — 180K emergency token limit + 7 token optimization tests
 Resume file: None
-Next action: Execute Phase 69 (Token Optimization)
+Next action: Execute Phase 70 (Performance Tuning)
 
 ---
 
-*State updated: 2026-02-19 (68-01 complete — core conversation memory fix, Phase 68 fully done)*
+*State updated: 2026-02-20 (69-01 complete — token optimization, TOKEN-01 through TOKEN-04 all implemented and tested)*

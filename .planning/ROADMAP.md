@@ -79,7 +79,7 @@ Full details: `.planning/milestones/v3.1-ROADMAP.md`
 **Milestone Goal:** Fix the critical bug where the Assistant loses conversation context after 2-3 messages, add token optimization to prevent context window overflow, and baseline subprocess performance.
 
 - [x] **Phase 68: Core Conversation Memory Fix** - Replace single-message prompting with full history formatting, validate with tests (completed 2026-02-19)
-- [ ] **Phase 69: Token Optimization** - Filter tool_use blocks and ensure linear token growth across long conversations
+- [x] **Phase 69: Token Optimization** - Filter tool_use blocks and ensure linear token growth across long conversations (completed 2026-02-20)
 - [ ] **Phase 70: Performance Tuning** - Measure subprocess latency and implement process pooling for warm reuse
 
 ## Phase Details
@@ -163,7 +163,7 @@ Phases execute in numeric order: 68 → 69 → 70
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
 | 68. Core Conversation Memory Fix | 2/2 | Complete    | 2026-02-19 | - |
-| 69. Token Optimization | v3.1.1 | 0/TBD | Not started | - |
+| 69. Token Optimization | 1/1 | Complete   | 2026-02-20 | - |
 | 70. Performance Tuning | v3.1.1 | 0/TBD | Not started | - |
 
 ---

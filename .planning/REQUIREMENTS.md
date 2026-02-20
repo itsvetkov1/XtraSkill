@@ -16,10 +16,10 @@ Requirements for v3.1.1 milestone. Each maps to roadmap phases.
 
 ### Token Management
 
-- [ ] **TOKEN-01**: Assistant message filtering strips tool_use blocks to prevent document context duplication
-- [ ] **TOKEN-02**: Token-aware truncation preserved for CLI adapter (existing 150K limit)
-- [ ] **TOKEN-03**: Emergency truncation at 180K tokens with user-facing error message
-- [ ] **TOKEN-04**: Linear token growth verified (not quadratic) across 20+ turn conversations with docs
+- [x] **TOKEN-01**: Assistant message filtering strips tool_use blocks to prevent document context duplication
+- [x] **TOKEN-02**: Token-aware truncation preserved for CLI adapter (existing 150K limit)
+- [x] **TOKEN-03**: Emergency truncation at 180K tokens with user-facing error message
+- [x] **TOKEN-04**: Linear token growth verified (not quadratic) across 20+ turn conversations with docs
 
 ### Performance
 
@@ -70,10 +70,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | CONV-02 | Phase 68 | Complete |
 | CONV-03 | Phase 68 | Complete |
 | CONV-04 | Phase 68 | Complete |
-| TOKEN-01 | Phase 69 | Pending |
-| TOKEN-02 | Phase 69 | Pending |
-| TOKEN-03 | Phase 69 | Pending |
-| TOKEN-04 | Phase 69 | Pending |
+| TOKEN-01 | Phase 69 | Complete |
+| TOKEN-02 | Phase 69 | Complete |
+| TOKEN-03 | Phase 69 | Complete |
+| TOKEN-04 | Phase 69 | Complete |
 | PERF-01 | Phase 70 | Pending |
 | PERF-02 | Phase 70 | Pending |
 | PERF-03 | Phase 70 | Pending |

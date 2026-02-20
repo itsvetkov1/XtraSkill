@@ -20,6 +20,7 @@ import json
 import logging
 import os
 import shutil
+import time
 from typing import AsyncGenerator, Dict, Any, List, Optional
 
 from .base import LLMAdapter, LLMProvider, StreamChunk
@@ -33,6 +34,239 @@ from app.services.mcp_tools import (
 logger = logging.getLogger(__name__)
 
 DEFAULT_MODEL = "claude-sonnet-4-5-20250929"
+
+
+def _build_cli_env() -> dict:
+    """
+    Build environment dictionary for Claude CLI subprocess.
+
+    Filters out CLAUDECODE and CLAUDE_CODE_ENTRYPOINT to prevent
+    nested session detection by the CLI binary.
+
+    Returns:
+        dict: Filtered environment suitable for CLI subprocess
+    """
+    return {k: v for k, v in os.environ.items()
+            if k not in ("CLAUDECODE", "CLAUDE_CODE_ENTRYPOINT")}
+
+
+class ClaudeProcessPool:
+    """
+    Pre-warming pool for Claude CLI subprocesses.
+
+    Maintains POOL_SIZE warm processes ready to accept prompts.
+    Each process handles exactly one request (--print mode is single-shot).
+    After a process exits naturally, the refill loop spawns a replacement.
+
+    Latency improvement:
+      Cold start (no pool): ~120-400ms (OS spawn + Node.js init + auth check)
+      Warm acquire (pool):  <5ms (asyncio.Queue.get_nowait)
+      Measured baseline:    See test_claude_process_pool.py
+
+    Usage:
+        pool = ClaudeProcessPool(cli_path='/usr/bin/claude', model='claude-sonnet-...')
+        await pool.start()          # Pre-warm at app startup
+        proc = await pool.acquire() # Get warm process for a request
+        await pool.stop()           # Clean shutdown at app shutdown
+
+    Anti-patterns:
+        - Do NOT use --input-format stream-json (known bugs, Issue #5034)
+        - Do NOT use --continue or --session-id (active bugs, incompatible with --print)
+        - Do NOT block on queue.get() — use get_nowait() with cold fallback
+        - Do NOT share processes across requests — each claude -p is single-shot
+    """
+
+    POOL_SIZE = 2       # Number of processes to keep warm (sufficient for single-user dev)
+    REFILL_DELAY = 0.1  # Seconds between refill loop checks
+
+    def __init__(self, cli_path: str, model: str):
+        """
+        Initialize pool without starting it.
+
+        Args:
+            cli_path: Absolute path to claude CLI binary
+            model: Model identifier to pass with --model flag
+        """
+        self._cli_path = cli_path
+        self._model = model
+        self._queue: asyncio.Queue = asyncio.Queue(maxsize=self.POOL_SIZE)
+        self._running = False
+        self._refill_task: Optional[asyncio.Task] = None
+
+    async def start(self) -> None:
+        """
+        Pre-warm POOL_SIZE processes and start background refill loop.
+
+        Call at app startup (FastAPI lifespan). Processes are pre-started
+        with stdin=PIPE, waiting to receive a prompt. If spawn fails, the
+        slot is skipped (cold spawn will be used as fallback for requests).
+        """
+        self._running = True
+        # Pre-spawn POOL_SIZE processes
+        for _ in range(self.POOL_SIZE):
+            proc = await self._spawn_warm_process()
+            if proc:
+                try:
+                    self._queue.put_nowait(proc)
+                except asyncio.QueueFull:
+                    # Queue full (shouldn't happen during startup, but defensive)
+                    proc.terminate()
+                    await proc.wait()
+        # Start background refill loop
+        self._refill_task = asyncio.create_task(self._refill_loop())
+
+    async def stop(self) -> None:
+        """
+        Cancel refill loop and terminate all remaining warm processes.
+
+        Call at app shutdown (FastAPI lifespan). Pre-warmed processes that
+        never received a prompt are cleaned up here to prevent zombie processes.
+        """
+        self._running = False
+        if self._refill_task:
+            self._refill_task.cancel()
+            try:
+                await self._refill_task
+            except asyncio.CancelledError:
+                pass
+        # Drain queue and terminate remaining processes
+        while not self._queue.empty():
+            try:
+                proc = self._queue.get_nowait()
+                if proc.returncode is None:
+                    proc.terminate()
+                    try:
+                        await asyncio.wait_for(proc.wait(), timeout=2.0)
+                    except asyncio.TimeoutError:
+                        proc.kill()
+                        await proc.wait()
+            except asyncio.QueueEmpty:
+                break
+
+    async def acquire(self) -> asyncio.subprocess.Process:
+        """
+        Acquire a warm process from the pool.
+
+        Tries queue.get_nowait() first (O(1), no spawn overhead). If the
+        dequeued process is dead (returncode is not None), falls through to
+        cold spawn. If pool is empty, falls through to cold spawn.
+
+        Returns:
+            asyncio.subprocess.Process: Warm or cold-spawned process ready
+                                         to receive a prompt via stdin.
+        """
+        try:
+            proc = self._queue.get_nowait()
+            if proc.returncode is not None:
+                # Process died unexpectedly while queued — fall back to cold spawn
+                logger.warning("Pool process died while queued, falling back to cold spawn")
+                return await self._cold_spawn()
+            return proc
+        except asyncio.QueueEmpty:
+            # Pool exhausted — fall back to cold spawn transparently
+            logger.warning("Process pool empty, falling back to cold spawn")
+            return await self._cold_spawn()
+
+    async def _spawn_warm_process(self) -> Optional[asyncio.subprocess.Process]:
+        """
+        Spawn one warm process and return it, or None on failure.
+
+        The spawned process has stdin=PIPE and waits for a prompt.
+        Returns None if spawn fails (logged as warning, not error).
+        """
+        try:
+            env = _build_cli_env()
+            return await asyncio.create_subprocess_exec(
+                self._cli_path,
+                '-p',
+                '--output-format', 'stream-json',
+                '--verbose',
+                '--model', self._model,
+                stdin=asyncio.subprocess.PIPE,
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE,
+                env=env,
+                limit=1024 * 1024  # 1MB line buffer (same as stream_chat)
+            )
+        except Exception as e:
+            logger.warning(f"Failed to pre-warm process: {e}")
+            return None
+
+    async def _cold_spawn(self) -> asyncio.subprocess.Process:
+        """
+        Spawn a process immediately (cold path fallback).
+
+        Unlike _spawn_warm_process, raises on failure since this is
+        on the critical path for a user request.
+        """
+        env = _build_cli_env()
+        return await asyncio.create_subprocess_exec(
+            self._cli_path,
+            '-p',
+            '--output-format', 'stream-json',
+            '--verbose',
+            '--model', self._model,
+            stdin=asyncio.subprocess.PIPE,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE,
+            env=env,
+            limit=1024 * 1024  # 1MB line buffer (same as stream_chat)
+        )
+
+    async def _refill_loop(self) -> None:
+        """
+        Background task that keeps the pool at POOL_SIZE.
+
+        Checks every REFILL_DELAY seconds and spawns new processes
+        until the queue is full again. Handles QueueFull by terminating
+        any excess process.
+        """
+        while self._running:
+            await asyncio.sleep(self.REFILL_DELAY)
+            while self._running and self._queue.qsize() < self.POOL_SIZE:
+                proc = await self._spawn_warm_process()
+                if proc:
+                    try:
+                        self._queue.put_nowait(proc)
+                    except asyncio.QueueFull:
+                        # Queue was filled by another task between checks
+                        proc.terminate()
+                        await proc.wait()
+
+
+# Module-level singleton for the process pool
+_process_pool: Optional[ClaudeProcessPool] = None
+
+
+def get_process_pool() -> Optional[ClaudeProcessPool]:
+    """Return the module-level process pool singleton, or None if not initialized."""
+    return _process_pool
+
+
+async def init_process_pool(cli_path: str, model: str) -> ClaudeProcessPool:
+    """
+    Initialize and start the module-level process pool singleton.
+
+    Args:
+        cli_path: Absolute path to claude CLI binary
+        model: Model identifier for pre-warmed processes
+
+    Returns:
+        ClaudeProcessPool: Started pool instance
+    """
+    global _process_pool
+    pool = ClaudeProcessPool(cli_path=cli_path, model=model)
+    await pool.start()
+    _process_pool = pool
+    return pool
+
+
+async def shutdown_process_pool() -> None:
+    """Stop and clear the module-level process pool singleton."""
+    global _process_pool
+    if _process_pool:
+        await _process_pool.stop()
+        _process_pool = None
 
 
 class ClaudeCLIAdapter(LLMAdapter):
@@ -320,6 +554,12 @@ class ClaudeCLIAdapter(LLMAdapter):
         tool descriptions from the system prompt. No .mcp.json file or MCP
         server configuration is needed for POC.
 
+        Process acquisition:
+        - If process pool is initialized: acquires warm process from pool
+          (pool.acquire latency <5ms vs cold spawn ~120-400ms).
+        - If pool is not initialized: falls back to cold spawn directly.
+        Latency is logged on every acquisition via time.perf_counter().
+
         Args:
             messages: Conversation history
             system_prompt: System instructions (includes MCP tool descriptions)
@@ -369,23 +609,32 @@ class ClaudeCLIAdapter(LLMAdapter):
                 "--model", self.model,
             ]
 
-            # Environment: let CLI use its own auth (subscription/OAuth)
-            # Don't force ANTHROPIC_API_KEY — it overrides subscription auth
-            # Strip CLAUDECODE/CLAUDE_CODE_ENTRYPOINT to prevent nested session detection
-            env = {k: v for k, v in os.environ.items()
-                   if k not in ("CLAUDECODE", "CLAUDE_CODE_ENTRYPOINT")}
+            # Acquire process: prefer warm pool over cold spawn
+            # Measure acquisition latency via perf_counter (PERF-01)
+            pool = get_process_pool()
+            acquire_start = time.perf_counter()
 
-            # Create subprocess with stdin pipe for prompt delivery
-            # Large buffer limit (1MB) needed: CLI outputs full BRD as single JSON line
-            logger.info(f"Spawning CLI subprocess: {self.cli_path} -p ...")
-            process = await asyncio.create_subprocess_exec(
-                *cmd,
-                stdin=asyncio.subprocess.PIPE,
-                stdout=asyncio.subprocess.PIPE,
-                stderr=asyncio.subprocess.PIPE,
-                env=env,
-                limit=1024 * 1024  # 1MB line buffer (default 64KB too small for BRDs)
-            )
+            if pool is not None:
+                process = await pool.acquire()
+                acquire_ms = (time.perf_counter() - acquire_start) * 1000
+                logger.info(
+                    f"Process acquired from pool in {acquire_ms:.1f}ms "
+                    f"(queue_size={pool._queue.qsize()})"
+                )
+            else:
+                # Pool not initialized — fall back to cold spawn directly
+                logger.warning("Process pool not initialized, using cold spawn")
+                env = _build_cli_env()
+                process = await asyncio.create_subprocess_exec(
+                    *cmd,
+                    stdin=asyncio.subprocess.PIPE,
+                    stdout=asyncio.subprocess.PIPE,
+                    stderr=asyncio.subprocess.PIPE,
+                    env=env,
+                    limit=1024 * 1024  # 1MB line buffer (default 64KB too small for BRDs)
+                )
+                acquire_ms = (time.perf_counter() - acquire_start) * 1000
+                logger.info(f"Process cold-spawned in {acquire_ms:.1f}ms")
 
             # Write prompt via stdin and close (avoids Windows cmd line length limit)
             process.stdin.write(combined_prompt.encode('utf-8'))

@@ -1,799 +1,496 @@
-# Architecture Research: Skill Discovery & Selection Integration
+# Architecture Research
 
-**Domain:** Skill selector enhancement for Assistant chat
-**Researched:** 2026-02-18
-**Confidence:** HIGH
+**Domain:** Assistant file generation and CLI permissions integration
+**Researched:** 2026-02-23
+**Confidence:** HIGH (all findings derived from reading the actual codebase)
 
-## Current Architecture (Baseline)
-
-### System Overview
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│                    Frontend (Flutter)                        │
-├─────────────────────────────────────────────────────────────┤
-│  ┌──────────────────┐  ┌──────────────────┐                 │
-│  │ AssistantChat    │  │ SkillSelector    │                 │
-│  │ Screen           │  │ Widget           │                 │
-│  └────────┬─────────┘  └────────┬─────────┘                 │
-│           │                     │                            │
-│           ├─────────────────────┤                            │
-│           │                                                  │
-│  ┌────────▼─────────────────────────────────────┐           │
-│  │ AssistantConversationProvider                │           │
-│  │  - selectedSkill: Skill?                     │           │
-│  │  - selectSkill(Skill)                        │           │
-│  │  - clearSkill()                              │           │
-│  │  - sendMessage(text) → prepends skill        │           │
-│  └────────┬─────────────────────────────────────┘           │
-│           │                                                  │
-│  ┌────────▼────────┐                                        │
-│  │ SkillService    │                                        │
-│  │ (cached fetch)  │                                        │
-│  └────────┬────────┘                                        │
-│           │ HTTP GET /api/skills                            │
-├───────────┴─────────────────────────────────────────────────┤
-│                    Backend (FastAPI)                         │
-├─────────────────────────────────────────────────────────────┤
-│  ┌──────────────────────────────────────────┐               │
-│  │ GET /api/skills                          │               │
-│  │  - Scans .claude/ directories            │               │
-│  │  - Extracts description from SKILL.md    │               │
-│  │  - Returns: name, description, path      │               │
-│  └──────────────────────────────────────────┘               │
-└─────────────────────────────────────────────────────────────┘
-```
-
-### Current Data Model
-
-**Backend (Python):**
-```python
-# Returned from GET /api/skills (inferred from routes/skills.py)
-{
-    "name": str,              # e.g., "business-analyst"
-    "description": str,       # First non-header line from SKILL.md
-    "skill_path": str         # e.g., ".claude/business-analyst/SKILL.md"
-}
-```
-
-**Frontend (Dart):**
-```dart
-class Skill {
-  final String name;        // e.g., "business-analyst"
-  final String description; // Short one-liner
-  final String skillPath;   // Relative path
-
-  String get displayName;   // e.g., "Business Analyst"
-}
-```
-
-### Current Skill Flow
-
-```
-User clicks skill button
-    ↓
-SkillSelector shows PopupMenuButton
-    ↓
-FutureBuilder → SkillService.getSkills() → GET /api/skills
-    ↓
-PopupMenuButton renders skill list (name + description)
-    ↓
-User selects skill → onSkillSelected(skill)
-    ↓
-AssistantConversationProvider.selectSkill(skill)
-    ↓
-Skill shown as chip in input area
-    ↓
-User types message → sendMessage(content)
-    ↓
-Provider prepends: "[Using skill: business-analyst]\n\n{content}"
-    ↓
-Backend receives full message with skill context
-```
-
-## Enhanced Architecture (v3.1)
-
-### New Components
-
-| Component | Type | Purpose | Integration Point |
-|-----------|------|---------|-------------------|
-| **SkillBrowserDialog** | Widget (new) | Full-screen browsable skill list with search | Opened from AssistantChatInput |
-| **SkillDetailPanel** | Widget (new) | Info popup showing full SKILL.md content | Triggered by info icon on skill cards |
-| **EnhancedSkill** | Model (enhanced) | Extended skill model with full metadata | Replaces current Skill model |
-| **SkillMetadataExtractor** | Backend utility (new) | Parses SKILL.md frontmatter + content | Used by GET /api/skills |
-
-### Enhanced System Overview
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│                    Frontend (Flutter)                        │
-├─────────────────────────────────────────────────────────────┤
-│  ┌──────────────────────────────────────────────────────┐   │
-│  │ AssistantChatInput                                   │   │
-│  │  ┌──────────────┐  ┌──────────────┐                 │   │
-│  │  │ Old: Skill   │  │ New: Browse  │                 │   │
-│  │  │ PopupMenu    │  │ Skills Btn   │                 │   │
-│  │  └──────┬───────┘  └──────┬───────┘                 │   │
-│  └─────────┼──────────────────┼──────────────────────────┘   │
-│            │                  │                              │
-│            │        ┌─────────▼────────────┐                 │
-│            │        │ SkillBrowserDialog   │                 │
-│            │        │  - Search bar        │                 │
-│            │        │  - Skill grid/list   │                 │
-│            │        │  - Category filter   │                 │
-│            │        └─────────┬────────────┘                 │
-│            │                  │                              │
-│            │        ┌─────────▼────────────┐                 │
-│            │        │ SkillCard            │                 │
-│            │        │  - Name              │                 │
-│            │        │  - Description       │                 │
-│            │        │  - Info icon (i)     │                 │
-│            │        └─────────┬────────────┘                 │
-│            │                  │                              │
-│            │        ┌─────────▼────────────┐                 │
-│            │        │ SkillDetailPanel     │                 │
-│            │        │  - Full content      │                 │
-│            │        │  - Features list     │                 │
-│            │        │  - Quick reference   │                 │
-│            │        └──────────────────────┘                 │
-│            │                                                 │
-│  ┌─────────▼─────────────────────────────────────┐          │
-│  │ AssistantConversationProvider                 │          │
-│  │  - selectedSkill: EnhancedSkill?              │          │
-│  │  - selectSkill(EnhancedSkill)                 │          │
-│  │  - sendMessage() → prepends "/skill-name"     │          │
-│  └─────────┬─────────────────────────────────────┘          │
-│            │                                                 │
-│  ┌─────────▼─────────┐                                      │
-│  │ SkillService      │                                      │
-│  │  - getSkills()    │ (enhanced return type)               │
-│  │  - getSkillDetail(name) → full SKILL.md                  │
-│  └─────────┬─────────┘                                      │
-│            │                                                 │
-├────────────┴─────────────────────────────────────────────────┤
-│                    Backend (FastAPI)                         │
-├─────────────────────────────────────────────────────────────┤
-│  ┌──────────────────────────────────────────┐               │
-│  │ GET /api/skills (enhanced)               │               │
-│  │  - SkillMetadataExtractor                │               │
-│  │  - Parses frontmatter (YAML)             │               │
-│  │  - Extracts Quick Reference section      │               │
-│  │  - Returns enhanced metadata             │               │
-│  └──────────────────────────────────────────┘               │
-│  ┌──────────────────────────────────────────┐               │
-│  │ GET /api/skills/{name}/content (new)     │               │
-│  │  - Returns full SKILL.md markdown        │               │
-│  │  - For detail panel display              │               │
-│  └──────────────────────────────────────────┘               │
-└─────────────────────────────────────────────────────────────┘
-```
-
-## Enhanced Data Model
-
-### Backend Response (Enhanced GET /api/skills)
-
-```python
-# Enhanced response from GET /api/skills
-{
-    "name": str,                    # e.g., "business-analyst"
-    "display_name": str,            # e.g., "Business Analyst"
-    "description": str,             # Short one-liner (from frontmatter or first line)
-    "purpose": str,                 # From "Quick Reference > Purpose" section
-    "output": str,                  # From "Quick Reference > Output" section
-    "skill_path": str,              # Relative path
-    "category": str,                # Inferred or from frontmatter (e.g., "requirements", "design")
-    "icon_hint": str,               # Optional: suggest icon (e.g., "description", "code")
-}
-```
-
-### Frontend Model (Enhanced Skill)
-
-```dart
-class EnhancedSkill {
-  final String name;
-  final String displayName;
-  final String description;
-  final String? purpose;          // Optional: for detail view
-  final String? output;            // Optional: for detail view
-  final String skillPath;
-  final String? category;
-  final String? iconHint;
-
-  String get displayName;          // Already exists
-  IconData get icon;               // New: icon based on category/iconHint
-}
-```
-
-### SKILL.md Structure (Standard)
-
-```markdown
----
-name: business-analyst
-description: Short one-liner describing what the skill does
-category: requirements
-icon_hint: description
 ---
 
-# Skill Name
+## System Overview
 
-Long-form description paragraph.
-
-## Quick Reference
-
-**Purpose**: [What this skill enables]
-
-**Output**: [What it produces]
-
-**Critical Rules**:
-- Rule 1
-- Rule 2
-
-**Boundary**: [What this skill does NOT do]
-
-## [Rest of skill content...]
+```
++------------------------------------------------------------------+
+|                         Flutter Frontend                          |
++----------------+-------------------------------+------------------+
+|   BA Flow      |       Assistant Flow          |  Shared Widgets  |
+| -------------- | ----------------------------  | ---------------  |
+| Conversation   | AssistantChatScreen           | ArtifactCard     |
+| Provider       | AssistantConversation         | ArtifactService  |
+| generateArti   | Provider                      | (export: MD/PDF/ |
+| fact()         | sendMessage()                 |  Word)           |
+| (artifact_     |  [NEW] generateFile()         |                  |
+|  generation    |  [NEW] GenerateFileDialog     |                  |
+|  =true SSE)    |  [NEW] AssistantArtifactCard  |                  |
+|                |                               |                  |
++----------------+-------------------------------+------------------+
+|          AIService (frontend/lib/services/ai_service.dart)        |
+|    streamChat(threadId, content, [artifactGeneration=false])       |
+|    Parses SSE: TextDeltaEvent, ToolExecutingEvent,                 |
+|    MessageCompleteEvent, ArtifactCreatedEvent, ErrorEvent          |
++------------------------------------------------------------------+
+                              |  HTTP SSE
+                              v
++------------------------------------------------------------------+
+|                    FastAPI Backend (port 8000)                     |
++------------------------------------------------------------------+
+|  POST /api/threads/{thread_id}/chat                               |
+|       ChatRequest { content, artifact_generation: bool }          |
+|       -> validates thread -> build_conversation_context()         |
+|       -> AIService(provider, thread_type) -> stream_chat()        |
+|       -> EventSourceResponse (SSE)                                |
++------------------------------------------------------------------+
+|                      AIService (backend)                          |
+|  thread_type == "assistant" -> forces provider = "claude-code-cli"|
+|  thread_type == "ba_assistant" -> uses thread's model_provider    |
+|  is_agent_provider == True -> _stream_agent_chat() (no man loop)  |
+|  is_agent_provider == False -> manual tool loop (BA flow)         |
++------------------------------------------------------------------+
+|                    ClaudeCLIAdapter                                |
+|  ClaudeProcessPool (2 warm processes, asyncio.Queue)              |
+|  _convert_messages_to_prompt() -> Human:/Assistant: format        |
+|  stream_chat() -> acquire from pool -> write to stdin             |
+|    -> parse stream-json stdout -> yield StreamChunk               |
+|                                                                    |
+|  [MISSING] --dangerously-skip-permissions flag in spawn args      |
+|  [BLOCKED] Process pool spawns WITHOUT --dangerously-skip-perms   |
+|  [BLOCKED] ClaudeProcessPool._spawn_warm_process() same issue     |
++------------------------------------------------------------------+
+|              Artifacts (shared by both flows)                      |
+|  models.py: Artifact, ArtifactType enum (user_stories,            |
+|             acceptance_criteria, requirements_doc, brd)           |
+|  routes/artifacts.py: GET /api/artifacts/{id}                     |
+|                        GET /api/artifacts/{id}/export/{format}    |
+|                        GET /api/threads/{id}/artifacts            |
++------------------------------------------------------------------+
+                              |
+                              v
+             Claude Code CLI subprocess (--output-format stream-json)
 ```
 
-## Architectural Patterns
+---
 
-### Pattern 1: Dual Selection Modes
+## Component Boundaries
 
-**What:** Provide both quick selection (existing PopupMenu) and browsable mode (new Dialog).
+### Existing Components (Do Not Modify Substantially)
 
-**When to use:** When users need both quick access (for known skills) and discovery (for exploring).
+| Component | File | Responsibility | Touches v3.2? |
+|-----------|------|----------------|---------------|
+| ClaudeProcessPool | `backend/.../claude_cli_adapter.py` | Pre-warms 2 CLI processes | YES - add flag |
+| ClaudeCLIAdapter.stream_chat() | `backend/.../claude_cli_adapter.py` | Spawns CLI, parses stream-json | YES - add flag |
+| AIService._stream_agent_chat() | `backend/.../ai_service.py` | Routes agent events to SSE | YES - conditional system prompt |
+| conversations.py chat endpoint | `backend/app/routes/conversations.py` | POST /threads/{id}/chat | NO - reused as-is |
+| AssistantConversationProvider | `frontend/.../assistant_conversation_provider.dart` | Chat state, sendMessage() | YES - add generateFile() |
+| AssistantChatScreen | `frontend/.../assistant_chat_screen.dart` | Chat UI | YES - render artifact cards |
+| AssistantChatInput | `frontend/.../widgets/assistant_chat_input.dart` | Input bar | YES - add Generate File button |
+| ArtifactCard | `frontend/.../conversation/widgets/artifact_card.dart` | Collapse/expand + export | REUSED as-is (BA widget) |
+| ArtifactService | `frontend/.../services/artifact_service.dart` | Export MD/PDF/Word | REUSED as-is |
+| Artifact model (frontend) | `frontend/.../models/artifact.dart` | ArtifactType, Artifact | REUSED as-is |
+| Artifact model (backend) | `backend/app/models.py` | ArtifactType enum, DB table | NO - reused unchanged |
+| mcp_tools.py save_artifact_tool | `backend/.../mcp_tools.py` | Saves artifact via ContextVar | NO - unchanged |
 
-**Trade-offs:**
-- **Pro:** Caters to both expert and novice users
-- **Pro:** Progressive disclosure — simple by default, powerful when needed
-- **Con:** Two code paths to maintain
-- **Con:** Slight UI complexity (two buttons or toggle)
+### New Components (Build for v3.2)
 
-**Implementation:**
-```dart
-// AssistantChatInput widget
-Row(
-  children: [
-    // Quick selector (existing)
-    SkillSelector(onSkillSelected: provider.selectSkill),
+| Component | File | Responsibility |
+|-----------|------|----------------|
+| GenerateFileDialog | `frontend/.../assistant/widgets/generate_file_dialog.dart` | Free-text dialog for file description |
+| AssistantArtifactCard | `frontend/.../assistant/widgets/assistant_artifact_card.dart` | Artifact card adapted for Assistant thread context |
 
-    // OR
+---
 
-    // Browse mode button
-    IconButton(
-      icon: Icon(Icons.apps),
-      tooltip: 'Browse all skills',
-      onPressed: () => showDialog(
-        context: context,
-        builder: (_) => SkillBrowserDialog(
-          onSkillSelected: (skill) {
-            provider.selectSkill(skill);
-            Navigator.pop(context);
-          },
-        ),
-      ),
-    ),
-  ],
+## Data Flow: CLI Permissions Fix (Feature 1)
+
+The problem is isolated. Claude CLI prompts interactively for permissions when it encounters tool use, causing the subprocess to hang. The fix is one flag added in three places.
+
+### Current command (broken for non-interactive tool use):
+
+```python
+# ClaudeProcessPool._spawn_warm_process()
+return await asyncio.create_subprocess_exec(
+    self._cli_path,
+    '-p',
+    '--output-format', 'stream-json',
+    '--verbose',
+    '--model', self._model,
+    ...
 )
 ```
 
-**Recommendation:** Replace PopupMenu with single "Browse Skills" button. PopupMenu pattern is limiting for rich content.
+### Fixed command:
+
+```python
+return await asyncio.create_subprocess_exec(
+    self._cli_path,
+    '-p',
+    '--output-format', 'stream-json',
+    '--verbose',
+    '--model', self._model,
+    '--dangerously-skip-permissions',   # NEW
+    ...
+)
+```
+
+### Touch points (all three must be updated atomically):
+
+1. `ClaudeProcessPool._spawn_warm_process()` — warm process spawn (line ~178)
+2. `ClaudeProcessPool._cold_spawn()` — cold fallback spawn (line ~195)
+3. `ClaudeCLIAdapter.stream_chat()` cold-spawn branch (line ~628) — when pool not initialized
+
+All three use the same `asyncio.create_subprocess_exec(self.cli_path, '-p', ...)` pattern. Missing the flag in any one path causes intermittent hangs when that path executes.
+
+**Confidence:** HIGH — `--dangerously-skip-permissions` is the established non-interactive flag for CLI subprocess use. The code already defines `_build_cli_env()` as a helper for environment — a similar `_build_cli_args()` helper would DRY the flag list across all three spawn locations.
 
 ---
 
-### Pattern 2: Progressive Content Loading
+## Data Flow: Assistant File Generation (Feature 2)
 
-**What:** Load skill list immediately, fetch full content only when user clicks info icon.
+### Full request lifecycle:
 
-**When to use:** When detail content is large and not always needed.
+```
+User clicks "Generate File" button (new button in AssistantChatInput)
+    |
+    v
+GenerateFileDialog.show() -> user types free-text description -> taps Generate
+    |
+    v
+AssistantConversationProvider.generateFile(description)
+    [NEW METHOD - mirrors BA's generateArtifact() pattern exactly]
+    |
+    v
+AIService.streamChat(threadId, constructedPrompt, artifactGeneration=true)
+    |  HTTP POST /api/threads/{thread_id}/chat
+    v  { content: "Generate a document: <description>",
+         artifact_generation: true }
+    |
+    v
+conversations.py: artifact_generation=true path (EXISTING, unchanged)
+    - Does NOT save user message to DB
+    - Appends ephemeral silent-generation instruction to conversation
+    - AIService(provider="claude-code-cli", thread_type="assistant")
+    |
+    v
+_stream_agent_chat() [MODIFIED: inject save_artifact tool description in system prompt]
+    -> ClaudeCLIAdapter.stream_chat() [MODIFIED: --dangerously-skip-permissions]
+    |
+    v
+CLI subprocess executes save_artifact tool
+    -> mcp_tools.save_artifact_tool() via ContextVar path
+    -> saves Artifact to DB (thread_id from context, artifact_type chosen by model)
+    -> returns ARTIFACT_CREATED:{...} marker
+    |
+    v
+_stream_agent_chat() emits SSE events:
+    - "artifact_created" { id, artifact_type, title }
+    - "message_complete"
+    |
+    v
+Frontend AIService parses ArtifactCreatedEvent
+    |
+    v
+AssistantConversationProvider.generateFile():
+    - on ArtifactCreatedEvent: add Artifact to _artifacts list, notifyListeners()
+    - clears _isGeneratingFile state on MessageCompleteEvent or ErrorEvent
+    |
+    v
+AssistantChatScreen renders AssistantArtifactCard for each artifact in _artifacts
+```
 
-**Trade-offs:**
-- **Pro:** Fast initial load
-- **Pro:** Reduces API payload size
-- **Con:** Extra API call for details
-- **Con:** Loading state for detail panel
+### State additions to AssistantConversationProvider:
 
-**Implementation:**
 ```dart
-// SkillCard widget
-class SkillCard extends StatelessWidget {
-  final EnhancedSkill skill;
+// NEW fields:
+List<Artifact> _artifacts = [];          // accumulates generated artifacts
+bool _isGeneratingFile = false;          // blocks concurrent generation
+String? _generatingFileDescription;     // for UX display ("Generating...")
+String? _lastFileDescription;           // for retry
+
+// NEW methods:
+Future<void> generateFile(String description) async
+void retryLastFileGeneration()
+
+// NEW getters:
+List<Artifact> get artifacts => _artifacts;
+bool get isGeneratingFile => _isGeneratingFile;
+String? get generatingFileDescription => _generatingFileDescription;
+bool get canRetryFileGeneration => _lastFileDescription != null && _error != null;
+```
+
+### Where artifacts are displayed:
+
+The current `AssistantChatScreen._buildMessageList()` only renders messages. Artifact cards should render as a separate section below the message list. This matches BA flow behavior (artifact cards appear outside the message scroll area) and avoids interleaving complexity.
+
+---
+
+## The Missing Integration Point: save_artifact Tool in Assistant Mode
+
+This is the most architecturally significant finding. The Assistant's normal chat uses `system_prompt = ""` (empty). For file generation to work, the CLI must know about the `save_artifact` tool. The tool description lives in the system prompt.
+
+**Current state in `_stream_agent_chat()` (ai_service.py line 931):**
+```python
+# LOGIC-01: No system prompt for Assistant threads (per locked decision)
+system_prompt = SYSTEM_PROMPT if self.thread_type == "ba_assistant" else ""
+```
+
+**Required change for file generation:**
+
+The `artifact_generation` context must reach `_stream_agent_chat()`. There are two ways:
+
+**Option A (recommended): Pass artifact_generation into AIService.stream_chat()**
+
+```python
+# conversations.py: pass artifact_generation to AIService.stream_chat()
+raw_stream = ai_service.stream_chat(
+    conversation,
+    thread.project_id,
+    thread_id,
+    db,
+    artifact_generation=body.artifact_generation  # NEW param
+)
+```
+
+```python
+# ai_service.py _stream_agent_chat(): conditional system prompt
+if self.thread_type == "assistant" and artifact_generation:
+    system_prompt = ASSISTANT_FILE_GENERATION_PROMPT  # NEW: minimal tool description
+elif self.thread_type == "ba_assistant":
+    system_prompt = SYSTEM_PROMPT
+else:
+    system_prompt = ""
+```
+
+```python
+# New constant in ai_service.py:
+ASSISTANT_FILE_GENERATION_PROMPT = """You are a file generation assistant.
+The user wants you to generate a document or file. Use the save_artifact tool to save it.
+
+save_artifact tool:
+- artifact_type: one of user_stories, acceptance_criteria, requirements_doc, brd
+- title: descriptive title for the file
+- content_markdown: complete file content in markdown format
+
+Generate the requested content and call save_artifact exactly once. Do not add conversational text."""
+```
+
+**Option B: Keep artifact_generation logic in conversations.py only**
+
+The conversation route already appends a silent-generation instruction to the ephemeral message. The model could potentially figure out to call save_artifact without the system prompt describing the tool. However, this is unreliable — the model needs to know the tool signature exists to call it.
+
+**Decision: Option A.** The `artifact_generation` boolean already flows through `ChatRequest` -> `event_generator()`. Extending it one level further into `AIService.stream_chat()` and `_stream_agent_chat()` is a minimal change.
+
+---
+
+## Reuse Analysis: Artifact Card
+
+`ArtifactCard` at `frontend/lib/screens/conversation/widgets/artifact_card.dart` is implemented as a self-contained widget that:
+- Accepts `Artifact artifact` and `String threadId`
+- Calls `ArtifactService` for lazy content loading and export
+- Has no dependency on `ConversationProvider`
+
+The `Artifact` model already includes `artifact.threadId`, so `widget.threadId` in `ArtifactCard` is redundant but harmless.
+
+**Decision: Create `AssistantArtifactCard` as a thin wrapper.** The difference from `ArtifactCard` is only the location in the widget tree (Assistant screen vs. BA ConversationScreen). Wrapping rather than copying avoids drift between the two. The wrapper passes `artifact.threadId` as the threadId parameter.
+
+```dart
+// frontend/lib/screens/assistant/widgets/assistant_artifact_card.dart
+class AssistantArtifactCard extends StatelessWidget {
+  final Artifact artifact;
+  const AssistantArtifactCard({super.key, required this.artifact});
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      child: Column(
-        children: [
-          ListTile(
-            title: Text(skill.displayName),
-            subtitle: Text(skill.description),
-            trailing: IconButton(
-              icon: Icon(Icons.info_outline),
-              onPressed: () => _showDetailPanel(context),
-            ),
-            onTap: () => widget.onSkillSelected(skill),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showDetailPanel(BuildContext context) async {
-    // Fetch full content on demand
-    final content = await SkillService().getSkillContent(skill.name);
-    showDialog(
-      context: context,
-      builder: (_) => SkillDetailPanel(skill: skill, content: content),
+    return ArtifactCard(
+      artifact: artifact,
+      threadId: artifact.threadId,
     );
   }
 }
 ```
 
-**Alternative:** Embed full content in initial GET /api/skills response.
-- **Pro:** No additional API call
-- **Con:** Larger payload (may be 10-50KB per skill with full markdown)
-
-**Recommendation:** Use progressive loading (separate endpoint) if SKILL.md files exceed 5KB. Otherwise, embed in initial response.
+If `ArtifactCard` already handles `artifact.threadId` correctly (which it does — the threadId param is used for context only), this is a one-liner wrapper.
 
 ---
 
-### Pattern 3: Transparent Skill Prepending
+## Recommended Project Structure (New and Modified Files Only)
 
-**What:** Prepend skill context invisibly to backend, show clean UI to user.
+```
+backend/app/services/llm/
+  claude_cli_adapter.py         MODIFY: add --dangerously-skip-permissions to 3 spawn paths
 
-**When to use:** When skill activation should be transparent and non-intrusive.
+backend/app/services/
+  ai_service.py                 MODIFY: ASSISTANT_FILE_GENERATION_PROMPT constant,
+                                        stream_chat() accepts artifact_generation param,
+                                        _stream_agent_chat() uses conditional system prompt
 
-**Trade-offs:**
-- **Pro:** Clean user experience (no manual "/skill-name" typing)
-- **Pro:** User can copy/share messages without skill prefix clutter
-- **Con:** User may not understand skill is active (mitigate with visible chip)
-- **Con:** Backend receives modified message (document this clearly)
+frontend/lib/providers/
+  assistant_conversation_provider.dart  MODIFY: add _artifacts list, generateFile(),
+                                                retryLastFileGeneration(), getters
 
-**Current Implementation:**
-```dart
-// AssistantConversationProvider.sendMessage()
-String messageContent = content;
-if (_selectedSkill != null) {
-  messageContent = '[Using skill: ${_selectedSkill!.name}]\n\n$content';
-}
-// Send messageContent to backend
+frontend/lib/screens/assistant/
+  assistant_chat_screen.dart    MODIFY: render artifact cards section below messages
 
-// Display in UI: original content (not modified)
-final userMessage = Message(
-  role: MessageRole.user,
-  content: content,  // Original, not modified
-);
+frontend/lib/screens/assistant/widgets/
+  assistant_chat_input.dart     MODIFY: add Generate File IconButton
+  generate_file_dialog.dart     NEW: free-text generation dialog
+  assistant_artifact_card.dart  NEW: thin wrapper over ArtifactCard
 ```
 
-**Enhancement for v3.1:**
-```dart
-// Change prepending format from "[Using skill: X]" to "/skill-name"
-if (_selectedSkill != null) {
-  messageContent = '/${_selectedSkill!.name}\n\n$content';
-}
-```
-
-**Why slash prefix:**
-- Industry standard (ChatGPT plugins, Slack commands, Discord bots)
-- More concise than `[Using skill: X]`
-- Easier to parse on backend if needed
-- Source: [Chatbot UI Best Practices 2026](https://vynta.ai/blog/chatbot-ui/)
+No DB migrations required. No new routes required. No model changes required.
 
 ---
 
-### Pattern 4: Skill Chip Visibility
+## Architectural Patterns
 
-**What:** Show selected skill as a removable chip above the input field.
+### Pattern 1: Silent Generation (Existing, Reuse Unchanged)
 
-**When to use:** Always — provides feedback that skill is active.
+**What:** `artifact_generation=true` in `ChatRequest` suppresses user message save to DB, text_delta SSE events (filtered in event_generator), and assistant message save. Only `artifact_created` event reaches the frontend.
 
-**Trade-offs:**
-- **Pro:** Clear visual feedback
-- **Pro:** Easy to remove before sending
-- **Con:** Takes vertical space (minimal)
+**When to use:** Any time file or artifact generation should happen without creating chat message bubbles. The BA flow established this pattern; Assistant file generation reuses it identically.
 
-**Current Implementation:** Already exists in AssistantChatInput (skill chip with delete icon).
+**Key invariant:** `generateFile()` must NOT call `sendMessage()` path. It must be a separate method that sets `_isGeneratingFile` (not `_isStreaming`) and does not touch `_messages`.
 
-**Enhancement:** Add tooltip on hover showing "This skill will be applied to your next message".
+### Pattern 2: ContextVar Tool Execution (Existing, Unchanged)
+
+**What:** `set_context(db, project_id, thread_id)` before `stream_chat()`. Tools read `thread_id` from ContextVars set by the adapter.
+
+**Note:** Assistant threads have `project_id = None`. The `save_artifact_tool` in `mcp_tools.py` only needs `thread_id`, not `project_id`. The ContextVar path reads `_thread_id_context` independently. No change needed.
+
+### Pattern 3: Pool Warm Processes (Existing, Fix Required)
+
+**What:** All 3 spawn paths must receive identical CLI flags. Pre-warmed processes in the pool and cold-spawned fallbacks must behave identically.
+
+**Fix:** Extract a `_base_cli_args()` helper method to ensure DRY flag list:
+
+```python
+def _base_cli_args(self) -> list:
+    """Base CLI arguments used for all spawn paths."""
+    return [
+        self._cli_path,
+        '-p',
+        '--output-format', 'stream-json',
+        '--verbose',
+        '--model', self._model,
+        '--dangerously-skip-permissions',  # Required for non-interactive tool use
+    ]
+```
+
+Then all three spawn locations call `self._base_cli_args()` instead of repeating the flag list.
 
 ---
 
-## Data Flow
+## Integration Points Summary
 
-### Enhanced Skill Selection Flow
+### Backend Integration Points
 
-```
-User opens chat
-    ↓
-Clicks "Browse Skills" button
-    ↓
-SkillBrowserDialog opens
-    ↓
-[Initial Load] → SkillService.getSkills() → GET /api/skills
-    ↓
-Renders skill grid with cards (name, description, info icon)
-    ↓
-[User searches/filters] → Local filtering on cached list
-    ↓
-User clicks skill card → onSkillSelected(skill) → Provider.selectSkill()
-    ↓
-Dialog closes, chip appears in input area
-    ↓
-User types message → sendMessage(content)
-    ↓
-Provider prepends: "/{skill-name}\n\n{content}"
-    ↓
-Backend receives modified message
-```
+| Point | What Changes | File | Lines Affected |
+|-------|-------------|------|----------------|
+| `ClaudeProcessPool._spawn_warm_process()` | Add `--dangerously-skip-permissions` flag | `claude_cli_adapter.py` | ~178-193 |
+| `ClaudeProcessPool._cold_spawn()` | Same flag | `claude_cli_adapter.py` | ~195-214 |
+| Direct cold-spawn in `stream_chat()` | Same flag | `claude_cli_adapter.py` | ~628-635 |
+| `AIService.stream_chat()` signature | Add `artifact_generation=False` param | `ai_service.py` | ~1039 |
+| `AIService._stream_agent_chat()` | Add `artifact_generation` param + conditional system prompt | `ai_service.py` | ~864, ~931 |
+| `ASSISTANT_FILE_GENERATION_PROMPT` | New constant with minimal save_artifact description | `ai_service.py` | New constant |
 
-### Skill Detail Panel Flow
+### Frontend Integration Points
 
-```
-User browsing skills in SkillBrowserDialog
-    ↓
-Clicks info icon on skill card
-    ↓
-[Option A: Progressive Loading]
-  → SkillService.getSkillContent(name) → GET /api/skills/{name}/content
-  → Returns full SKILL.md markdown
-
-[Option B: Embedded Content]
-  → Content already in EnhancedSkill model from initial load
-    ↓
-SkillDetailPanel shows as modal overlay
-    ↓
-Renders markdown content with sections:
-  - Quick Reference
-  - Core Workflow
-  - Key Features
-    ↓
-"Use This Skill" button → onSkillSelected(skill) → closes both dialogs
-```
-
-## Component Responsibilities
+| Point | What Changes | File |
+|-------|-------------|------|
+| `AssistantConversationProvider` | Add `_artifacts`, `_isGeneratingFile`, `generateFile()`, retry | `assistant_conversation_provider.dart` |
+| `AssistantChatInput` | Add Generate File `IconButton` between SkillSelector and Send | `assistant_chat_input.dart` |
+| `AssistantChatScreen._buildMessageList()` OR scaffold body | Add artifact cards section | `assistant_chat_screen.dart` |
 
 ### New Components
 
-| Component | Responsibility | Files to Create |
-|-----------|----------------|-----------------|
-| **SkillBrowserDialog** | Full-screen skill browsing UI | `frontend/lib/screens/assistant/widgets/skill_browser_dialog.dart` |
-| **SkillCard** | Individual skill card in browser | `frontend/lib/screens/assistant/widgets/skill_card.dart` |
-| **SkillDetailPanel** | Info popup with full SKILL.md | `frontend/lib/screens/assistant/widgets/skill_detail_panel.dart` |
-| **EnhancedSkill** | Extended skill model | Modify `frontend/lib/models/skill.dart` |
-| **SkillMetadataExtractor** | Parse SKILL.md frontmatter + sections | `backend/app/services/skill_metadata_extractor.py` |
-
-### Modified Components
-
-| Component | Changes Required | Impact |
-|-----------|------------------|--------|
-| **SkillSelector** | Replace PopupMenu with Dialog launcher OR keep as quick-select option | Medium (UI change) |
-| **AssistantChatInput** | Add "Browse Skills" button OR replace existing button | Low (button swap) |
-| **SkillService** | Add `getSkillContent(name)` method for detail fetching | Low (new method) |
-| **AssistantConversationProvider** | Change skill prepending from `[Using skill: X]` to `/skill-name` | Low (string change) |
-| **GET /api/skills** | Return enhanced metadata (purpose, output, category, icon_hint) | Medium (parse more fields) |
-
-## Integration Points
-
-### Backend API Changes
-
-| Endpoint | Type | Purpose | Response |
-|----------|------|---------|----------|
-| **GET /api/skills** | Enhanced | Return enhanced metadata | `List[EnhancedSkillDict]` |
-| **GET /api/skills/{name}/content** | New (optional) | Return full SKILL.md markdown | `{"content": str, "metadata": dict}` |
-
-**Decision Point:** Embed full content in GET /api/skills vs. separate endpoint?
-
-**Recommendation:**
-- If average SKILL.md < 5KB → embed in initial response
-- If average SKILL.md > 5KB → use separate endpoint
-
-**Current:** business-analyst SKILL.md is ~8KB → use separate endpoint.
+| Component | Depends On | Build Complexity |
+|-----------|------------|-----------------|
+| `GenerateFileDialog` | None (pure UI) | Low - simple dialog with TextField |
+| `AssistantArtifactCard` | `Artifact` model, `ArtifactCard` widget | Trivial - thin wrapper |
 
 ---
 
-### Frontend-Backend Contract
+## Build Order (Dependency-Driven)
 
-**Current:**
-```json
-// GET /api/skills
-[
-  {
-    "name": "business-analyst",
-    "description": "Short one-liner",
-    "skill_path": ".claude/business-analyst/SKILL.md"
-  }
-]
-```
+The two features (CLI permissions fix and file generation) are independent. Do CLI fix first to unblock any tool-use testing.
 
-**Enhanced:**
-```json
-// GET /api/skills
-[
-  {
-    "name": "business-analyst",
-    "display_name": "Business Analyst",
-    "description": "Enables sales teams to systematically gather requirements...",
-    "purpose": "Enable sales teams to capture complete business requirements",
-    "output": "Single comprehensive BRD",
-    "category": "requirements",
-    "icon_hint": "description",
-    "skill_path": ".claude/business-analyst/SKILL.md"
-  }
-]
-```
+**Phase 1 - CLI Permissions Fix (backend only, ~30 min):**
+Add `--dangerously-skip-permissions` to all 3 spawn locations in `claude_cli_adapter.py`. Optionally extract `_base_cli_args()` helper. Verify with a test that invokes a tool.
 
-**New Endpoint (Optional):**
-```json
-// GET /api/skills/business-analyst/content
-{
-  "name": "business-analyst",
-  "content": "# Business Analyst\n\nSpecialized assistant for...",
-  "metadata": {
-    "name": "business-analyst",
-    "description": "...",
-    "category": "requirements"
-  }
-}
-```
+**Phase 2 - Backend: save_artifact for Assistant (backend only, ~1-2 hr):**
+Add `ASSISTANT_FILE_GENERATION_PROMPT` constant. Modify `AIService.stream_chat()` and `_stream_agent_chat()` to accept and use `artifact_generation` param for conditional system prompt injection. No DB changes. No route changes.
 
----
+**Phase 3 - Frontend: Provider + Dialog (~2-3 hr):**
+Add `generateFile()` method and artifact state to `AssistantConversationProvider`. Build `GenerateFileDialog` (TextField + Generate button). Build `AssistantArtifactCard` wrapper.
 
-## Recommended Build Order
-
-### Phase 1: Backend Enhancement (Foundation)
-**Goal:** Enhance API to return richer skill metadata
-
-1. Create `SkillMetadataExtractor` utility
-   - Parse YAML frontmatter
-   - Extract Quick Reference section
-   - Return enhanced metadata dict
-2. Modify GET /api/skills to use extractor
-3. Create EnhancedSkill response model (Pydantic)
-4. Test with existing SKILL.md files
-
-**Why first:** Frontend needs enhanced data model before building UI.
-
-**Estimated effort:** 4-6 hours
-
----
-
-### Phase 2: Frontend Model Update
-**Goal:** Update Skill model to support enhanced fields
-
-1. Add optional fields to `Skill` class (purpose, output, category, iconHint)
-2. Update `fromJson` constructor
-3. Add `icon` getter (maps category/iconHint to IconData)
-4. Backward compatibility: ensure existing code works with optional fields
-
-**Why second:** UI widgets need updated model.
-
-**Estimated effort:** 2-3 hours
-
----
-
-### Phase 3: Skill Browser UI
-**Goal:** Build browsable skill list interface
-
-1. Create `SkillBrowserDialog` widget
-   - Search bar at top
-   - GridView or ListView of skills
-   - Category filter (optional)
-2. Create `SkillCard` widget
-   - Name, description, icon
-   - Info button (opens detail panel)
-   - Tap to select
-3. Integrate with AssistantChatInput
-   - Add "Browse Skills" button
-   - Open dialog on tap
-   - Pass onSkillSelected callback
-
-**Why third:** Core browsing experience.
-
-**Estimated effort:** 8-10 hours
-
----
-
-### Phase 4: Skill Detail Panel
-**Goal:** Show full skill information in popup
-
-**Option A: Embedded Content (simpler, no new API)**
-1. Create `SkillDetailPanel` widget
-2. Render full markdown (use `flutter_markdown` package)
-3. Show Quick Reference section prominently
-4. "Use This Skill" button at bottom
-
-**Option B: Progressive Loading (lighter initial load)**
-1. Add GET /api/skills/{name}/content endpoint
-2. Create `SkillDetailPanel` with FutureBuilder
-3. Fetch content on demand
-4. Show loading state while fetching
-
-**Recommendation:** Start with Option A (simpler). If payload becomes issue, refactor to Option B.
-
-**Why fourth:** Detail view is nice-to-have after core browsing works.
-
-**Estimated effort:** 6-8 hours
-
----
-
-### Phase 5: Skill Prepending Enhancement
-**Goal:** Change from `[Using skill: X]` to `/skill-name`
-
-1. Update `AssistantConversationProvider.sendMessage()`
-2. Change prepending format
-3. Update backend parsing if needed (currently backend treats it as opaque text)
-4. Update tests
-
-**Why fifth:** Independent of UI changes, can be done anytime.
-
-**Estimated effort:** 1-2 hours
-
----
-
-### Phase 6: Polish & Refinements
-**Goal:** UX improvements and edge cases
-
-1. Add tooltips on skill chips ("Skill will be applied to next message")
-2. Search functionality in SkillBrowserDialog (filter by name/description)
-3. Category badges on skill cards
-4. Empty state ("No skills available")
-5. Error handling (API failures, missing SKILL.md)
-6. Keyboard shortcuts (Escape to close dialog)
-
-**Estimated effort:** 4-6 hours
-
----
-
-**Total estimated effort:** 25-35 hours (3-4 full workdays or 5-7 half-days)
-
----
-
-## Scaling Considerations
-
-| Scale | Considerations |
-|-------|----------------|
-| **1-5 skills** | Current architecture fine. Simple list works. |
-| **5-20 skills** | Grid view recommended. Search becomes useful. |
-| **20+ skills** | Category filtering essential. Consider skill tags. |
-| **50+ skills** | Fuzzy search. Lazy loading. Virtualized lists. |
-
-**Current state:** 1 skill (business-analyst)
-
-**v3.1 target:** Support 5-10 skills comfortably
-
-**Recommendation:** Build for 5-20 skill range. Grid view + search covers this scale well.
+**Phase 4 - Frontend: UI Wire-up (~1-2 hr):**
+Add Generate File button to `AssistantChatInput`. Wire `AssistantChatScreen` to render `AssistantArtifactCard` for each artifact in provider.
 
 ---
 
 ## Anti-Patterns
 
-### Anti-Pattern 1: Overloading PopupMenuButton
+### Anti-Pattern 1: Mixing generateFile() into sendMessage()
 
-**What people do:** Try to cram rich content (descriptions, icons, categories) into PopupMenuButton.
+**What people do:** Route file generation through `sendMessage()` with a special prefix or flag.
 
-**Why it's wrong:**
-- PopupMenuButton is designed for simple text lists
-- Adding multi-line descriptions makes it cluttered
-- Limited styling flexibility
-- Poor UX on mobile (small tap targets)
+**Why it's wrong:** `sendMessage()` adds a user message bubble, sets `_isStreaming`, accumulates `_streamingText`, and adds an assistant message on complete. File generation must be silent — no chat history entries. This separation is established in PITFALL-06 of the decisions log.
 
-**Do this instead:** Use a full Dialog or BottomSheet for browsable lists with rich content. PopupMenuButton is fine for <5 simple items only.
+**Do this instead:** Separate `generateFile()` method that only sets `_isGeneratingFile` (not `_isStreaming`) and never touches `_messages`.
 
-**Source:** [Flutter Material Component Best Practices](https://docs.flutter.dev/ui/widgets/material)
+### Anti-Pattern 2: Adding --dangerously-skip-permissions to only the warm-process spawn
 
----
+**What people do:** Add the flag to `_spawn_warm_process()` only and forget `_cold_spawn()` and the inline cold-spawn in `stream_chat()`.
 
-### Anti-Pattern 2: Parsing Markdown on Every Render
+**Why it's wrong:** When the pool is exhausted (more than 2 concurrent requests, or during startup before warm processes are ready), the cold-spawn paths run without the flag. The CLI will block waiting for interactive input and hang the request indefinitely.
 
-**What people do:** Re-parse SKILL.md content in widget build() method.
+**Do this instead:** Extract `_base_cli_args()` helper and use it in all three spawn paths. Change it once, all paths updated.
 
-**Why it's wrong:**
-- Markdown parsing is CPU-intensive
-- Causes jank on every rebuild
-- Especially bad with Flutter's frequent rebuilds
+### Anti-Pattern 3: Using the full BA SYSTEM_PROMPT for Assistant file generation
 
-**Do this instead:**
-- Parse markdown once when fetching skill content
-- Store parsed result in widget state
-- Use `const` constructors where possible
-- Cache parsed HTML/widget tree
+**What people do:** When `artifact_generation=True` for an Assistant thread, pass the full 7000-token `SYSTEM_PROMPT` (the BA business analyst prompt) to the CLI.
 
-**Example:**
-```dart
-// BAD
-@override
-Widget build(BuildContext context) {
-  final parsed = markdown.parse(skill.content); // ❌ Parses on every build
-  return MarkdownBody(data: parsed);
-}
+**Why it's wrong:** Injects BA-specific discovery behavior, mode detection ("Meeting Mode vs Document Refinement"), and consultative tone instructions into what should be clean, general-purpose file generation. Wastes tokens. May confuse the model with irrelevant BA constraints.
 
-// GOOD
-class SkillDetailPanel extends StatefulWidget {
-  final String content;
+**Do this instead:** A minimal `ASSISTANT_FILE_GENERATION_PROMPT` that describes only the `save_artifact` tool and instructs the model to call it once with the generated content.
 
-  @override
-  _SkillDetailPanelState createState() => _SkillDetailPanelState();
-}
+### Anti-Pattern 4: Adding a new ArtifactType enum value for Assistant files
 
-class _SkillDetailPanelState extends State<SkillDetailPanel> {
-  late final String _parsedContent;
+**What people do:** Add `GENERATED_FILE` or `ASSISTANT_OUTPUT` to the `ArtifactType` enum.
 
-  @override
-  void initState() {
-    super.initState();
-    _parsedContent = widget.content; // ✅ Parse once
-  }
+**Why it's wrong:** Requires a DB migration (Enum column), backend enum change, frontend enum change. Unnecessary complexity for v3.2. The existing types (`user_stories`, `acceptance_criteria`, `requirements_doc`, `brd`) cover most generated content. The model can choose the most appropriate type from the description.
 
-  @override
-  Widget build(BuildContext context) {
-    return MarkdownBody(data: _parsedContent);
-  }
-}
-```
+**Do this instead:** Let the CLI choose from existing artifact types based on the user's description. The frontend `ArtifactType.fromJson()` already has a safe fallback to `requirementsDoc` for unknown values.
 
 ---
 
-### Anti-Pattern 3: Invisible Skill Activation Without Feedback
+## Scaling Considerations
 
-**What people do:** Prepend skill to message without showing user it's active.
+Not relevant for v3.2 scope. Single-user, SQLite, 2-process pool.
 
-**Why it's wrong:**
-- User doesn't know skill is being applied
-- Leads to confusion ("Why is AI responding this way?")
-- Violates transparency principle in AI UX
-- Source: [AI Transparency in UX 2026](https://www.theknowledgeacademy.com/blog/ui-designer-skills/)
-
-**Do this instead:**
-- Show skill chip when selected
-- Add badge or indicator in chat input
-- Include tooltip explaining skill will be applied
-- Allow user to remove skill before sending
-
-**Current implementation:** ✅ Already follows best practice (skill chip visible in input area).
-
----
-
-### Anti-Pattern 4: Hardcoding Skill Metadata in Frontend
-
-**What people do:** Define skill icons, categories, descriptions in frontend constants.
-
-**Why it's wrong:**
-- Source of truth should be SKILL.md files
-- Adding new skills requires frontend code changes
-- Inconsistent with discovery-based architecture
-
-**Do this instead:**
-- Parse all metadata from SKILL.md (frontmatter + content)
-- Backend extracts and returns metadata
-- Frontend renders dynamically
-- New skills work automatically when SKILL.md added to `.claude/`
-
-**Current implementation:** ✅ Already follows best practice (backend scans `.claude/` directory).
+| Concern | Current (v3.2) | Future |
+|---------|---------------|--------|
+| Process pool size | 2 is enough for 1 user | Scale with concurrent users |
+| Artifact storage | SQLite, no limit at current scale | PostgreSQL migration path exists via SQLAlchemy ORM |
+| File generation latency | CLI spawn overhead mitigated by pool | Pool size tuning if needed |
 
 ---
 
 ## Sources
 
-**Architecture Patterns:**
-- [Where should AI sit in your UI?](https://uxdesign.cc/where-should-ai-sit-in-your-ui-1710a258390e) — AI UI layout patterns 2026
-- [Frontend Design Patterns That Actually Work in 2026](https://www.netguru.com/blog/frontend-design-patterns) — Component-driven architecture, state management
-- [Creating dialogs in Flutter - LogRocket Blog](https://blog.logrocket.com/creating-dialogs-flutter/) — Dialog widget patterns
-- [ExpansionPanel in Flutter: A guide with examples](https://blog.logrocket.com/expansionpanel-flutter-guide-with-examples/) — Expandable content patterns
+All findings are HIGH confidence — derived from direct source code inspection:
 
-**UI/UX Best Practices:**
-- [Best Practices for Designing Selection Controls](https://app.uxcel.com/courses/ui-components-n-patterns/selection-controls-best-practices-324) — Selection interface design
-- [Chatbot UI Best Practices for 2026](https://vynta.ai/blog/chatbot-ui/) — Transparent AI disclosure, skill prepending patterns
-- [10 UX Best Practices to Follow in 2026](https://uxpilot.ai/blogs/ux-best-practices) — Error prevention, cognitive load reduction
-
-**AI Assistant Patterns:**
-- [AI Assistant UI Guide | Adobe Experience Cloud](https://experienceleague.adobe.com/en/docs/experience-cloud-ai/experience-cloud-ai/ai-assistant/ai-assistant-ui) — Skill discovery, browsable capabilities
-- [Conversational Interfaces: the Good, the Ugly & the Billion-Dollar Opportunity](https://lg.substack.com/p/conversational-interfaces-the-good) — Delegative UI, context injection
-
-**Flutter Documentation:**
-- [Material component widgets](https://docs.flutter.dev/ui/widgets/material) — Official widget catalog
-- [Dialog class - material library](https://api.flutter.dev/flutter/material/Dialog-class.html) — Dialog widget API
-- [SimpleDialog class](https://api.flutter.dev/flutter/material/SimpleDialog-class.html) — SimpleDialog patterns
+- `/backend/app/services/llm/claude_cli_adapter.py` (ClaudeCLIAdapter, ClaudeProcessPool, all spawn paths)
+- `/backend/app/services/ai_service.py` (AIService, _stream_agent_chat, system prompt logic at line 931)
+- `/backend/app/routes/conversations.py` (ChatRequest, stream_chat endpoint, artifact_generation handling)
+- `/backend/app/services/mcp_tools.py` (save_artifact_tool, ContextVar pattern, thread_id usage)
+- `/backend/app/models.py` (ArtifactType enum, Artifact model, thread_id FK)
+- `/frontend/lib/providers/assistant_conversation_provider.dart` (current state, generateFile gap)
+- `/frontend/lib/providers/conversation_provider.dart` (generateArtifact() reference implementation)
+- `/frontend/lib/screens/assistant/assistant_chat_screen.dart`
+- `/frontend/lib/screens/assistant/widgets/assistant_chat_input.dart`
+- `/frontend/lib/screens/conversation/widgets/artifact_card.dart` (reuse candidate)
+- `/frontend/lib/services/artifact_service.dart` (reuse as-is)
+- `/frontend/lib/models/artifact.dart` (reuse as-is)
+- `/.planning/PROJECT.md` (v3.2 milestone requirements)
 
 ---
 
-*Architecture research for: Skill Discovery & Selection Integration*
-*Researched: 2026-02-18*
-*Confidence: HIGH — Based on existing codebase analysis, official Flutter docs, and 2026 AI UX patterns*
+*Architecture research for: v3.2 Assistant File Generation and CLI Permissions*
+*Researched: 2026-02-23*

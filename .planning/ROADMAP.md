@@ -18,6 +18,7 @@
 - ✅ **v3.0 Assistant Foundation** - Phases 62-64 (shipped 2026-02-18)
 - ✅ **v3.1 Skill Discovery & Selection** - Phases 65-67 (shipped 2026-02-18)
 - ✅ **v3.1.1 Assistant Conversation Memory** - Phases 68-70 (shipped 2026-02-20)
+- 🚧 **v3.2 Assistant File Generation & CLI Permissions** - Phases 71-73 (in progress)
 - 🗄️ **v2.0 Security Audit & Deployment** - Phases 49-53 (backlogged)
 
 ## Phases
@@ -87,6 +88,53 @@ Full details: `.planning/milestones/v3.1.1-ROADMAP.md`
 
 ---
 
+### 🚧 v3.2 Assistant File Generation & CLI Permissions (In Progress)
+
+**Milestone Goal:** Enable the Assistant to generate arbitrary files on demand via a dialog-driven workflow with export cards, and fix CLI subprocess to run non-interactively without blocking on permission prompts.
+
+## Phases (v3.2)
+
+- [ ] **Phase 71: CLI Permissions Fix** - Add `--dangerously-skip-permissions` to all three CLI spawn paths
+- [ ] **Phase 72: Backend File Generation** - Wire save_artifact tool and system prompt for Assistant file generation
+- [ ] **Phase 73: Frontend File Generation** - Provider state, generate dialog, artifact card rendering, and UI wire-up
+
+## Phase Details
+
+### Phase 71: CLI Permissions Fix
+**Goal**: The Claude CLI subprocess runs non-interactively without blocking on any permission prompt in all spawn paths
+**Depends on**: Nothing (first phase of milestone)
+**Requirements**: CLI-01, CLI-02, CLI-03, CLI-04, CLI-05
+**Success Criteria** (what must be TRUE):
+  1. Running `ps aux | grep claude` shows 2 pre-warmed pool processes each carrying `--dangerously-skip-permissions`
+  2. Sending a message in the Assistant chat completes without any permission prompt blocking the response
+  3. A cold-spawn fallback (when pool is exhausted) also produces a response without blocking
+**Plans**: TBD
+
+### Phase 72: Backend File Generation
+**Goal**: The backend generates and persists a file artifact for Assistant threads when `artifact_generation=True` is sent via the existing chat endpoint
+**Depends on**: Phase 71
+**Requirements**: GEN-01, GEN-02, GEN-03, GEN-04
+**Success Criteria** (what must be TRUE):
+  1. A `curl` POST to `/api/threads/{assistant_thread_id}/chat` with `artifact_generation=true` returns an `artifact_created` SSE event with a valid artifact ID
+  2. The artifact is retrievable via GET `/api/artifacts/{id}` with `artifact_type` of `generated_file`
+  3. No BA system prompt content appears in the CLI invocation for Assistant threads (verified via process arguments or debug logging)
+  4. The `generated_file` ArtifactType value exists in the backend enum and Alembic migration has been applied
+**Plans**: TBD
+
+### Phase 73: Frontend File Generation
+**Goal**: Users can tap a "Generate File" button, describe what to generate in a dialog, and see the result as a collapsible artifact card with export options in the Assistant chat
+**Depends on**: Phase 72
+**Requirements**: UI-01, UI-02, UI-03, UI-04, UI-05, UI-06, UI-07, UI-08, UI-09
+**Success Criteria** (what must be TRUE):
+  1. A "Generate File" icon button is visible in the Assistant chat input bar next to the send button
+  2. Tapping the button opens a bottom sheet dialog with a free-text field; tapping Confirm closes the dialog immediately and starts generation
+  3. While generation is in progress the chat area shows a loading indicator (not a blank message bubble)
+  4. When generation completes an artifact card appears in the message list that can be collapsed and expanded
+  5. The artifact card has functional export buttons for Markdown, PDF, and Word that download the generated content
+**Plans**: TBD
+
+---
+
 ## Backlog
 
 <details>
@@ -117,13 +165,16 @@ Full details: `.planning/milestones/v3.1.1-ROADMAP.md`
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 68 → 69 → 70
+Phases execute in numeric order: 71 → 72 → 73
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
 | 68. Core Conversation Memory Fix | v3.1.1 | 2/2 | Complete | 2026-02-19 |
 | 69. Token Optimization | v3.1.1 | 1/1 | Complete | 2026-02-20 |
-| 70. Performance Tuning | v3.1.1 | Complete    | 2026-02-20 | 2026-02-20 |
+| 70. Performance Tuning | v3.1.1 | 1/1 | Complete | 2026-02-20 |
+| 71. CLI Permissions Fix | v3.2 | 0/TBD | Not started | - |
+| 72. Backend File Generation | v3.2 | 0/TBD | Not started | - |
+| 73. Frontend File Generation | v3.2 | 0/TBD | Not started | - |
 
 ---
 *Roadmap created: 2026-02-09*
@@ -137,3 +188,4 @@ Phases execute in numeric order: 68 → 69 → 70
 *v3.1 archived: 2026-02-18 — 3 phases, 5 plans, 16/16 requirements shipped*
 *v3.1.1 activated: 2026-02-19 — 3 phases, 16 requirements, Assistant Conversation Memory*
 *v3.1.1 archived: 2026-02-20 — 3 phases, 3 plans, 16/16 requirements shipped*
+*v3.2 activated: 2026-02-23 — 3 phases, 18 requirements, Assistant File Generation & CLI Permissions*

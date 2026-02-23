@@ -55,30 +55,30 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| CLI-01 | TBD | Pending |
-| CLI-02 | TBD | Pending |
-| CLI-03 | TBD | Pending |
-| CLI-04 | TBD | Pending |
-| CLI-05 | TBD | Pending |
-| GEN-01 | TBD | Pending |
-| GEN-02 | TBD | Pending |
-| GEN-03 | TBD | Pending |
-| GEN-04 | TBD | Pending |
-| UI-01 | TBD | Pending |
-| UI-02 | TBD | Pending |
-| UI-03 | TBD | Pending |
-| UI-04 | TBD | Pending |
-| UI-05 | TBD | Pending |
-| UI-06 | TBD | Pending |
-| UI-07 | TBD | Pending |
-| UI-08 | TBD | Pending |
-| UI-09 | TBD | Pending |
+| CLI-01 | Phase 71 | Pending |
+| CLI-02 | Phase 71 | Pending |
+| CLI-03 | Phase 71 | Pending |
+| CLI-04 | Phase 71 | Pending |
+| CLI-05 | Phase 71 | Pending |
+| GEN-01 | Phase 72 | Pending |
+| GEN-02 | Phase 72 | Pending |
+| GEN-03 | Phase 72 | Pending |
+| GEN-04 | Phase 72 | Pending |
+| UI-01 | Phase 73 | Pending |
+| UI-02 | Phase 73 | Pending |
+| UI-03 | Phase 73 | Pending |
+| UI-04 | Phase 73 | Pending |
+| UI-05 | Phase 73 | Pending |
+| UI-06 | Phase 73 | Pending |
+| UI-07 | Phase 73 | Pending |
+| UI-08 | Phase 73 | Pending |
+| UI-09 | Phase 73 | Pending |
 
 **Coverage:**
 - v3.2 requirements: 18 total
-- Mapped to phases: 0
-- Unmapped: 18 (pending roadmap creation)
+- Mapped to phases: 18
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-02-23*
-*Last updated: 2026-02-23 after initial definition*
+*Last updated: 2026-02-23 — traceability complete after roadmap creation*

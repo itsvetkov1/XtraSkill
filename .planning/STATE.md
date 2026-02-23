@@ -2,18 +2,18 @@
 
 ## Project Reference
 
-See: /Users/a1testingmac/projects/XtraSkill/.planning/PROJECT.md (updated 2026-02-20)
+See: /Users/a1testingmac/projects/XtraSkill/.planning/PROJECT.md (updated 2026-02-23)
 
 **Core value:** Business analysts reduce time spent on requirement documentation while improving completeness through AI-assisted discovery conversations that systematically explore edge cases and generate production-ready artifacts.
 
-**Current focus:** Milestone v3.1.1 archived. Ready for next milestone.
+**Current focus:** Defining requirements for v3.2 — Assistant File Generation & CLI Permissions
 
 ## Current Position
 
-Phase: None — between milestones
-Plan: N/A
-Status: v3.1.1 milestone archived. No active milestone.
-Last activity: 2026-02-20 — Archived v3.1.1 milestone (Assistant Conversation Memory)
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-02-23 — Milestone v3.2 started
 
 Progress:
 ```
@@ -25,6 +25,8 @@ v2.0:              [          ] Backlogged (phases 49-53 preserved)
 v3.0:              [##########] 100% — SHIPPED 2026-02-18
 v3.1:              [##########] 100% — SHIPPED 2026-02-18
 v3.1.1:            [##########] 100% — SHIPPED 2026-02-20
+
+v3.2:              [          ] 0% — Defining requirements
 ```
 
 ## Performance Metrics
@@ -44,7 +46,7 @@ v3.1.1:            [##########] 100% — SHIPPED 2026-02-20
 
 ### Decisions
 
-Archived with milestone. See `.planning/milestones/v3.1.1-ROADMAP.md` for v3.1.1 decisions.
+(None yet for v3.2)
 
 ### Pending Todos
 
@@ -57,11 +59,11 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-02-20
-Stopped at: Archived v3.1.1 milestone. Ready for next milestone.
+Last session: 2026-02-23
+Stopped at: Defining requirements for v3.2
 Resume file: None
-Next action: `/gsd:new-milestone` to start next milestone cycle.
+Next action: Complete requirements definition and roadmap creation.
 
 ---
 
-*State updated: 2026-02-20 (v3.1.1 milestone archived)*
+*State updated: 2026-02-23 (v3.2 milestone started)*

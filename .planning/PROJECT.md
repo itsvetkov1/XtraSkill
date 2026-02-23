@@ -8,6 +8,16 @@ A hybrid mobile and web application that augments business analysts during featu
 
 Business analysts reduce time spent on requirement documentation while improving completeness through AI-assisted discovery conversations that systematically explore edge cases and generate production-ready artifacts.
 
+## Current Milestone: v3.2 Assistant File Generation & CLI Permissions
+
+**Goal:** Enable the Assistant to generate arbitrary files on demand via a dialog-driven workflow with export cards, and fix CLI subprocess to run non-interactively.
+
+**Target features:**
+- Claude CLI `--dangerously-skip-permissions` flag for non-interactive operation
+- "Generate File" button in Assistant chat input bar
+- Free-text dialog for describing what to generate
+- Artifact card in chat messages with collapse/expand and MD/PDF/Word export (reuses BA patterns)
+
 ## Current State
 
 **Shipped:** v3.1.1 Assistant Conversation Memory (2026-02-20)
@@ -252,6 +262,13 @@ Previous features (v1.5):
 
 ### Active
 
+**v3.2 — Assistant File Generation & CLI Permissions**
+
+- [ ] Claude CLI runs with `--dangerously-skip-permissions` for non-interactive operation
+- [ ] "Generate File" button in Assistant chat input (next to send)
+- [ ] Dialog with free-text field for file generation description
+- [ ] Generated content as artifact card in chat messages (collapse/expand + MD/PDF/Word export)
+
 **v2.0 — Security Audit & Deployment** (backlogged)
 
 - [ ] OWASP-aligned security audit and hardening
@@ -399,4 +416,4 @@ BAs prepare for meetings by uploading existing requirements or stakeholder notes
 | Pool in same file as ClaudeCLIAdapter | Single consumer, module-level singleton; extract to separate file only if complexity grows | ✓ Implemented (Phase 70) |
 
 ---
-*Last updated: 2026-02-20 after v3.1.1 milestone complete — Assistant Conversation Memory shipped*
+*Last updated: 2026-02-23 after v3.2 milestone started — Assistant File Generation & CLI Permissions*

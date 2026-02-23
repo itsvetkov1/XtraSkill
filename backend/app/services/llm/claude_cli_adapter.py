@@ -34,6 +34,7 @@ from app.services.mcp_tools import (
 logger = logging.getLogger(__name__)
 
 DEFAULT_MODEL = "claude-sonnet-4-5-20250929"
+DANGEROUSLY_SKIP_PERMISSIONS = '--dangerously-skip-permissions'
 
 
 def _build_cli_env() -> dict:
@@ -179,6 +180,7 @@ class ClaudeProcessPool:
             return await asyncio.create_subprocess_exec(
                 self._cli_path,
                 '-p',
+                DANGEROUSLY_SKIP_PERMISSIONS,
                 '--output-format', 'stream-json',
                 '--verbose',
                 '--model', self._model,
@@ -203,6 +205,7 @@ class ClaudeProcessPool:
         return await asyncio.create_subprocess_exec(
             self._cli_path,
             '-p',
+            DANGEROUSLY_SKIP_PERMISSIONS,
             '--output-format', 'stream-json',
             '--verbose',
             '--model', self._model,
@@ -604,6 +607,7 @@ class ClaudeCLIAdapter(LLMAdapter):
             cmd = [
                 self.cli_path,
                 "-p",  # Print mode (non-interactive, reads prompt from stdin)
+                DANGEROUSLY_SKIP_PERMISSIONS,
                 "--output-format", "stream-json",
                 "--verbose",
                 "--model", self.model,

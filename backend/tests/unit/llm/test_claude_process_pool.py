@@ -17,6 +17,7 @@ from app.services.llm.claude_cli_adapter import (
     ClaudeProcessPool,
     ClaudeCLIAdapter,
     DEFAULT_MODEL,
+    DANGEROUSLY_SKIP_PERMISSIONS,
     get_process_pool,
     init_process_pool,
     shutdown_process_pool,
@@ -127,6 +128,26 @@ class TestClaudeProcessPool:
         mock_exec.assert_called_once()
         assert result is cold_proc
         assert result is not dead_proc
+
+    @pytest.mark.asyncio
+    @patch('app.services.llm.claude_cli_adapter.asyncio.create_subprocess_exec')
+    async def test_spawn_warm_process_includes_skip_permissions(self, mock_exec):
+        """CLI-02: _spawn_warm_process includes --dangerously-skip-permissions."""
+        mock_exec.return_value = make_mock_process(returncode=None)
+        pool = ClaudeProcessPool(cli_path='/usr/bin/claude', model=DEFAULT_MODEL)
+        await pool._spawn_warm_process()
+        args = mock_exec.call_args[0]
+        assert '--dangerously-skip-permissions' in args
+
+    @pytest.mark.asyncio
+    @patch('app.services.llm.claude_cli_adapter.asyncio.create_subprocess_exec')
+    async def test_cold_spawn_includes_skip_permissions(self, mock_exec):
+        """CLI-03: _cold_spawn includes --dangerously-skip-permissions."""
+        mock_exec.return_value = make_mock_process(returncode=None)
+        pool = ClaudeProcessPool(cli_path='/usr/bin/claude', model=DEFAULT_MODEL)
+        await pool._cold_spawn()
+        args = mock_exec.call_args[0]
+        assert '--dangerously-skip-permissions' in args
 
     @pytest.mark.asyncio
     @patch('app.services.llm.claude_cli_adapter.asyncio.create_subprocess_exec')
@@ -271,6 +292,9 @@ class TestClaudeProcessPool:
 
         # Should have fallen back to cold spawn
         mock_exec.assert_called_once()
+        # CLI-04: Direct fallback includes --dangerously-skip-permissions
+        call_args = mock_exec.call_args[0]
+        assert '--dangerously-skip-permissions' in call_args
         # Should have received the complete chunk (no error)
         complete_chunks = [c for c in chunks if c.chunk_type == "complete"]
         assert len(complete_chunks) == 1

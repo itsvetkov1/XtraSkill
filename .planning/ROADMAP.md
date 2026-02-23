@@ -108,7 +108,10 @@ Full details: `.planning/milestones/v3.1.1-ROADMAP.md`
   1. Running `ps aux | grep claude` shows 2 pre-warmed pool processes each carrying `--dangerously-skip-permissions`
   2. Sending a message in the Assistant chat completes without any permission prompt blocking the response
   3. A cold-spawn fallback (when pool is exhausted) also produces a response without blocking
-**Plans**: TBD
+**Plans**: 1 plan
+
+Plans:
+- [ ] 71-01-PLAN.md -- Add skip-permissions flag to all 3 spawn sites + test assertions
 
 ### Phase 72: Backend File Generation
 **Goal**: The backend generates and persists a file artifact for Assistant threads when `artifact_generation=True` is sent via the existing chat endpoint
@@ -172,7 +175,7 @@ Phases execute in numeric order: 71 → 72 → 73
 | 68. Core Conversation Memory Fix | v3.1.1 | 2/2 | Complete | 2026-02-19 |
 | 69. Token Optimization | v3.1.1 | 1/1 | Complete | 2026-02-20 |
 | 70. Performance Tuning | v3.1.1 | 1/1 | Complete | 2026-02-20 |
-| 71. CLI Permissions Fix | v3.2 | 0/TBD | Not started | - |
+| 71. CLI Permissions Fix | v3.2 | 0/1 | Not started | - |
 | 72. Backend File Generation | v3.2 | 0/TBD | Not started | - |
 | 73. Frontend File Generation | v3.2 | 0/TBD | Not started | - |
 

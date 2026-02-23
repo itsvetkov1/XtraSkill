@@ -9,11 +9,11 @@ Requirements for v3.2 milestone. Each maps to roadmap phases.
 
 ### CLI Permissions
 
-- [ ] **CLI-01**: Claude CLI subprocess runs with `--dangerously-skip-permissions` flag in all spawn paths (warm pool, cold spawn, direct)
-- [ ] **CLI-02**: `--dangerously-skip-permissions` flag added to `_spawn_warm_process()` in ClaudeProcessPool
-- [ ] **CLI-03**: `--dangerously-skip-permissions` flag added to `_cold_spawn()` in ClaudeProcessPool
-- [ ] **CLI-04**: `--dangerously-skip-permissions` flag added to direct subprocess spawn in `stream_chat()` fallback path
-- [ ] **CLI-05**: Assistant chat works end-to-end without CLI permission prompts blocking
+- [x] **CLI-01**: Claude CLI subprocess runs with `--dangerously-skip-permissions` flag in all spawn paths (warm pool, cold spawn, direct)
+- [x] **CLI-02**: `--dangerously-skip-permissions` flag added to `_spawn_warm_process()` in ClaudeProcessPool
+- [x] **CLI-03**: `--dangerously-skip-permissions` flag added to `_cold_spawn()` in ClaudeProcessPool
+- [x] **CLI-04**: `--dangerously-skip-permissions` flag added to direct subprocess spawn in `stream_chat()` fallback path
+- [x] **CLI-05**: Assistant chat works end-to-end without CLI permission prompts blocking
 
 ### File Generation Backend
 
@@ -55,11 +55,11 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| CLI-01 | Phase 71 | Pending |
-| CLI-02 | Phase 71 | Pending |
-| CLI-03 | Phase 71 | Pending |
-| CLI-04 | Phase 71 | Pending |
-| CLI-05 | Phase 71 | Pending |
+| CLI-01 | Phase 71 | Complete |
+| CLI-02 | Phase 71 | Complete |
+| CLI-03 | Phase 71 | Complete |
+| CLI-04 | Phase 71 | Complete |
+| CLI-05 | Phase 71 | Complete |
 | GEN-01 | Phase 72 | Pending |
 | GEN-02 | Phase 72 | Pending |
 | GEN-03 | Phase 72 | Pending |

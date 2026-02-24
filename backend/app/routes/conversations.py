@@ -161,7 +161,8 @@ async def stream_chat(
                 conversation,
                 thread.project_id,
                 thread_id,
-                db
+                db,
+                artifact_generation=body.artifact_generation
             )
 
             # Wrap with heartbeat for long thinking periods

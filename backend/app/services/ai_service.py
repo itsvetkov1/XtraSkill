@@ -7,6 +7,7 @@ Currently supports Anthropic Claude, with Gemini and DeepSeek planned for Phase 
 import asyncio
 import json
 import time
+import uuid as _uuid
 from typing import AsyncGenerator, List, Dict, Any, Optional
 from app.services.document_search import search_documents
 from app.services.llm import LLMFactory, StreamChunk
@@ -17,6 +18,14 @@ from app.services.conversation_service import estimate_messages_tokens
 
 # Emergency token ceiling for agent providers (above the 150K soft limit in conversation_service)
 EMERGENCY_TOKEN_LIMIT = 180000
+
+# System prompt for artifact/file generation by Assistant threads
+ASSISTANT_FILE_GEN_PROMPT = (
+    "You are a file generation assistant. When asked to generate a file:\n"
+    "1. Call the save_artifact tool with title, content_markdown, and session_token='{session_token}'\n"
+    "2. Call save_artifact ONCE and stop immediately after\n"
+    "3. Do not produce any conversational text before or after calling the tool"
+)
 
 
 async def stream_with_heartbeat(
@@ -866,7 +875,8 @@ class AIService:
         messages: List[Dict[str, Any]],
         project_id: str,
         thread_id: str,
-        db
+        db,
+        artifact_generation: bool = False
     ) -> AsyncGenerator[Dict[str, Any], None]:
         """
         Stream chat for agent providers (Claude Code SDK/CLI).
@@ -900,6 +910,9 @@ class AIService:
             ai_event='stream_start'
         )
 
+        # Session token for MCP lifecycle (set before try so finally can always clean up)
+        session_token = ""
+
         try:
             # Set context on adapter (db session, project_id, thread_id)
             if hasattr(self.adapter, 'set_context'):
@@ -927,8 +940,19 @@ class AIService:
             usage_data = {}
             artifact_created_data = None
 
-            # LOGIC-01: No system prompt for Assistant threads (per locked decision)
-            system_prompt = SYSTEM_PROMPT if self.thread_type == "ba_assistant" else ""
+            # LOGIC-01: System prompt selection
+            # BA threads: full BA system prompt (unchanged)
+            # Assistant threads with artifact_generation: file-gen prompt with session token
+            # Assistant threads without artifact_generation: empty prompt (regular chat)
+            if self.thread_type == "ba_assistant":
+                system_prompt = SYSTEM_PROMPT
+            elif self.thread_type == "assistant" and artifact_generation:
+                session_token = str(_uuid.uuid4())
+                from app.mcp_server import register_mcp_session
+                register_mcp_session(session_token, db, thread_id)
+                system_prompt = ASSISTANT_FILE_GEN_PROMPT.format(session_token=session_token)
+            else:
+                system_prompt = ""
 
             # Stream from adapter - SDK handles tools internally
             async for chunk in self.adapter.stream_chat(
@@ -1035,13 +1059,19 @@ class AIService:
                 "event": "error",
                 "data": json.dumps({"message": f"Unexpected error: {str(e)}"})
             }
+        finally:
+            # Clean up MCP session if registered
+            if session_token:
+                from app.mcp_server import unregister_mcp_session
+                unregister_mcp_session(session_token)
 
     async def stream_chat(
         self,
         messages: List[Dict[str, Any]],
         project_id: str,
         thread_id: str,
-        db
+        db,
+        artifact_generation: bool = False
     ) -> AsyncGenerator[Dict[str, Any], None]:
         """
         Stream chat response using LLM adapter with tool use.
@@ -1058,7 +1088,7 @@ class AIService:
         """
         # Route to agent provider path if applicable
         if getattr(self, 'is_agent_provider', False):
-            async for event in self._stream_agent_chat(messages, project_id, thread_id, db):
+            async for event in self._stream_agent_chat(messages, project_id, thread_id, db, artifact_generation=artifact_generation):
                 yield event
             return
 

@@ -88,7 +88,7 @@ Full details: `.planning/milestones/v3.1.1-ROADMAP.md`
 
 ---
 
-### 🚧 v3.2 Assistant File Generation & CLI Permissions (In Progress)
+### v3.2 Assistant File Generation & CLI Permissions (In Progress)
 
 **Milestone Goal:** Enable the Assistant to generate arbitrary files on demand via a dialog-driven workflow with export cards, and fix CLI subprocess to run non-interactively without blocking on permission prompts.
 
@@ -122,7 +122,11 @@ Plans:
   2. The artifact is retrievable via GET `/api/artifacts/{id}` with `artifact_type` of `generated_file`
   3. No BA system prompt content appears in the CLI invocation for Assistant threads (verified via process arguments or debug logging)
   4. The `generated_file` ArtifactType value exists in the backend enum and Alembic migration has been applied
-**Plans**: TBD
+**Plans**: 2 plans
+
+Plans:
+- [ ] 72-01-PLAN.md -- ArtifactType enum + Alembic migration + FastMCP server + mount
+- [ ] 72-02-PLAN.md -- CLI adapter flags + ARTIFACT_CREATED detection + parameter threading + system prompt
 
 ### Phase 73: Frontend File Generation
 **Goal**: Users can tap a "Generate File" button, describe what to generate in a dialog, and see the result as a collapsible artifact card with export options in the Assistant chat
@@ -176,7 +180,7 @@ Phases execute in numeric order: 71 → 72 → 73
 | 69. Token Optimization | v3.1.1 | 1/1 | Complete | 2026-02-20 |
 | 70. Performance Tuning | v3.1.1 | 1/1 | Complete | 2026-02-20 |
 | 71. CLI Permissions Fix | 1/1 | Complete    | 2026-02-23 | - |
-| 72. Backend File Generation | v3.2 | 0/TBD | Not started | - |
+| 72. Backend File Generation | v3.2 | 0/2 | Not started | - |
 | 73. Frontend File Generation | v3.2 | 0/TBD | Not started | - |
 
 ---

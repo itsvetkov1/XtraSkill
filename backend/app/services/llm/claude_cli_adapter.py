@@ -36,6 +36,13 @@ logger = logging.getLogger(__name__)
 DEFAULT_MODEL = "claude-sonnet-4-5-20250929"
 DANGEROUSLY_SKIP_PERMISSIONS = '--dangerously-skip-permissions'
 
+MCP_SERVER_URL = "http://127.0.0.1:8000/mcp"
+MCP_CONFIG_JSON = json.dumps({
+    "mcpServers": {
+        "assistant": {"type": "http", "url": MCP_SERVER_URL}
+    }
+})
+
 
 def _build_cli_env() -> dict:
     """
@@ -184,6 +191,8 @@ class ClaudeProcessPool:
                 '--output-format', 'stream-json',
                 '--verbose',
                 '--model', self._model,
+                '--mcp-config', MCP_CONFIG_JSON,
+                '--tools', '',
                 stdin=asyncio.subprocess.PIPE,
                 stdout=asyncio.subprocess.PIPE,
                 stderr=asyncio.subprocess.PIPE,
@@ -209,6 +218,8 @@ class ClaudeProcessPool:
             '--output-format', 'stream-json',
             '--verbose',
             '--model', self._model,
+            '--mcp-config', MCP_CONFIG_JSON,
+            '--tools', '',
             stdin=asyncio.subprocess.PIPE,
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE,
@@ -517,13 +528,26 @@ class ClaudeCLIAdapter(LLMAdapter):
         # Result: final completion with usage and cost
         # Format: {"type": "result", "subtype": "success", "usage": {...}, "result": "..."}
         elif event_type == "result":
+            result_text = event.get("result", "")
             usage = event.get("usage", {})
+
+            # Detect ARTIFACT_CREATED marker in result text (same protocol as mcp_tools.py)
+            artifact_data = None
+            if "ARTIFACT_CREATED:" in result_text:
+                try:
+                    marker_start = result_text.index("ARTIFACT_CREATED:") + len("ARTIFACT_CREATED:")
+                    marker_end = result_text.index("|", marker_start)
+                    artifact_data = json.loads(result_text[marker_start:marker_end])
+                except (ValueError, json.JSONDecodeError):
+                    logger.warning("Failed to parse ARTIFACT_CREATED marker from CLI result")
+
             return StreamChunk(
                 chunk_type="complete",
                 usage={
                     "input_tokens": usage.get("input_tokens", 0),
-                    "output_tokens": usage.get("output_tokens", 0)
-                }
+                    "output_tokens": usage.get("output_tokens", 0),
+                },
+                metadata={"artifact_created": artifact_data} if artifact_data else None,
             )
 
         # System events (init, hooks) — skip silently
@@ -611,6 +635,8 @@ class ClaudeCLIAdapter(LLMAdapter):
                 "--output-format", "stream-json",
                 "--verbose",
                 "--model", self.model,
+                "--mcp-config", MCP_CONFIG_JSON,
+                "--tools", "",
             ]
 
             # Acquire process: prefer warm pool over cold spawn

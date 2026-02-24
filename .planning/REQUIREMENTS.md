@@ -19,8 +19,8 @@ Requirements for v3.2 milestone. Each maps to roadmap phases.
 
 - [ ] **GEN-01**: Assistant threads have a lightweight system prompt that instructs the CLI to use `save_artifact` tool for file generation requests
 - [ ] **GEN-02**: `artifact_generation` parameter is threaded through to `_stream_agent_chat()` for conditional behavior
-- [ ] **GEN-03**: `save_artifact` MCP tool is available and functional for Assistant thread file generation
-- [ ] **GEN-04**: Generated file content is persisted via Artifact model and retrievable via existing artifact API
+- [x] **GEN-03**: `save_artifact` MCP tool is available and functional for Assistant thread file generation
+- [x] **GEN-04**: Generated file content is persisted via Artifact model and retrievable via existing artifact API
 
 ### File Generation Frontend
 
@@ -62,8 +62,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | CLI-05 | Phase 71 | Complete |
 | GEN-01 | Phase 72 | Pending |
 | GEN-02 | Phase 72 | Pending |
-| GEN-03 | Phase 72 | Pending |
-| GEN-04 | Phase 72 | Pending |
+| GEN-03 | Phase 72 | Complete |
+| GEN-04 | Phase 72 | Complete |
 | UI-01 | Phase 73 | Pending |
 | UI-02 | Phase 73 | Pending |
 | UI-03 | Phase 73 | Pending |

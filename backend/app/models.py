@@ -439,6 +439,7 @@ class ArtifactType(str, PyEnum):
     ACCEPTANCE_CRITERIA = "acceptance_criteria"
     REQUIREMENTS_DOC = "requirements_doc"
     BRD = "brd"  # Business Requirements Document following brd-template.md structure
+    GENERATED_FILE = "generated_file"  # Assistant thread file generation (Phase 72)
 
 
 class Artifact(Base):

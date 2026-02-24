@@ -14,6 +14,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.config import settings
 from app.database import close_db, init_db
 from app.middleware import LoggingMiddleware
+from app.mcp_server import mcp_app
 from app.routes import artifacts, auth, conversations, documents, logs, projects, skills, threads
 from app.services.logging_service import get_logging_service
 
@@ -96,6 +97,11 @@ app.include_router(conversations.router, prefix="/api", tags=["Conversations"])
 app.include_router(artifacts.router, prefix="/api", tags=["Artifacts"])
 app.include_router(skills.router, prefix="/api", tags=["Skills"])
 app.include_router(logs.router)
+
+# Mount FastMCP server at /mcp — Claude CLI subprocesses connect here via --mcp-config.
+# MUST be at module level (not inside lifespan) so routes are registered before process pool
+# warm-up in lifespan. Avoids ECONNREFUSED on first request (Pitfall 4 from research).
+app.mount("/mcp", mcp_app.streamable_http_app())
 
 
 @app.get("/")

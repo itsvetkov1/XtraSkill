@@ -1,7 +1,7 @@
 # BUG-024: Dead Code — AgentService Not Wired into Production Path
 
 **Priority:** High
-**Status:** Open
+**Status:** Done
 **Component:** Backend / Services / Agent Service
 **Discovered:** 2026-02-25
 

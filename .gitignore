@@ -69,3 +69,4 @@ nul
 
 # Test results (manual QA artifacts)
 test results/
+backend/logs/

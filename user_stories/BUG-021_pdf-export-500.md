@@ -1,7 +1,7 @@
 # BUG-021: PDF Export Returns 500 Error
 
 **Priority:** High
-**Status:** Open
+**Status:** Done
 **Component:** Backend / Export Service
 **Discovered:** 2026-02-08
 

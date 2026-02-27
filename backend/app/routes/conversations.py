@@ -25,7 +25,7 @@ from app.services.conversation_service import (
 from app.services.token_tracking import track_token_usage, check_user_budget
 from app.services.summarization_service import maybe_update_summary
 
-# Model name for token tracking (AgentService uses claude-sonnet-4-5-20250514)
+# Model name for token tracking
 AGENT_MODEL = "claude-sonnet-4-5-20250514"
 
 router = APIRouter()

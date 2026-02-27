@@ -21,7 +21,6 @@ from app.services.brd_generator import (
     BRD_REQUIRED_SECTIONS,
     BRD_SECTIONS
 )
-from app.services.agent_service import AgentService
 
 
 class TestSkillLoading:
@@ -252,30 +251,6 @@ API response time under 200ms.
         )
         assert not passed
         assert "[ ]" in checklist
-
-
-class TestAgentServiceIntegration:
-    """Test AgentService integration with skill."""
-
-    def test_agent_service_loads_skill(self):
-        """Verify AgentService loads skill prompt."""
-        service = AgentService()
-        assert service.skill_prompt is not None
-        assert len(service.skill_prompt) > 1000
-
-    def test_agent_service_has_tools(self):
-        """Verify AgentService has required tools."""
-        service = AgentService()
-        assert service.tools_server is not None
-        # Tools should be registered
-
-    def test_agent_service_skill_contains_protocols(self):
-        """Verify AgentService skill prompt contains key protocols."""
-        service = AgentService()
-        prompt = service.skill_prompt.lower()
-        assert "one question at a time" in prompt
-        assert "zero-assumption" in prompt or "never assume" in prompt
-        assert "technical" in prompt and ("redirect" in prompt or "boundary" in prompt)
 
 
 class TestSkillBehaviorValidation:

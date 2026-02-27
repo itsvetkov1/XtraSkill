@@ -1,8 +1,9 @@
 # BUG-023: Claude CLI Adapter Drops Conversation History
 
 **Priority:** Critical
-**Status:** Open
+**Status:** Done
 **Component:** Backend / LLM Adapters / Claude CLI Adapter
+**Fixed In:** v3.1.1 (Phases 68-70)
 
 ---
 

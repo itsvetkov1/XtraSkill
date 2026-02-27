@@ -1,7 +1,7 @@
 # User Stories Index
 
 **Project:** Business Analyst Assistant
-**Last Updated:** 2026-02-08
+**Last Updated:** 2026-02-25
 
 ---
 
@@ -20,11 +20,11 @@
 
 | Priority | Total | Open | Done | Wont Do |
 |----------|-------|------|------|---------|
-| Critical | 18 | 6 | 12 | 0 |
-| High | 19 | 12 | 6 | 1 |
-| Medium | 10 | 7 | 1 | 2 |
+| Critical | 20 | 7 | 13 | 0 |
+| High | 23 | 16 | 6 | 1 |
+| Medium | 14 | 11 | 1 | 2 |
 | Low | 4 | 3 | 1 | 0 |
-| **Total** | **51** | **28** | **20** | **3** |
+| **Total** | **61** | **37** | **21** | **3** |
 
 ---
 
@@ -39,7 +39,8 @@
 | [BUG-018](BUG-018_tool-description-single-call.md) | Tool description single-call enforcement | Backend / AI Service | BUG-016 fix layer 2 — tool description |
 | [BUG-019](BUG-019_history-filtering-fulfilled-requests.md) | History filtering for fulfilled requests | Backend / Conversation Service | BUG-016 fix layer 3 — structural fix |
 | [BUG-020](BUG-020_deepseek-cannot-read-documents.md) | DeepSeek Reasoner cannot read uploaded documents | Backend / AI Service / LLM Adapters | Documents invisible when provider lacks tool support |
-| [BUG-023](BUG-023_cli-adapter-drops-conversation-history.md) | Claude CLI adapter drops conversation history | Backend / LLM Adapters / Claude CLI | Only sends last message, discards full thread history |
+| [SKILL-001](SKILL-001_bind-skill-to-thread.md) | Bind selected skill to thread at runtime | Backend / Thread Model / Skill System | Prerequisite for skill prompt injection |
+| [SKILL-002](SKILL-002_inject-skill-prompt.md) | Inject skill system prompt into assistant threads | Backend / AI Service / Skill System | **Most critical gap** — skills are cosmetic without this |
 
 ### High Priority (Open)
 
@@ -57,6 +58,10 @@
 | [DOC-001](DOC-001_document-preview-upload.md) | Document preview before upload | Documents | Error prevention |
 | [THREAD-011](THREAD-011_silent-artifact-generation.md) | Silent artifact generation from buttons | Frontend + Backend | BUG-016 fix layer 4 — UX change |
 | [BUG-021](BUG-021_pdf-export-500.md) | PDF export returns 500 error | Backend / Export Service | DOCX works, PDF fails + connection leak |
+| [SKILL-003](SKILL-003_backend-skill-enforcement.md) | Backend enforcement of skill selection | Backend / Skills API / Chat Route | API contract for skill-to-runtime wiring |
+| [BUG-024](BUG-024_dead-code-agent-service.md) | Dead code — AgentService not wired into production | Backend / Services | Maintenance burden, developer confusion |
+| [ENH-012](ENH-012_assistant-direct-api.md) | Evaluate Direct API vs CLI for assistant threads | Backend / LLM Adapters | 120-400ms latency overhead for simple chats |
+| [ENH-011](ENH-011_backend-request-logging.md) | Comprehensive backend request logging | Backend / Observability | Debugging visibility |
 
 ### Medium Priority (Open)
 
@@ -68,7 +73,10 @@
 | [DOC-004](DOC-004_conversation-export.md) | Conversation export docs | Documentation | Feature clarity |
 | [DOC-003](DOC-003_token-refresh-docs.md) | Token refresh docs | Documentation | Documentation |
 | [DOC-005](DOC-005_file-size-error.md) | File size error UX | Documents | Error handling |
-| [BUG-022](BUG-022_token-usage-model-mismatch.md) | Token usage records wrong model name | Backend / Token Tracking | Hardcoded AGENT_MODEL instead of actual model |
+| [BUG-022](BUG-022_token-usage-model-mismatch.md) | Token usage records wrong model name | Backend / Token Tracking | Hardcoded AGENT_MODEL — affects all providers |
+| [BUG-026](BUG-026_datetime-utcnow-deprecation.md) | datetime.utcnow() deprecation across codebase | Backend / Multiple Files | Python 3.12 deprecation warning |
+| [BUG-028](BUG-028_artifact-correlation-timestamp-fragile.md) | Artifact correlation uses fragile timestamp window | Backend / Conversation Service | 5s window insufficient under load |
+| [DOC-006](DOC-006_thread-scoped-document-search.md) | Thread-scoped document search for assistant threads | Backend / Document Search | Search misses thread-scoped docs |
 
 ### Low Priority (Open)
 
@@ -77,12 +85,14 @@
 | [RESPONSIVE-001](RESPONSIVE-001_tablet-breakpoint.md) | Tablet breakpoint review | Layout | Polish |
 | [AUTH-001](AUTH-001_session-duration.md) | Session duration docs | Documentation | Documentation |
 | [STATE-001](STATE-001_usage-provider.md) | UsageProvider docs | Documentation | Documentation |
+| [BUG-025](BUG-025_summarization-print-not-logger.md) | Summarization uses print() instead of logger | Backend / Summarization Service | Errors invisible to logging |
+| [BUG-027](BUG-027_process-pool-refill-no-backoff.md) | Process pool refill loop has no backoff | Backend / LLM Adapters / Claude CLI | Floods logs on spawn failure |
 
 ---
 
 ## Completed Items
 
-### Critical (All Done)
+### Critical (Done)
 
 | ID | Title | Version |
 |----|-------|---------|
@@ -98,6 +108,7 @@
 | [BUG-013](BUG-013_global-threads-missing-created-at.md) | Global threads missing created_at | v1.9 |
 | [BUG-014](BUG-014_project-threads-missing-last-activity.md) | Project threads missing last_activity | v1.9 |
 | [BUG-015](BUG-015_shift-enter-newline.md) | Shift+Enter not creating new line | v1.9 |
+| [BUG-023](BUG-023_cli-adapter-drops-conversation-history.md) | Claude CLI adapter drops conversation history | v3.1.1 |
 
 ### High (Done)
 
@@ -148,7 +159,6 @@ Ideas beyond current scope. See [BACKLOG.md](BACKLOG.md) for details.
 | ENH-008 | Keyboard shortcuts |
 | ENH-009 | Offline mode |
 | ENH-010 | Accessibility audit |
-| ENH-011 | Backend request logging |
 
 ---
 
@@ -171,7 +181,8 @@ Ideas beyond current scope. See [BACKLOG.md](BACKLOG.md) for details.
 | AUTH- | Authentication |
 | STATE- | State management |
 | ENH- | Future enhancements |
+| SKILL- | Skill system (assistant flow) |
 
 ---
 
-*Last updated: 2026-02-18 — added BUG-023 (CLI adapter drops conversation history)*
+*Last updated: 2026-02-25 — added 10 stories from assistant flow review, moved BUG-023 to Done, added SKILL- prefix*

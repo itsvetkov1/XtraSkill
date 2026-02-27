@@ -3,7 +3,6 @@ Shared MCP tool definitions for BA Assistant.
 
 Provides reusable tool definitions for search_documents and save_artifact
 that can be used by:
-- AgentService (existing SDK-based chat) — uses ContextVars
 - ClaudeAgentAdapter (Phase 58 - SDK multi-turn) — uses HTTP transport with session registry
 - ClaudeCLIAdapter (Phase 59 - CLI subprocess)
 

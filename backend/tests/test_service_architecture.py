@@ -83,43 +83,7 @@ class TestServiceArchitecture:
                 if node.module and "skill_loader" in node.module:
                     pytest.fail("ai_service.py should NOT import skill_loader")
 
-    def test_agent_service_uses_skill_loader(self):
-        """
-        Verify agent_service.py DOES import skill_loader (but is unused).
 
-        This confirms agent_service is the SDK-based approach.
-        """
-        service_file = Path(__file__).parent.parent / "app" / "services" / "agent_service.py"
-        source = service_file.read_text(encoding="utf-8")
-        tree = ast.parse(source)
-
-        skill_loader_imported = False
-        for node in ast.walk(tree):
-            if isinstance(node, ast.ImportFrom):
-                if node.module and "skill_loader" in node.module:
-                    skill_loader_imported = True
-
-        assert skill_loader_imported, "agent_service.py should import skill_loader (SDK approach)"
-
-    def test_agent_service_not_imported_by_any_route(self):
-        """
-        Verify no route file imports from agent_service.
-
-        This confirms agent_service.py is dead code.
-        """
-        routes_dir = Path(__file__).parent.parent / "app" / "routes"
-
-        for route_file in routes_dir.glob("*.py"):
-            if route_file.name == "__init__.py":
-                continue
-
-            source = route_file.read_text(encoding="utf-8")
-            tree = ast.parse(source)
-
-            for node in ast.walk(tree):
-                if isinstance(node, ast.ImportFrom):
-                    if node.module and "agent_service" in node.module:
-                        pytest.fail(f"{route_file.name} imports agent_service - should not happen")
 
     def test_system_prompt_contains_business_analyst_content(self):
         """
@@ -167,18 +131,6 @@ class TestToolDefinitions:
 
         assert "DOCUMENT_SEARCH_TOOL" in tool_constants, "Should define DOCUMENT_SEARCH_TOOL"
         assert "SAVE_ARTIFACT_TOOL" in tool_constants, "Should define SAVE_ARTIFACT_TOOL"
-
-    def test_agent_service_uses_decorator_tools(self):
-        """
-        Verify agent_service.py uses @tool decorator (SDK approach).
-
-        This confirms it's the Claude Agent SDK pattern.
-        """
-        service_file = Path(__file__).parent.parent / "app" / "services" / "agent_service.py"
-        source = service_file.read_text(encoding="utf-8")
-
-        assert "@tool(" in source, "agent_service.py should use @tool decorator (SDK approach)"
-        assert "from claude_agent_sdk" in source, "agent_service.py should import from claude_agent_sdk"
 
 
 class TestRuntimeVerification:

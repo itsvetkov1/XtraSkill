@@ -264,7 +264,7 @@ def format_preflight_checklist(
     return all_passed, checklist
 
 
-# Context variables for tool (imported from agent_service)
+# Context variables for tool
 _db_context: ContextVar[Any] = ContextVar("db_context")
 _thread_id_context: ContextVar[str] = ContextVar("thread_id_context")
 

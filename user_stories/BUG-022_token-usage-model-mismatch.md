@@ -23,6 +23,8 @@ When a chat uses DeepSeek Reasoner, the token usage is recorded with model `clau
 
 The issue is in the conversations route, which uses a hardcoded `AGENT_MODEL` constant for token tracking rather than reading the actual model from the thread or AI service response.
 
+**Additional finding (2026-02-25):** This also affects assistant threads. The `AGENT_MODEL` constant is set to `claude-sonnet-4-5-20250514` but assistant threads actually use `claude-sonnet-4-5-20250929` (DEFAULT_MODEL in `claude_cli_adapter.py`). All assistant thread cost reporting is inaccurate.
+
 ---
 
 ## Steps to Reproduce

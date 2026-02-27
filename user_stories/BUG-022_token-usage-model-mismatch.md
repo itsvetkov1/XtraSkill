@@ -1,7 +1,7 @@
 # BUG-022: Token Usage Records Wrong Model Name
 
 **Priority:** Medium
-**Status:** Open
+**Status:** Done
 **Component:** Backend / Token Tracking
 **Discovered:** 2026-02-08
 

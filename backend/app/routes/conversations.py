@@ -154,6 +154,7 @@ async def stream_chat(
         """Generate SSE events from AI response with heartbeat during silence."""
         accumulated_text = ""
         usage_data = None
+        actual_model = None
 
         try:
             # Create raw stream generator
@@ -191,6 +192,7 @@ async def stream_chat(
                 if event.get("event") == "message_complete":
                     data = json.loads(event["data"])
                     usage_data = data.get("usage", {})
+                    actual_model = data.get("model", None)
                     accumulated_text = data.get("content", accumulated_text)
 
                 yield event
@@ -201,10 +203,12 @@ async def stream_chat(
 
             # Track token usage
             if usage_data:
+                # Use actual model from AI response, fall back to thread provider, then constant
+                model_name = actual_model or thread.model_provider or AGENT_MODEL
                 await track_token_usage(
                     db,
                     current_user["user_id"],
-                    AGENT_MODEL,
+                    model_name,
                     usage_data.get("input_tokens", 0),
                     usage_data.get("output_tokens", 0),
                     f"/threads/{thread_id}/chat",

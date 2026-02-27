@@ -1017,6 +1017,7 @@ class AIService:
                         "data": json.dumps({
                             "content": accumulated_text,
                             "usage": usage_data,
+                            "model": self.adapter.model if hasattr(self.adapter, "model") else "unknown",
                             "documents_used": documents_used
                         })
                     }
@@ -1182,7 +1183,8 @@ class AIService:
                         "event": "message_complete",
                         "data": json.dumps({
                             "content": accumulated_text,
-                            "usage": usage_data or {}
+                            "usage": usage_data or {},
+                            "model": self.adapter.model if hasattr(self.adapter, "model") else "unknown"
                         })
                     }
                     return
@@ -1249,7 +1251,8 @@ class AIService:
                             "event": "message_complete",
                             "data": json.dumps({
                                 "content": accumulated_text,
-                                "usage": usage_data or {}
+                                "usage": usage_data or {},
+                                "model": self.adapter.model if hasattr(self.adapter, "model") else "unknown"
                             })
                         }
                         return

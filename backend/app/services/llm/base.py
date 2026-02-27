@@ -133,3 +133,17 @@ class LLMAdapter(ABC):
         # This yield is required to make this an async generator
         # Concrete implementations will override this entirely
         yield StreamChunk(chunk_type="error", error="Not implemented")
+
+
+    @property
+    def supports_tools(self) -> bool:
+        """
+        Whether this adapter reliably supports tool calling.
+
+        Adapters that do not support tools will have project documents
+        injected into the system prompt as a fallback.
+
+        Returns:
+            True for all providers except those with known unstable tool support
+        """
+        return True

@@ -13,7 +13,8 @@ from app.services.document_search import search_documents
 from app.services.llm import LLMFactory, StreamChunk
 from app.services.logging_service import get_logging_service
 from app.middleware.logging_middleware import get_correlation_id
-from app.models import Artifact, ArtifactType
+from app.models import Artifact, ArtifactType, Document
+from sqlalchemy import select
 from app.services.conversation_service import estimate_messages_tokens
 
 # Emergency token ceiling for agent providers (above the 150K soft limit in conversation_service)
@@ -123,6 +124,54 @@ async def stream_with_heartbeat(
             await heartbeat_task
         except asyncio.CancelledError:
             pass
+
+
+
+
+async def _fetch_project_documents(db, project_id: str, max_docs: int = 5) -> str:
+    """
+    Fetch project document content for providers that do not support tool calling.
+
+    Returns a formatted string with document content to inject into the system prompt,
+    or an empty string if no documents are found.
+
+    Args:
+        db: Database session
+        project_id: Project ID to fetch documents for
+        max_docs: Maximum number of documents to include (token budget)
+    """
+    if not project_id or not db:
+        return ""
+
+    try:
+        stmt = (
+            select(Document)
+            .where(Document.project_id == project_id)
+            .where(Document.content_text.isnot(None))
+            .order_by(Document.created_at)
+            .limit(max_docs)
+        )
+        result = await db.execute(stmt)
+        docs = result.scalars().all()
+
+        if not docs:
+            return ""
+
+        header = "<project_documents>"
+        note = "  <note>Your provider does not support document search. Project documents are included directly below.</note>"
+        footer = "</project_documents>"
+        parts = ["\n\n" + header, note]
+        for doc in docs:
+            content = (doc.content_text or "")[:3000]
+            tag_open = f'  <document filename="{doc.filename}">'
+            tag_close = "  </document>"
+            parts.append(tag_open + "\n" + content + "\n" + tag_close)
+        parts.append(footer)
+        return "\n".join(parts)
+    except Exception:
+        return ""
+
+
 
 
 # System prompt for BA assistant behavior - Business Analyst Skill (transformed from .claude/business-analyst/)
@@ -1116,6 +1165,12 @@ class AIService:
         try:
             # LOGIC-01: No system prompt for Assistant threads (per locked decision)
             system_prompt = SYSTEM_PROMPT if self.thread_type == "ba_assistant" else ""
+
+            # BUG-020: Inject project documents when adapter lacks reliable tool support
+            if not getattr(self.adapter, 'supports_tools', True) and project_id:
+                doc_context = await _fetch_project_documents(db, project_id)
+                if doc_context:
+                    system_prompt = system_prompt + doc_context
 
             while True:
                 accumulated_text = ""

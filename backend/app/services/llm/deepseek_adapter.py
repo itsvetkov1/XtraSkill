@@ -61,6 +61,11 @@ class DeepSeekAdapter(LLMAdapter):
         """Return the DeepSeek provider identifier."""
         return LLMProvider.DEEPSEEK
 
+    @property
+    def supports_tools(self) -> bool:
+        """deepseek-reasoner has unstable tool support — use document injection instead."""
+        return self.model != "deepseek-reasoner"
+
     async def stream_chat(
         self,
         messages: List[Dict[str, Any]],

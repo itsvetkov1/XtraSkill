@@ -3,6 +3,8 @@ Thread summarization service for AI-generated titles.
 
 Generates concise thread titles based on conversation content.
 Updates automatically as conversation progresses.
+import logging
+logger = logging.getLogger(__name__)
 """
 import anthropic
 from typing import List, Dict, Any, Optional
@@ -164,5 +166,5 @@ async def maybe_update_summary(
 
     except Exception as e:
         # Log error but don't fail the main request
-        print(f"Summarization failed: {e}")
+        logger.error("Summarization failed", exc_info=True)
         return None

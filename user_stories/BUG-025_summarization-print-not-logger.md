@@ -1,7 +1,7 @@
 # BUG-025: Summarization Service Uses print() Instead of Logger
 
 **Priority:** Low
-**Status:** Open
+**Status:** Done
 **Component:** Backend / Summarization Service
 **Discovered:** 2026-02-25
 

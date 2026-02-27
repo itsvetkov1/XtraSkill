@@ -1,7 +1,7 @@
 # BUG-017: System Prompt Artifact Deduplication Rule
 
 **Priority:** Critical
-**Status:** Open
+**Status:** Done - Already implemented (priority 2 rule exists)
 **Component:** Backend / AI Service
 **Parent:** BUG-016 (Artifact generation multiplies on repeated requests)
 **Implementation Order:** 1 of 4 (implement first)

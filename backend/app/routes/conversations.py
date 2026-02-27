@@ -128,8 +128,8 @@ async def stream_chat(
         await save_message(db, thread_id, "user", body.content)
 
     # Update thread activity timestamp
-    from datetime import datetime
-    thread.last_activity_at = datetime.utcnow()
+    from datetime import datetime, timezone
+    thread.last_activity_at = datetime.now(timezone.utc)
     await db.commit()
 
     # Build conversation context from thread history

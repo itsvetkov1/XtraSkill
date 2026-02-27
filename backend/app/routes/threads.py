@@ -11,7 +11,7 @@ Supports two ownership models:
 - Project-less: thread directly owned by user (global chats)
 """
 
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
@@ -291,7 +291,7 @@ async def create_global_thread(
         model_provider=thread_data.model_provider or "anthropic",
         conversation_mode=thread_data.conversation_mode,
         thread_type=thread_data.thread_type,
-        last_activity_at=datetime.utcnow()
+        last_activity_at=datetime.now(timezone.utc)
     )
 
     db.add(thread)
@@ -383,7 +383,7 @@ async def create_thread(
         model_provider=thread_data.model_provider or "anthropic",
         conversation_mode=thread_data.conversation_mode,
         thread_type=thread_data.thread_type,
-        last_activity_at=datetime.utcnow()
+        last_activity_at=datetime.now(timezone.utc)
     )
 
     db.add(thread)

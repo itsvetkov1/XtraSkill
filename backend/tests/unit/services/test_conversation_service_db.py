@@ -99,19 +99,19 @@ class TestBuildConversationContext:
             thread_id=thread.id,
             role="user",
             content="First",
-            created_at=datetime.utcnow() - timedelta(minutes=2)
+            created_at=datetime.now(timezone.utc) - timedelta(minutes=2)
         )
         msg2 = Message(
             thread_id=thread.id,
             role="assistant",
             content="Second",
-            created_at=datetime.utcnow() - timedelta(minutes=1)
+            created_at=datetime.now(timezone.utc) - timedelta(minutes=1)
         )
         msg3 = Message(
             thread_id=thread.id,
             role="user",
             content="Third",
-            created_at=datetime.utcnow()
+            created_at=datetime.now(timezone.utc)
         )
         db_session.add_all([msg1, msg2, msg3])
         await db_session.commit()
@@ -151,7 +151,7 @@ class TestBuildConversationContext:
         db_session.add(thread)
         await db_session.commit()
 
-        base_time = datetime.utcnow()
+        base_time = datetime.now(timezone.utc)
 
         # Create first pair (user request + assistant response) with artifact
         msg1 = Message(

@@ -113,7 +113,7 @@ async def save_message(
     result = await db.execute(stmt)
     thread = result.scalar_one_or_none()
     if thread:
-        thread.updated_at = datetime.utcnow()
+        thread.updated_at = datetime.now(timezone.utc)
         await db.commit()
 
     return message

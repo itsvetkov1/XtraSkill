@@ -42,7 +42,7 @@ def create_access_token(user_id: str, email: str) -> str:
         - exp: expiration timestamp (7 days from now)
         - iat: issued at timestamp
     """
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
     expire = now + timedelta(days=ACCESS_TOKEN_EXPIRE_DAYS)
 
     payload = {

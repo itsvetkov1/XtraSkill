@@ -5,7 +5,7 @@ Tracks token usage per request, calculates costs, and enforces
 monthly budgets to prevent cost explosion.
 """
 from decimal import Decimal
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional
 from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -114,7 +114,7 @@ async def get_monthly_usage(
     Returns:
         Dict with total_cost, total_requests, total_input_tokens, total_output_tokens
     """
-    month_start = datetime.utcnow().replace(
+    month_start = datetime.now(timezone.utc).replace(
         day=1, hour=0, minute=0, second=0, microsecond=0
     )
 

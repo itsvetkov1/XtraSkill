@@ -1,7 +1,7 @@
 # BUG-026: datetime.utcnow() Deprecation Across Codebase
 
 **Priority:** Medium
-**Status:** Open
+**Status:** Done
 **Component:** Backend / Multiple Files
 **Discovered:** 2026-02-25
 

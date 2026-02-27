@@ -1,7 +1,7 @@
 # BUG-018: Tool Description Single-Call Enforcement
 
 **Priority:** Critical
-**Status:** Open
+**Status:** Done - Already implemented (line removed)
 **Component:** Backend / AI Service
 **Parent:** BUG-016 (Artifact generation multiplies on repeated requests)
 **Implementation Order:** 2 of 4 (implement after BUG-017)

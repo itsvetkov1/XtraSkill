@@ -86,6 +86,9 @@ class ClaudeProcessPool:
 
     POOL_SIZE = 2       # Number of processes to keep warm (sufficient for single-user dev)
     REFILL_DELAY = 0.1  # Seconds between refill loop checks
+    BACKOFF_BASE = 0.1  # Initial backoff delay (seconds)
+    BACKOFF_MAX = 30.0  # Max backoff delay (seconds)
+    BACKOFF_FAILURES_THRESHOLD = 10  # Log error after this many consecutive failures
 
     def __init__(self, cli_path: str, model: str):
         """
@@ -232,20 +235,40 @@ class ClaudeProcessPool:
         Background task that keeps the pool at POOL_SIZE.
 
         Checks every REFILL_DELAY seconds and spawns new processes
-        until the queue is full again. Handles QueueFull by terminating
-        any excess process.
+        until the queue is full again. Uses exponential backoff on
+        consecutive failures to avoid log flooding.
         """
+        consecutive_failures = 0
+        current_delay = self.BACKOFF_BASE
+        
         while self._running:
-            await asyncio.sleep(self.REFILL_DELAY)
+            delay = current_delay if consecutive_failures > 0 else self.REFILL_DELAY
+            await asyncio.sleep(delay)
+            
             while self._running and self._queue.qsize() < self.POOL_SIZE:
                 proc = await self._spawn_warm_process()
                 if proc:
                     try:
                         self._queue.put_nowait(proc)
+                        # Success - reset backoff
+                        consecutive_failures = 0
+                        current_delay = self.BACKOFF_BASE
                     except asyncio.QueueFull:
                         # Queue was filled by another task between checks
                         proc.terminate()
                         await proc.wait()
+                else:
+                    # Failure
+                    consecutive_failures += 1
+                    # Log error after threshold
+                    if consecutive_failures >= self.BACKOFF_FAILURES_THRESHOLD:
+                        logger.error(
+                            f"Process pool unable to maintain warm processes after {consecutive_failures} attempts. "
+                            "Check CLI installation and auth. Retrying with backoff."
+                        )
+                    # Exponential backoff
+                    current_delay = min(current_delay * 2, self.BACKOFF_MAX)
+                    break  # Exit inner loop to apply backoff
 
 
 # Module-level singleton for the process pool

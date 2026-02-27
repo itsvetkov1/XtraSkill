@@ -1,7 +1,7 @@
 # BUG-027: Process Pool Refill Loop Has No Backoff
 
 **Priority:** Low
-**Status:** Open
+**Status:** Done
 **Component:** Backend / LLM Adapters / Claude CLI
 **Discovered:** 2026-02-25
 

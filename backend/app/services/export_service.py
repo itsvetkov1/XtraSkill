@@ -56,6 +56,13 @@ def export_pdf(artifact: Artifact) -> BytesIO:
         ImportError: If WeasyPrint/GTK not available (Windows without GTK)
     """
     try:
+        # document_parser/__init__.py replaces xml.etree.ElementTree with defusedxml
+        # in sys.modules. WeasyPrint needs the real stdlib module (it imports Element,
+        # SubElement, tostring which defusedxml doesn't expose). Restore it here.
+        import sys
+        if 'defusedxml' in str(getattr(sys.modules.get('xml.etree.ElementTree'), '__file__', '')):
+            del sys.modules['xml.etree.ElementTree']
+        import xml.etree.ElementTree  # re-imports the real stdlib module
         from weasyprint import HTML
     except (ImportError, OSError) as e:
         raise ImportError(

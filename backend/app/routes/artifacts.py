@@ -3,8 +3,12 @@ Artifact endpoints for viewing generated business analysis artifacts.
 
 Provides GET endpoints only - artifact generation happens through chat with save_artifact tool.
 """
+import asyncio
+import logging
 from datetime import datetime
 from typing import List, Optional
+
+logger = logging.getLogger(__name__)
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.responses import StreamingResponse
@@ -210,21 +214,23 @@ async def export_artifact(
     # Generate export based on format
     try:
         if format == "md":
-            buffer = export_markdown(artifact)
+            buffer = await asyncio.to_thread(export_markdown, artifact)
         elif format == "pdf":
-            buffer = export_pdf(artifact)
+            buffer = await asyncio.to_thread(export_pdf, artifact)
         elif format == "docx":
-            buffer = export_docx(artifact)
+            buffer = await asyncio.to_thread(export_docx, artifact)
         else:
             raise HTTPException(status_code=400, detail=f"Unsupported format: {format}")
     except ImportError as e:
         # PDF export may fail without GTK/Pango system libraries
+        logger.error(f"Export {format} failed (ImportError): {e}", exc_info=True)
         raise HTTPException(
             status_code=500,
             detail=f"Export failed: {str(e)}"
         )
     except Exception as e:
         # Catch rendering errors (template issues, WeasyPrint crashes, etc.)
+        logger.error(f"Export {format} failed for artifact {artifact_id}: {e}", exc_info=True)
         raise HTTPException(
             status_code=500,
             detail=f"Export failed: {str(e)}"

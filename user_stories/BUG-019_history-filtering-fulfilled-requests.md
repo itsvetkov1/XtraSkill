@@ -1,7 +1,7 @@
 # BUG-019: History Filtering for Fulfilled Artifact Requests
 
 **Priority:** Critical
-**Status:** Open
+**Status:** Done
 **Component:** Backend / Conversation Service
 **Parent:** BUG-016 (Artifact generation multiplies on repeated requests)
 **Implementation Order:** 3 of 4 (implement after BUG-017 and BUG-018)

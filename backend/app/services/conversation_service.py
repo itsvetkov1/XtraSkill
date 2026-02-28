@@ -62,9 +62,16 @@ def _identify_fulfilled_pairs(
         if msg.role != "assistant":
             continue
 
-        # Check if any artifact was created within correlation window
+        # Check for ARTIFACT_CREATED marker in assistant message content
+        if hasattr(msg, 'content') and msg.content and 'ARTIFACT_CREATED:' in msg.content:
+            # Mark assistant message as fulfilled via marker
+            fulfilled_ids.add(msg.id)
+            if i > 0 and messages[i - 1].role == 'user':
+                fulfilled_ids.add(messages[i - 1].id)
+            continue  # Skip timestamp check - marker found
+
+        # Fallback: Check if any artifact was created within correlation window
         for artifact in artifacts:
-            # Use total_seconds() for safe comparison (handles timezone issues)
             time_diff = (artifact.created_at - msg.created_at).total_seconds()
 
             if 0 <= time_diff <= ARTIFACT_CORRELATION_WINDOW.total_seconds():

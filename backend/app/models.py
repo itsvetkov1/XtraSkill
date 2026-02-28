@@ -328,6 +328,14 @@ class Thread(Base):
         default=None
     )
 
+    # Selected skill ID for skill-based AI behavior (SKILL-001)
+    selected_skill: Mapped[Optional[str]] = mapped_column(
+        String(100),
+        nullable=True,
+        default=None,
+        index=True
+    )
+
     # Thread type discriminator (ba_assistant, assistant)
     thread_type: Mapped[str] = mapped_column(
         String(20),

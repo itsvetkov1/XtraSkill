@@ -43,6 +43,7 @@ class ThreadCreate(BaseModel):
     title: Optional[str] = Field(None, max_length=255)
     model_provider: Optional[str] = Field(None, max_length=20)
     conversation_mode: Optional[str] = Field(None, max_length=50)
+    selected_skill: Optional[str] = Field(None, max_length=100)
     thread_type: str = Field(default="ba_assistant", description="Thread type, defaults to ba_assistant for project-scoped threads")
 
 
@@ -52,6 +53,7 @@ class GlobalThreadCreate(BaseModel):
     project_id: Optional[str] = None  # Null = project-less thread
     model_provider: Optional[str] = Field(None, max_length=20)
     conversation_mode: Optional[str] = Field(None, max_length=50)
+    selected_skill: Optional[str] = Field(None, max_length=100)
     thread_type: str = Field(..., description="Required: ba_assistant or assistant")
 
 
@@ -60,6 +62,7 @@ class ThreadUpdate(BaseModel):
     title: Optional[str] = Field(None, max_length=255)
     project_id: Optional[str] = None  # For associating project-less chats with projects
     conversation_mode: Optional[str] = Field(None, max_length=50)
+    selected_skill: Optional[str] = Field(None, max_length=100)
 
 
 class MessageResponse(BaseModel):
@@ -81,6 +84,7 @@ class ThreadResponse(BaseModel):
     model_provider: Optional[str] = "anthropic"  # Default for backward compatibility
     conversation_mode: Optional[str] = None
     thread_type: str = "ba_assistant"
+    selected_skill: Optional[str] = None
     created_at: str
     updated_at: str
 
@@ -111,6 +115,7 @@ class GlobalThreadListResponse(BaseModel):
     model_provider: str
     conversation_mode: Optional[str] = None
     thread_type: str = "ba_assistant"
+    selected_skill: Optional[str] = None
 
     class Config:
         from_attributes = True
@@ -291,6 +296,7 @@ async def create_global_thread(
         model_provider=thread_data.model_provider or "anthropic",
         conversation_mode=thread_data.conversation_mode,
         thread_type=thread_data.thread_type,
+        selected_skill=thread_data.selected_skill,
         last_activity_at=datetime.now(timezone.utc)
     )
 
@@ -305,6 +311,7 @@ async def create_global_thread(
         model_provider=thread.model_provider or "anthropic",
         conversation_mode=thread.conversation_mode,
         thread_type=thread.thread_type,
+        selected_skill=thread.selected_skill,
         created_at=thread.created_at.isoformat(),
         updated_at=thread.updated_at.isoformat(),
     )
@@ -383,6 +390,7 @@ async def create_thread(
         model_provider=thread_data.model_provider or "anthropic",
         conversation_mode=thread_data.conversation_mode,
         thread_type=thread_data.thread_type,
+        selected_skill=thread_data.selected_skill,
         last_activity_at=datetime.now(timezone.utc)
     )
 
@@ -397,6 +405,7 @@ async def create_thread(
         model_provider=thread.model_provider or "anthropic",
         conversation_mode=thread.conversation_mode,
         thread_type=thread.thread_type,
+        selected_skill=thread.selected_skill,
         created_at=thread.created_at.isoformat(),
         updated_at=thread.updated_at.isoformat(),
     )
@@ -457,6 +466,7 @@ async def list_threads(
             model_provider=thread.model_provider or "anthropic",
             conversation_mode=thread.conversation_mode,
             thread_type=thread.thread_type or "ba_assistant",
+        selected_skill=thread.selected_skill,
             created_at=thread.created_at.isoformat(),
             updated_at=thread.updated_at.isoformat(),
             message_count=len(thread.messages),
@@ -532,6 +542,7 @@ async def get_thread(
         model_provider=thread.model_provider or "anthropic",
         conversation_mode=thread.conversation_mode,
         thread_type=thread.thread_type or "ba_assistant",
+        selected_skill=thread.selected_skill,
         created_at=thread.created_at.isoformat(),
         updated_at=thread.updated_at.isoformat(),
         messages=[
@@ -644,6 +655,10 @@ async def update_thread(
             )
         thread.conversation_mode = update_data.conversation_mode
 
+    # Handle selected_skill update
+    if update_data.selected_skill is not None:
+        thread.selected_skill = update_data.selected_skill
+
     await db.commit()
     await db.refresh(thread)
 
@@ -654,6 +669,7 @@ async def update_thread(
         model_provider=thread.model_provider or "anthropic",
         conversation_mode=thread.conversation_mode,
         thread_type=thread.thread_type or "ba_assistant",
+        selected_skill=thread.selected_skill,
         created_at=thread.created_at.isoformat(),
         updated_at=thread.updated_at.isoformat(),
     )

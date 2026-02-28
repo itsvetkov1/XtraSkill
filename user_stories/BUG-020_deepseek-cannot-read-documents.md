@@ -1,7 +1,9 @@
 # BUG-020: DeepSeek Reasoner Cannot Read Uploaded Documents
 
 **Priority:** Critical
-**Status:** Open
+**Status:** Done
+
+**Resolution:** Already implemented. The code at `ai_service.py:1169-1171` injects project documents into the system prompt when the adapter doesn't support tools (via `supports_tools` property). The DeepSeek adapter returns `False` for reasoner models, triggering automatic document injection.
 **Component:** Backend / AI Service / LLM Adapters
 **Discovered:** 2026-02-08
 

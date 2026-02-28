@@ -1,7 +1,7 @@
 # DOC-002: Add Download Option in Document Viewer
 
 **Priority:** Medium
-**Status:** Open
+**Status:** Done
 **Component:** Document Viewer Screen
 
 ---

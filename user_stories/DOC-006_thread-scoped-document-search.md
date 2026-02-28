@@ -1,7 +1,7 @@
 # DOC-006: Thread-Scoped Document Search for Assistant Threads
 
 **Priority:** Medium
-**Status:** Open
+**Status:** Done
 **Component:** Backend / Document Search / MCP Tools
 **Source:** ASSISTANT_FLOW_REVIEW.md — GAP-04
 

@@ -1,7 +1,7 @@
 # THREAD-007: Add Dedicated Artifact Generation UI
 
 **Priority:** High
-**Status:** Open
+**Status:** Done
 **Component:** Conversation Screen
 
 ---

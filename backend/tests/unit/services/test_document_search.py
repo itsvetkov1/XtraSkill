@@ -2,7 +2,7 @@
 
 import pytest
 from app.services.document_search import index_document, search_documents
-from app.models import Document, Project
+from app.models import Document, Project, Thread, ThreadType
 
 
 class TestIndexDocument:
@@ -464,4 +464,102 @@ class TestSearchDocumentsEdgeCases:
         fake_project_id = str(uuid.uuid4())
 
         results = await search_documents(db_session, fake_project_id, "test")
+        assert results == []
+
+
+class TestThreadScopedDocumentSearch:
+    """Tests for DOC-006: thread-scoped document search fallback."""
+
+    @pytest.mark.asyncio
+    async def test_thread_scoped_search_finds_thread_documents(self, db_session, user):
+        """When no project_id, search finds documents scoped to thread."""
+        db_session.add(user)
+        await db_session.commit()
+
+        thread = Thread(
+            user_id=user.id,
+            title="Assistant Thread",
+            thread_type=ThreadType.ASSISTANT,
+        )
+        db_session.add(thread)
+        await db_session.commit()
+
+        doc = Document(
+            thread_id=thread.id,
+            project_id=None,
+            filename="thread_doc.md",
+            content_encrypted=b"encrypted"
+        )
+        db_session.add(doc)
+        await db_session.commit()
+
+        await index_document(db_session, doc.id, doc.filename, "thread scoped content here")
+        await db_session.commit()
+
+        # Without thread_id: returns empty (old behavior)
+        results = await search_documents(db_session, None, "scoped")
+        assert results == []
+
+        # With thread_id fallback: finds the document
+        results = await search_documents(db_session, None, "scoped", thread_id=thread.id)
+        assert len(results) == 1
+        assert results[0][0] == doc.id
+
+    @pytest.mark.asyncio
+    async def test_thread_scope_does_not_leak_to_other_threads(self, db_session, user):
+        """Thread-scoped search does not return documents from other threads."""
+        db_session.add(user)
+        await db_session.commit()
+
+        thread1 = Thread(user_id=user.id, title="Thread 1", thread_type=ThreadType.ASSISTANT)
+        thread2 = Thread(user_id=user.id, title="Thread 2", thread_type=ThreadType.ASSISTANT)
+        db_session.add_all([thread1, thread2])
+        await db_session.commit()
+
+        doc1 = Document(thread_id=thread1.id, project_id=None, filename="t1.md", content_encrypted=b"x")
+        doc2 = Document(thread_id=thread2.id, project_id=None, filename="t2.md", content_encrypted=b"x")
+        db_session.add_all([doc1, doc2])
+        await db_session.commit()
+
+        await index_document(db_session, doc1.id, doc1.filename, "alpha unique content")
+        await index_document(db_session, doc2.id, doc2.filename, "beta unique content")
+        await db_session.commit()
+
+        # Thread 1 search should not find thread 2's documents
+        results = await search_documents(db_session, None, "beta", thread_id=thread1.id)
+        assert results == []
+
+        # Thread 2 search should not find thread 1's documents
+        results = await search_documents(db_session, None, "alpha", thread_id=thread2.id)
+        assert results == []
+
+    @pytest.mark.asyncio
+    async def test_project_scope_takes_precedence_over_thread(self, db_session, user):
+        """When project_id is provided, it takes precedence over thread_id."""
+        db_session.add(user)
+        await db_session.commit()
+
+        project = Project(user_id=user.id, name="Project")
+        thread = Thread(user_id=user.id, title="Thread", thread_type=ThreadType.ASSISTANT)
+        db_session.add_all([project, thread])
+        await db_session.commit()
+
+        proj_doc = Document(project_id=project.id, thread_id=None, filename="proj.md", content_encrypted=b"x")
+        thread_doc = Document(thread_id=thread.id, project_id=None, filename="thread.md", content_encrypted=b"x")
+        db_session.add_all([proj_doc, thread_doc])
+        await db_session.commit()
+
+        await index_document(db_session, proj_doc.id, proj_doc.filename, "project content gamma")
+        await index_document(db_session, thread_doc.id, thread_doc.filename, "thread content gamma")
+        await db_session.commit()
+
+        # With both project_id and thread_id, project takes precedence
+        results = await search_documents(db_session, project.id, "gamma", thread_id=thread.id)
+        assert len(results) == 1
+        assert results[0][0] == proj_doc.id
+
+    @pytest.mark.asyncio
+    async def test_both_null_returns_empty(self, db_session):
+        """Returns empty when both project_id and thread_id are None."""
+        results = await search_documents(db_session, None, "test", thread_id=None)
         assert results == []

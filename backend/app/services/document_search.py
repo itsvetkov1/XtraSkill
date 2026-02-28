@@ -37,23 +37,28 @@ async def search_documents(
     db: AsyncSession,
     project_id: str,
     query: str,
-    max_chunks: int = 3  # AI-02: Token budget — limit retrieval
+    max_chunks: int = 3,  # AI-02: Token budget — limit retrieval
+    thread_id: str | None = None,
 ) -> List[Tuple[str, str, str, float, str, str]]:
     """
     Search documents with metadata.
 
+    Searches by project_id when available. Falls back to thread_id scope
+    for assistant threads that have no project association (DOC-006).
+
     Args:
         db: Database session
-        project_id: Project ID to search within
+        project_id: Project ID to search within (primary scope)
         query: Search query (FTS5 syntax)
         max_chunks: Maximum chunks to return (default 3 for token budget)
+        thread_id: Thread ID to search within (fallback scope for projectless threads)
 
     Returns:
         List of tuples: (document_id, filename, snippet, score, content_type, metadata_json)
         Results ordered by BM25 relevance score (higher is better)
     """
-    # Skip search for project-less chats or empty queries
-    if not project_id or not query or not query.strip():
+    # Require at least one scope identifier and a non-empty query
+    if (not project_id and not thread_id) or not query or not query.strip():
         return []
 
     # Sanitize query: bare '*' is invalid FTS5 syntax
@@ -62,22 +67,43 @@ async def search_documents(
         return []
 
     try:
-        result = await db.execute(
-        text("""
-            SELECT d.id, d.filename,
-                   snippet(document_fts, 2, '<mark>', '</mark>', '...', 20) as snippet,
-                   bm25(document_fts, 10.0, 1.0) as score,
-                   d.content_type,
-                   d.metadata_json
-            FROM documents d
-            JOIN document_fts fts ON d.id = fts.document_id
-            WHERE d.project_id = :project_id
-              AND document_fts MATCH :query
-            ORDER BY score
-            LIMIT :max_chunks
-        """),
-            {"project_id": project_id, "query": cleaned, "max_chunks": max_chunks}
-        )
+        if project_id:
+            # Primary: search within project scope
+            result = await db.execute(
+                text("""
+                    SELECT d.id, d.filename,
+                           snippet(document_fts, 2, '<mark>', '</mark>', '...', 20) as snippet,
+                           bm25(document_fts, 10.0, 1.0) as score,
+                           d.content_type,
+                           d.metadata_json
+                    FROM documents d
+                    JOIN document_fts fts ON d.id = fts.document_id
+                    WHERE d.project_id = :project_id
+                      AND document_fts MATCH :query
+                    ORDER BY score
+                    LIMIT :max_chunks
+                """),
+                {"project_id": project_id, "query": cleaned, "max_chunks": max_chunks}
+            )
+        else:
+            # Fallback: search within thread scope (DOC-006)
+            result = await db.execute(
+                text("""
+                    SELECT d.id, d.filename,
+                           snippet(document_fts, 2, '<mark>', '</mark>', '...', 20) as snippet,
+                           bm25(document_fts, 10.0, 1.0) as score,
+                           d.content_type,
+                           d.metadata_json
+                    FROM documents d
+                    JOIN document_fts fts ON d.id = fts.document_id
+                    WHERE d.thread_id = :thread_id
+                      AND d.project_id IS NULL
+                      AND document_fts MATCH :query
+                    ORDER BY score
+                    LIMIT :max_chunks
+                """),
+                {"thread_id": thread_id, "query": cleaned, "max_chunks": max_chunks}
+            )
         return [(row[0], row[1], row[2], row[3], row[4], row[5]) for row in result.fetchall()]
     except Exception:
         # Invalid FTS5 query syntax — return empty rather than crash

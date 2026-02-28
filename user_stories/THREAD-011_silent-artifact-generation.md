@@ -1,7 +1,7 @@
 # THREAD-011: Silent Artifact Generation from Buttons
 
 **Priority:** High
-**Status:** Open
+**Status:** Done
 **Component:** Frontend + Backend / Artifact Generation
 **Related:** BUG-016 (also eliminates accumulation for button-triggered requests)
 **Implementation Order:** 4 of 4 (implement after BUG-017, BUG-018, BUG-019)

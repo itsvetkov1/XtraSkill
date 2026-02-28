@@ -63,36 +63,42 @@ def unregister_db_session(session_id: str) -> None:
 def _get_context_from_headers_or_contextvar(
     args: Dict[str, Any],
     header_prefix: str = "X-"
-) -> tuple[Any, str, Optional[int]]:
+) -> tuple[Any, str, Optional[int], Optional[str]]:
     """
     Extract context from HTTP headers (if present) or fall back to ContextVar.
 
     Returns:
-        tuple: (db, project_id, max_results)
+        tuple: (db, project_id, max_results, thread_id)
     """
     # Try to extract from args (HTTP headers passed by SDK)
     # The SDK MCP HTTP transport may pass headers in the args dict
     session_id = args.get("X-DB-Session-ID") or args.get("x-db-session-id")
     project_id = args.get("X-Project-ID") or args.get("x-project-id")
+    thread_id_header = args.get("X-Thread-ID") or args.get("x-thread-id")
     max_results_str = args.get("X-Max-Results") or args.get("x-max-results")
 
     max_results = int(max_results_str) if max_results_str else None
 
-    if session_id and project_id:
+    if session_id:
         # HTTP transport mode
         db = _session_registry.get(session_id)
         if db:
-            logger.debug(f"Using HTTP context: session={session_id}, project={project_id}")
-            return db, project_id, max_results
+            logger.debug(f"Using HTTP context: session={session_id}, project={project_id}, thread={thread_id_header}")
+            return db, project_id, max_results, thread_id_header
 
     # Fall back to ContextVar
     try:
         db = _db_context.get()
         project_id = _project_id_context.get()
+        thread_id_ctx = None
+        try:
+            thread_id_ctx = _thread_id_context.get()
+        except LookupError:
+            pass
         logger.debug("Using ContextVar context")
-        return db, project_id, max_results
+        return db, project_id, max_results, thread_id_ctx
     except LookupError:
-        return None, None, max_results
+        return None, None, max_results, None
 
 
 # Tool definitions using @tool decorator
@@ -118,10 +124,10 @@ async def search_documents_tool(args: Dict[str, Any]) -> Dict[str, Any]:
     """Execute document search and return results."""
     query_text = args.get("query", "")
 
-    # Get context from HTTP headers or ContextVar
-    db, project_id, max_results = _get_context_from_headers_or_contextvar(args)
+    # Get context from HTTP headers or ContextVar (now includes thread_id)
+    db, project_id, max_results, thread_id = _get_context_from_headers_or_contextvar(args)
 
-    if not db or not project_id:
+    if not db or (not project_id and not thread_id):
         return {
             "content": [{
                 "type": "text",
@@ -129,7 +135,8 @@ async def search_documents_tool(args: Dict[str, Any]) -> Dict[str, Any]:
             }]
         }
 
-    results = await search_documents(db, project_id, query_text)
+    # Search by project scope first; fall back to thread scope (DOC-006)
+    results = await search_documents(db, project_id, query_text, thread_id=thread_id)
 
     if not results:
         return {

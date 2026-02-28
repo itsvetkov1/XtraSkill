@@ -1,7 +1,7 @@
 # BUDGET-001: Design Token Budget Exhaustion UX
 
 **Priority:** High
-**Status:** Open
+**Status:** Done
 **Component:** Settings Screen, Conversation Screen
 
 ---

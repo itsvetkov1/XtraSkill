@@ -433,7 +433,7 @@ When starting work on a story:
 
 ### Token Refresh Behavior
 
-OAuth tokens are automatically refreshed before expiration. Users remain authenticated without interruption under normal conditions.
+OAuth tokens are automatically refreshed before expiration. The access token expires after 7 days (configurable via `ACCESS_TOKEN_EXPIRE_DAYS` in `backend/app/utils/jwt.py`). Users remain authenticated without interruption under normal conditions.
 
 **Key behaviors:**
 - JWT tokens include an expiration timestamp

@@ -1,7 +1,7 @@
 # AUTH-001: Document Session Duration
 
 **Priority:** Low
-**Status:** Open
+**Status:** Done
 **Component:** Login Screen (Documentation)
 
 ---

@@ -1,7 +1,7 @@
 # DOC-003: Document OAuth Token Refresh Behavior
 
 **Priority:** Medium
-**Status:** Open
+**Status:** Done
 **Component:** Authentication (Documentation)
 
 ---

@@ -429,6 +429,23 @@ When starting work on a story:
 
 ---
 
+## Session Management
+
+### Token Refresh Behavior
+
+OAuth tokens are automatically refreshed before expiration. Users remain authenticated without interruption under normal conditions.
+
+**Key behaviors:**
+- JWT tokens include an expiration timestamp
+- Backend silently refreshes tokens before they expire during API calls
+- Users should never be interrupted for re-authentication during normal use
+
+**Edge case handling:**
+- If token refresh fails (e.g., revoked access, expired refresh token), the user receives a friendly re-authentication prompt
+- Session data is cleared gracefully on logout
+
+---
+
 ## Summary
 
 **The Golden Rule:**

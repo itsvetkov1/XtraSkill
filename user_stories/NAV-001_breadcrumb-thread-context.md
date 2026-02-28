@@ -1,7 +1,9 @@
 # NAV-001: Extend Breadcrumb to Include Thread Context
 
 **Priority:** High
-**Status:** Open
+**Status:** Done
+
+**Resolution:** Already implemented. Breadcrumb at `breadcrumb_bar.dart:145` handles `/projects/:id/threads/:threadId` route with full path: "Projects > {Project} > Threads > {Thread}". Also handles `/chats/:threadId` and `/assistant/:threadId`.
 **Component:** Breadcrumb Bar
 
 ---

@@ -1,7 +1,9 @@
 # BUG-016: Artifact Generation Multiplies on Repeated Requests
 
 **Priority:** Critical
-**Status:** Open
+**Status:** Done
+
+**Resolution:** Marker-based fix implemented. See commit f36d456 on minimax branch.
 **Component:** Agent / Artifact Generation
 
 ---

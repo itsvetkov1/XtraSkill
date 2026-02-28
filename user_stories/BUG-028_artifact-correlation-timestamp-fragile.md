@@ -1,7 +1,9 @@
 # BUG-028: Artifact Correlation Uses Fragile Timestamp Window
 
 **Priority:** Medium
-**Status:** Open
+**Status:** Done
+
+**Resolution:** Fixed by BUG-016 marker approach. The ARTIFACT_CREATED marker is now appended to assistant messages in the database, making timestamp correlation unnecessary. The `_identify_fulfilled_pairs()` function detects markers in message content, which is reliable regardless of server load or clock skew.
 **Component:** Backend / Conversation Service
 **Discovered:** 2026-02-25
 

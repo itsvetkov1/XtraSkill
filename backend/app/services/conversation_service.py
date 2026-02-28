@@ -287,3 +287,35 @@ async def inject_skill_context(
     }
     
     return [skill_message] + conversation
+
+
+def extract_document_sources(ai_response: str) -> list:
+    """
+    Extract document references from AI response.
+    
+    Looks for <document> tags and citation patterns in AI output.
+    Returns list of {filename, snippet} objects.
+    """
+    import re
+    
+    sources = []
+    
+    # Match <document filename="..."> patterns
+    doc_pattern = r'<document filename="([^"]+)">'
+    for match in re.finditer(doc_pattern, ai_response):
+        filename = match.group(1)
+        # Extract snippet after this tag until </document>
+        start = match.end()
+        end = ai_response.find('</document>', start)
+        if end > -1:
+            snippet = ai_response[start:end].strip()[:200]
+            sources.append({"filename": filename, "snippet": snippet})
+    
+    # Match <mark> tags (FTS5 highlight markers)
+    if not sources:
+        mark_pattern = r'<mark>([^<]+)</mark>'
+        snippets = re.findall(mark_pattern, ai_response)
+        if snippets:
+            sources = [{"filename": "referenced-document", "snippet": s[:200]} for s in snippets[:3]]
+    
+    return sources

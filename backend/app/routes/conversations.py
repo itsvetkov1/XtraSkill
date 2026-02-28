@@ -220,6 +220,12 @@ async def stream_chat(
             # Save assistant message after streaming completes (skip for silent generation)
             # Append ARTIFACT_CREATED marker if artifact was generated (for fulfillment detection)
             message_content = accumulated_text
+            # Extract and embed document sources
+            from app.services.conversation_service import extract_document_sources
+            sources = extract_document_sources(accumulated_text)
+            if sources:
+                message_content += f"\n\nSOURCES:{json.dumps(sources)}|"
+            
             if artifact_created_data:
                 message_content += f"\n\nARTIFACT_CREATED:{json.dumps(artifact_created_data)}|"
             if message_content and not body.artifact_generation:

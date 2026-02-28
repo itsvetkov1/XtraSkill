@@ -1,7 +1,7 @@
 # DOC-005: Document Maximum File Size Enforcement
 
 **Priority:** Medium
-**Status:** Open
+**Status:** Done
 **Component:** Document Upload Screen
 
 ---

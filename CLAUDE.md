@@ -435,6 +435,19 @@ When starting work on a story:
 
 OAuth tokens are automatically refreshed before expiration. The access token expires after 7 days (configurable via `ACCESS_TOKEN_EXPIRE_DAYS` in `backend/app/utils/jwt.py`). Users remain authenticated without interruption under normal conditions.
 
+### File Upload Validation
+
+Files are validated client-side before upload to provide immediate feedback.
+
+**Validation rules:**
+- Maximum file size: 10MB (configurable via \`_maxFileSizeBytes\` in document_upload_screen.dart)
+- Supported formats: txt, md, xlsx, csv, pdf, docx
+
+**Error handling:**
+- If file exceeds limit, dialog shows "File too large" with actual size and limit
+- User can immediately select a different file
+- No failed upload attempt hits the server
+
 **Key behaviors:**
 - JWT tokens include an expiration timestamp
 - Backend silently refreshes tokens before they expire during API calls

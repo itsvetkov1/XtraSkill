@@ -1,7 +1,9 @@
 # THREAD-005: Show Current Conversation Mode Persistently
 
 **Priority:** High
-**Status:** Open
+**Status:** Done
+
+**Resolution:** Already implemented. Mode badge in AppBar (`mode_badge.dart`) shows current mode as tappable chip. Mode change dialog (`mode_change_dialog.dart`) handles mode selection. Mode stored in thread.conversation_mode in database.
 **Component:** Conversation Screen
 
 ---

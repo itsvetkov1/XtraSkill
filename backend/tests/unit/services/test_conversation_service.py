@@ -228,6 +228,33 @@ class TestIdentifyFulfilledPairs:
 
         assert result == set()
 
+    def test_artifact_created_marker_detected(self):
+        """Message with ARTIFACT_CREATED marker is detected regardless of timestamp."""
+        base_time = datetime(2026, 2, 5, 12, 0, 0)
+        messages = [
+            SimpleNamespace(id="msg1", role="user", created_at=base_time),
+            SimpleNamespace(
+                id="msg2", 
+                role="assistant", 
+                created_at=base_time + timedelta(seconds=1),
+                content="Here is your BRD.\n\nARTIFACT_CREATED:{\"id\":\"art-123\",\"title\":\"Test\"}|"
+            ),
+            SimpleNamespace(id="msg3", role="user", created_at=base_time + timedelta(seconds=10)),
+            SimpleNamespace(
+                id="msg4", 
+                role="assistant", 
+                created_at=base_time + timedelta(seconds=11),
+                content="Regular response without artifact marker."
+            ),
+        ]
+        # No artifacts needed - marker in content should trigger detection
+        artifacts = []
+
+        result = _identify_fulfilled_pairs(messages, artifacts)
+
+        # Only msg2 should be filtered (has marker), msg4 should remain
+        assert result == {"msg1", "msg2"}
+
     def test_no_preceding_user_message(self):
         """Assistant message first in list (no preceding user) only filters assistant."""
         base_time = datetime(2026, 2, 5, 12, 0, 0)

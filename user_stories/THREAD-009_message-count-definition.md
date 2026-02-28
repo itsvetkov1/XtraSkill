@@ -1,7 +1,14 @@
 # THREAD-009: Clarify Message Count Definition
 
 **Priority:** Medium
-**Status:** Open
+**Status:** Done
+
+**Resolution:** Clarified - message count includes ALL messages (user + assistant). Backend at `threads.py:210` uses `len(t.messages)` which counts all messages. Format is "N messages" (total count).
+
+**Acceptance Criteria:**
+- [x] Update spec: "Message count includes both user and assistant messages" → Done (this is the implementation)
+- [x] Format in UI: "12 messages" (total) or "6 exchanges" (pairs) → Using total (N messages)
+- [x] Consistent with actual implementation → Yes, backend returns total count
 **Component:** Thread List Screen (Documentation)
 
 ---

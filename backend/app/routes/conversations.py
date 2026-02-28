@@ -134,6 +134,7 @@ async def stream_chat(
 
     # Build conversation context from thread history
     conversation = await build_conversation_context(db, thread_id)
+    conversation = await inject_skill_context(db, thread_id, conversation)
 
     # Append ephemeral instruction for silent generation (in-memory only, NOT persisted)
     if body.artifact_generation:

@@ -230,3 +230,60 @@ async def get_message_count(db: AsyncSession, thread_id: str) -> int:
     stmt = select(func.count(Message.id)).where(Message.thread_id == thread_id)
     result = await db.execute(stmt)
     return result.scalar() or 0
+
+
+# Skill prompt loading
+SKILLS_DIR = "/home/i_tsvetkov/claude_skills"
+
+def load_skill_prompt(skill_id: str) -> str | None:
+    """Load skill system prompt from skills directory."""
+    import os
+    skill_path = os.path.join(SKILLS_DIR, skill_id, "SKILL.md")
+    if os.path.exists(skill_path):
+        with open(skill_path, 'r') as f:
+            content = f.read()
+            # Extract system prompt section if exists
+            if "## System Prompt" in content:
+                section = content.split("## System Prompt")[1].split("##")[0]
+                return section.strip()
+            # Otherwise return first 2000 chars as prompt
+            return content[:2000]
+    return None
+
+
+async def inject_skill_context(
+    db: AsyncSession,
+    thread_id: str,
+    conversation: list
+) -> list:
+    """
+    Inject skill system prompt into conversation if thread has selected_skill.
+    
+    Args:
+        db: Database session
+        thread_id: ID of the thread
+        conversation: Current conversation context
+        
+    Returns:
+        Modified conversation with skill prompt prepended
+    """
+    # Fetch thread to get selected_skill
+    stmt = select(Thread).where(Thread.id == thread_id)
+    result = await db.execute(stmt)
+    thread = result.scalar_one_or_none()
+    
+    if not thread or not thread.selected_skill:
+        return conversation
+    
+    # Load skill prompt
+    skill_prompt = load_skill_prompt(thread.selected_skill)
+    if not skill_prompt:
+        return conversation
+    
+    # Prepend skill system message
+    skill_message = {
+        "role": "system",
+        "content": f"[SKILL: {thread.selected_skill}]\n\n{skill_prompt}"
+    }
+    
+    return [skill_message] + conversation

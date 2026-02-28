@@ -435,6 +435,21 @@ When starting work on a story:
 
 OAuth tokens are automatically refreshed before expiration. The access token expires after 7 days (configurable via `ACCESS_TOKEN_EXPIRE_DAYS` in `backend/app/utils/jwt.py`). Users remain authenticated without interruption under normal conditions.
 
+### State Management (Providers)
+
+The app uses Flutter's Provider pattern for state management. Key providers:
+
+| Provider | Purpose |
+|----------|---------|
+| AuthProvider | Authentication state, user info |
+| ProjectProvider | Project CRUD, selection |
+| ThreadProvider | Thread CRUD, active thread |
+| ConversationProvider | Message handling, streaming |
+| DocumentProvider | Document upload, list, search |
+| BudgetProvider | Token usage tracking (used, limit, percentage, isLoading, error) |
+| ThemeProvider | Theme persistence |
+| NavigationProvider | Route management |
+
 ### Document Preview Before Upload
 
 Before uploading, users can preview the file to verify it's the correct one.

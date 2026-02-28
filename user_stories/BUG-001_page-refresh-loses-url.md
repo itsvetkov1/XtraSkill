@@ -2,7 +2,9 @@
 
 **Reported:** 2026-01-30
 **Severity:** High
-**Status:** Open
+**Status:** Done
+
+**Resolution:** Implemented URL preservation. Stores intended URL in sessionStorage before redirect to splash. SplashScreen reads and restores URL after auth check. Uses existing UrlStorageService.
 
 ---
 

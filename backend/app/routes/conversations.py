@@ -155,6 +155,7 @@ async def stream_chat(
         accumulated_text = ""
         usage_data = None
         actual_model = None
+        artifact_created_data = None
 
         try:
             # Create raw stream generator
@@ -195,11 +196,20 @@ async def stream_chat(
                     actual_model = data.get("model", None)
                     accumulated_text = data.get("content", accumulated_text)
 
+                # Track artifact_created for marker in saved message
+                if event.get("event") == "artifact_created":
+                    data = json.loads(event["data"])
+                    artifact_created_data = data
+
                 yield event
 
             # Save assistant message after streaming completes (skip for silent generation)
-            if accumulated_text and not body.artifact_generation:
-                await save_message(db, thread_id, "assistant", accumulated_text)
+            # Append ARTIFACT_CREATED marker if artifact was generated (for fulfillment detection)
+            message_content = accumulated_text
+            if artifact_created_data:
+                message_content += f"\n\nARTIFACT_CREATED:{json.dumps(artifact_created_data)}|"
+            if message_content and not body.artifact_generation:
+                await save_message(db, thread_id, "assistant", message_content)
 
             # Track token usage
             if usage_data:

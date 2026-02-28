@@ -1,7 +1,7 @@
 # DOC-004: Document Conversation Export Feature
 
 **Priority:** Medium
-**Status:** Open
+**Status:** Done
 **Component:** Conversation Screen (Documentation)
 
 ---

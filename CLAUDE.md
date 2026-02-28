@@ -435,6 +435,30 @@ When starting work on a story:
 
 OAuth tokens are automatically refreshed before expiration. The access token expires after 7 days (configurable via `ACCESS_TOKEN_EXPIRE_DAYS` in `backend/app/utils/jwt.py`). Users remain authenticated without interruption under normal conditions.
 
+### Conversation Export
+
+Export is currently **per-artifact**, not per-thread. Each generated artifact (BRD, user stories, etc.) can be exported in three formats:
+
+**Supported formats:**
+- Markdown (.md): Plain text with original formatting
+- PDF (.pdf): Styled document using WeasyPrint
+- Word (.docx): Microsoft Word document using python-docx
+
+**How to export:**
+1. Open a conversation thread with an artifact
+2. Find the artifact in the sidebar or within the conversation
+3. Click the artifact's menu/overflow button
+4. Select export format
+
+**Export includes:**
+- Artifact title and content
+- Creation timestamp
+- Professional formatting per format type
+
+**Limitation:**
+- Per-thread/conversation export is not yet implemented (DOC-004)
+- Export all messages in a thread requires future enhancement
+
 ### File Upload Validation
 
 Files are validated client-side before upload to provide immediate feedback.

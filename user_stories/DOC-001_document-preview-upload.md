@@ -1,7 +1,7 @@
 # DOC-001: Add Document Preview Before Upload
 
 **Priority:** High
-**Status:** Open
+**Status:** Done
 **Component:** Document Upload Screen
 
 ---

@@ -435,6 +435,19 @@ When starting work on a story:
 
 OAuth tokens are automatically refreshed before expiration. The access token expires after 7 days (configurable via `ACCESS_TOKEN_EXPIRE_DAYS` in `backend/app/utils/jwt.py`). Users remain authenticated without interruption under normal conditions.
 
+### Document Preview Before Upload
+
+Before uploading, users can preview the file to verify it's the correct one.
+
+**Implementation:**
+- After file selection and size validation, preview dialog appears
+- Shows filename, file size
+- Format-specific preview:
+  - Text/Markdown: First 20 lines of content
+  - CSV: Table preview with first 10 rows + row count
+  - PDF/Word/Excel: Info message (preview not available)
+- "Upload" button confirms, "Cancel" clears selection
+
 ### Document Download
 
 Users can download their original uploaded documents from the Document Viewer.

@@ -8,6 +8,7 @@ and artifact generation tools.
 import json
 from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from pydantic import BaseModel, Field
+from typing import Optional
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
@@ -35,6 +36,7 @@ class ChatRequest(BaseModel):
     """Request model for chat message."""
     content: str = Field(..., min_length=1, max_length=32000)
     artifact_generation: bool = Field(default=False)
+    skill_id: Optional[str] = Field(None, max_length=100)
 
 
 async def validate_thread_access(
@@ -134,6 +136,10 @@ async def stream_chat(
 
     # Build conversation context from thread history
     conversation = await build_conversation_context(db, thread_id)
+    # Override skill from request body if provided
+    if body.skill_id:
+        thread.selected_skill = body.skill_id
+    
     conversation = await inject_skill_context(db, thread_id, conversation)
 
     # Append ephemeral instruction for silent generation (in-memory only, NOT persisted)

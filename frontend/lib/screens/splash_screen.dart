@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../providers/auth_provider.dart';
+import '../services/url_storage_service.dart';
 
 /// Splash screen that checks auth status and navigates appropriately
 class SplashScreen extends StatefulWidget {
@@ -28,6 +29,19 @@ class _SplashScreenState extends State<SplashScreen> {
   Future<void> _checkAuthAndNavigate() async {
     final authProvider = context.read<AuthProvider>();
     await authProvider.checkAuthStatus();
+    
+    // Check for stored return URL in sessionStorage
+    final urlStorage = UrlStorageService();
+    final storedUrl = urlStorage.getReturnUrl();
+    if (storedUrl != null && authProvider.isAuthenticated) {
+      // Clear stored URL and navigate to it
+      urlStorage.clearReturnUrl();
+      if (mounted) {
+        context.go(storedUrl);
+        return;
+      }
+    }
+    
     // Navigation is handled automatically by GoRouter's refreshListenable
     // When authProvider.notifyListeners() is called, the router redirect
     // will detect the auth state and navigate accordingly

@@ -20,6 +20,7 @@ import 'providers/document_column_provider.dart';
 import 'providers/document_provider.dart';
 import 'providers/project_provider.dart';
 import 'providers/navigation_provider.dart';
+import 'services/url_storage_service.dart';
 import 'providers/theme_provider.dart';
 import 'providers/provider_provider.dart';
 import 'providers/thread_provider.dart';
@@ -56,6 +57,7 @@ Future<void> main() async {
 
   // Initialize logging service with connectivity monitoring
   final loggingService = LoggingService();
+  final urlStorage = UrlStorageService();
   loggingService.init();
 
   // Sync logging provider state to service
@@ -220,10 +222,11 @@ class _MyAppState extends State<MyApp> {
         }
 
         // Loading: redirect to splash, preserve returnUrl
-        // CRITICAL: Use state.uri.toString() to capture full URL including query params
+        // Use UrlStorageService to persist across refresh
         if (isLoading && !isSplash && !isLogin && !isCallback) {
           final intendedUrl = currentUri.toString();
-          return '/splash?returnUrl=${Uri.encodeComponent(intendedUrl)}';
+          urlStorage.storeReturnUrl(intendedUrl);
+          return '/splash';
         }
 
         // Splash done loading, not authenticated: go to login with returnUrl

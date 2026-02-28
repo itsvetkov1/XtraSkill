@@ -136,6 +136,13 @@ async def stream_chat(
 
     # Build conversation context from thread history
     conversation = await build_conversation_context(db, thread_id)
+    # Enforce skill_id for assistant threads
+    if thread.thread_type == "assistant" and not body.skill_id and not thread.selected_skill:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="skill_id required for assistant threads"
+        )
+
     # Override skill from request body if provided
     if body.skill_id:
         thread.selected_skill = body.skill_id

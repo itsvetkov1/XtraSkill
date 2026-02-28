@@ -1,7 +1,9 @@
 # DELETE-001: Document Undo Behavior for Threads and Documents
 
 **Priority:** High
-**Status:** Open
+**Status:** Done
+
+**Resolution:** Already implemented. Both threads and documents have 10-second undo via SnackBar. Thread undo in `thread_provider.dart:241`, Document undo in `document_provider.dart:142`. Uses same pattern as project delete.
 **Component:** Thread List, Document List
 
 ---

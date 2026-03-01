@@ -1,7 +1,7 @@
 # INFRA-003 | OpenClaw Tools Integration
 
 **Priority:** Medium
-**Status:** Open
+**Status:** In Progress
 **Effort:** Medium
 **Component:** Backend / Tools
 
@@ -17,27 +17,44 @@ so that the AI agent can perform real-world tasks beyond just chat.
 
 ## Acceptance Criteria
 
-- [ ] AC-1: Map XtraSkill MCP tools (search_documents, save_artifact) to OpenClaw skill calls
-- [ ] AC-2: Add tool for spawning sub-agents (OpenClaw sessions_spawn)
-- [ ] AC-3: Handle tool responses from OpenClaw back to XtraSkill format
-- [ ] AC-4: Document tool mapping in `backend/docs/openclaw-tools.md`
+- [x] AC-1: Map XtraSkill MCP tools (search_documents, save_artifact) to OpenClaw skill calls
+- [x] AC-2: Add tool for spawning sub-agents (OpenClaw sessions_spawn)
+- [x] AC-3: Handle tool responses from OpenClaw back to XtraSkill format
+- [x] AC-4: Document tool mapping in `backend/docs/openclaw-tools.md`
 - [ ] AC-5: Add tool configuration UI in frontend (which tools to enable)
 
 ## Technical Notes
 
-OpenClaw provides these tool categories:
-- **Skills:** email, calendar, Twitter, web search, browser
-- **Sessions:** spawn, sessions_send, sessions_list
-- **Messaging:** Telegram, Discord, Signal
+### Tools Implemented
 
-XtraSkill currently has:
-- search_documents (document_search.py)
-- save_artifact (brd_generator.py)
+| Tool | Description |
+|------|-------------|
+| `search_documents` | Search project documents |
+| `save_artifact` | Save generated content |
+| `send_email` | Send email (requires email skill) |
+| `check_calendar` | Check Google Calendar |
+| `post_twitter` | Post to Twitter/X |
+| `spawn_subagent` | Spawn specialized sub-agent |
+| `web_search` | Search the web |
 
-Mapping strategy:
-- Keep existing tools working with Claude Code
-- Add OpenClaw tools only when using OpenClaw provider
+### Sub-Agent Types
+
+- `dev` - General development
+- `debugger` - Bug fixing
+- `code-reviewer` - Code review
+- `architect` - Architecture planning
+
+## Files Created
+
+- `backend/app/services/openclaw_tools/__init__.py`
+- `backend/app/services/openclaw_tools/tool_mapper.py`
+- `backend/app/services/openclaw_tools/subagent.py`
+- `backend/docs/OPENCLAW_TOOLS.md`
 
 ## Dependencies
 
 - INFRA-002: OpenClaw as LLM Provider
+
+## Related
+
+- Blocks: Frontend settings for tool configuration

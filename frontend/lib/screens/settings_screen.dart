@@ -10,6 +10,7 @@ import '../providers/auth_provider.dart';
 import '../providers/provider_provider.dart';
 import '../providers/theme_provider.dart';
 import '../providers/logging_provider.dart';
+import '../providers/tool_config_provider.dart';
 import '../services/auth_service.dart';
 
 /// Settings screen content displaying user profile, theme toggle, usage, and logout
@@ -153,6 +154,32 @@ class _SettingsScreenState extends State<SettingsScreen> {
             );
           },
         ),
+        // OpenClaw Tools Section
+        _buildSectionHeader(context, 'AI Tools (OpenClaw)'),
+        Consumer<ToolConfigProvider>(
+          builder: (context, toolConfig, _) {
+            return Column(
+              children: ToolConfigProvider.availableTools.map((tool) {
+                return SwitchListTile(
+                  title: Text(tool.name),
+                  subtitle: Text(
+                    tool.description + (tool.requiresExternalConfig ? ' (requires setup)' : ''),
+                  ),
+                  secondary: tool.requiresExternalConfig
+                      ? Tooltip(
+                          message: 'Requires external configuration',
+                          child: Icon(Icons.warning_amber_outlined, color: Colors.orange),
+                        )
+                      : null,
+                  value: toolConfig.isEnabled(tool.id),
+                  onChanged: (_) => toolConfig.toggleTool(tool.id),
+                );
+              }).toList(),
+            );
+          },
+        ),
+        const Divider(),
+
         Consumer<LoggingProvider>(
           builder: (context, loggingProvider, _) {
             return SwitchListTile(

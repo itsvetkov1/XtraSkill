@@ -26,6 +26,7 @@ import 'providers/provider_provider.dart';
 import 'providers/thread_provider.dart';
 import 'providers/chats_provider.dart';
 import 'providers/logging_provider.dart';
+import 'providers/tool_config_provider.dart';
 import 'screens/auth/callback_screen.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/home_screen.dart';
@@ -54,6 +55,7 @@ Future<void> main() async {
   final navigationProvider = await NavigationProvider.load(prefs);
   final providerProvider = await ProviderProvider.load(prefs);
   final loggingProvider = await LoggingProvider.load(prefs);
+  final toolConfigProvider = ToolConfigProvider(prefs);
 
   // Initialize logging service with connectivity monitoring
   final loggingService = LoggingService();
@@ -106,6 +108,7 @@ Future<void> main() async {
     navigationProvider: navigationProvider,
     providerProvider: providerProvider,
     loggingProvider: loggingProvider,
+    toolConfigProvider: toolConfigProvider,
   ));
 }
 
@@ -114,6 +117,7 @@ class MyApp extends StatefulWidget {
   final NavigationProvider navigationProvider;
   final ProviderProvider providerProvider;
   final LoggingProvider loggingProvider;
+  final ToolConfigProvider toolConfigProvider;
 
   const MyApp({
     super.key,
@@ -121,6 +125,7 @@ class MyApp extends StatefulWidget {
     required this.navigationProvider,
     required this.providerProvider,
     required this.loggingProvider,
+    required this.toolConfigProvider,
   });
 
   @override
@@ -139,6 +144,7 @@ class _MyAppState extends State<MyApp> {
         ChangeNotifierProvider.value(value: widget.navigationProvider),
         ChangeNotifierProvider.value(value: widget.providerProvider),
         ChangeNotifierProvider.value(value: widget.loggingProvider),
+        ChangeNotifierProvider.value(value: widget.toolConfigProvider),
         ChangeNotifierProvider(create: (_) => DocumentColumnProvider()),
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => BudgetProvider()),

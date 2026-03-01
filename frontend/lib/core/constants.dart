@@ -68,6 +68,14 @@ class ProviderConfigs {
     modelName: 'Claude Sonnet 4.5',
   );
 
+  static const openclaw = ProviderConfig(
+    id: 'openclaw',
+    displayName: 'OpenClaw',
+    color: Color(0xFF6366F1), // Indigo/purple
+    icon: Icons.hub_outlined,
+    isExperimental: true,
+  );
+
   /// Get config by provider ID, falls back to anthropic if unknown.
   static ProviderConfig getConfig(String? providerId) {
     switch (providerId) {
@@ -79,6 +87,8 @@ class ProviderConfigs {
         return claudeCodeSdk;
       case 'claude-code-cli':
         return claudeCodeCli;
+      case 'openclaw':
+        return openclaw;
       case 'anthropic':
       default:
         return anthropic;
@@ -86,5 +96,5 @@ class ProviderConfigs {
   }
 
   /// All available providers for dropdown.
-  static const List<ProviderConfig> all = [anthropic, google, deepseek, claudeCodeSdk, claudeCodeCli];
+  static const List<ProviderConfig> all = [anthropic, google, deepseek, claudeCodeSdk, claudeCodeCli, openclaw];
 }

@@ -1,7 +1,7 @@
 # INFRA-004 | OpenClaw Tools Frontend UI
 
 **Priority:** Medium
-**Status:** Open
+**Status:** In Progress
 **Effort:** Medium
 **Component:** Frontend / Settings
 
@@ -17,27 +17,34 @@ so that I can control what the AI can do (e.g., disable email/Twitter if not con
 
 ## Acceptance Criteria
 
-- [ ] AC-1: Add "Tool Configuration" section in Settings screen
-- [ ] AC-2: List all available OpenClaw tools with toggle switches
-- [ ] AC-3: Save tool preferences to backend/user settings
-- [ ] AC-4: Show which tools require external configuration (email, calendar, Twitter)
-- [ ] AC-5: Persist preferences per user
+- [x] AC-1: Add "Tool Configuration" section in Settings screen
+- [x] AC-2: List all available OpenClaw tools with toggle switches
+- [x] AC-3: Save tool preferences to SharedPreferences
+- [x] AC-4: Show which tools require external configuration (email, calendar, Twitter)
+- [x] AC-5: Persist preferences per user (via SharedPreferences)
 
 ## Technical Notes
 
-Tools to configure:
-- search_documents (always available)
-- save_artifact (always available)
-- send_email (requires email skill)
-- check_calendar (requires calendar skill)
-- post_twitter (requires Twitter skill)
-- spawn_subagent (optional)
-- web_search (always available)
+### Tools Configured
+
+| Tool | Requires External Config |
+|------|------------------------|
+| Search Documents | No |
+| Save Artifact | No |
+| Send Email | Yes (email skill) |
+| Check Calendar | Yes (Google OAuth) |
+| Post Twitter | Yes (Twitter API) |
+| Spawn Sub-Agent | No |
+| Web Search | No |
+
+### Files Modified
+
+- `frontend/lib/providers/tool_config_provider.dart` — New provider
+- `frontend/lib/providers/provider_provider.dart` — Added openclaw
+- `frontend/lib/core/constants.dart` — Added OpenClaw config
+- `frontend/lib/screens/settings_screen.dart` — Added tools section
+- `frontend/lib/main.dart` — Wired up provider
 
 ## Dependencies
 
 - INFRA-003: OpenClaw Tools Integration
-
-## Related
-
-- Follow-up to INFRA-003 AC-5

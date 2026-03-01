@@ -158,7 +158,15 @@ class OpenClawToolMapper:
         Args:
             enabled_tools: List of tool names to enable. If None, all tools enabled.
         """
-        self._enabled_tools = enabled_tools or [t["name"] for t in self.TOOL_DEFINITIONS]
+        # Use a dict for O(1) lookups
+        all_tool_names = {t["name"] for t in self.TOOL_DEFINITIONS}
+        if enabled_tools is None:
+            enabled_tools = list(all_tool_names)
+        
+        # Create dict: tool_name -> enabled
+        self._enabled_tools: Dict[str, bool] = {
+            name: name in enabled_tools for name in all_tool_names
+        }
     
     def get_tools(self) -> List[Dict[str, Any]]:
         """
@@ -169,22 +177,22 @@ class OpenClawToolMapper:
         """
         return [
             tool for tool in self.TOOL_DEFINITIONS
-            if tool["name"] in self._enabled_tools
+            if self._enabled_tools.get(tool["name"], False)
         ]
     
     def is_tool_enabled(self, tool_name: str) -> bool:
         """Check if a specific tool is enabled."""
-        return tool_name in self._enabled_tools
+        return self._enabled_tools.get(tool_name, False)
     
     def enable_tool(self, tool_name: str) -> None:
         """Enable a specific tool."""
-        if tool_name not in self._enabled_tools:
-            self._enabled_tools.append(tool_name)
+        if tool_name in self._enabled_tools:
+            self._enabled_tools[tool_name] = True
     
     def disable_tool(self, tool_name: str) -> None:
         """Disable a specific tool."""
         if tool_name in self._enabled_tools:
-            self._enabled_tools.remove(tool_name)
+            self._enabled_tools[tool_name] = False
 
 
 # Default instance

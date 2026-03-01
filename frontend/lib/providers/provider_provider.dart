@@ -25,6 +25,7 @@ class ProviderProvider extends ChangeNotifier {
     'deepseek',
     'claude-code-sdk',
     'claude-code-cli',
+    'openclaw',
   ];
 
   /// Private constructor for use by load() factory

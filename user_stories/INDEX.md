@@ -192,7 +192,7 @@ Ideas beyond current scope. See [BACKLOG.md](BACKLOG.md) for details.
 | ID | Title | Status |
 |----|-------|--------|
 | [INFRA-001](INFRA-001_docker-backend-setup.md) | Docker Backend Setup | Done |
-| [INFRA-002](INFRA-002_openclaw-llm-provider.md) | OpenClaw as LLM Provider | Open |
+| [INFRA-002](INFRA-002_openclaw-llm-provider.md) | OpenClaw as LLM Provider | Done |
 | [INFRA-003](INFRA-003_openclaw-tools-integration.md) | OpenClaw Tools Integration | Open |
 
 ---

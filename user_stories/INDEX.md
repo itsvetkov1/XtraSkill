@@ -198,3 +198,5 @@ Ideas beyond current scope. See [BACKLOG.md](BACKLOG.md) for details.
 ---
 
 *Last updated: 2026-03-01 — added INFRA prefix for Docker and OpenClaw integration*
+
+| [INFRA-004](INFRA-004_openclaw-tools-frontend.md) | OpenClaw Tools Frontend UI | Open |

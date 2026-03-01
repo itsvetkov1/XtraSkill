@@ -25,6 +25,7 @@ class LLMProvider(str, Enum):
     DEEPSEEK = "deepseek"
     CLAUDE_CODE_SDK = "claude-code-sdk"
     CLAUDE_CODE_CLI = "claude-code-cli"
+    OPENCLAW = "openclaw"
 
 
 @dataclass

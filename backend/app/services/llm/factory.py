@@ -15,6 +15,7 @@ from .gemini_adapter import GeminiAdapter
 from .deepseek_adapter import DeepSeekAdapter
 from .claude_agent_adapter import ClaudeAgentAdapter
 from .claude_cli_adapter import ClaudeCLIAdapter
+from .openclaw_adapter import OpenClawAdapter
 from app.config import settings
 
 
@@ -40,6 +41,7 @@ class LLMFactory:
         LLMProvider.DEEPSEEK: DeepSeekAdapter,
         LLMProvider.CLAUDE_CODE_SDK: ClaudeAgentAdapter,
         LLMProvider.CLAUDE_CODE_CLI: ClaudeCLIAdapter,
+        LLMProvider.OPENCLAW: OpenClawAdapter,
     }
 
     @classmethod
@@ -84,6 +86,15 @@ class LLMFactory:
                 model = settings.gemini_model
             elif provider_enum == LLMProvider.DEEPSEEK:
                 model = settings.deepseek_model
+
+        # OpenClaw needs additional config
+        if provider_enum == LLMProvider.OPENCLAW:
+            return adapter_class(
+                api_key=api_key,
+                model=model,
+                gateway_url=settings.openclaw_gateway_url,
+                agent_id=settings.openclaw_agent_id,
+            )
 
         return adapter_class(api_key=api_key, model=model)
 
@@ -134,6 +145,15 @@ class LLMFactory:
                 raise ValueError(
                     "ANTHROPIC_API_KEY not configured. "
                     "Claude Code providers require an Anthropic API key."
+                )
+            return key
+
+        if provider == LLMProvider.OPENCLAW:
+            key = settings.openclaw_api_key
+            if not key:
+                raise ValueError(
+                    "OPENCLAW_API_KEY not configured. "
+                    "Set OPENCLAW_API_KEY in environment or .env file."
                 )
             return key
 

@@ -52,6 +52,11 @@ class Settings(BaseSettings):
     # Skill configuration
     skill_path: str = ".claude/business-analyst"
 
+    # OpenClaw - Alternative LLM provider (INFRA-002)
+    openclaw_api_key: str = ""
+    openclaw_gateway_url: str = "http://localhost:8080"
+    openclaw_agent_id: str = "dev"
+
     # Logging configuration
     log_dir: str = "logs"
     log_level: str = "INFO"

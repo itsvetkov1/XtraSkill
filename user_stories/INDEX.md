@@ -21,10 +21,10 @@
 | Priority | Total | Open | Done | Wont Do |
 |----------|-------|------|------|---------|
 | Critical | 20 | 7 | 13 | 0 |
-| High | 23 | 16 | 6 | 1 |
+| High | 25 | 18 | 6 | 1 |
 | Medium | 14 | 11 | 1 | 2 |
 | Low | 4 | 3 | 1 | 0 |
-| **Total** | **61** | **37** | **21** | **3** |
+| **Total** | **63** | **39** | **21** | **3** |
 
 ---
 
@@ -186,3 +186,15 @@ Ideas beyond current scope. See [BACKLOG.md](BACKLOG.md) for details.
 ---
 
 *Last updated: 2026-02-25 — added 10 stories from assistant flow review, moved BUG-023 to Done, added SKILL- prefix*
+
+## Infra (Infrastructure)
+
+| ID | Title | Status |
+|----|-------|--------|
+| [INFRA-001](INFRA-001_docker-backend-setup.md) | Docker Backend Setup | Open |
+| [INFRA-002](INFRA-002_openclaw-llm-provider.md) | OpenClaw as LLM Provider | Open |
+| [INFRA-003](INFRA-003_openclaw-tools-integration.md) | OpenClaw Tools Integration | Open |
+
+---
+
+*Last updated: 2026-03-01 — added INFRA prefix for Docker and OpenClaw integration*

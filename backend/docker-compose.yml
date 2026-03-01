@@ -1,0 +1,72 @@
+# =============================================================================
+# XtraSkill Development Environment
+# =============================================================================
+# Run: docker-compose up --build
+# Access: http://localhost:8000
+# =============================================================================
+
+services:
+  # ---------------------------------------------------------------------------
+  # Backend API
+  # ---------------------------------------------------------------------------
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: xtra-backend
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=sqlite+aiosqlite:///./data/xtra.db
+      - SECRET_KEY=${SECRET_KEY:-dev-secret-key-change-in-production}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY:-}
+      - DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY:-}
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID:-}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET:-}
+      - MICROSOFT_CLIENT_ID=${MICROSOFT_CLIENT_ID:-}
+      - MICROSOFT_CLIENT_SECRET=${MICROSOFT_CLIENT_SECRET:-}
+      - OPENCLAW_API_KEY=${OPENCLAW_API_KEY:-}
+      - OPENCLAW_GATEWAY_URL=${OPENCLAW_GATEWAY_URL:-http://host.docker.internal:8080}
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+    depends_on:
+      - openclaw
+    networks:
+      - xtra-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ---------------------------------------------------------------------------
+  # OpenClaw Gateway (optional - for INFRA-002)
+  # ---------------------------------------------------------------------------
+  openclaw:
+    image: openclaw/openclaw:latest
+    container_name: xtra-openclaw
+    ports:
+      - "8080:8080"
+    environment:
+      - OPENCLAW_CONFIG=/app/openclaw.json
+    volumes:
+      - ../openclaw-data:/app
+    networks:
+      - xtra-network
+    restart: unless-stopped
+
+# -----------------------------------------------------------------------------
+# Networks
+# -----------------------------------------------------------------------------
+networks:
+  xtra-network:
+    driver: bridge
+
+# -----------------------------------------------------------------------------
+# Volumes (for persistent data)
+# -----------------------------------------------------------------------------
+volumes:
+  xtra-data:
